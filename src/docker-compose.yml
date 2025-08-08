@@ -15,6 +15,14 @@ services:
       - database:/home/app
     restart: always
 
+  nginx:
+    container_name: nginx
+    build: nginx/
+    ports:
+      - "5000:443"
+    volumes:
+      - web:/var/www/html
+    restart: always
 
 volumes:
   shared:
@@ -28,5 +36,12 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./volumes/database/
+      device: ../volumes/database/
+      o: bind
+
+  web:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../volumes/web/
       o: bind
