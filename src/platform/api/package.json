@@ -1,7 +1,7 @@
 {
-  "name": "app",
+  "name": "platform-api",
   "version": "1.0.0",
-  "description": "Test module for fastify configs",
+  "description": "Platform api module",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",

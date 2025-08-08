@@ -1,21 +1,13 @@
 name: ft_transcendence
 
 services:
-  test:
-    container_name: test
-    build: test_container/
-    volumes:
-      - shared:/home/app
-    restart: always
-    ports:
-      - "8082:8080"
-
   platform:
     container_name: platform
     build: platform/
     ports:
       - "8080:443"
     volumes:
+      - platform-api:/home/app
       - database:/home/db
       - web:/var/www/html
     networks:
@@ -27,6 +19,8 @@ services:
     build: game/
     ports:
       - "8081:443"
+    volumes:
+      - game-api:/home/app
     networks:
       - apis
     restart: always
@@ -41,11 +35,18 @@ services:
     restart: always
 
 volumes:
-  shared:
+  game-api:
     driver: local
     driver_opts:
       type: none
-      device: ./test_container/shared/
+      device: ./game/api/
+      o: bind
+
+  platform-api:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./platform/api/
       o: bind
 
   database:
