@@ -3,18 +3,17 @@ name: ft_transcendence
 services:
   test:
     container_name: test
-    build: test_container/
+    build: webapp/
     volumes:
       - shared:/home/app
     restart: always
     ports:
       - "8080:8080"
 
-
 volumes:
   shared:
     driver: local
     driver_opts:
       type: none
-      device: ./test_container/shared/
+      device: ./webapp/shared/
       o: bind
