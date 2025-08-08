@@ -11,6 +11,8 @@ services:
   sqlite:
     container_name: sqlite
     build: sqlite/
+    volumes:
+      - database:/home/app
     restart: always
 
 
@@ -20,4 +22,11 @@ volumes:
     driver_opts:
       type: none
       device: ./test_container/shared/
+      o: bind
+
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./volumes/database/
       o: bind
