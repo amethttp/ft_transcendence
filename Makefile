@@ -86,8 +86,12 @@ dpl: bld run
 	@$(PRINT) "$(GREEN)The $(WHITE_BOLD)$(TEST)$(GREEN) container deployed successfully$(RESET)"
 
 interact:
-	@$(PRINT) "$(PINK)Interacting with $(WHITE_BOLD)$(TEST)$(PINK) container with a $(WHITE_BOLD)bash$(PINK) shell...$(RESET)"
-	@$(DOCKER) exec -it $$(docker ps -aq --filter="name=$(TEST)") sh
+	@while [ -z "$$TARGET" ]; do \
+		$(PRINT) -n "$(PINK)Type the container to interact with $(WHITE_BOLD)(sqlite/test)$(PINK): $(RESET)"; \
+		read -r -p "" TARGET; \
+	done; \
+	$(PRINT) "$(PINK)Interacting with $(WHITE_BOLD)$$TARGET$(PINK) container with a $(WHITE_BOLD)bash$(PINK) shell...$(RESET)"; \
+	$(DOCKER) exec -it $$(docker ps -aq --filter="name=($$TARGET)") /bin/sh;
 
 stp:
 	@$(PRINT) "$(PINK)Stopping $(WHITE_BOLD)$(TEST)$(PINK) container...$(RESET)"

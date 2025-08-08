@@ -8,6 +8,11 @@ services:
       - shared:/home/app
     restart: always
 
+  sqlite:
+    container_name: sqlite
+    build: sqlite/
+    restart: always
+
 
 volumes:
   shared:
