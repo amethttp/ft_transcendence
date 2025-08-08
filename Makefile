@@ -33,6 +33,9 @@ YAML = $(SRC)docker-compose.yml
 
 TEST=test
 TEST_DIR=$(SRC)test_container/
+VOLUME_DIR=volumes/
+DATABASE_VOLUME=$(VOLUME_DIR)database/
+WEB_VOLUME=$(VOLUME_DIR)web/
 # ------------------ #
 
 
@@ -56,8 +59,8 @@ list:
 	@$(DOCKER) network ls
 
 up:
-	# @$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
-	# @$(MKDIR) $(DATABASE_VOLUME) $(WEBSITE_VOLUME)
+	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
+	@$(MKDIR) $(DATABASE_VOLUME) $(WEB)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(YAML) up -d --build
 
@@ -68,7 +71,6 @@ down:
 fdown:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE) and $(WHITE_BOLD)volumes$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(YAML) down -v
-	# @$(RM) $(VOLUMES_PATH)
 
 log:
 	@$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$(TEST)$(PINK) logs...$(RESET)"
@@ -86,8 +88,12 @@ dpl: bld run
 	@$(PRINT) "$(GREEN)The $(WHITE_BOLD)$(TEST)$(GREEN) container deployed successfully$(RESET)"
 
 interact:
-	@$(PRINT) "$(PINK)Interacting with $(WHITE_BOLD)$(TEST)$(PINK) container with a $(WHITE_BOLD)bash$(PINK) shell...$(RESET)"
-	@$(DOCKER) exec -it $$(docker ps -aq --filter="name=$(TEST)") sh
+	@while [ -z "$$TARGET" ]; do \
+		$(PRINT) -n "$(PINK)Type the container to interact with $(WHITE_BOLD)(sqlite/test)$(PINK): $(RESET)"; \
+		read -r -p "" TARGET; \
+	done; \
+	$(PRINT) "$(PINK)Interacting with $(WHITE_BOLD)$$TARGET$(PINK) container with a $(WHITE_BOLD)bash$(PINK) shell...$(RESET)"; \
+	$(DOCKER) exec -it $$(docker ps -aq --filter="name=($$TARGET)") /bin/sh;
 
 stp:
 	@$(PRINT) "$(PINK)Stopping $(WHITE_BOLD)$(TEST)$(PINK) container...$(RESET)"
@@ -103,7 +109,6 @@ clean: down
 fclean: fdown
 	@$(PRINT) "$(PINK)Removing $(WHITE_BOLD)cache$(PINK)...$(RESET)"
 	@$(DOCKER) system prune -fa
-	# @$(RM) $(VOLUMES_PATH)
 	@$(PRINT) "$(GREEN)Cache removed successfully$(RESET)"
 
 # ------------------ #

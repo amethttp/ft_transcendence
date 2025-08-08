@@ -8,7 +8,37 @@ services:
       - shared:/home/app
     restart: always
     ports:
-      - "8080:8080"
+      - "8082:8080"
+
+  platform:
+    container_name: platform
+    build: platform/
+    ports:
+      - "8080:443"
+    volumes:
+      - database:/home/db
+      - web:/var/www/html
+    networks:
+      - apis
+    restart: always
+
+  game:
+    container_name: game
+    build: game/
+    ports:
+      - "8081:443"
+    networks:
+      - apis
+    restart: always
+
+  nginx:
+    container_name: nginx
+    build: nginx/
+    ports:
+      - "4321:443"
+    volumes:
+      - web:/var/www/html
+    restart: always
 
 volumes:
   shared:
@@ -17,3 +47,21 @@ volumes:
       type: none
       device: ./webapp/shared/
       o: bind
+
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../volumes/database/
+      o: bind
+
+  web:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../volumes/web/
+      o: bind
+
+networks:
+  apis:
+    driver: bridge
