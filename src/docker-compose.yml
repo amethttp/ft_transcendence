@@ -8,18 +8,32 @@ services:
       - shared:/home/app
     restart: always
 
-  sqlite:
-    container_name: sqlite
-    build: sqlite/
+  platform:
+    container_name: platform
+    build: platform/
+    ports:
+      - "8080:443"
     volumes:
-      - database:/home/app
+      - database:/home/db
+      - web:/var/www/html
+    networks:
+      - apis
+    restart: always
+
+  game:
+    container_name: game
+    build: game/
+    ports:
+      - "8081:443"
+    networks:
+      - apis
     restart: always
 
   nginx:
     container_name: nginx
     build: nginx/
     ports:
-      - "5000:443"
+      - "4321:443"
     volumes:
       - web:/var/www/html
     restart: always
@@ -45,3 +59,7 @@ volumes:
       type: none
       device: ../volumes/web/
       o: bind
+
+networks:
+  apis:
+    driver: bridge
