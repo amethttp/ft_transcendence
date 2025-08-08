@@ -3,7 +3,7 @@ name: ft_transcendence
 services:
   test:
     container_name: test
-    build: webapp/
+    build: test_container/
     volumes:
       - shared:/home/app
     restart: always
@@ -45,7 +45,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./webapp/shared/
+      device: ./test_container/shared/
       o: bind
 
   database:
