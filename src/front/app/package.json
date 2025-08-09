@@ -1,0 +1,19 @@
+{
+  "name": "amethpong-front",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "author": "amethttp",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "lint:format": "prettier --check ."
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "prettier": "^3.3.3"
+  }
+}
