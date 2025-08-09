@@ -9,7 +9,7 @@ services:
     volumes:
       - platform-api:/home/app
       - database:/home/db
-      - web:/var/www/html
+      - uploads:/home/uploads
     networks:
       - apis
     restart: always
@@ -31,7 +31,15 @@ services:
     ports:
       - "4321:443"
     volumes:
-      - web:/var/www/html
+      - uploads:/var/www/uploads
+      - front:/var/www/html
+    restart: always
+
+  front:
+    container_name: front
+    build: front/
+    volumes:
+      - front:/home/app
     restart: always
 
 volumes:
@@ -56,11 +64,18 @@ volumes:
       device: ../volumes/database/
       o: bind
 
-  web:
+  uploads:
     driver: local
     driver_opts:
       type: none
-      device: ../volumes/web/
+      device: ../volumes/uploads/
+      o: bind
+
+  front:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./front/app/
       o: bind
 
 networks:
