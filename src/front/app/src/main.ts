@@ -1,3 +1,3 @@
-import { renderApp } from "./app/app.js";
+import { renderApp } from "./landing/app.ts";
 
 renderApp();
