@@ -73,7 +73,7 @@ export class Router {
       return r.path === path;
     });
     if (!route) {
-      this._outlet.innerHTML = "<h1>404 Not Found</h1>";
+      this._outlet.innerHTML = '<p class="text-red-600">404 Not Found</p>';
       this._currentModule = null;
       return;
     }
