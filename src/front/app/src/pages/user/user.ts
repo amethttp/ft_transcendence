@@ -1,6 +1,6 @@
 import type { AmethComponent } from "../../framework/AmethComponent";
 
-export default class User implements AmethComponent {
+class UserComponent implements AmethComponent {
   template = () => import("./user.html?raw");
   init() {
     console.log("Entro init User!!!");
@@ -9,3 +9,5 @@ export default class User implements AmethComponent {
     console.log("Entro viewInit User!!!");
   }
 }
+
+export default UserComponent;

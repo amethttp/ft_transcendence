@@ -54,7 +54,7 @@ export class Router {
         e.preventDefault();
         const href = anchor.href;
         const newUrl = new URL(href);
-        if (newUrl.pathname && href != location.pathname) {
+        if (newUrl.pathname && href != location.href) {
           history.pushState(null, "", href);
           this.navigate(newUrl.pathname);
         }
@@ -69,9 +69,7 @@ export class Router {
       await this._currentModule.destroy();
     }
 
-    const route = this._routes.find((r) => {
-      return r.path === path;
-    });
+    const route = this._routes.find(r => r.path === path);
     if (!route) {
       this._outlet.innerHTML = '<p class="text-red-600">404 Not Found</p>';
       this._currentModule = null;

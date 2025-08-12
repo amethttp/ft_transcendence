@@ -1,6 +1,7 @@
 export interface AmethComponent {
-  init: () => void;
-  destroy?: () => Promise<void>;
   template?: () => Promise<typeof import("*.html?raw")>;
+  init: () => void;
   viewInit?: () => void;
+  destroy?: () => Promise<void>;
+  
 }
