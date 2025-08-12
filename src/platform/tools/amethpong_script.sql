@@ -59,7 +59,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     email TEXT NOT NULL,
     username TEXT NOT NULL,
-    avatar TEXT DEFAULT "/uploads/default/amethyst.jpg",
+    avatar TEXT,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
     auth_id INTEGER NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS user_relation (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    alias TEXT DEFAULT "Same species",
+    alias TEXT,
     type INTEGER NOT NULL,
     owner_user_id INTEGER NOT NULL,
     receiver_user_id INTEGER NOT NULL,
