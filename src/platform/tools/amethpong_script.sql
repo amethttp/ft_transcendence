@@ -73,6 +73,8 @@ CREATE TABLE
     type INTEGER NOT NULL,
     owner_user_id INTEGER NOT NULL,
     receiver_user_id INTEGER NOT NULL,
+    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    update_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (type) REFERENCES e_user_relation_type (value),
     FOREIGN KEY (owner_user_id) REFERENCES user (id),
     FOREIGN KEY (receiver_user_id) REFERENCES user (id)
@@ -108,11 +110,11 @@ CREATE TABLE
     name TEXT NOT NULL,
     token TEXT NOT NULL,
     is_visible BOOLEAN NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    finish_time TEXT,
+    tournament_round_id INTEGER,
     state INTEGER NOT NULL,
     type INTEGER NOT NULL,
-    tournament_round_id INTEGER,
+    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    finish_time TEXT,
     FOREIGN KEY (state) REFERENCES e_match_state (value),
     FOREIGN KEY (type) REFERENCES e_match_type (value),
     FOREIGN KEY (tournament_round_id) REFERENCES tournament_round (id)
