@@ -1,8 +1,8 @@
 import { Database } from 'sqlite3';
-import { User } from '../entities/user_entity.js';
-import { BaseRepository } from './base/base_repository.js';
+import { User } from '../entities/User.js';
+import { ARepository } from './ARepository.js';
 
-export class UserRepository extends BaseRepository<User> {
+export class UserRepository extends ARepository<User> {
   constructor(db: Database) {
     super(db, 'user');
   }

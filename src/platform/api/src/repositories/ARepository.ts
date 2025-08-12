@@ -1,6 +1,6 @@
 import { Database } from 'sqlite3';
 
-export abstract class BaseRepository<T> {
+export abstract class ARepository<T> {
   protected tableName: string;
   constructor(protected db: Database, tableName: string) {
     this.tableName = tableName;

@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import type { UserDto } from '../services/dtos/user_dto.js';
-import { UserService } from '../services/user_service.js';
+import type { UserDto } from '../services/UserService/models/UserDto.js';
+import { UserService } from '../services/UserService/UserService.js';
 
 export class UserController {
   constructor(private userService: UserService) { }

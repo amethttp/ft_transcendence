@@ -1,6 +1,6 @@
-import { User } from '../entities/user_entity.js';
-import type { UserDto } from './dtos/user_dto.js';
-import { UserRepository } from '../repositories/user_repository.js';
+import { User } from '../../entities/User.js';
+import type { UserDto } from './models/UserDto.js';
+import { UserRepository } from '../../repositories/UserRepository.js';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
