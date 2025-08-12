@@ -1,43 +1,19 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "es2017",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
-
-    // Other Outputs
+    "target": "ES2020", // modern enough for Node 14+
+    "module": "CommonJS", // match your package.json "type"
+    "rootDir": "src", // source folder
+    "outDir": "dist", // output folder
+    "strict": true, // recommended strict checks
+    "esModuleInterop": true, // support import commonjs modules
+    "moduleResolution": "node", // classic node resolution
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true, // skip checking .d.ts files to speed up
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Recommended Options
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    // "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
+    "declaration": true // generate typings if needed
   },
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

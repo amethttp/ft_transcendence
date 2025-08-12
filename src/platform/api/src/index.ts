@@ -1,6 +1,23 @@
 import fastify from "fastify";
+import UserController from "./controllers/UserController";
 
 const server = fastify();
+
+server.get("/user", async (request, reply) => {
+  // const uc = new UserController();
+  // uc.register(request, reply);
+  return "pong\n";
+});
+
+server.post("/user", async (request, reply) => {
+  const uc = new UserController();
+  uc.register(request, reply);
+  return "pong\n";
+});
+
+server.get("/pings", async (request, reply) => {
+  return "pong\n";
+});
 
 server.get("/ping", async (request, reply) => {
   return "pong\n";

@@ -59,7 +59,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     email TEXT NOT NULL,
     username TEXT NOT NULL,
-    avatar TEXT,
+    avatar TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
     auth_id INTEGER NOT NULL,
