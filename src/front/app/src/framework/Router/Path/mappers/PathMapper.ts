@@ -1,4 +1,4 @@
-import type { Route } from "../../Router";
+import type { Route } from "../../Route/Route";
 import Path from "../Path";
 import PathHelper from "../helpers/PathHelper";
 
@@ -9,7 +9,7 @@ export default class PathMapper {
     const pathParts = PathHelper.getParts(pathName);
 
     routeParts.forEach((routePart, i) => {
-      if (routePart.startsWith(':'))
+      if (routePart.startsWith(":"))
         path.params.set(routePart.slice(1), pathParts[i]);
     });
 

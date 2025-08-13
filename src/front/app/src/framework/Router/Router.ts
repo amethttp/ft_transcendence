@@ -2,15 +2,7 @@ import type { AmethComponent } from "../AmethComponent";
 import PathHelper from "./Path/helpers/PathHelper";
 import PathMapper from "./Path/mappers/PathMapper";
 import Path from "./Path/Path";
-
-type Module = {
-  default: any;
-};
-
-export type Route = {
-  path: string;
-  component?: () => Promise<Module>;
-};
+import type { Module, Route } from "./Route/Route";
 
 export class Router {
   private _routes: Route[];
@@ -19,7 +11,6 @@ export class Router {
   private _currentPath: Path;
 
   constructor(selector: string, routes: Route[]) {
-    console.log("Constructing router...");
     this._selector = selector;
     this._routes = routes;
     this._currentComponent = null;
@@ -33,14 +24,21 @@ export class Router {
 
   private isOtherEvent(e: MouseEvent, anchor: HTMLAnchorElement): boolean {
     return (
-      e.metaKey || e.ctrlKey || e.shiftKey || e.altKey
-      || (e.button !== 0)
-      || (anchor.target && anchor.target.toLowerCase() !== "_self")
-      || (anchor.origin !== location.origin)
-      || (anchor.hasAttribute("download") || !anchor.href.startsWith(location.origin))
-      || (/^(mailto:|tel:|javascript:)/i.test(anchor.href))
-      || !!(anchor.dataset["linkType"] && anchor.dataset["linkType"].includes("forceReload"))
-    )
+      e.metaKey ||
+      e.ctrlKey ||
+      e.shiftKey ||
+      e.altKey ||
+      e.button !== 0 ||
+      (anchor.target && anchor.target.toLowerCase() !== "_self") ||
+      anchor.origin !== location.origin ||
+      anchor.hasAttribute("download") ||
+      !anchor.href.startsWith(location.origin) ||
+      /^(mailto:|tel:|javascript:)/i.test(anchor.href) ||
+      !!(
+        anchor.dataset["linkType"] &&
+        anchor.dataset["linkType"].includes("forceReload")
+      )
+    );
   }
 
   private listen() {
@@ -55,7 +53,7 @@ export class Router {
         const href = anchor.href;
         const newUrl = new URL(href);
         if (newUrl.pathname && href != location.href) {
-          this.navigateByUrl(newUrl)
+          this.navigateByUrl(newUrl);
         }
       }
     });
@@ -67,7 +65,10 @@ export class Router {
     if (this._currentComponent && this._currentComponent?.destroy)
       await this._currentComponent.destroy();
 
-    const route = this._routes.find((r) => PathHelper.isPathMatching(r.path, path));
+    const route = this._routes.find(
+      (r) =>
+        PathHelper.isPathMatching(r.path, path) && (!r.guard || r.guard(r)),
+    );
     if (route) {
       this._currentPath = PathMapper.fromRoutePath(route, path);
       this._currentComponent = null;
@@ -76,9 +77,9 @@ export class Router {
         this._currentComponent = new module.default();
         this._currentComponent?.init(this._selector, this);
       }
-    }
-    else {
-      document.getElementById(this._selector)!.innerHTML = '<p class="text-red-600">404 Not Found</p>';
+    } else {
+      document.getElementById(this._selector)!.innerHTML =
+        '<p class="text-red-600">404 Not Found</p>';
       this._currentComponent = null;
       return;
     }
