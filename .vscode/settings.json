@@ -15,5 +15,10 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 2
   },
-  "editor.detectIndentation": false
+  "[css]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
+  "editor.detectIndentation": false,
+  "css.lint.unknownAtRules": "ignore",
 }
