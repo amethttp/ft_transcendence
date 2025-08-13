@@ -65,11 +65,14 @@ export class Router {
     if (this._currentComponent && this._currentComponent?.destroy)
       await this._currentComponent.destroy();
 
-    const route = this._routes.find(
-      (r) =>
-        PathHelper.isPathMatching(r.path, path) && (!r.guard || r.guard(r)),
-    );
+    const route = this._routes.find((r) => {
+      return (
+        (PathHelper.isPathMatching(r.path, path) && (!r.guard || r.guard(r))) ||
+        r.path === "*"
+      );
+    });
     if (route) {
+      if (route.redirect) return this.navigateByPath(route.redirect);
       this._currentPath = PathMapper.fromRoutePath(route, path);
       this._currentComponent = null;
       if (route.component) {

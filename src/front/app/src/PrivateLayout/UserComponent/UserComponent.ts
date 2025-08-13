@@ -1,8 +1,8 @@
 import { AmethComponent } from "../../framework/AmethComponent";
-import Sidebar from "../../layouts/dashboard/sidebar/sidebar";
+import Sidebar from "../components/SidebarComponent/SidebarComponent";
 
 export default class UserComponent extends AmethComponent {
-  template = () => import("./user.html?raw");
+  template = () => import("./UserComponent.html?raw");
   protected sidebar: Sidebar;
 
   constructor() {

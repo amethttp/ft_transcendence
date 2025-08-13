@@ -1,28 +1,24 @@
-import authGuard from "./authGuard/authGuard";
+import authGuard from "./utils/auth/authGuard/authGuard";
 import type { Route } from "./framework/Router/Route/Route";
 import { Router } from "./framework/Router/Router";
 
 const routes: Route[] = [
   {
     path: "/",
-    component: () => import("./pages/landing/landing"),
+    component: () => import("./PrivateLayout/UserComponent/UserComponent"),
     guard: authGuard,
   },
   {
     path: "/",
-    component: () => import("./pages/user/user"),
+    component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
   },
   {
-    path: "/landing",
-    component: () => import("./pages/landing/landing"),
+    path: "/404",
+    component: () => import("./PublicLayout/NotFound/NotFound"),
   },
   {
-    path: "/user",
-    component: () => import("./pages/user/user"),
-  },
-  {
-    path: "/user/:userId",
-    component: () => import("./pages/user/user"),
+    path: "*",
+    redirect: "/404",
   },
 ];
 
