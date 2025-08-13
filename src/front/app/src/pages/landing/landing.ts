@@ -1,11 +1,8 @@
-import type { AmethComponent } from "../../framework/AmethComponent";
+import { AmethComponent } from "../../framework/AmethComponent";
 
-class LandingComponent implements AmethComponent {
+class LandingComponent extends AmethComponent {
   template = () => import("./landing.html?raw");
-  init() {
-    console.log("Entro init Landing!!!");
-  }
-  viewInit() {
+  afterInit() {
     console.log("Entro viewInit Landing!!!");
   }
 }

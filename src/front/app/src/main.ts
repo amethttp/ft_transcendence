@@ -1,6 +1,6 @@
-import { Router } from "./framework/Router";
+import { Router, type Route } from "./framework/Router/Router";
 
-const router = new Router("app", [
+const routes: Route[] = [
   {
     path: "/",
     component: () => import("./pages/landing/landing"),
@@ -13,6 +13,10 @@ const router = new Router("app", [
     path: "/user",
     component: () => import("./pages/user/user"),
   },
-]);
+  {
+    path: "/user/:userId",
+    component: () => import("./pages/user/user"),
+  },
+];
 
-router.listen();
+new Router("app", routes);
