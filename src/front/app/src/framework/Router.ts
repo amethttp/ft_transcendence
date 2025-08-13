@@ -1,4 +1,4 @@
-import type { AmethComponent } from "./AmethComponent.ts";
+import type { AmethComponent } from "./AmethComponent";
 
 type Module = {
   default: any;
