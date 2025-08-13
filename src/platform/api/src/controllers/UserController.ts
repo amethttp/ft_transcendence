@@ -2,10 +2,18 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import type { UserDto } from "../services/UserService/models/UserDto";
 import { UserService } from "../services/UserService/UserService";
 
+type pingUserRequest = { Params: { userId: string } };
+
 export default class UserController {
   private userService: UserService;
   constructor() {
     this.userService = new UserService();
+  }
+
+  static pingUser(request: FastifyRequest<pingUserRequest>, reply: FastifyReply) {
+    const userId = request.params.userId;
+    console.log('User ID:', userId);
+    reply.status(200).send(userId + ': ping!\nServer: pong!');
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {
