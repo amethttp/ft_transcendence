@@ -26,4 +26,23 @@ export default class UserController {
       });
     }
   }
+
+  async test(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      console.log("INTO TEST");
+      console.log("CONTR RES:", await this.userService.test());
+
+      return reply.code(201).send({
+        success: true,
+        message: "Created",
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        error: "Bad Request",
+      });
+    }
+  }
 }
+
+

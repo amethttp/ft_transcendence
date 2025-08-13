@@ -7,10 +7,10 @@ export class UserRepository extends ARepository<User> {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.find("email=?", email);
+    return this.findByCondition("email", email);
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.find("username=?", username);
+    return this.findByCondition("username", username);
   }
 }

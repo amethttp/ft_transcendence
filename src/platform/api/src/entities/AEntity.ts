@@ -1,3 +1,3 @@
-export abstract class Entity {
+export abstract class AEntity {
   static readonly tableName: string;
 }

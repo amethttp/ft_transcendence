@@ -59,7 +59,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     email TEXT NOT NULL,
     username TEXT NOT NULL,
-    avatar TEXT NOT NULL,
+    avatar_url TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
     auth_id INTEGER NOT NULL,
@@ -166,8 +166,8 @@ INSERT INTO auth (password_id)
   SELECT id FROM password ORDER BY id DESC LIMIT 1;
 
 
-INSERT INTO user (email, username, auth_id)
-  SELECT 'cfidalgo@gmail.com', 'cfidalgo', id FROM auth ORDER BY id DESC LIMIT 1;
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'cfidalgo@gmail.com', 'cfidalgo', 'testAvatar', id FROM auth ORDER BY id DESC LIMIT 1;
 
 INSERT INTO match (name, token, is_visible, state, type) VALUES ('partidaza', 'a35Fda1', 0, 2, 2);
 

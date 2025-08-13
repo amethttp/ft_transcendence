@@ -3,10 +3,11 @@ import UserController from "./controllers/UserController";
 
 const server = fastify();
 
-server.get("/user", async (request, reply) => {
-  // const uc = new UserController();
-  // uc.register(request, reply);
-  return "pong\n";
+server.get("/test", async (request, reply) => {
+  const uc = new UserController();
+  await uc.test(request, reply);
+  console.log("AfterTest");
+  return "OK\n";
 });
 
 server.post("/user", async (request, reply) => {

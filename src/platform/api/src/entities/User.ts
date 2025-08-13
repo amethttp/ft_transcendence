@@ -1,13 +1,13 @@
-import { Entity } from "./Entity";
+import { AEntity } from "./AEntity";
+import { Auth } from "./Auth";
 
-export class User extends Entity {
+export class User extends AEntity {
   static readonly tableName = "user";
   id!: number;
   email!: string;
-  username?: string;
-  displayName!: string;
+  username!: string;
   avatarUrl!: string;
   creationTime!: Date;
   updateTime!: Date;
-  authId!: number; // TODO: Add auth entity
+  auth!: Auth;
 }
