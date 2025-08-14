@@ -5,5 +5,5 @@ export class Auth extends AEntity {
   id!: number;
   lastLogin!: Date;
   googleAuthPH?: number;
-  password?: string
+  password?: string;
 }

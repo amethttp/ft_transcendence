@@ -1,7 +1,7 @@
-import { User } from "../../entities/User";
-import { Auth } from "../../entities/Auth";
-import type { UserDto } from "./models/UserDto";
-import { UserRepository } from "../../repositories/UserRepository";
+import { User } from "../../domain/entities/User";
+import { Auth } from "../../domain/entities/Auth";
+import type { UserDto } from "../../presentation/models/UserDto";
+import { UserRepository } from "../../infrastructure/repositories/sqlite/UserRepository";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -22,23 +22,22 @@ export class UserService {
   }
 
   async test(): Promise<string> {
-
     const userData = {
       email: "test@testemail.com",
       username: "testUser",
-      avatarUrl: "testAvatar"
+      avatarUrl: "testAvatar",
     } as UserDto;
 
     const userAuth: Auth = {
       id: 1,
       lastLogin: new Date("today"),
-      password: "1234"
+      password: "1234",
     };
 
     const createUserData: Partial<User> = {
-      auth: userAuth, 
-      ...userData
-    }
+      auth: userAuth,
+      ...userData,
+    };
 
     const create = await this.userRepository.create(createUserData);
     const findId = await this.userRepository.findById(1);

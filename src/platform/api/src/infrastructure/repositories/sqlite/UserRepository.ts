@@ -1,9 +1,10 @@
-import { User } from "../entities/User";
+import { User } from "../../../domain/entities/User";
 import { ARepository } from "./ARepository";
+import {IUserRepository} from "../../../domain/repositories/IUserRepository"
 
-export class UserRepository extends ARepository<User> {
+export class UserRepository extends ARepository<User> implements IUserRepository {
   constructor() {
-    super(User.tableName);
+    super(User.tableName, User.entitySchema);
   }
 
   async findByEmail(email: string): Promise<User | null> {
