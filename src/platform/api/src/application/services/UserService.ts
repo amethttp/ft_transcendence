@@ -10,6 +10,15 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
+  async getUserByUsername(username: string): Promise<User | null> {
+    const user: User | null = await this.userRepository.findByUsername(username);
+
+    if (user === null)
+      throw 'User not found';
+
+    return user;
+  }
+
   async createUser(userData: UserDto): Promise<User | null> {
     // validate INFO logic etc...
 

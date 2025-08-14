@@ -1,18 +1,16 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest } from "fastify";
 import UserController from "../controllers/UserController";
 import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 
 async function userRoutes(server: FastifyInstance) {
-  server.get('/test', async (request, reply) => {
+  server.get('/ping/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     const userRepository = new SQLiteUserRepository();
     const userController = new UserController(userRepository);
 
-    await userController.test(request, reply);
+    await userController.pingUser(request, reply);
 
     return 'OK!';
   });
-
-  server.get('/user/:userId', UserController.pingUser);
 
   server.post("/user", (request, reply) => {
     const userRepository = new SQLiteUserRepository();

@@ -3,19 +3,13 @@ import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
-type pingUserRequest = { Params: { userId: string } };
+type pingUserParams = { Params: { username: string } };
 
 export default class UserController {
   private userService: UserService;
 
   constructor(userRepository: IUserRepository) {
     this.userService = new UserService(userRepository);
-  }
-
-  static pingUser(request: FastifyRequest<pingUserRequest>, reply: FastifyReply) {
-    const userId = request.params.userId;
-    console.log('User ID:', userId);
-    reply.status(200).send(userId + ': ping!\nServer: pong!');
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {
@@ -36,20 +30,15 @@ export default class UserController {
     }
   }
 
-  async test(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      console.log("INTO TEST");
-      console.log("CONTR RES:", await this.userService.test());
-
-      return reply.code(201).send({
+  async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    return this.userService.getUserByUsername(request.params.username)
+      .then(user => reply.code(200).send({
         success: true,
-        message: "Created",
-      });
-    } catch (error) {
-      return reply.code(400).send({
+        message: user?.username + ': I\'m alive!',
+      }))
+      .catch(err => reply.code(404).send({
         success: false,
-        error: "Bad Request",
-      });
-    }
+        error: 'The ping echoed nowhere...: ' + err,
+      }));
   }
 }
