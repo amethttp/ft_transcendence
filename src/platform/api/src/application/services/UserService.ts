@@ -1,12 +1,13 @@
 import { User } from "../../domain/entities/User";
 import { Auth } from "../../domain/entities/Auth";
 import type { UserDto } from "../models/UserDto";
-import { UserRepository } from "../../infrastructure/repositories/sqlite/UserRepository";
+import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
 export class UserService {
-  private userRepository: UserRepository;
-  constructor() {
-    this.userRepository = new UserRepository();
+  private userRepository: IUserRepository;
+
+  constructor(userRepository: IUserRepository) {
+    this.userRepository = userRepository;
   }
 
   async createUser(userData: UserDto): Promise<User | null> {

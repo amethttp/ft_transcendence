@@ -1,16 +1,17 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
+import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
 export default class UserController {
   private userService: UserService;
-  constructor() {
-    this.userService = new UserService();
+
+  constructor(userRepository: IUserRepository) {
+    this.userService = new UserService(userRepository);
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {
     try {
-      console.log("AMETHHHH");
       const userData = request.body as UserDto;
       const user = await this.userService.createUser(userData);
 

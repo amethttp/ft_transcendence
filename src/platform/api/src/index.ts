@@ -1,18 +1,21 @@
 import fastify from "fastify";
 import UserController from "./infrastructure/controllers/UserController";
+import { SQLiteUserRepository } from "./infrastructure/repositories/sqlite/SQLiteUserRepository";
 
 const server = fastify();
 
 server.get("/test", async (request, reply) => {
-  const uc = new UserController();
-  await uc.test(request, reply);
+  const userRepository = new SQLiteUserRepository();
+  const userController = new UserController(userRepository);
+  await userController.test(request, reply);
   console.log("AfterTest");
   return "OK\n";
 });
 
 server.post("/user", async (request, reply) => {
-  const uc = new UserController();
-  uc.register(request, reply);
+  const userRepository = new SQLiteUserRepository();
+  const userController = new UserController(userRepository);
+  userController.register(request, reply);
   return "pong\n";
 });
 

@@ -1,11 +1,12 @@
 import { Database, Statement } from "sqlite3";
 import { DatabaseManager } from "../../database/databaseManager";
 import { DatabaseMapper } from "../../database/databaseMapper";
+import { IBaseRepository } from "../../../domain/repositories/IBaseRepository";
 
-export abstract class ARepository<T> {
-  protected _db!: Database;
-  protected _tableName: string;
-  protected mapper: DatabaseMapper;
+export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
+  private _db!: Database;
+  private _tableName: string;
+  private mapper: DatabaseMapper;
 
   constructor(tableName: string, entitySchema: { [key: string]: string }) {
     this._db = DatabaseManager.getInstance("/home/db/amethpong.db");
@@ -54,17 +55,22 @@ export abstract class ARepository<T> {
 
   // --------------------------------- CRUD --------------------------------- //
 
-  async findById(id: number): Promise<T | null> {
+  public async findById(id: number): Promise<T | null> {
     const sql = `SELECT * FROM ${this._tableName} WHERE id=?`;
     return this.dbGet(sql, [id]);
   }
 
-  async findAll(): Promise<T[] | null> {
+  public async findByCondition(toSearch: string, arg: string): Promise<T | null> {
+    const sql = `SELECT * FROM ${this._tableName} WHERE ${toSearch}=?`;
+    return this.dbGet(sql, [arg]);
+  }
+
+  public async findAll(): Promise<T[] | null> {
     const sql = `SELECT * FROM ${this._tableName}`;
     return this.dbAll(sql, []);
   }
 
-  async create(data: Partial<T>): Promise<T | null> {
+  public async create(data: Partial<T>): Promise<T | null> {
     const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data)); // TO DO: use reduce for mapper func
     const keys: string[] = Object.keys(dbRecord);
     const values: any[] = Object.values(dbRecord);
@@ -82,7 +88,7 @@ export abstract class ARepository<T> {
   }
 
   // no need to check for existence you always want to update it to this time no matter input
-  async update(id: number, data: Partial<T>): Promise<T | null> {
+  public async update(id: number, data: Partial<T>): Promise<T | null> {
     const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data));
     dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const filteredRecord = Object.entries(dbRecord)
@@ -104,19 +110,12 @@ export abstract class ARepository<T> {
     return await this.findById(id);
   }
 
-  async delete(id: number): Promise<boolean> {
+  public async delete(id: number): Promise<boolean> {
     const sql = `DELETE FROM ${this._tableName} WHERE id=?`;
     const stmt = this._db.prepare(sql);
     let affectedId = await this.dbStmtRunAlter(stmt, [id]);
     stmt.finalize();
 
     return affectedId !>= 0;
-  }
-
-  // --------------------------------- Generic Find method --------------------------------- //
-
-  protected async findByCondition(toSearch: string, arg: string): Promise<T | null> {
-    const sql = `SELECT * FROM ${this._tableName} WHERE ${toSearch}=?`;
-    return this.dbGet(sql, [arg]);
   }
 }
