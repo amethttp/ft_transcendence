@@ -1,5 +1,5 @@
 import fastify from "fastify";
-import UserController from "./presentation/controllers/UserController";
+import UserController from "./infrastructure/controllers/UserController";
 
 const server = fastify();
 

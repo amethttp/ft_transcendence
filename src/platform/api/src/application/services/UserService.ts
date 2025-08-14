@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/User";
 import { Auth } from "../../domain/entities/Auth";
-import type { UserDto } from "../../presentation/models/UserDto";
+import type { UserDto } from "../models/UserDto";
 import { UserRepository } from "../../infrastructure/repositories/sqlite/UserRepository";
 
 export class UserService {

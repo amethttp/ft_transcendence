@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { UserDto } from "../models/UserDto";
+import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
 
 export default class UserController {
