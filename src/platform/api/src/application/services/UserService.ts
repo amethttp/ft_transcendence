@@ -22,30 +22,46 @@ export class UserService {
   }
 
   async test(): Promise<string> {
-    const userData = {
+    const createRequest = {
       email: "test@testemail.com",
       username: "testUser",
-      avatarUrl: "testAvatar",
+      avatarUrl: "testAvatar"
+    } as UserDto;
+
+    const updateRequest = {
+      email: "test@testemail.com",
+      username: "newusername",
+      avatarUrl: "newavatar"
     } as UserDto;
 
     const userAuth: Auth = {
       id: 1,
       lastLogin: new Date("today"),
-      password: "1234",
+      password: "1234"
     };
 
     const createUserData: Partial<User> = {
-      auth: userAuth,
-      ...userData,
+      ...createRequest,
+      auth: userAuth
     };
 
-    const create = await this.userRepository.create(createUserData);
+    const updateUserData: Partial<User> = {
+      ...updateRequest,
+      auth: userAuth
+    };
+
+    const created = await this.userRepository.create(createUserData);
+    const deleted = await this.userRepository.delete(created ? created.id : 1);
+    const updated = await this.userRepository.update(created ? created.id : 1, updateUserData);
     const findId = await this.userRepository.findById(1);
     const findAll = await this.userRepository.findAll();
-
-    console.log("CREATE:", create ? create.id : null);
+    
+    console.log("CREATED:", created ? created.id : null);
+    console.log("DELETED:", deleted);
+    console.log("UPDATED:", updated);
     console.log("FIND ID:", findId);
     console.log("FIND ALL:", findAll);
+
     return "OKKKKK";
   }
 }

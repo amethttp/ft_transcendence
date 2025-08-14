@@ -31,10 +31,18 @@ export abstract class ARepository<T> {
     });
   }
 
-  private async dbStmtRun(stmt: Statement, params: any): Promise<number | null> {
+  private async dbStmtRunCreate(stmt: Statement, params: any): Promise<number | null> {
     return new Promise<number | null>((resolve, reject) => {
       stmt.run(params, function (err) {
         return err ? reject(err) : resolve(this.lastID ?? null);
+      });
+    });
+  }
+
+  private async dbStmtRunAlter(stmt: Statement, params: any): Promise<number | null> {
+    return new Promise<number | null>((resolve, reject) => {
+      stmt.run(params, function (err) {
+        return err ? reject(err) : resolve(this.changes ?? null);
       });
     });
   }
@@ -57,15 +65,15 @@ export abstract class ARepository<T> {
   }
 
   async create(data: Partial<T>): Promise<T | null> {
-    const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data));
+    const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data)); // TO DO: use reduce for mapper func
     const keys: string[] = Object.keys(dbRecord);
     const values: any[] = Object.values(dbRecord);
     const placeholders = keys.map(() => '?').join(', ');
 
     const sql = `INSERT INTO ${this._tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
     const stmt = this._db.prepare(sql);
-    const lastID = await this.dbStmtRun(stmt, values);
-    stmt.finalize();
+    const lastID = await this.dbStmtRunCreate(stmt, values);
+    stmt.finalize(); // TO DO: check this... + try catches...
 
     if (lastID)
       return await this.findById(lastID);
@@ -73,8 +81,37 @@ export abstract class ARepository<T> {
     return null;
   }
 
-  // async update(id: number, data: Partial<T>): Promise<T> { }
-  // async delete(id: number): Promise<boolean> { }
+  // no need to check for existence you always want to update it to this time no matter input
+  async update(id: number, data: Partial<T>): Promise<T | null> {
+    const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data));
+    dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const filteredRecord = Object.entries(dbRecord)
+      .filter(([key, value]) => value !== undefined && value !== null && key !== 'id')
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+    const keys: string[] = Object.keys(filteredRecord);
+    const values: any[] = Object.values(filteredRecord);
+    if (keys.length === 0) {
+      return await this.findById(id);
+      }
+    // TO DO: change naming??
+    const placeholders = keys.map(key => `${key}=?`).join(', ');
+
+    const sql = `UPDATE ${this._tableName} SET ${placeholders} WHERE id=?`;
+    const stmt = this._db.prepare(sql);
+    await this.dbStmtRunAlter(stmt, [...values, id]); // TO DO: lastID?? // ...values?
+    stmt.finalize();
+
+    return await this.findById(id);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const sql = `DELETE FROM ${this._tableName} WHERE id=?`;
+    const stmt = this._db.prepare(sql);
+    let affectedId = await this.dbStmtRunAlter(stmt, [id]);
+    stmt.finalize();
+
+    return affectedId !>= 0;
+  }
 
   // --------------------------------- Generic Find method --------------------------------- //
 
