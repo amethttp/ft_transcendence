@@ -3,8 +3,6 @@ import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
-type pingUserParams = { Params: { username: string } };
-
 export default class UserController {
   private userService: UserService;
 
@@ -38,7 +36,7 @@ export default class UserController {
       }))
       .catch(err => reply.code(404).send({
         success: false,
-        error: 'The ping echoed nowhere...: ' + err,
+        error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
       }));
   }
 }

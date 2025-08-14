@@ -1,4 +1,5 @@
 import { AEntity } from "./AEntity";
+import { TournamentRound } from "./TournamentRound";
 
 const tournamentSchema: { [key: string]: string } = {
   name: "name",
@@ -22,6 +23,7 @@ export class Tournament extends AEntity {
   isVisible!: boolean;
   playersAmount!: number;
   state!: number;
+  tournamentRounds!: TournamentRound[];
   creationTime!: Date;
   finishTime?: Date;
 }

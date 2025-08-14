@@ -165,15 +165,40 @@ INSERT INTO password (hash) VALUES ('dummy1234');
 INSERT INTO auth (password_id)
   SELECT id FROM password ORDER BY id DESC LIMIT 1;
 
-
 INSERT INTO user (email, username, avatar_url, auth_id)
   SELECT 'cfidalgo@gmail.com', 'cfidalgo', 'testAvatar', id FROM auth ORDER BY id DESC LIMIT 1;
+
+
+INSERT INTO password (hash) VALUES ('4321ymmud');
+
+INSERT INTO auth (password_id)
+  SELECT id FROM password ORDER BY id DESC LIMIT 1;
+
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'vperez-f@gmail.com', 'vperez-f', 'vperez-f_avatar', id FROM auth ORDER BY id DESC LIMIT 1;
+
+
+INSERT INTO password (hash) VALUES ('12dummud21');
+
+INSERT INTO auth (password_id)
+  SELECT id FROM password ORDER BY id DESC LIMIT 1;
+
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'arcanava@gmail.com', 'arcanava', 'noSeProgramar.jpg', id FROM auth ORDER BY id DESC LIMIT 1;
+
 
 INSERT INTO match (name, token, is_visible, state, type) VALUES ('partidaza', 'a35Fda1', 0, 2, 2);
 
 INSERT INTO match_player (score, is_winner, user_id, match_id)
   SELECT 5, 1, u.id, m.id FROM (
-    SELECT id FROM user ORDER BY id DESC LIMIT 1
+    SELECT id FROM user WHERE username='cfidalgo'
+  ) AS u CROSS JOIN (
+    SELECT id FROM match ORDER BY id DESC LIMIT 1
+  ) AS m;
+
+INSERT INTO match_player (score, is_winner, user_id, match_id)
+  SELECT 0, 0, u.id, m.id FROM (
+    SELECT id FROM user WHERE username='vperez-f'
   ) AS u CROSS JOIN (
     SELECT id FROM match ORDER BY id DESC LIMIT 1
   ) AS m;
