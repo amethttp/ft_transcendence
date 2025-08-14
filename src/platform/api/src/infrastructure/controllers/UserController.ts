@@ -3,11 +3,19 @@ import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
+type pingUserRequest = { Params: { userId: string } };
+
 export default class UserController {
   private userService: UserService;
 
   constructor(userRepository: IUserRepository) {
     this.userService = new UserService(userRepository);
+  }
+
+  static pingUser(request: FastifyRequest<pingUserRequest>, reply: FastifyReply) {
+    const userId = request.params.userId;
+    console.log('User ID:', userId);
+    reply.status(200).send(userId + ': ping!\nServer: pong!');
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {

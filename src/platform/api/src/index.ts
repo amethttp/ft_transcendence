@@ -1,7 +1,5 @@
 import fastify from "fastify";
-import userRoutes from "./routes/UserRoutes";
-import UserController from "./infrastructure/controllers/UserController";
-import { SQLiteUserRepository } from "./infrastructure/repositories/sqlite/SQLiteUserRepository";
+import userRoutes from "./infrastructure/routes/UserRoutes";
 
 const server = fastify();
 
