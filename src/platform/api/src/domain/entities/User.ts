@@ -5,9 +5,9 @@ const userSchema: { [key: string]: string } = {
   email: "email",
   username: "username",
   avatarUrl: "avatar_url",
+  auth: "auth_id",
   creationTime: "creation_time",
   updateTime: "update_time",
-  auth: "auth_id",
 };
 
 export class User extends AEntity {
@@ -18,7 +18,7 @@ export class User extends AEntity {
   email!: string;
   username!: string;
   avatarUrl!: string;
+  auth!: Auth;
   creationTime!: Date;
   updateTime!: Date;
-  auth!: Auth;
 }

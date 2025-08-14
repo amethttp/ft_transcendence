@@ -1,9 +1,19 @@
 import { AEntity } from "./AEntity";
+import { GoogleAuth } from "./GoogleAuth";
+import { Password } from "./Password";
+
+const authSchema: { [key: string]: string } = {
+  lastLogin: "last_login",
+  googleAuth: "google_auth_id",
+  password: "password_id",
+};
 
 export class Auth extends AEntity {
   static readonly tableName = "auth";
+  static readonly entitySchema = authSchema;
+
   id!: number;
   lastLogin!: Date;
-  googleAuthPH?: number;
-  password?: string;
+  googleAuth?: GoogleAuth;
+  password?: Password;
 }

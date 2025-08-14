@@ -37,7 +37,7 @@ export class UserService {
     const userAuth: Auth = {
       id: 1,
       lastLogin: new Date("today"),
-      password: "1234"
+      // password: "1234"
     };
 
     const createUserData: Partial<User> = {
