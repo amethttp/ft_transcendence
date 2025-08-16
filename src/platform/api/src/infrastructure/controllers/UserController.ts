@@ -1,13 +1,12 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { UserRegistrationInfo } from "../../application/models/UserRegistrationInfo";
 import { UserService } from "../../application/services/UserService";
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
 export default class UserController {
   private userService: UserService;
 
-  constructor(userRepository: IUserRepository) {
-    this.userService = new UserService(userRepository);
+  constructor(userService: UserService) {
+    this.userService = userService;
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {
