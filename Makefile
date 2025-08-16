@@ -35,7 +35,7 @@ TEST=test
 TEST_DIR=$(SRC)test_container/
 VOLUME_DIR=volumes/
 DATABASE_VOLUME=$(VOLUME_DIR)database/
-WEB_VOLUME=$(VOLUME_DIR)web/
+UPLOADS_VOLUME=$(VOLUME_DIR)uploads/
 # ------------------ #
 
 
@@ -60,7 +60,7 @@ list:
 
 up:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
-	@$(MKDIR) $(DATABASE_VOLUME) $(WEB)
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(YAML) up -d --build
 
@@ -71,6 +71,7 @@ down:
 fdown:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE) and $(WHITE_BOLD)volumes$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(YAML) down -v
+	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
 
 log:
 	@$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$(TEST)$(PINK) logs...$(RESET)"
@@ -105,6 +106,8 @@ cln: stp
 
 clean: down
 	@$(PRINT) "$(PINK)Application $(GREEN)removed$(PINK).$(RESET)"
+	@$(DOCKER) system prune -fa
+	@$(PRINT) "$(GREEN)Cache removed successfully$(RESET)"
 
 fclean: fdown
 	@$(PRINT) "$(PINK)Removing $(WHITE_BOLD)cache$(PINK)...$(RESET)"
