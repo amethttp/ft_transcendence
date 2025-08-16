@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/User";
 import { Auth } from "../../domain/entities/Auth";
-import type { UserDto } from "../models/UserDto";
+import { UserRegistrationInfo } from "../models/UserRegistrationInfo";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
 export class UserService {
@@ -19,7 +19,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(userData: UserDto): Promise<User | null> {
+  async createUser(userData: UserRegistrationInfo): Promise<User | null> {
     // validate INFO logic etc...
 
     // const existingMail = await this.userRepository.findByEmail(userData.email);
@@ -36,13 +36,13 @@ export class UserService {
       email: "test@testemail.com",
       username: "testUser",
       avatarUrl: "testAvatar"
-    } as UserDto;
+    } as UserRegistrationInfo;
 
     const updateRequest = {
       email: "test@testemail.com",
       username: "newusername",
       avatarUrl: "newavatar"
-    } as UserDto;
+    } as UserRegistrationInfo;
 
     const userAuth: Auth = {
       id: 1,
