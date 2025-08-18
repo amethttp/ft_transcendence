@@ -8,7 +8,7 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async getUserByUsername(username: string): Promise<User | null> {
+  async getUserByUsername(username: string): Promise<User> {
     const user: User | null = await this.userRepository.findByUsername(username);
 
     if (user === null)

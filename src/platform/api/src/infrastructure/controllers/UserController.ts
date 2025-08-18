@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
+import { JwtAuth } from "../auth/JwtAuth";
 
 export default class UserController {
   private userService: UserService;
@@ -37,13 +38,7 @@ export default class UserController {
     const userInfo = request.body as UserLoginInfo;
 
     return this.userService.getUserByUsername(userInfo.username)
-      .then(user => {
-        const jwtPayload = user as JwtPayloadInfo;
-
-        return reply.jwtSign(jwtPayload, { expiresIn: '1h' })
-          .then(token => reply.status(200).send({ "success": true, "token": token}))
-          .catch(error => reply.status(500).send({ "success": false, "error": error }));
-      })
-      .catch(error => reply.status(404).send({ "success": true, "error": error }));
+      .then(async user => await JwtAuth.sendReplyWithToken(reply, user))
+      .catch(error => reply.status(404).send({ "success": false, "error": error }));
   }
 }
