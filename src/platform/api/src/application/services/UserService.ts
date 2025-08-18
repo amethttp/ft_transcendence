@@ -1,6 +1,4 @@
 import { User } from "../../domain/entities/User";
-import { Auth } from "../../domain/entities/Auth";
-import { UserRegistrationInfo } from "../models/UserRegistrationInfo";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 
 export class UserService {
@@ -17,61 +15,5 @@ export class UserService {
       throw 'User not found';
 
     return user;
-  }
-
-  async createUser(userData: UserRegistrationInfo): Promise<User | null> {
-    // validate INFO logic etc...
-
-    // const existingMail = await this.userRepository.findByEmail(userData.email);
-    // const existingUser = await this.userRepository.findByUsername(
-    //   userData.username,
-    // );
-    // if (existingMail || existingUser) throw "User and/or email already exists";
-
-    return this.userRepository.create(userData);
-  }
-
-  async test(): Promise<string> {
-    const createRequest = {
-      email: "test@testemail.com",
-      username: "testUser",
-      avatarUrl: "testAvatar"
-    } as UserRegistrationInfo;
-
-    const updateRequest = {
-      email: "test@testemail.com",
-      username: "newusername",
-      avatarUrl: "newavatar"
-    } as UserRegistrationInfo;
-
-    const userAuth: Auth = {
-      id: 1,
-      lastLogin: new Date("today"),
-      // password: "1234"
-    };
-
-    const createUserData: Partial<User> = {
-      ...createRequest,
-      auth: userAuth
-    };
-
-    const updateUserData: Partial<User> = {
-      ...updateRequest,
-      auth: userAuth
-    };
-
-    const created = await this.userRepository.create(createUserData);
-    const deleted = await this.userRepository.delete(created ? created.id : 1);
-    const updated = await this.userRepository.update(created ? created.id : 1, updateUserData);
-    const findId = await this.userRepository.findById(1);
-    const findAll = await this.userRepository.findAll();
-    
-    console.log("CREATED:", created ? created.id : null);
-    console.log("DELETED:", deleted);
-    console.log("UPDATED:", updated);
-    console.log("FIND ID:", findId);
-    console.log("FIND ALL:", findAll);
-
-    return "OKKKKK";
   }
 }

@@ -12,8 +12,8 @@ async function userRoutes(server: FastifyInstance) {
     await userController.pingUser(request, reply);
   });
 
-  server.post("/user", async (request, reply) => {
-    await userController.register(request, reply);
+  server.post("/login", async (request, reply) => {
+    await userController.login(request, reply);
   });
 }
 

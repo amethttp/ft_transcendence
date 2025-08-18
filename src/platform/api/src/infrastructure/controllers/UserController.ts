@@ -1,6 +1,7 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { UserRegistrationInfo } from "../../application/models/UserRegistrationInfo";
 import { UserService } from "../../application/services/UserService";
+import { UserLoginInfo } from "../../application/models/UserLoginInfo";
+import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 
 export default class UserController {
   private userService: UserService;
@@ -9,33 +10,40 @@ export default class UserController {
     this.userService = userService;
   }
 
-  async register(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const userData = request.body as UserRegistrationInfo;
-      const user = await this.userService.createUser(userData);
-
-      return reply.code(201).send({
-        success: true,
-        message: "Created",
-        data: user,
-      });
-    } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        error: "Bad Request",
-      });
-    }
-  }
-
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    const requestedUser = request.user as JwtPayloadInfo;
+
     return this.userService.getUserByUsername(request.params.username)
-      .then(user => reply.code(200).send({
-        success: true,
-        message: user?.username + ': I\'m alive!',
-      }))
+      .then(user => {
+        if (requestedUser.username !== request.params.username) {
+          return reply.code(403).send({
+              success: false,
+              message: request.params.username + ' says: You are not allowed to read my stuff!',
+            });
+        }
+
+        return reply.code(200).send({
+            success: true,
+            data: user
+          });
+      })
       .catch(err => reply.code(404).send({
         success: false,
         error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
       }));
+  }
+
+  async login(request: FastifyRequest, reply: FastifyReply) {
+    const userInfo = request.body as UserLoginInfo;
+
+    return this.userService.getUserByUsername(userInfo.username)
+      .then(user => {
+        const jwtPayload = user as JwtPayloadInfo;
+
+        return reply.jwtSign(jwtPayload, { expiresIn: '1h' })
+          .then(token => reply.status(200).send({ "success": true, "token": token}))
+          .catch(error => reply.status(500).send({ "success": false, "error": error }));
+      })
+      .catch(error => reply.status(404).send({ "success": true, "error": error }));
   }
 }

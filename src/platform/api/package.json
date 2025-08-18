@@ -15,6 +15,7 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "@fastify/jwt": "^10.0.0",
     "fastify": "^5.4.0",
     "sqlite3": "^5.1.7"
   },
