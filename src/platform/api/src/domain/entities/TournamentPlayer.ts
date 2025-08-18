@@ -3,7 +3,7 @@ import { User } from "./User";
 import { TournamentRound } from "./TournamentRound";
 import { Tournament } from "./Tournament";
 
-const tournamentPlayerSchema: { [key: string]: string } = {
+const tournamentPlayerSchema: Record<string, string> = {
   user: "user_id",
   round: "round",
   tournament: "tournament_id",

@@ -2,7 +2,7 @@ import { AEntity } from "./AEntity";
 import { Match } from "./Match";
 import { Tournament } from "./Tournament";
 
-const tournamentRoundSchema: { [key: string]: string } = {
+const tournamentRoundSchema: Record<string, string> = {
   top: "top",
   token: "token",
   tournament: "tournament_id",

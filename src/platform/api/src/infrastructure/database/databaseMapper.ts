@@ -1,7 +1,7 @@
 export class DatabaseMapper {
-  private _entitySchema!: { [key: string]: string };
+  private _entitySchema!: Record<string, string>;
 
-  constructor(entitySchema: { [key: string]: string }) {
+  constructor(entitySchema: Record<string, string>) {
     this._entitySchema = entitySchema;
   }
 
@@ -12,8 +12,8 @@ export class DatabaseMapper {
     return value;
   }
 
-  public toDatabase(entries: [string, any][]): { [key: string]: any } {
-    let dbRecord: { [key: string]: string } = {};
+  public toDatabase(entries: [string, any][]): Record<string, any> {
+    let dbRecord: Record<string, any> = {};
   
     for (const [key, value] of entries) {
       if (key in this._entitySchema) {

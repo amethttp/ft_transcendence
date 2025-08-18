@@ -2,6 +2,7 @@ import { User } from "../../domain/entities/User";
 import { Auth } from "../../domain/entities/Auth";
 import type { UserDto } from "../models/UserDto";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { Password } from "../../domain/entities/Password";
 
 export class UserService {
   private userRepository: IUserRepository;
@@ -22,20 +23,18 @@ export class UserService {
   async createUser(userData: UserDto): Promise<User | null> {
     // validate INFO logic etc...
 
-    // const existingMail = await this.userRepository.findByEmail(userData.email);
-    // const existingUser = await this.userRepository.findByUsername(
-    //   userData.username,
-    // );
-    // if (existingMail || existingUser) throw "User and/or email already exists";
+    const existingMail = await this.userRepository.findByEmail(userData.email);
+    const existingUser = await this.userRepository.findByUsername(userData.username);
+    if (existingMail || existingUser) throw "User and/or email already exists";
 
     return this.userRepository.create(userData);
   }
 
-  async test(): Promise<string> {
+  async test(method: string, id: number): Promise<string> {
     const createRequest = {
-      email: "test@testemail.com",
-      username: "testUser",
-      avatarUrl: "testAvatar"
+      email: "test" + id + "@testemail.com",
+      username: "testUser" + id,
+      avatarUrl: "testAvatar" + id
     } as UserDto;
 
     const updateRequest = {
@@ -44,10 +43,16 @@ export class UserService {
       avatarUrl: "newavatar"
     } as UserDto;
 
+    const userPass: Password = {
+      id: 1,
+      hash: "1234",
+      updateTime: new Date(),
+    };
+
     const userAuth: Auth = {
       id: 1,
-      lastLogin: new Date("today"),
-      // password: "1234"
+      lastLogin: new Date(),
+      password: userPass,
     };
 
     const createUserData: Partial<User> = {
@@ -60,18 +65,30 @@ export class UserService {
       auth: userAuth
     };
 
-    const created = await this.userRepository.create(createUserData);
-    const deleted = await this.userRepository.delete(created ? created.id : 1);
-    const updated = await this.userRepository.update(created ? created.id : 1, updateUserData);
-    const findId = await this.userRepository.findById(1);
-    const findAll = await this.userRepository.findAll();
+    switch (method) {
+      case 'create':
+        const created = await this.userRepository.create(createUserData);
+        console.log(created);
+        return JSON.stringify(created);
+      case 'find':
+        const findId = await this.userRepository.findById(id);
+        console.log(findId);
+        return JSON.stringify(findId);
+      case 'findAll':
+        const findAll = await this.userRepository.findAll();
+        console.log(findAll);
+        return JSON.stringify(findAll);
+      case 'delete':
+        const deleted = await this.userRepository.delete(id);
+        console.log(deleted);
+        return JSON.stringify(deleted);
+      case 'update':
+        const updated = await this.userRepository.update(id, updateUserData);
+        console.log(updated);
+        return JSON.stringify(updated);
     
-    console.log("CREATED:", created ? created.id : null);
-    console.log("DELETED:", deleted);
-    console.log("UPDATED:", updated);
-    console.log("FIND ID:", findId);
-    console.log("FIND ALL:", findAll);
-
-    return "OKKKKK";
+      default:
+        return ("Method unknown");
+    }
   }
 }

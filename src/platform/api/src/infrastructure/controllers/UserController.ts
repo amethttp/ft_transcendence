@@ -39,4 +39,16 @@ export default class UserController {
         error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
       }));
   }
+
+  async test(request: FastifyRequest<{ Params: { method: string, id: number } }>, reply: FastifyReply) {
+    return this.userService.test(request.params.method, request.params.id)
+      .then(methodResult => reply.code(200).send({
+        success: true,
+        message: methodResult,
+      }))
+      .catch(err => reply.code(404).send({
+        success: false,
+        error: err,
+      }));
+  }
 }

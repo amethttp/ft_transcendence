@@ -10,6 +10,10 @@ async function userRoutes(server: FastifyInstance) {
     await userController.pingUser(request, reply);
   });
 
+  server.get('/test/:method/:id', async (request: FastifyRequest<{ Params: { method: string, id: number } }>, reply) => {
+    await userController.test(request, reply);
+  });
+
   server.post("/user", async (request, reply) => {
     await userController.register(request, reply);
   });

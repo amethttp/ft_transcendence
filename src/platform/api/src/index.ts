@@ -3,7 +3,7 @@ import userRoutes from "./infrastructure/routes/UserRoutes";
 
 const server = fastify();
 
-server.register(userRoutes, { prefix: '/api' });
+server.register(userRoutes);
 
 server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
   if (err) {

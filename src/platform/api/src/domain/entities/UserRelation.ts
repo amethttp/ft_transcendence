@@ -1,7 +1,7 @@
 import { AEntity } from "./AEntity";
 import { User } from "./User";
 
-const userRelationSchema: { [key: string]: string } = {
+const userRelationSchema: Record<string, string> = {
   alias: "alias",
   type: "type",
   ownerUser: "owner_user_id",

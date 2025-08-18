@@ -1,7 +1,7 @@
 import { AEntity } from "./AEntity";
 import { Auth } from "./Auth";
 
-const userSchema: { [key: string]: string } = {
+const userSchema: Record<string, string> = {
   email: "email",
   username: "username",
   avatarUrl: "avatar_url",

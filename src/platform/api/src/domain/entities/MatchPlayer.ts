@@ -2,7 +2,7 @@ import { AEntity } from "./AEntity";
 import { Match } from "./Match";
 import { User } from "./User";
 
-const matchPlayerSchema: { [key: string]: string } = {
+const matchPlayerSchema: Record<string, string> = {
   score: "score",
   isWinner: "is_winner",
   user: "user_id",

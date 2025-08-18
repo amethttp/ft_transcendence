@@ -1,6 +1,6 @@
 import { AEntity } from "./AEntity";
 
-const googleAuthSchema: { [key: string]: string } = {
+const googleAuthSchema: Record<string, string> = {
   googleUserId: "google_user_id",
   accessToken: "access_token",
   refreshToken: "refresh_token",

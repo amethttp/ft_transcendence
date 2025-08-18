@@ -8,7 +8,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
   private _tableName: string;
   private mapper: DatabaseMapper;
 
-  constructor(tableName: string, entitySchema: { [key: string]: string }) {
+  constructor(tableName: string, entitySchema: Record<string, string>) {
     this._db = DatabaseManager.getInstance("/home/db/amethpong.db");
     this._tableName = tableName;
     this.mapper = new DatabaseMapper(entitySchema);
@@ -71,9 +71,9 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
   }
 
   public async create(data: Partial<T>): Promise<T | null> {
-    const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data)); // TO DO: use reduce for mapper func
-    const keys: string[] = Object.keys(dbRecord);
-    const values: any[] = Object.values(dbRecord);
+    const dbRecord = this.mapper.toDatabase(Object.entries(data)); // TO DO: use reduce for mapper func
+    const keys = Object.keys(dbRecord);
+    const values = Object.values(dbRecord);
     const placeholders = keys.map(() => '?').join(', ');
 
     const sql = `INSERT INTO ${this._tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
@@ -89,17 +89,16 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
 
   // no need to check for existence you always want to update it to this time no matter input
   public async update(id: number, data: Partial<T>): Promise<T | null> {
-    const dbRecord: { [key: string]: any } = this.mapper.toDatabase(Object.entries(data));
+    const dbRecord = this.mapper.toDatabase(Object.entries(data));
     dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const filteredRecord = Object.entries(dbRecord)
       .filter(([key, value]) => value !== undefined && value !== null && key !== 'id')
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-    const keys: string[] = Object.keys(filteredRecord);
-    const values: any[] = Object.values(filteredRecord);
+    const keys = Object.keys(filteredRecord);
+    const values = Object.values(filteredRecord);
     if (keys.length === 0) {
       return await this.findById(id);
-      }
-    // TO DO: change naming??
+    }
     const placeholders = keys.map(key => `${key}=?`).join(', ');
 
     const sql = `UPDATE ${this._tableName} SET ${placeholders} WHERE id=?`;
@@ -113,7 +112,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
   public async delete(id: number): Promise<boolean> {
     const sql = `DELETE FROM ${this._tableName} WHERE id=?`;
     const stmt = this._db.prepare(sql);
-    let affectedId = await this.dbStmtRunAlter(stmt, [id]);
+    const affectedId = await this.dbStmtRunAlter(stmt, [id]);
     stmt.finalize();
 
     return affectedId !>= 0;

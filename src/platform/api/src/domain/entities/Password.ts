@@ -1,6 +1,6 @@
 import { AEntity } from "./AEntity";
 
-const passwordSchema: { [key: string]: string } = {
+const passwordSchema: Record<string, string> = {
   hash: "hash",
   updateTime: "update_time",
 };
