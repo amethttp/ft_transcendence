@@ -1,13 +1,14 @@
 import type { Router } from "./Router/Router";
 
-export abstract class AmethComponent {
+export default abstract class AmethComponent {
   protected router?: Router;
-  protected outlet?: HTMLElement;
+  outlet?: HTMLElement;
   template?: () => Promise<typeof import("*.html?raw")>;
 
   afterInit() {}
+  refresh() {}
 
-  destroy() {}
+  async destroy() {}
 
   async init(selector: string, router?: Router) {
     this.router = router;

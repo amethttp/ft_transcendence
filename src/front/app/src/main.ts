@@ -1,24 +1,54 @@
-import authGuard from "./utils/auth/authGuard/authGuard";
 import type { Route } from "./framework/Router/Route/Route";
+import authGuard from "./auth/authGuard/authGuard";
 import { Router } from "./framework/Router/Router";
 
-const routes: Route[] = [
+export const routes: Route[] = [
   {
-    path: "/",
-    component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+    path: "",
+    component: () => import("./PrivateLayout/PrivateLayout"),
     guard: authGuard,
+    children: [
+      {
+        path: "/",
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
+      },
+      {
+        path: "user",
+        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+      },
+      {
+        path: "user/:userId",
+        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        children: [
+          {
+            path: "",
+            component: () => import("./PrivateLayout/UserComponent/UserProfileComponent/UserProfileComponent")
+          },
+          {
+            path: "stats",
+            component: () => import("./PrivateLayout/UserComponent/UserStatsComponent/UserStatsComponent")
+          }
+        ]
+      },
+    ],
   },
   {
-    path: "/",
-    component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
-  },
-  {
-    path: "/404",
-    component: () => import("./PublicLayout/NotFound/NotFound"),
-  },
-  {
-    path: "*",
-    redirect: "/404",
+    path: "",
+    component: () => import("./PublicLayout/PublicLayout"),
+    children: [
+      {
+        path: "/",
+        component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
+      },
+      {
+        path: "landing",
+        component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
+      },
+      {
+        path: "*",
+        component: () => import("./PublicLayout/NotFound/NotFound"),
+      },
+    ],
   },
 ];
 

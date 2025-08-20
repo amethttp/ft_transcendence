@@ -1,5 +1,5 @@
 import type { Route } from "../../Route/Route";
-import Path from "../Path";
+import Path, { type PathParam } from "../Path";
 import PathHelper from "../helpers/PathHelper";
 
 export default class PathMapper {
@@ -10,9 +10,32 @@ export default class PathMapper {
 
     routeParts.forEach((routePart, i) => {
       if (routePart.startsWith(":"))
-        path.params.set(routePart.slice(1), pathParts[i]);
+        path.params[routePart.slice(1)] = pathParts[i];
     });
 
+    return path;
+  }
+
+  static getParams(routeParts: string[], pathParts: string[]): Record<string, PathParam> {
+    const params: Record<string, PathParam> = {};
+    for (const [index, routePart] of routeParts.entries()) {
+      if (routePart.startsWith(":"))
+        params[routePart.slice(1)] = pathParts[index];
+    }
+    return params;
+  }
+
+  static fromRouteTree(routeTree: Route[], fullPath: string): Path {
+    const path = new Path(fullPath);
+    const routeParts: string[] = [];
+    const pathParts = PathHelper.getParts(fullPath);
+
+    for (const route of routeTree) {
+      path.routePath = route.path;
+      routeParts.push(...PathHelper.getParts(route.path));
+    }
+
+    path.params = this.getParams(routeParts, pathParts);
     return path;
   }
 }

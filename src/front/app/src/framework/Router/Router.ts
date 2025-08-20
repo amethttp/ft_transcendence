@@ -1,19 +1,21 @@
-import type { AmethComponent } from "../AmethComponent";
+import AmethComponent from "../AmethComponent";
 import PathHelper from "./Path/helpers/PathHelper";
 import PathMapper from "./Path/mappers/PathMapper";
 import Path from "./Path/Path";
-import type { Module, Route } from "./Route/Route";
+import type { Route } from "./Route/Route";
 
 export class Router {
-  private _routes: Route[];
   private _selector: string;
-  private _currentComponent: AmethComponent | null;
+  private _routes: Route[];
+  private _currentTree: Route[];
+  private _currentComponents: AmethComponent[];
   private _currentPath: Path;
 
   constructor(selector: string, routes: Route[]) {
     this._selector = selector;
     this._routes = routes;
-    this._currentComponent = null;
+    this._currentTree = [];
+    this._currentComponents = [];
     this._currentPath = new Path();
     this.listen();
   }
@@ -42,50 +44,81 @@ export class Router {
   }
 
   private listen() {
-    window.addEventListener("popstate", () => this.navigate(location.pathname));
-
+    window.addEventListener("popstate", () => this.navigate(this.normalizeURL(location.href)));
     document.addEventListener("click", (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>("a");
-      if (!anchor) return;
-
-      if (!this.isOtherEvent(e, anchor)) {
-        e.preventDefault();
-        const href = anchor.href;
-        const newUrl = new URL(href);
-        if (newUrl.pathname && href != location.href) {
-          this.navigateByUrl(newUrl);
-        }
-      }
+      if (!anchor || this.isOtherEvent(e, anchor)) return;
+      e.preventDefault();
+      const newUrl = new URL(anchor.href);
+      const oldHref = location.href;
+      newUrl.pathname = this.normalizeURL(newUrl.href);
+      if (newUrl.href !== oldHref)
+        this.navigateByUrl(newUrl);
     });
+    this.navigate(this.normalizeURL(location.href));
+  }
 
-    this.navigate(location.pathname);
+  private findRouteTree(path: string, routes: Route[] = this._routes, parentPath = ""): Route[] | undefined {
+    for (const route of routes) {
+      let separator = '/';
+      if (route.path === "")
+        separator = '';
+      const fullPath = PathHelper.normalize(parentPath + separator + route.path);
+      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || route.guard(route))) {
+        const childTree = this.findRouteTree(path, route.children, fullPath);
+        if (childTree) return [route, ...childTree];
+        else continue;
+      }
+      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || route.guard(route))) {
+        return [route];
+      }
+    }
+    return undefined;
+  }
+
+  private normalizeURL(href: string): string {
+    const url = new URL(href);
+    if (url.pathname.endsWith("/")) {
+      url.pathname = PathHelper.removeTrailingSlash(url.pathname);
+      history.replaceState(null, "", url.href);
+    }
+    return url.pathname;
   }
 
   private async navigate(path: string) {
-    if (this._currentComponent && this._currentComponent?.destroy)
-      await this._currentComponent.destroy();
-
-    const route = this._routes.find((r) => {
-      return (
-        (PathHelper.isPathMatching(r.path, path) && (!r.guard || r.guard(r))) ||
-        r.path === "*"
-      );
-    });
-    if (route) {
-      if (route.redirect) return this.navigateByPath(route.redirect);
-      this._currentPath = PathMapper.fromRoutePath(route, path);
-      this._currentComponent = null;
-      if (route.component) {
-        let module: Module = await route.component();
-        this._currentComponent = new module.default();
-        this._currentComponent?.init(this._selector, this);
-      }
-    } else {
-      document.getElementById(this._selector)!.innerHTML =
-        '<p class="text-red-600">404 Not Found</p>';
-      this._currentComponent = null;
+    const routeTree = this.findRouteTree(path);
+    if (!routeTree) {
+      console.warn(`No route found for path: ${path}`);
       return;
     }
+
+    this._currentPath = PathMapper.fromRouteTree(routeTree, path);
+    for (const [i, route] of routeTree.entries()) {
+      if (route.redirect) return this.navigateByPath(route.redirect);
+      if (this._currentTree[i] !== route) {
+        if (this._currentComponents && this._currentComponents[i])
+          await this._currentComponents[i].destroy();
+        if (route.component) {
+          const Component = (await route.component()).default;
+          const newComponent: AmethComponent = new Component();
+          let selector = this._selector;
+          if (i > 0) {
+            const outlet = this._currentComponents[i - 1].outlet?.getElementsByClassName("router-outlet")[0];
+            if (!outlet)
+              return console.warn("No <div class=\"router-outlet\"></div> on ", this._currentComponents[i - 1]);
+            selector = "r-" + Date.now() + Math.random().toString(36).slice(2, 9);
+            outlet.setAttribute("id", selector);
+          }
+          await newComponent.init(selector, this);
+          this._currentComponents[i] = newComponent;
+        }
+      }
+      else {
+        console.log("Reused component: ", this._currentComponents[i]);
+        this._currentComponents[i].refresh();
+      }
+    }
+    this._currentTree = routeTree;
   }
 
   navigateByPath(path: string) {

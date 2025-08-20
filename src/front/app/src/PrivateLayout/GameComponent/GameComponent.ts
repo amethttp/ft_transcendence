@@ -1,4 +1,4 @@
-import { AmethComponent } from "../../framework/AmethComponent";
+import AmethComponent from "../../framework/AmethComponent";
 import Sidebar from "../components/SidebarComponent/SidebarComponent";
 
 export default class GameComponent extends AmethComponent {
@@ -12,7 +12,5 @@ export default class GameComponent extends AmethComponent {
 
   afterInit() {
     this.sidebar.init("user-sidebar");
-    document.getElementById("userId")!.innerHTML =
-      this.router?.currentPath.params.get("userId") as string;
   }
 }

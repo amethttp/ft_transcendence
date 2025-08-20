@@ -1,4 +1,4 @@
-import { AmethComponent } from "../../../framework/AmethComponent";
+import AmethComponent from "../../../framework/AmethComponent";
 
 export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
