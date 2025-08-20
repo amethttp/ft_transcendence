@@ -1,3 +1,60 @@
-import { renderApp } from "./app/app.js";
+import type { Route } from "./framework/Router/Route/Route";
+import authGuard from "./auth/authGuard/authGuard";
+import { Router } from "./framework/Router/Router";
 
-renderApp();
+export const routes: Route[] = [
+  {
+    path: "",
+    component: () => import("./PrivateLayout/PrivateLayout"),
+    guard: authGuard,
+    children: [
+      {
+        path: "/",
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
+      },
+      {
+        path: "user",
+        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+      },
+      {
+        path: "user/:userId",
+        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        children: [
+          {
+            path: "",
+            component: () => import("./PrivateLayout/UserComponent/UserProfileComponent/UserProfileComponent")
+          },
+          {
+            path: "stats",
+            component: () => import("./PrivateLayout/UserComponent/UserStatsComponent/UserStatsComponent")
+          }
+        ]
+      },
+    ],
+  },
+  {
+    path: "",
+    component: () => import("./PublicLayout/PublicLayout"),
+    children: [
+      {
+        path: "/",
+        component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
+      },
+      {
+        path: "landing",
+        component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
+      },
+      {
+        path: "*",
+        component: () => import("./PublicLayout/NotFound/NotFound"),
+      },
+    ],
+  },
+];
+
+const router = new Router("app", routes);
+
+router.emitter.on("navigate", (e) => {
+  // TODO: Change titles
+  console.log("ROUTER!!!!", e.path, e.router);
+})

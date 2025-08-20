@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AmethPong ft_trascendence game" />
+    <title>AmethPong</title>
+    <link href="./src/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <header>
+      <img src="/amethpong.png" alt="AmethPong logo" />
+      <div class="body">
+        <h1>Welcome to AmethPong!</h1>
+        <p>
+          If you see this page, the AmethPong SPA Web App is successfully
+          working.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="/">/</a>
+        <a href="/landing">/landing</a>
+        <a href="/landing#bookMaark">/landing#bookMaark</a>
+        <a href="/landing?lalalala=dummy">/landing?lalalala=dummy</a>
+        <a href="/landing/?lalalala=dummy">/landing/?lalalala=dummy</a>
+        <a href="/user">/user</a>
+        <a href="/user/arcanava">/user/arcanava</a>
+        <a href="/user/cfidalgo/stats">/user/cfidalgo/stats</a>
+        <a href="/user" data-link-type="forceReload">/user (force reload)</a>
+        <a href="/user" target="_blank">/user (target="_blank")</a>
+        <a href="/lalalarandom">/lalalarandom</a>
+      </div>
+      <div id="app" class="mt-4 text-3xl font-bold">
+        <p>Loading...</p>
+      </div>
+    </header>
+  </body>
+  <script type="module" src="./src/main.ts"></script>
+</html>
