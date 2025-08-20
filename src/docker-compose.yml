@@ -29,6 +29,7 @@ services:
     container_name: nginx
     build: nginx/
     ports:
+      - "4322:80"
       - "4321:443"
     volumes:
       - uploads:/var/www/uploads
