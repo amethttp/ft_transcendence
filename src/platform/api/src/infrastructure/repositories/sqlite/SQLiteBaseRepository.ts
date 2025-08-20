@@ -71,7 +71,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
   }
 
   public async create(data: Partial<T>): Promise<T | null> {
-    const dbRecord = this.mapper.toDatabase(Object.entries(data)); // TO DO: use reduce for mapper func
+    const dbRecord = this.mapper.toDatabase(Object.entries(data));
     const keys = Object.keys(dbRecord);
     const values = Object.values(dbRecord);
     const placeholders = keys.map(() => '?').join(', ');
@@ -79,7 +79,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     const sql = `INSERT INTO ${this._tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
     const stmt = this._db.prepare(sql);
     const lastID = await this.dbStmtRunCreate(stmt, values);
-    stmt.finalize(); // TO DO: check this... + try catches...
+    stmt.finalize(); // TODO: check this... + try catches...
 
     if (lastID)
       return await this.findById(lastID);
@@ -87,7 +87,6 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     return null;
   }
 
-  // no need to check for existence you always want to update it to this time no matter input
   public async update(id: number, data: Partial<T>): Promise<T | null> {
     const dbRecord = this.mapper.toDatabase(Object.entries(data));
     dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -103,7 +102,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
 
     const sql = `UPDATE ${this._tableName} SET ${placeholders} WHERE id=?`;
     const stmt = this._db.prepare(sql);
-    await this.dbStmtRunAlter(stmt, [...values, id]); // TO DO: lastID?? // ...values?
+    await this.dbStmtRunAlter(stmt, [...values, id]);
     stmt.finalize();
 
     return await this.findById(id);

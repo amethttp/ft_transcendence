@@ -7,6 +7,7 @@ import { JwtAuth } from "./infrastructure/auth/JwtAuth";
 import authRoutes from "./infrastructure/routes/AuthRoutes";
 
 const server = fastify();
+const publicRoutes = ['/register', '/login', '/refresh'];
 
 server.register(cors, {
   origin: ['https://localhost:4321'],
@@ -20,7 +21,7 @@ server.register(userRoutes);
 server.register(authRoutes);
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
-  if (request.url === '/register' || request.url === '/login' || request.url === '/refresh')
+  if (publicRoutes.includes(request.url))
     return;
 
   await JwtAuth.validateRequest(request, reply);

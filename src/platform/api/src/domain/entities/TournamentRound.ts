@@ -16,7 +16,7 @@ export class TournamentRound extends AEntity {
   id!: number;
   top!: string;
   token!: string;
-  matches!: Match[]; // TO DO: check these types of relationships || in impementation repo implement find all matches...
+  matches!: Match[];
   tournament!: Tournament;
   creationTime!: Date;
 }
