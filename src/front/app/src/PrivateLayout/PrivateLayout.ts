@@ -7,7 +7,6 @@ export default class PrivateLayout extends AmethComponent {
   }
 
   afterInit(): void {
-    console.log("PrivateLayout afterInit()");
     document.getElementById("logoutButton")!.onclick = () => {
       sessionStorage.setItem("logged", "0");
     };
