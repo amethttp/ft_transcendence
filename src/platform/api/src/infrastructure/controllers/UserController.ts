@@ -1,54 +1,56 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { UserDto } from "../../application/models/UserDto";
 import { UserService } from "../../application/services/UserService";
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { UserLoginInfo } from "../../application/models/UserLoginInfo";
+import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
+import { JwtAuth } from "../auth/JwtAuth";
 
 export default class UserController {
   private userService: UserService;
 
-  constructor(userRepository: IUserRepository) {
-    this.userService = new UserService(userRepository);
-  }
-
-  async register(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const userData = request.body as UserDto;
-      const user = await this.userService.createUser(userData);
-
-      return reply.code(201).send({
-        success: true,
-        message: "Created",
-        data: user,
-      });
-    } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        error: "Bad Request",
-      });
-    }
+  constructor(userService: UserService) {
+    this.userService = userService;
   }
 
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    const requestedUser = request.user as JwtPayloadInfo;
+
     return this.userService.getUserByUsername(request.params.username)
-      .then(user => reply.code(200).send({
-        success: true,
-        message: user?.username + ': I\'m alive!',
-      }))
+      .then(user => {
+        if (requestedUser.username !== request.params.username) {
+          return reply.code(403).send({
+              success: false,
+              error: request.params.username + ' says: You are not allowed to read my stuff!',
+            });
+        }
+
+        return reply.code(200).send({
+            success: true,
+            data: user
+          });
+      })
       .catch(err => reply.code(404).send({
         success: false,
         error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
       }));
   }
 
-  async test(request: FastifyRequest<{ Params: { method: string, id: number } }>, reply: FastifyReply) {
-    return this.userService.test(request.params.method, request.params.id)
-      .then(methodResult => reply.code(200).send({
-        success: true,
-        message: methodResult,
-      }))
-      .catch(err => reply.code(404).send({
-        success: false,
-        error: err,
-      }));
+  async login(request: FastifyRequest, reply: FastifyReply) {
+    const userInfo = request.body as UserLoginInfo;
+
+    return this.userService.getUserByUsername(userInfo.username)
+      .then(async user => {
+        const [accessToken, refreshToken] = await Promise.all([
+          JwtAuth.sign(reply, user as JwtPayloadInfo, '5m'),
+          JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
+        ]);
+
+        reply.header('set-cookie', [
+          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
+          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
+        ]);
+
+        return reply.status(200).send({ "success": true });
+      })
+      .catch(error => reply.status(404).send({ "success": false, "error": error }));
   }
 }
