@@ -33,24 +33,4 @@ export default class UserController {
         error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
       }));
   }
-
-  async login(request: FastifyRequest, reply: FastifyReply) {
-    const userInfo = request.body as UserLoginInfo;
-
-    return this.userService.getUserByUsername(userInfo.username)
-      .then(async user => {
-        const [accessToken, refreshToken] = await Promise.all([
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '5m'),
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
-        ]);
-
-        reply.header('set-cookie', [
-          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
-          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
-        ]);
-
-        return reply.status(200).send({ "success": true });
-      })
-      .catch(error => reply.status(404).send({ "success": false, "error": error }));
-  }
 }
