@@ -7,6 +7,7 @@ export const routes: Route[] = [
     path: "",
     component: () => import("./PrivateLayout/PrivateLayout"),
     guard: authGuard,
+    title: "AmethPong",
     children: [
       {
         path: "/",
@@ -19,6 +20,7 @@ export const routes: Route[] = [
       {
         path: "user/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        title: "Profile",
         children: [
           {
             path: "",
@@ -35,6 +37,7 @@ export const routes: Route[] = [
   {
     path: "",
     component: () => import("./PublicLayout/PublicLayout"),
+    title: "Play our beautiful game",
     children: [
       {
         path: "/",
@@ -55,6 +58,10 @@ export const routes: Route[] = [
 const router = new Router("app", routes);
 
 router.emitter.on("navigate", (e) => {
-  // TODO: Change titles
-  console.log("ROUTER!!!!", e.path, e.router);
+  let title = "";
+  for (const route of e.routeTree) {
+    if (route.title)
+      title = route.title + (title ? " - " + title : "");
+  }
+  document.title = title;
 })
