@@ -6,7 +6,7 @@ import Path from "./Path/Path";
 import type { Route } from "./Route/Route";
 
 export type RouterEvents = {
-  navigate: {path: Path, router?: Router};
+  navigate: {routeTree: Route[], path: Path, router?: Router};
 }
 
 export class Router {
@@ -130,7 +130,7 @@ export class Router {
       }
     }
     this._currentTree = routeTree;
-    this._emitter.emit("navigate", {path: this._currentPath, router: this});
+    this._emitter.emit("navigate", {routeTree: this._currentTree, path: this._currentPath, router: this});
   }
 
   navigateByPath(path: string) {
