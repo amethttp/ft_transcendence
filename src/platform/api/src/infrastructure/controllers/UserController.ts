@@ -39,8 +39,10 @@ export default class UserController {
 
     return this.userService.getUserByUsername(userInfo.username)
       .then(async user => {
-        const accessToken = await JwtAuth.sign(reply, user as JwtPayloadInfo, '5m');
-        const refreshToken = await JwtAuth.sign(reply, user as JwtPayloadInfo, '30d');
+        const [accessToken, refreshToken] = await Promise.all([
+          JwtAuth.sign(reply, user as JwtPayloadInfo, '5m'),
+          JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
+        ]);
 
         return reply.status(200).send({ "success": true, "accessToken": accessToken, "refreshToken": refreshToken });
       })
