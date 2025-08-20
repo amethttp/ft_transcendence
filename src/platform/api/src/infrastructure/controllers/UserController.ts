@@ -23,10 +23,7 @@ export default class UserController {
             });
         }
 
-        return reply.code(200).send({
-            success: true,
-            data: user
-          });
+        return reply.code(200).send(user);
       })
       .catch(err => reply.code(404).send({
         success: false,

@@ -10,14 +10,14 @@ const server = fastify();
 const publicRoutes = ['/register', '/login', '/refresh'];
 
 server.register(cors, {
-  origin: ['https://localhost:4321'],
+  origin: ['http://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
   credentials: true
 })
 
 server.register(jwt, { secret: 'secret' });
 server.register(cookie);
 
-server.register(userRoutes);
+server.register(userRoutes, {prefix: '/user'});
 server.register(authRoutes);
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
