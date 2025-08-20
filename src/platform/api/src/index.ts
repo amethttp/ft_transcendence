@@ -2,15 +2,17 @@ import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import jwt from '@fastify/jwt';
 import userRoutes from "./infrastructure/routes/UserRoutes";
 import { JwtAuth } from "./infrastructure/auth/JwtAuth";
+import authRoutes from "./infrastructure/routes/AuthRoutes";
 
 const server = fastify();
 
 server.register(jwt, { secret: 'secret' });
 
-server.register(userRoutes, { prefix: '/api' });
+server.register(userRoutes);
+server.register(authRoutes);
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
-  if (request.url === '/api/register' || request.url === '/api/login')
+  if (request.url === '/register' || request.url === '/login' || request.url === '/refresh')
     return;
 
   await JwtAuth.validateRequest(request, reply);
