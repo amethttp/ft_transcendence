@@ -52,4 +52,9 @@ export const routes: Route[] = [
   },
 ];
 
-new Router("app", routes);
+const router = new Router("app", routes);
+
+router.emitter.on("navigate", (e) => {
+  // TODO: Change titles
+  console.log("ROUTER!!!!", e.path, e.router);
+})

@@ -1,8 +1,13 @@
 import AmethComponent from "../AmethComponent";
+import EventEmitter from "../EventEmitter/EventEmitter";
 import PathHelper from "./Path/helpers/PathHelper";
 import PathMapper from "./Path/mappers/PathMapper";
 import Path from "./Path/Path";
 import type { Route } from "./Route/Route";
+
+export type RouterEvents = {
+  navigate: {path: Path, router?: Router};
+}
 
 export class Router {
   private _selector: string;
@@ -10,6 +15,7 @@ export class Router {
   private _currentTree: Route[];
   private _currentComponents: AmethComponent[];
   private _currentPath: Path;
+  private _emitter: EventEmitter<RouterEvents>;
 
   constructor(selector: string, routes: Route[]) {
     this._selector = selector;
@@ -17,11 +23,16 @@ export class Router {
     this._currentTree = [];
     this._currentComponents = [];
     this._currentPath = new Path();
+    this._emitter = new EventEmitter();
     this.listen();
   }
 
   get currentPath(): Path {
     return this._currentPath;
+  }
+
+  get emitter(): EventEmitter<RouterEvents> {
+    return this._emitter;
   }
 
   private isOtherEvent(e: MouseEvent, anchor: HTMLAnchorElement): boolean {
@@ -119,6 +130,7 @@ export class Router {
       }
     }
     this._currentTree = routeTree;
+    this._emitter.emit("navigate", {path: this._currentPath, router: this});
   }
 
   navigateByPath(path: string) {
