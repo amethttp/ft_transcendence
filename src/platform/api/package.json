@@ -13,13 +13,17 @@
   "keywords": [],
   "author": "amethttp",
   "license": "MIT",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
-    "fastify": "^5.4.0"
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "fastify": "^5.4.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
-    "typescript": "^5.9.2",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "typescript": "^5.9.2"
   }
 }

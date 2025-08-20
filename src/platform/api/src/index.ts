@@ -1,40 +1,30 @@
-import fastify from "fastify";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
+import jwt from '@fastify/jwt';
+import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
+import userRoutes from "./infrastructure/routes/UserRoutes";
+import { JwtAuth } from "./infrastructure/auth/JwtAuth";
+import authRoutes from "./infrastructure/routes/AuthRoutes";
 
 const server = fastify();
+const publicRoutes = ['/register', '/login', '/refresh'];
 
-server.get("/ping", async (request, reply) => {
-  return "pong\n";
-});
+server.register(cors, {
+  origin: ['https://localhost:4321'],
+  credentials: true
+})
 
-interface IQuerystring {
-  username: string;
-  password: string;
-}
+server.register(jwt, { secret: 'secret' });
+server.register(cookie);
 
-interface IHeaders {
-  "h-Custom": string;
-}
+server.register(userRoutes);
+server.register(authRoutes);
 
-interface IReply {
-  200: { success: boolean };
-  302: { url: string };
-  "4xx": { error: string };
-}
+server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
+  if (publicRoutes.includes(request.url))
+    return;
 
-server.get("/auth", async (request, reply) => {
-  const { username, password } = request.query as IQuerystring;
-  const customerHeader = request.headers["h-Custom"];
-  // do something with request data
-
-  // chaining .statusCode/.code calls with .send allows type narrowing. For example:
-  // this works
-
-  // reply.code(200).send({ success: true });
-  // but this gives a type error
-  reply.code(200).send("uh-oh");
-  // it even works for wildcards
-  reply.code(404).send({ error: "Not found" });
-  return `logged in!`;
+  await JwtAuth.validateRequest(request, reply);
 });
 
 server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
