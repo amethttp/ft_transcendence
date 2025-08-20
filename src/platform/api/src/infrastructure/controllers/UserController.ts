@@ -19,7 +19,7 @@ export default class UserController {
         if (requestedUser.username !== request.params.username) {
           return reply.code(403).send({
               success: false,
-              message: request.params.username + ' says: You are not allowed to read my stuff!',
+              error: request.params.username + ' says: You are not allowed to read my stuff!',
             });
         }
 
@@ -44,7 +44,12 @@ export default class UserController {
           JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
         ]);
 
-        return reply.status(200).send({ "success": true, "accessToken": accessToken, "refreshToken": refreshToken });
+        reply.header('set-cookie', [
+          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
+          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
+        ]);
+
+        return reply.status(200).send({ "success": true });
       })
       .catch(error => reply.status(404).send({ "success": false, "error": error }));
   }

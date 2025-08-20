@@ -15,6 +15,8 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
     "@fastify/jwt": "^10.0.0",
     "fastify": "^5.4.0",
     "sqlite3": "^5.1.7"
