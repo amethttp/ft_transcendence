@@ -59,7 +59,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     email TEXT NOT NULL,
     username TEXT NOT NULL,
-    avatar TEXT DEFAULT "/uploads/default/amethyst.jpg",
+    avatar_url TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
     auth_id INTEGER NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS user_relation (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    alias TEXT DEFAULT "Same species",
+    alias TEXT,
     type INTEGER NOT NULL,
     owner_user_id INTEGER NOT NULL,
     receiver_user_id INTEGER NOT NULL,
@@ -165,15 +165,40 @@ INSERT INTO password (hash) VALUES ('dummy1234');
 INSERT INTO auth (password_id)
   SELECT id FROM password ORDER BY id DESC LIMIT 1;
 
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'cfidalgo@gmail.com', 'cfidalgo', 'testAvatar', id FROM auth ORDER BY id DESC LIMIT 1;
 
-INSERT INTO user (email, username, auth_id)
-  SELECT 'cfidalgo@gmail.com', 'cfidalgo', id FROM auth ORDER BY id DESC LIMIT 1;
+
+INSERT INTO password (hash) VALUES ('4321ymmud');
+
+INSERT INTO auth (password_id)
+  SELECT id FROM password ORDER BY id DESC LIMIT 1;
+
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'vperez-f@gmail.com', 'vperez-f', 'vperez-f_avatar', id FROM auth ORDER BY id DESC LIMIT 1;
+
+
+INSERT INTO password (hash) VALUES ('12dummud21');
+
+INSERT INTO auth (password_id)
+  SELECT id FROM password ORDER BY id DESC LIMIT 1;
+
+INSERT INTO user (email, username, avatar_url, auth_id)
+  SELECT 'arcanava@gmail.com', 'arcanava', 'noSeProgramar.jpg', id FROM auth ORDER BY id DESC LIMIT 1;
+
 
 INSERT INTO match (name, token, is_visible, state, type) VALUES ('partidaza', 'a35Fda1', 0, 2, 2);
 
 INSERT INTO match_player (score, is_winner, user_id, match_id)
   SELECT 5, 1, u.id, m.id FROM (
-    SELECT id FROM user ORDER BY id DESC LIMIT 1
+    SELECT id FROM user WHERE username='cfidalgo'
+  ) AS u CROSS JOIN (
+    SELECT id FROM match ORDER BY id DESC LIMIT 1
+  ) AS m;
+
+INSERT INTO match_player (score, is_winner, user_id, match_id)
+  SELECT 0, 0, u.id, m.id FROM (
+    SELECT id FROM user WHERE username='vperez-f'
   ) AS u CROSS JOIN (
     SELECT id FROM match ORDER BY id DESC LIMIT 1
   ) AS m;

@@ -9,4 +9,5 @@ export type Route = {
   component?: () => Promise<Module>;
   guard?: Guard;
   redirect?: string;
+  children?: Route[];
 };
