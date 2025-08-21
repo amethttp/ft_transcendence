@@ -19,7 +19,6 @@ export default class UserController {
         return reply.code(401).send({ error: ErrorMsg.UNAUTHORIZED_USER_ACTION });
       }
 
-      console.log(user);
       reply.code(200).send({
         data: user
       });

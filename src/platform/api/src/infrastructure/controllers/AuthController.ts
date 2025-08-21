@@ -5,7 +5,6 @@ import { UserService } from "../../application/services/UserService";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
 
-
 export default class AuthController {
   private userService: UserService;
 
