@@ -1,11 +1,9 @@
 FROM alpine:3.22.1
 
-RUN apk add --no-cache nodejs npm sqlite
+RUN apk add --no-cache nodejs npm sqlite openssl
 
-RUN mkdir -p /home/db
+COPY --chmod=700 ./tools/init_platform_api.sh /root/
+COPY --chmod=600 ./tools/amethpong_script.sql /root/
 
-COPY --chmod=700 ./tools/init_database.sh /home/db
-COPY --chmod=600 ./tools/amethpong_script.sql /home/db
-
-ENTRYPOINT [ "/home/db/init_database.sh" ]
+ENTRYPOINT [ "/root/init_platform_api.sh" ]
 CMD [ "tail", "-f", "/dev/null" ]
