@@ -1,6 +1,7 @@
 import type { Route } from "./framework/Router/Route/Route";
 import authGuard from "./auth/authGuard/authGuard";
 import { Router } from "./framework/Router/Router";
+import { TitleHelper } from "./framework/TitleHelper/TitleHelper";
 
 export const routes: Route[] = [
   {
@@ -62,7 +63,7 @@ router.emitter.on("navigate", (e) => {
   let title = "";
   for (const route of e.routeTree) {
     if (route.title)
-      title = route.title + (title ? " | " + title : "");
+      title = TitleHelper.addTitlePart(route.title, title);
   }
   document.title = title;
 })
