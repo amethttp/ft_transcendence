@@ -1,40 +1,15 @@
 import fastify from "fastify";
+import fs from 'fs';
 
-const server = fastify();
-
-server.get("/ping", async (request, reply) => {
-  return "pong\n";
+const server = fastify({
+  https: {
+    key: fs.readFileSync('/etc/ssl/private/transcendence.key'),
+    cert: fs.readFileSync('/etc/ssl/certs/transcendence.crt')
+  }
 });
 
-interface IQuerystring {
-  username: string;
-  password: string;
-}
-
-interface IHeaders {
-  "h-Custom": string;
-}
-
-interface IReply {
-  200: { success: boolean };
-  302: { url: string };
-  "4xx": { error: string };
-}
-
-server.get("/auth", async (request, reply) => {
-  const { username, password } = request.query as IQuerystring;
-  const customerHeader = request.headers["h-Custom"];
-  // do something with request data
-
-  // chaining .statusCode/.code calls with .send allows type narrowing. For example:
-  // this works
-
-  // reply.code(200).send({ success: true });
-  // but this gives a type error
-  reply.code(200).send("uh-oh");
-  // it even works for wildcards
-  reply.code(404).send({ error: "Not found" });
-  return `logged in!`;
+server.get("/ping", async (request, reply) => {
+  return "pong from game-api\n";
 });
 
 server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {

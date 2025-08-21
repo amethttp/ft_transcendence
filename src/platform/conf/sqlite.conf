@@ -1,0 +1,2 @@
+.mode box
+.headers on
