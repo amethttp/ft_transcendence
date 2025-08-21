@@ -34,6 +34,7 @@ PROD_YAML = $(SRC)docker-compose.prod.yml
 VOLUMES_DIR=volumes/
 DATABASE_VOLUME=$(VOLUMES_DIR)database/
 UPLOADS_VOLUME=$(VOLUMES_DIR)uploads/
+WEB_VOLUME=$(VOLUMES_DIR)web/
 # ------------------ #
 
 
@@ -53,13 +54,13 @@ list:
 
 up:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
-	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(BASE_YAML) -f $(DEV_YAML) up -d --build
 
 prod:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
-	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(BASE_YAML) -f $(PROD_YAML) up -d --build
 
@@ -70,7 +71,7 @@ down:
 fdown:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE) and $(WHITE_BOLD)volumes$(BLUE)...$(RESET)"
 	@$(DOCKER) compose -f $(BASE_YAML) down -v
-	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
+	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 
 log:
 	@while [ -z "$$TARGET" ]; do \

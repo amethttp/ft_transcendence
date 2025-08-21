@@ -1,0 +1,13 @@
+services:
+  platform:
+    ports:
+      - "443:443"
+
+  game:
+    ports:
+      - "443:443"
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"

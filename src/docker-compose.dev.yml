@@ -1,0 +1,50 @@
+services:
+  platform:
+    command: "npm run dev"
+    ports:
+      - "8080:443"
+    volumes:
+      - platform-api:/home/app
+
+  game:
+    command: "npm run dev"
+    ports:
+      - "8081:443"
+    volumes:
+      - game-api:/home/app
+
+  nginx:
+    ports:
+      - "4321:443"
+
+  front:
+    command: "npm run dev"
+    ports:
+      - "5173:5173"
+      - "4173:4173"
+    volumes:
+      - front:/home/app
+    restart: always
+
+
+volumes:
+  platform-api:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./platform/api/
+      o: bind
+
+  game-api:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./game/api/
+      o: bind
+
+  front:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./front/app/
+      o: bind

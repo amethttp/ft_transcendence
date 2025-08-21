@@ -9,6 +9,7 @@ COPY --chmod=700 ./tools/init_nginx.sh /root/
 
 EXPOSE 80
 EXPOSE 443
+EXPOSE 4321
 
 WORKDIR /var/www/html
 

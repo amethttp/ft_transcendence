@@ -13,6 +13,7 @@ const server = fastify({
     cert: fs.readFileSync('/etc/ssl/certs/transcendence.crt')
   }
 });
+
 const publicRoutes = ['/register', '/login', '/refresh'];
 
 server.register(cors, {
