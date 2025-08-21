@@ -1,8 +1,7 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
+import { type FastifyRequest, type FastifyReply, errorCodes } from "fastify";
 import { UserService } from "../../application/services/UserService";
-import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
-import { JwtAuth } from "../auth/JwtAuth";
+import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
 
 export default class UserController {
   private userService: UserService;
@@ -12,25 +11,25 @@ export default class UserController {
   }
 
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
-    const requestedUser = request.user as JwtPayloadInfo;
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const user = await this.userService.getUserByUsername(request.params.username);
 
-    return this.userService.getUserByUsername(request.params.username)
-      .then(user => {
-        if (requestedUser.username !== request.params.username) {
-          return reply.code(403).send({
-              success: false,
-              error: request.params.username + ' says: You are not allowed to read my stuff!',
-            });
-        }
+      if (requestedUser.username !== request.params.username) {
+        return reply.code(401).send({ error: ErrorMsg.UNAUTHORIZED_USER_ACTION });
+      }
 
-        return reply.code(200).send({
-            success: true,
-            data: user
-          });
-      })
-      .catch(err => reply.code(404).send({
-        success: false,
-        error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
-      }));
+      console.log(user);
+      reply.code(200).send({
+        data: user
+      });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send({ error: err.message });
+      }
+      else {
+        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+      }
+    }
   }
 }

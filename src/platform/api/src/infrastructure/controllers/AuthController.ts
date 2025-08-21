@@ -2,8 +2,9 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserService } from "../../application/services/UserService";
-import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
+import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
+
 
 export default class AuthController {
   private userService: UserService;
@@ -16,38 +17,52 @@ export default class AuthController {
     const refreshToken = request.cookies.RefreshToken;
 
     try {
-      const decodedToken = jwt.verify(refreshToken);
+      let decodedToken;
+      try {
+        decodedToken = jwt.verify(refreshToken);
+      } catch (verifyErr) {
+        throw new ResponseError(ErrorMsg.AUTH_INVALID_REFRESH_TOKEN);
+      }
       const tokenPayload = decodedToken as JwtPayloadInfo;
-
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, '5m');
 
       reply.header('set-cookie', [
         `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/`,
       ]);
 
-      reply.send({ success: true });
+      reply.status(200).send();
     } catch (err) {
-      reply.status(401).send({ success: false, error: 'Invalid refresh token' });
+      if (err instanceof ResponseError) {
+        reply.code(401).send({ error: err.message });
+      }
+      else {
+        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+      }
     }
   }
 
   async login(request: FastifyRequest, reply: FastifyReply) {
-    const userInfo = request.body as UserLoginInfo;
+    try {
+      const userInfo = request.body as UserLoginInfo;
+      const loggedUser = await this.userService.getUserByUsername(userInfo.username);
+      const [accessToken, refreshToken] = await Promise.all([
+        JwtAuth.sign(reply, loggedUser as JwtPayloadInfo, '5m'),
+        JwtAuth.sign(reply, loggedUser as JwtPayloadInfo, '30d'),
+      ]);
 
-    return this.userService.getUserByUsername(userInfo.username)
-      .then(async user => {
-        const [accessToken, refreshToken] = await Promise.all([
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '5m'),
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
-        ]);
+      reply.header('set-cookie', [
+        `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
+        `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
+      ]);
 
-        reply.header('set-cookie', [
-          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
-          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
-        ]);
-
-        return reply.status(200).send({ "success": true });
-      })
-      .catch(error => reply.status(404).send({ "success": false, "error": error }));
+      reply.status(200).send();
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send({ error: err.message });
+      }
+      else {
+        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+      }
+    }
   }
 }
