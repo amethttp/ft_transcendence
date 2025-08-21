@@ -104,6 +104,8 @@ export class Router {
     }
 
     this._currentPath = PathMapper.fromRouteTree(routeTree, path);
+    this._emitter.emit("navigate", {routeTree: routeTree, path: this._currentPath, router: this});
+
     for (const [i, route] of routeTree.entries()) {
       if (route.redirect) return this.navigateByPath(route.redirect);
       if (this._currentTree[i] !== route) {
@@ -129,7 +131,6 @@ export class Router {
       }
     }
     this._currentTree = routeTree;
-    this._emitter.emit("navigate", {routeTree: this._currentTree, path: this._currentPath, router: this});
   }
 
   navigateByPath(path: string) {

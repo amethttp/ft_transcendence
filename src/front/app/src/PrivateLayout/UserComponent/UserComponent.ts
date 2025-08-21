@@ -1,18 +1,35 @@
 import AmethComponent from "../../framework/AmethComponent";
 import Sidebar from "../components/SidebarComponent/SidebarComponent";
+import type UserProfile from "./UserProfileComponent/models/UserProfile";
+import UserProfileService from "./UserProfileComponent/services/UserProfileService";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
   protected sidebar: Sidebar;
+  protected userProfileService: UserProfileService;
+  protected userProfile?: UserProfile;
 
   constructor() {
     super();
+    this.userProfileService = new UserProfileService();
     this.sidebar = new Sidebar();
   }
 
   afterInit() {
     this.sidebar.init("user-sidebar");
-    document.getElementById("userId")!.innerHTML =
-      this.router?.currentPath.params["userId"] as string;
+    const username = this.router?.currentPath.params["userId"] as string;
+    this.userProfileService.getUserProfile(username).then(val => {
+      this.userProfile = val;
+      this.updateTitle();
+    }).catch(() => {
+      this.userProfile = { email: "NOT FOUND" };
+    });
+  }
+
+  private updateTitle() {
+    if (this.userProfile?.username) {
+      const title = document.title;
+      document.title = `${this.userProfile?.username} | ${title}`;
+    }
   }
 }
