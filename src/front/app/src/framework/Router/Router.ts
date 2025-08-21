@@ -69,18 +69,18 @@ export class Router {
     this.navigate(this.normalizeURL(location.href));
   }
 
-  private findRouteTree(path: string, routes: Route[] = this._routes, parentPath = ""): Route[] | undefined {
+  private async findRouteTree(path: string, routes: Route[] = this._routes, parentPath = ""): Promise<Route[] | undefined> {
     for (const route of routes) {
       let separator = '/';
       if (route.path === "")
         separator = '';
       const fullPath = PathHelper.normalize(parentPath + separator + route.path);
-      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || route.guard(route))) {
-        const childTree = this.findRouteTree(path, route.children, fullPath);
+      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || await route.guard(route))) {
+        const childTree = await this.findRouteTree(path, route.children, fullPath);
         if (childTree) return [route, ...childTree];
         else continue;
       }
-      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || route.guard(route))) {
+      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || await route.guard(route))) {
         return [route];
       }
     }
@@ -97,7 +97,7 @@ export class Router {
   }
 
   private async navigate(path: string) {
-    const routeTree = this.findRouteTree(path);
+    const routeTree = await this.findRouteTree(path);
     if (!routeTree) {
       console.warn(`No route found for path: ${path}`);
       return;
@@ -125,7 +125,6 @@ export class Router {
         }
       }
       else {
-        console.log("Reused component: ", this._currentComponents[i]);
         this._currentComponents[i].refresh();
       }
     }
@@ -141,5 +140,9 @@ export class Router {
   navigateByUrl(newUrl: URL) {
     history.pushState(null, "", newUrl.href);
     this.navigate(newUrl.pathname);
+  }
+
+  refresh() {
+    this.navigateByPath(this.currentPath.fullPath);
   }
 }
