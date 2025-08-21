@@ -18,11 +18,13 @@ export default class AuthController {
     try {
       const decodedToken = jwt.verify(refreshToken);
       const tokenPayload = decodedToken as JwtPayloadInfo;
+      const accessTokenExpiry = 5;
+      const mins = 60;
 
-      const newAccessToken = await JwtAuth.sign(reply, tokenPayload, '5m');
+      const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
 
       reply.header('set-cookie', [
-        `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/`,
+        `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
       ]);
 
       reply.send({ success: true });
@@ -36,14 +38,18 @@ export default class AuthController {
 
     return this.userService.getUserByUsername(userInfo.username)
       .then(async user => {
+        const accessTokenExpiry = 5;
+        const refreshTokenExpiry = 30;
+        const mins = 60;
+        const days = 86400;
         const [accessToken, refreshToken] = await Promise.all([
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '5m'),
+          JwtAuth.sign(reply, user as JwtPayloadInfo, accessTokenExpiry + 'm'),
           JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
         ]);
 
         reply.header('set-cookie', [
-          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/`,
-          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/`
+          `AccessToken=${accessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
+          `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
         ]);
 
         return reply.status(200).send({ "success": true });

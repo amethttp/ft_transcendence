@@ -7,7 +7,7 @@ import { JwtAuth } from "./infrastructure/auth/JwtAuth";
 import authRoutes from "./infrastructure/routes/AuthRoutes";
 
 const server = fastify();
-const publicRoutes = ['/register', '/login', '/refresh'];
+const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
 
 server.register(cors, {
   origin: ['http://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
@@ -18,7 +18,7 @@ server.register(jwt, { secret: 'secret' });
 server.register(cookie);
 
 server.register(userRoutes, {prefix: '/user'});
-server.register(authRoutes);
+server.register(authRoutes, {prefix: '/auth'});
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
   if (publicRoutes.includes(request.url))
