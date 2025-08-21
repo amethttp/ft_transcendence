@@ -12,6 +12,7 @@ export const routes: Route[] = [
       {
         path: "/",
         component: () => import("./PrivateLayout/GameComponent/GameComponent"),
+        title: "Games"
       },
       {
         path: "user",
@@ -20,7 +21,6 @@ export const routes: Route[] = [
       {
         path: "user/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
-        title: "Profile",
         children: [
           {
             path: "",
@@ -28,7 +28,8 @@ export const routes: Route[] = [
           },
           {
             path: "stats",
-            component: () => import("./PrivateLayout/UserComponent/UserStatsComponent/UserStatsComponent")
+            component: () => import("./PrivateLayout/UserComponent/UserStatsComponent/UserStatsComponent"),
+            title: "Stats"
           }
         ]
       },
@@ -37,7 +38,7 @@ export const routes: Route[] = [
   {
     path: "",
     component: () => import("./PublicLayout/PublicLayout"),
-    title: "Play our beautiful game",
+    title: "Play our beautiful game | AmethPong",
     children: [
       {
         path: "/",
@@ -61,7 +62,7 @@ router.emitter.on("navigate", (e) => {
   let title = "";
   for (const route of e.routeTree) {
     if (route.title)
-      title = route.title + (title ? " - " + title : "");
+      title = route.title + (title ? " | " + title : "");
   }
   document.title = title;
 })
