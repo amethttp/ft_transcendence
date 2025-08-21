@@ -1,4 +1,5 @@
 import AmethComponent from "../../framework/AmethComponent";
+import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
 import Sidebar from "../components/SidebarComponent/SidebarComponent";
 import type UserProfile from "./UserProfileComponent/models/UserProfile";
 import UserProfileService from "./UserProfileComponent/services/UserProfileService";
@@ -28,8 +29,7 @@ export default class UserComponent extends AmethComponent {
 
   private updateTitle() {
     if (this.userProfile?.username) {
-      const title = document.title;
-      document.title = `${this.userProfile?.username} | ${title}`;
+      document.title = TitleHelper.addTitlePart(this.userProfile.username);
     }
   }
 }
