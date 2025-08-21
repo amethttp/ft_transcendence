@@ -1,6 +1,10 @@
-import type { Route } from "../../framework/Router/Route/Route";
+import type { Guard } from "../../framework/Router/Route/Guard";
 
-export default function authGuard(route: Route): boolean {
-  console.log("AuthGuard", route);
-  return true;
+export const authGuard: Guard = async (): Promise<boolean> => {
+  try {
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
+export default authGuard;
