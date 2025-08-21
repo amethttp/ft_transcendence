@@ -1,19 +1,18 @@
+import HttpClient from "../../../../framework/HttpClient/HttpClient";
+import type { IHttpClient } from "../../../../framework/HttpClient/IHttpClient";
 import type UserProfile from "../models/UserProfile";
 
 export default class UserProfileService {
-  private readonly BASE = "http://localhost:8080/user";
-  private readonly PROFILE_ENDPOINT = "/";
+  private static readonly BASE = "http://localhost:8080/user";
+  private static readonly PROFILE_ENDPOINT = this.BASE + "/";
+  private readonly http: IHttpClient;
 
-  async getUserProfile(userName: string): Promise<UserProfile | undefined> {
-    try {
-      const response = await fetch(this.BASE + this.PROFILE_ENDPOINT + userName);
-      if (!response.ok) return undefined;
-  
-      const data: UserProfile = await response.json();
-      return data;
-    } catch (err) {
-      console.error("Error fetching user profile:", err);
-      return undefined;
-    }
+  constructor() {
+    this.http = new HttpClient();
+  }
+
+  getUserProfile(userName: string): Promise<UserProfile> {
+      // const response = await fetch(UserProfileService.BASE + );
+      return this.http.get(UserProfileService.PROFILE_ENDPOINT + userName);
   }
 }
