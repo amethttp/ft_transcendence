@@ -40,6 +40,7 @@ export class ApiClient extends HttpClient {
       if (error["status"] === 401 && error["error"]["code"] === "FST_JWT_NO_AUTHORIZATION_IN_HEADER") {
         if ((await this.refreshToken()).success)
           return this.request<T>(url, options);
+        // TODO: If not logged, redirect!
       }
       throw error;
     }
