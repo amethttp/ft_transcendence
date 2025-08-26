@@ -8,7 +8,7 @@ export const routes: Route[] = [
     path: "",
     component: () => import("./PrivateLayout/PrivateLayout"),
     guard: authGuard,
-    title: "AmethPong",
+    title: import.meta.env.VITE_APP_TITLE,
     children: [
       {
         path: "/",
@@ -39,7 +39,7 @@ export const routes: Route[] = [
   {
     path: "",
     component: () => import("./PublicLayout/PublicLayout"),
-    title: "Play our beautiful game | AmethPong",
+    title: "Play our beautiful game | " + import.meta.env.VITE_APP_TITLE,
     children: [
       {
         path: "/",

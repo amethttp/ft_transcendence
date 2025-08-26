@@ -4,7 +4,7 @@ import HttpClient from "../framework/HttpClient/HttpClient";
 import type { TGetParamValue } from "../framework/HttpClient/IHttpClient";
 
 export class ApiClient extends HttpClient {
-  static readonly BASE_URL = "http://localhost:8080";
+  static readonly BASE_URL = import.meta.env.VITE_API_URL;
 
   constructor() {
     super();
