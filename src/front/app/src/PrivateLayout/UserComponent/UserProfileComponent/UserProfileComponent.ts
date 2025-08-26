@@ -1,14 +1,28 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import type UserProfile from "./models/UserProfile";
+import UserProfileService from "./services/UserProfileService";
 
 export default class UserProfileComponent extends AmethComponent {
   template = () => import("./UserProfileComponent.html?raw");
+  protected userProfileService: UserProfileService;
+  protected userProfile?: UserProfile;
 
   constructor() {
     super();
+    this.userProfileService = new UserProfileService();
   }
 
   afterInit() {
-    document.getElementById("userProfile")!.innerHTML =
-      this.router?.currentPath.params["userId"] as string;
+    const username = this.router?.currentPath.params["userId"] as string;
+    this.userProfileService.getUserProfile(username).then(val => {
+      this.userProfile = val;
+    }).catch(() => {
+      this.userProfile = { email: "NOT FOUND" };
+    }).finally(() => this.fillView());
   }
+
+  fillView() {
+    document.getElementById("userProfile")!.innerHTML = this.userProfile?.email || "NONE";
+  }
+
 }
