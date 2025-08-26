@@ -1,4 +1,4 @@
-import { type FastifyRequest, type FastifyReply, errorCodes } from "fastify";
+import { type FastifyRequest, type FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
@@ -10,18 +10,26 @@ export default class UserController {
     this.userService = userService;
   }
 
+  async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
+    const requestedUser = request.user as JwtPayloadInfo;
+
+    try {
+      return reply.send(await this.userService.getUserById(requestedUser.sub));
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send(err.toDto());
+      }
+      else {
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const requestedUser = request.user as JwtPayloadInfo;
       const user = await this.userService.getUserByUsername(request.params.username);
 
-      if (requestedUser.username !== request.params.username) {
-        return reply.code(401).send(new ResponseError(ErrorMsg.UNAUTHORIZED_USER_ACTION).toDto());
-      }
-
-      reply.code(200).send({
-        data: user
-      });
+      reply.code(200).send(user);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());

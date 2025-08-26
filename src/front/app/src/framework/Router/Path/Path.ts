@@ -1,9 +1,9 @@
 export type PathParam = string | number;
 
 export default class Path {
-  _fullPath: string;
-  _routePath: string;
-  _params: Record<string, PathParam>;
+  private _fullPath: string;
+  private _routePath: string;
+  private _params: Record<string, PathParam>;
 
   constructor(fullPath: string = "", routePath: string = "", params: Record<string, PathParam> = {}) {
     this._fullPath = fullPath;

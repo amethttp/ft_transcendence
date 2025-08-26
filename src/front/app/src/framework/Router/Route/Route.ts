@@ -10,4 +10,5 @@ export type Route = {
   guard?: Guard;
   redirect?: string;
   children?: Route[];
+  title?: string;
 };

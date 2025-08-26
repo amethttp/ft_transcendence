@@ -24,4 +24,10 @@ export default class EventEmitter<Events extends Record<string, any> = AmethEven
       Promise.resolve().then(() => listener(payload));
     });
   }
+
+  emitSync<K extends keyof Events>(event: K, payload: Events[K]): void {
+    this.listeners[event]?.forEach(listener => {
+      listener(payload);
+    });
+  }
 }
