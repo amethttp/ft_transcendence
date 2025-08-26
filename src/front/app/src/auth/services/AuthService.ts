@@ -1,6 +1,6 @@
 import { ApiClient } from "../../ApiClient/ApiClient";
-import { CookieHelper } from "../../framework/CookieHelper/CookieHelper";
 import type { IHttpClient } from "../../framework/HttpClient/IHttpClient";
+import type { BasicResponse } from "../models/BasicResponse";
 import type { LoginRequest } from "../models/LoginRequest";
 import type { LoginResponse } from "../models/LoginResponse";
 
@@ -14,13 +14,11 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Promise<LoginResponse> {
-    return this.http.post(AuthService.LOGIN_ENDPOINT, request, {credentials: "include"});
+    return this.http.post<LoginRequest, LoginResponse>(AuthService.LOGIN_ENDPOINT, request, {credentials: "include"});
   }
 
-  logout() {
-    // TODO: API call to remove RefreshToken correctly
-    CookieHelper.delete("AccessToken");
-    CookieHelper.delete("RefreshToken");
+  async logout() {
+    await this.http.delete<null, BasicResponse>(AuthService.LOGIN_ENDPOINT, null, {credentials: "include"});
   }
 
 }

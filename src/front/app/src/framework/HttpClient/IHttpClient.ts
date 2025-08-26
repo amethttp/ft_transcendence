@@ -5,5 +5,6 @@ export interface IHttpClient {
   get<ResponseType>(url: string, params?: Record<string, TGetParamValue>, options?: RequestInit): Promise<ResponseType>;
 
   post<BodyType, ResponseType>(url: string, body?: BodyType, options?: RequestInit): Promise<ResponseType>;
-  
+
+  delete<BodyType, ResponseType>(url: string, body?: BodyType, options?: RequestInit): Promise<ResponseType>;  
 }

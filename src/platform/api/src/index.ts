@@ -11,6 +11,7 @@ const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
 
 server.register(cors, {
   origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
+  methods: ['GET', 'POST', 'DELETE'],
   credentials: true
 })
 
