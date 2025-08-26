@@ -1,4 +1,4 @@
-import { type FastifyRequest, type FastifyReply, errorCodes } from "fastify";
+import { type FastifyRequest, type FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
@@ -14,7 +14,7 @@ export default class UserController {
     const requestedUser = request.user as JwtPayloadInfo;
 
     try {
-      return reply.send(await this.userService.getUserById(requestedUser.id));
+      return reply.send(await this.userService.getUserById(requestedUser.sub));
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());
@@ -29,9 +29,7 @@ export default class UserController {
     try {
       const user = await this.userService.getUserByUsername(request.params.username);
 
-      reply.code(200).send({
-        data: user
-      });
+      reply.code(200).send(user);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());

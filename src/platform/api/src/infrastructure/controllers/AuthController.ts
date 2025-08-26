@@ -25,7 +25,6 @@ export default class AuthController {
       const tokenPayload = decodedToken as JwtPayloadInfo;
       const accessTokenExpiry = 5;
       const mins = 60;
-
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
 
       reply.header('set-cookie', [
@@ -52,8 +51,8 @@ export default class AuthController {
       const mins = 60;
       const days = 86400;
       const [accessToken, refreshToken] = await Promise.all([
-        JwtAuth.sign(reply, loggedUser as JwtPayloadInfo, accessTokenExpiry + 'm'),
-        JwtAuth.sign(reply, loggedUser as JwtPayloadInfo, accessTokenExpiry + 'd'),
+        JwtAuth.sign(reply, { sub: loggedUser.id } as JwtPayloadInfo, accessTokenExpiry + 'm'),
+        JwtAuth.sign(reply, { sub: loggedUser.id } as JwtPayloadInfo, refreshTokenExpiry + 'd'),
       ]);
 
       reply.header('set-cookie', [
@@ -61,7 +60,7 @@ export default class AuthController {
         `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
       ]);
 
-      reply.status(200).send();
+      reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());
@@ -72,7 +71,7 @@ export default class AuthController {
     }
   }
 
-  async logout(request: FastifyRequest, reply: FastifyReply) {
+  async logout(reply: FastifyReply) {
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
       `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
