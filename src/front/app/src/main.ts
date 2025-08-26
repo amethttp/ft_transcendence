@@ -61,11 +61,4 @@ export const routes: Route[] = [
 
 const router = new Router("app", routes);
 
-router.emitter.on("navigate", (e) => {
-  let title = "";
-  for (const route of e.routeTree) {
-    if (route.title)
-      title = TitleHelper.addTitlePart(route.title, title);
-  }
-  document.title = title;
-})
+router.emitter.on("navigate", async (e) => {TitleHelper.setTitleFromRouteTree(e.routeTree)});
