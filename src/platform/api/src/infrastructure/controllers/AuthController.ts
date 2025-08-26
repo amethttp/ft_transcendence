@@ -2,7 +2,6 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserService } from "../../application/services/UserService";
-import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 
 export default class AuthController {
@@ -57,7 +56,7 @@ export default class AuthController {
       .catch(error => reply.status(404).send({ "success": false, "error": error }));
   }
 
-  async logout(request: FastifyRequest, reply: FastifyReply) {
+  async logout(reply: FastifyReply) {
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
       `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`

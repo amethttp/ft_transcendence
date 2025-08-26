@@ -1,6 +1,5 @@
 import { User } from "../../domain/entities/User";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
-import { Password } from "../../domain/entities/Password";
 
 export class UserService {
   private userRepository: IUserRepository;
