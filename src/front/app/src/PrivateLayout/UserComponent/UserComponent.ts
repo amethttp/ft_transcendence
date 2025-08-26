@@ -27,6 +27,10 @@ export default class UserComponent extends AmethComponent {
     });
   }
 
+  refresh(): void {
+    this.updateTitle();
+  }
+
   private updateTitle() {
     if (this.userProfile?.username) {
       document.title = TitleHelper.addTitlePart(this.userProfile.username);
