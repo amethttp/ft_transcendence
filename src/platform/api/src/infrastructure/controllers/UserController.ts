@@ -12,7 +12,7 @@ export default class UserController {
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
     const requestedUser = request.user as JwtPayloadInfo;
 
-    return this.userService.getUserById(requestedUser.id)
+    return this.userService.getUserById(requestedUser.sub)
       .then(user => {
         return reply.code(200).send(user);
       })
@@ -27,7 +27,7 @@ export default class UserController {
 
     return this.userService.getUserByUsername(request.params.username)
       .then(user => {
-        if (requestedUser.username !== request.params.username) {
+        if (requestedUser.sub !== user.id) {
           return reply.code(403).send({
             success: false,
             error: request.params.username + ' says: You are not allowed to read my stuff!',

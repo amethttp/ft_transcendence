@@ -43,8 +43,8 @@ export default class AuthController {
         const mins = 60;
         const days = 86400;
         const [accessToken, refreshToken] = await Promise.all([
-          JwtAuth.sign(reply, user as JwtPayloadInfo, accessTokenExpiry + 'm'),
-          JwtAuth.sign(reply, user as JwtPayloadInfo, '30d'),
+          JwtAuth.sign(reply, {sub: user.id} as JwtPayloadInfo, accessTokenExpiry + 'm'),
+          JwtAuth.sign(reply, {sub: user.id} as JwtPayloadInfo, '30d'),
         ]);
 
         reply.header('set-cookie', [
