@@ -10,7 +10,7 @@ const server = fastify();
 const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
 
 server.register(cors, {
-  origin: ['http://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
+  origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
   credentials: true
 })
 
