@@ -48,6 +48,8 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
+  // TODO: Delete the linter ignore below!
+  // @ts-ignore
   private async findLastInstanceOf(): Promise<T | null> {
     const sql = `SELECT id FROM ${this._tableName} ORDER BY id DESC LIMIT 1`;
     return this.dbGet(sql, []);
