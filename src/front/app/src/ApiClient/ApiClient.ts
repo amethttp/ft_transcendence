@@ -23,7 +23,7 @@ export class ApiClient extends HttpClient {
   }
 
   private refreshToken(): Promise<BasicResponse> {
-    return this.get("/auth/refresh", undefined, {credentials: "include"});
+    return this.get("/auth/refresh", undefined, { credentials: "include" });
   }
 
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -38,12 +38,8 @@ export class ApiClient extends HttpClient {
       return await super.request<T>(url, options);
     } catch (error: any) {
       if (error["status"] === 401 && error["error"]["code"] === "FST_JWT_NO_AUTHORIZATION_IN_HEADER") {
-        try {
-          if ((await this.refreshToken()).success)
-            return this.request<T>(url, options);
-        } catch (_error) {
-          throw _error;
-        }
+        if ((await this.refreshToken()).success)
+          return this.request<T>(url, options);
       }
       throw error;
     }

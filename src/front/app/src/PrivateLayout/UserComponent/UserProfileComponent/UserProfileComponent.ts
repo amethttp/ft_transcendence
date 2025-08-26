@@ -12,17 +12,17 @@ export default class UserProfileComponent extends AmethComponent {
     this.userProfileService = new UserProfileService();
   }
 
-  fillView() {
-    document.getElementById("userProfile")!.innerHTML = this.userProfile?.email || "NONE";
-  }
-
   afterInit() {
     const username = this.router?.currentPath.params["userId"] as string;
     this.userProfileService.getUserProfile(username).then(val => {
-      console.log("USER PROFILE", val);
       this.userProfile = val;
     }).catch(() => {
       this.userProfile = { email: "NOT FOUND" };
     }).finally(() => this.fillView());
   }
+
+  fillView() {
+    document.getElementById("userProfile")!.innerHTML = this.userProfile?.email || "NONE";
+  }
+
 }
