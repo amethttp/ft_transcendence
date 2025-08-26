@@ -8,6 +8,10 @@ export default async function userRoutes(server: FastifyInstance) {
   const userService = new UserService(userRepository);
   const userController = new UserController(userService);
 
+  server.get('', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.getLoggedUser(request, reply);
+  });
+
   server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userController.pingUser(request, reply);
   });

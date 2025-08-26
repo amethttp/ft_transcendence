@@ -14,4 +14,8 @@ export default class UserProfileService {
   getUserProfile(userName: string): Promise<UserProfile> {
       return this.http.get(UserProfileService.PROFILE_ENDPOINT + userName);
   }
+
+  getLoggedUser(): Promise<UserProfile> {
+    return this.http.get(UserProfileService.BASE);
+}
 }

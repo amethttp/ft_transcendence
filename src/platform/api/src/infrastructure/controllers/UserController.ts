@@ -10,14 +10,24 @@ export default class UserController {
     this.userService = userService;
   }
 
+  async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
+    const requestedUser = request.user as JwtPayloadInfo;
+
+    try {
+      return reply.send(await this.userService.getUserById(requestedUser.id));
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send(err.toDto());
+      }
+      else {
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const requestedUser = request.user as JwtPayloadInfo;
       const user = await this.userService.getUserByUsername(request.params.username);
-
-      if (requestedUser.username !== request.params.username) {
-        return reply.code(401).send(new ResponseError(ErrorMsg.UNAUTHORIZED_USER_ACTION).toDto());
-      }
 
       reply.code(200).send({
         data: user
