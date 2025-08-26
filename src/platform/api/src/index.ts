@@ -14,7 +14,7 @@ server.register(cors, {
   credentials: true
 })
 
-server.register(jwt, { secret: 'secret' });
+server.register(jwt, { secret: process.env.JWT_SECRET || "" });
 server.register(cookie);
 
 server.register(userRoutes);
