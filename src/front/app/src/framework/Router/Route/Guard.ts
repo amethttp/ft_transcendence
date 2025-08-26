@@ -1,3 +1,3 @@
 import type { Route } from "./Route";
 
-export type Guard = (route: Route) => Promise<boolean>;
+export type Guard = (route?: Route) => Promise<boolean>;
