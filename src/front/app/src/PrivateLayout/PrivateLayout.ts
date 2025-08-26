@@ -11,8 +11,8 @@ export default class PrivateLayout extends AmethComponent {
   }
 
   afterInit(): void {
-    document.getElementById("logoutButton")!.onclick = () => {
-      this.authService.logout();
+    document.getElementById("logoutButton")!.onclick = async () => {
+      await this.authService.logout();
       this.router?.refresh();
     };
   }

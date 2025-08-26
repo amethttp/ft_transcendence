@@ -71,4 +71,13 @@ export default class AuthController {
       }
     }
   }
+
+  async logout(request: FastifyRequest, reply: FastifyReply) {
+    reply.header('set-cookie', [
+      `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
+      `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
+    ]);
+
+    return reply.status(200).send({ "success": true });
+  }
 }
