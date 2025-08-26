@@ -17,4 +17,13 @@ export class UserService {
 
     return user;
   }
+
+  async getUserById(id: number): Promise<User> {
+    const user: User | null = await this.userRepository.findById(id);
+
+    if (user === null)
+      throw 'User not found';
+
+    return user;
+  }
 }
