@@ -5,7 +5,7 @@ import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError"
 export class JwtAuth {
   public static async validateRequest(request: FastifyRequest, reply: FastifyReply) {
     request.jwtVerify<JwtPayloadInfo>()
-      .catch(() => reply.status(401).send({ error: ErrorMsg.AUTH_INVALID_REQUEST }));
+      .catch(() => reply.status(401).send(new ResponseError(ErrorMsg.AUTH_INVALID_REQUEST).toDto()));
   }
 
   public static async sign(reply: FastifyReply, tokenPayload: JwtPayloadInfo, expirationTime: string) {

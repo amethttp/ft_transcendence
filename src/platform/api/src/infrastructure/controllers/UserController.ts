@@ -16,7 +16,7 @@ export default class UserController {
       const user = await this.userService.getUserByUsername(request.params.username);
 
       if (requestedUser.username !== request.params.username) {
-        return reply.code(401).send({ error: ErrorMsg.UNAUTHORIZED_USER_ACTION });
+        return reply.code(401).send(new ResponseError(ErrorMsg.UNAUTHORIZED_USER_ACTION).toDto());
       }
 
       reply.code(200).send({
@@ -24,10 +24,10 @@ export default class UserController {
       });
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(404).send({ error: err.message });
+        reply.code(404).send(err.toDto());
       }
       else {
-        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }

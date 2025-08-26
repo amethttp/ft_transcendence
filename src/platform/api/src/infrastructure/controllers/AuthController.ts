@@ -32,10 +32,10 @@ export default class AuthController {
       reply.status(200).send();
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(401).send({ error: err.message });
+        reply.code(401).send(err.toDto());
       }
       else {
-        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
@@ -57,10 +57,10 @@ export default class AuthController {
       reply.status(200).send();
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(404).send({ error: err.message });
+        reply.code(404).send(err.toDto());
       }
       else {
-        reply.code(500).send({ error: ErrorMsg.UNKNOWN_SERVER_ERROR })
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
