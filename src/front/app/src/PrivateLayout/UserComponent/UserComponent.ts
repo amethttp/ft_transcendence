@@ -1,3 +1,4 @@
+import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
 import Sidebar from "../components/SidebarComponent/SidebarComponent";
@@ -16,19 +17,28 @@ export default class UserComponent extends AmethComponent {
     this.sidebar = new Sidebar();
   }
 
-  afterInit() {
+  async afterInit() {
     this.sidebar.init("user-sidebar");
-    const username = this.router?.currentPath.params["userId"] as string;
-    this.userProfileService.getUserProfile(username).then(val => {
-      this.userProfile = val;
-      this.updateTitle();
-    }).catch(() => {
-      this.userProfile = { email: "NOT FOUND" };
-    });
+    await this.refresh();
   }
 
-  refresh(): void {
+  async refresh() {
+    const username = this.router?.currentPath.params["userId"] as string;
+    if (!username)
+      this.userProfile = await LoggedUser.get() || undefined;
+    else {
+      try {
+        this.userProfile = await this.userProfileService.getUserProfile(username);
+      } catch (error) {
+        this.userProfile = { username: "NOT FOUND" };
+      }
+    }
     this.updateTitle();
+    this.fillView();
+  }
+
+  private fillView() {
+    document.getElementById("_userEmail")!.innerText = this.userProfile?.username || "NONE";
   }
 
   private updateTitle() {

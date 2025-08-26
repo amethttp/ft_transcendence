@@ -1,3 +1,4 @@
+import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
 
 export default class UserComponent extends AmethComponent {
@@ -7,9 +8,9 @@ export default class UserComponent extends AmethComponent {
     super();
   }
 
-  afterInit() {
+  async afterInit() {
     document.getElementById("userIdw")!.innerHTML =
-      this.router?.currentPath.params["userId"] as string;
+      (await LoggedUser.get())?.id?.toString() || "None";
   }
 
   refresh() {

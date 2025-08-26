@@ -2,18 +2,19 @@ import type UserProfile from "../PrivateLayout/UserComponent/UserProfileComponen
 import UserProfileService from "../PrivateLayout/UserComponent/UserProfileComponent/services/UserProfileService";
 
 export class LoggedUser {
-  private static _user: UserProfile | null = null;
+  private static _user: UserProfile | null | undefined;
   private static _userProfileService: UserProfileService = new UserProfileService();
 
-  static async get(): Promise<UserProfile | null> {
-    if (this._user)
+  static async get(reload: boolean = false): Promise<UserProfile | null> {
+    if (!reload && this._user !== undefined)
       return this._user;
     else {
       try {
-        return await this._userProfileService.getLoggedUser()
+        this._user = await this._userProfileService.getLoggedUser()
       } catch (error) {
-        return null;
+        this._user = null;
       }
+      return this._user;
     }
   }
 }
