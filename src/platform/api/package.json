@@ -7,7 +7,6 @@
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file=./.env.local dist/index.js",
     "bs": "npm run build && npm run start",
-    "dev": "nodemon --watch src --ext ts --exec tsx src/index.ts",
     "format": "prettier --write .",
     "lint:format": "prettier --check ."
   },
@@ -24,9 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
-    "nodemon": "^3.1.10",
     "prettier": "^3.3.3",
-    "tsx": "^4.20.4",
     "typescript": "^5.9.2"
   }
 }
