@@ -4,10 +4,7 @@ services:
   platform:
     container_name: platform
     build: platform/
-    ports:
-      - "8080:443"
     volumes:
-      - platform-api:/home/app
       - database:/home/db
       - uploads:/home/uploads
     networks:
@@ -17,10 +14,6 @@ services:
   game:
     container_name: game
     build: game/
-    ports:
-      - "8081:443"
-    volumes:
-      - game-api:/home/app
     networks:
       - apis
     restart: always
@@ -28,39 +21,19 @@ services:
   nginx:
     container_name: nginx
     build: nginx/
-    ports:
-      - "4322:80"
-      - "4321:443"
     volumes:
       - uploads:/var/www/uploads
-      - front:/var/www/html
+      - web:/var/www/html
     restart: always
 
   front:
     container_name: front
     build: front/
     volumes:
-      - front:/home/app
-    restart: always
-    ports:
-      - "5173:5173"
-      - "4173:4173"
+      - web:/home/app/dist
+
 
 volumes:
-  game-api:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./game/api/
-      o: bind
-
-  platform-api:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./platform/api/
-      o: bind
-
   database:
     driver: local
     driver_opts:
@@ -75,12 +48,13 @@ volumes:
       device: ../volumes/uploads/
       o: bind
 
-  front:
+  web:
     driver: local
     driver_opts:
       type: none
-      device: ./front/app/
+      device: ../volumes/web/
       o: bind
+
 
 networks:
   apis:

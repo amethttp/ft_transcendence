@@ -48,8 +48,8 @@ CREATE TABLE
   IF NOT EXISTS auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     lastLogin TEXT NOT NULL DEFAULT current_timestamp,
-    google_auth_id INTEGER,
-    password_id INTEGER,
+    google_auth_id INTEGER UNIQUE,
+    password_id INTEGER UNIQUE,
     FOREIGN KEY (google_auth_id) REFERENCES google_auth (id),
     FOREIGN KEY (password_id) REFERENCES password (id)
   );
@@ -57,12 +57,12 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    email TEXT NOT NULL,
-    username TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL UNIQUE,
     avatar_url TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
-    auth_id INTEGER NOT NULL,
+    auth_id INTEGER NOT NULL UNIQUE,
     FOREIGN KEY (auth_id) REFERENCES auth (id)
   );
 

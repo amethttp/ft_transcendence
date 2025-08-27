@@ -2,11 +2,18 @@ import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import jwt from '@fastify/jwt';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
+import fs from 'fs';
 import userRoutes from "./infrastructure/routes/UserRoutes";
 import { JwtAuth } from "./infrastructure/auth/JwtAuth";
 import authRoutes from "./infrastructure/routes/AuthRoutes";
 
-const server = fastify();
+const server = fastify({
+  https: {
+    key: fs.readFileSync('/etc/ssl/private/transcendence.key'),
+    cert: fs.readFileSync('/etc/ssl/certs/transcendence.crt')
+  }
+});
+
 const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
 
 server.register(cors, {

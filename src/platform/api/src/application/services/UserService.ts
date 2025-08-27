@@ -22,7 +22,7 @@ export class UserService {
     const user: User | null = await this.userRepository.findById(id);
 
     if (user === null)
-      throw 'User not found';
+      throw new ResponseError(ErrorMsg.USER_NOT_FOUND);
 
     return user;
   }

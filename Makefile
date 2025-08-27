@@ -21,32 +21,26 @@ CYAN = \033[0;36m
 
 
 # ---- # Vars # ---- #
-COPY = cp -rf
 RM = rm -rf
 MKDIR = mkdir -p
 PRINT = echo
 DOCKER = docker
 
 SRC = src/
-ENV_FILE = $(SRC).env
-YAML = $(SRC)docker-compose.yml
+BASE_YAML = $(SRC)docker-compose.yml
+DEV_YAML = $(SRC)docker-compose.dev.yml
+PROD_YAML = $(SRC)docker-compose.prod.yml
 
-TEST=test
-TEST_DIR=$(SRC)test_container/
-VOLUME_DIR=volumes/
-DATABASE_VOLUME=$(VOLUME_DIR)database/
-UPLOADS_VOLUME=$(VOLUME_DIR)uploads/
+VOLUMES_DIR=volumes/
+DATABASE_VOLUME=$(VOLUMES_DIR)database/
+UPLOADS_VOLUME=$(VOLUMES_DIR)uploads/
+WEB_VOLUME=$(VOLUMES_DIR)web/
 # ------------------ #
 
 
 # --- # Rules # ---- #
 all:
-	@$(PRINT) "$(CYAN)Use $(YELLOW)'make up'$(CYAN) to build the application$(RESET)"
-
-copy:
-	@$(PRINT) "$(PINK)Copying files to $(WHITE_BOLD)VM$(PINK)...$(RESET)"
-	@$(COPY) * $(ENV_FILE) $(SHARED_DIR)
-	@$(PRINT) "$(GREEN)Files copied$(RESET)"
+	@$(PRINT) "$(CYAN)Use $(YELLOW)'make prod'$(CYAN) to build the application (or $(YELLOW)'make up'$(CYAN) to build it as development) $(RESET)"
 
 list:
 	@$(PRINT) "$(CYAN)Printing all $(YELLOW)containers$(CYAN):$(RESET)"
@@ -60,49 +54,40 @@ list:
 
 up:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
-	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(YAML) up -d --build
+	@$(DOCKER) compose -f $(BASE_YAML) -f $(DEV_YAML) up -d --build
+
+prod:
+	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
+	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
+	@$(DOCKER) compose -f $(BASE_YAML) -f $(PROD_YAML) up -d --build
 
 down:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(YAML) down
+	@$(DOCKER) compose -f $(BASE_YAML) down
 
 fdown:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE) and $(WHITE_BOLD)volumes$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(YAML) down -v
-	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME)
+	@$(DOCKER) compose -f $(BASE_YAML) down -v
+	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 
 log:
-	@$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$(TEST)$(PINK) logs...$(RESET)"
-	@$(DOCKER) logs $(TEST)
-
-bld:
-	@$(PRINT) "$(PINK)Building $(WHITE_BOLD)$(TEST)$(PINK) image...$(RESET)"
-	@$(DOCKER) build -t $(TEST) $(TEST_DIR)
-
-run:
-	@$(PRINT) "$(PINK)Running $(WHITE_BOLD)$(TEST)$(PINK) container...$(RESET)"
-	@$(DOCKER) run -d --name $(TEST) $(TEST)
-
-dpl: bld run
-	@$(PRINT) "$(GREEN)The $(WHITE_BOLD)$(TEST)$(GREEN) container deployed successfully$(RESET)"
+	@while [ -z "$$TARGET" ]; do \
+		$(PRINT) -n "$(PINK)Type the container to read the logs of $(WHITE_BOLD)(front/game/nginx/platform)$(PINK): $(RESET)"; \
+		read -r -p "" TARGET; \
+	done; \
+	$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$$TARGET$(PINK) logs...$(RESET)"; \
+	$(DOCKER) logs $$(docker ps -aq --filter="name=($$TARGET)")
 
 interact:
 	@while [ -z "$$TARGET" ]; do \
-		$(PRINT) -n "$(PINK)Type the container to interact with $(WHITE_BOLD)(sqlite/test)$(PINK): $(RESET)"; \
+		$(PRINT) -n "$(PINK)Type the container to interact with $(WHITE_BOLD)(front/game/nginx/platform)$(PINK): $(RESET)"; \
 		read -r -p "" TARGET; \
 	done; \
 	$(PRINT) "$(PINK)Interacting with $(WHITE_BOLD)$$TARGET$(PINK) container with a $(WHITE_BOLD)bash$(PINK) shell...$(RESET)"; \
 	$(DOCKER) exec -it $$(docker ps -aq --filter="name=($$TARGET)") /bin/sh;
-
-stp:
-	@$(PRINT) "$(PINK)Stopping $(WHITE_BOLD)$(TEST)$(PINK) container...$(RESET)"
-	@$(DOCKER) stop $$(docker ps -aq --filter="name=$(TEST)")
-
-cln: stp
-	@$(PRINT) "$(PINK)Removing $(WHITE_BOLD)$(TEST)$(PINK) container...$(RESET)"
-	@$(DOCKER) rm $$(docker ps -aq --filter="name=$(TEST)")
 
 clean: down
 	@$(PRINT) "$(PINK)Application $(GREEN)removed$(PINK).$(RESET)"
@@ -119,17 +104,13 @@ fclean: fdown
 
 # --- # Extras # --- #
 .PHONY: all \
-		copy \
 		list \
 		up \
+		prod \
 		down \
 		fdown \
-		bld \
-		run \
-		dpl \
-		exc \
-		stp \
-		cln \
+		log \
+		interact \
 		clean \
 		fclean
 

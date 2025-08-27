@@ -11,7 +11,7 @@ export default class HttpClient implements IHttpClient {
     const _url = new URL(url);
     if (params) {
       for (const [key, value] of Object.entries(params)) {
-        _url.searchParams.append(key, value as string);
+        _url.searchParams.append(key, String(value));
       }
     }
     return this.request<ResponseType>(_url.href, options);
