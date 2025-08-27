@@ -1,13 +1,13 @@
 services:
   platform:
-    command: "npm run dev"
+    command: "npm run bs"
     ports:
       - "8080:443"
     volumes:
       - platform-api:/home/app
 
   game:
-    command: "npm run dev"
+    command: "npm run bs"
     ports:
       - "8081:443"
     volumes:
