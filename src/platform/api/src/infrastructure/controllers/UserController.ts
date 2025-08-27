@@ -1,8 +1,7 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
+import { type FastifyRequest, type FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
-import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
-import { JwtAuth } from "../auth/JwtAuth";
+import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
 
 export default class UserController {
   private userService: UserService;
@@ -11,26 +10,33 @@ export default class UserController {
     this.userService = userService;
   }
 
-  async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+  async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
     const requestedUser = request.user as JwtPayloadInfo;
 
-    return this.userService.getUserByUsername(request.params.username)
-      .then(user => {
-        if (requestedUser.username !== request.params.username) {
-          return reply.code(403).send({
-              success: false,
-              error: request.params.username + ' says: You are not allowed to read my stuff!',
-            });
-        }
+    try {
+      return reply.send(await this.userService.getUserById(requestedUser.sub));
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send(err.toDto());
+      }
+      else {
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
 
-        return reply.code(200).send({
-            success: true,
-            data: user
-          });
-      })
-      .catch(err => reply.code(404).send({
-        success: false,
-        error: 'The ping echoed nowhere...: ' + err + ': ' + request.params.username,
-      }));
+  async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    try {
+      const user = await this.userService.getUserByUsername(request.params.username);
+
+      reply.code(200).send(user);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send(err.toDto());
+      }
+      else {
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
   }
 }

@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
+    "start": "node --env-file=./.env.local dist/index.js",
     "bs": "npm run build && npm run start",
     "dev": "nodemon --watch src --ext ts --exec tsx src/index.ts",
     "format": "prettier --write .",

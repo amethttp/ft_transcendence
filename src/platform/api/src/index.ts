@@ -14,18 +14,19 @@ const server = fastify({
   }
 });
 
-const publicRoutes = ['/register', '/login', '/refresh'];
+const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
 
 server.register(cors, {
-  origin: ['https://localhost:4321'],
+  origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
+  methods: ['GET', 'POST', 'DELETE'],
   credentials: true
 })
 
-server.register(jwt, { secret: 'secret' });
+server.register(jwt, { secret: process.env.JWT_SECRET || "" });
 server.register(cookie);
 
-server.register(userRoutes);
-server.register(authRoutes);
+server.register(userRoutes, {prefix: '/user'});
+server.register(authRoutes, {prefix: '/auth'});
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
   if (publicRoutes.includes(request.url))

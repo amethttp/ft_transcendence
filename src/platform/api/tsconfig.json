@@ -1,19 +1,30 @@
 {
-  "compilerOptions": {
-    "target": "ES2020", // modern enough for Node 14+
-    "module": "CommonJS", // match your package.json "type"
-    "rootDir": "src", // source folder
-    "outDir": "dist", // output folder
-    "strict": true, // recommended strict checks
-    "esModuleInterop": true, // support import commonjs modules
-    "moduleResolution": "node", // classic node resolution
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true, // skip checking .d.ts files to speed up
-    "noImplicitAny": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": true // generate typings if needed
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"target": "ES2020", // modern enough for Node 14+
+		"module": "CommonJS", // match your package.json "type"
+		"rootDir": "src", // source folder
+		"outDir": "dist", // output folder
+		"strict": true, // recommended strict checks
+		"esModuleInterop": true, // support import commonjs modules
+		"moduleResolution": "node", // classic node resolution
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true, // skip checking .d.ts files to speed up
+		"noImplicitAny": true,
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"declaration": true, // generate typings if needed
+		/* Linting */
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"erasableSyntaxOnly": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+	},
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
 }

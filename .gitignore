@@ -2,7 +2,7 @@
 node_modules/
 
 # Environment files
-.env
+.env*.local
 
 # TypeScript cache
 *.tsbuildinfo
@@ -12,6 +12,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Test
 test*
 
 dist
