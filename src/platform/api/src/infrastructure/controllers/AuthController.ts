@@ -60,7 +60,7 @@ export default class AuthController {
         `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
       ]);
 
-      reply.status(200).send({ success: true });
+      reply.status(200).send({success: true});
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());

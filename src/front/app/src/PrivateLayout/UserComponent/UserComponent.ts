@@ -23,7 +23,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   async refresh() {
-    const username = this.router?.currentPath.params["userId"] as string;
+    const username = String(this.router?.currentPath.params["userId"]);
     if (!username)
       this.userProfile = await LoggedUser.get() || undefined;
     else {
