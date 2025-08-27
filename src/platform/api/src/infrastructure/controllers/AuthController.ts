@@ -20,7 +20,7 @@ export default class AuthController {
       try {
         decodedToken = jwt.verify(refreshToken);
       } catch (verifyErr) {
-        throw new ResponseError(ErrorMsg.AUTH_INVALID_REFRESH_TOKEN);
+        throw new ResponseError(ErrorMsg.AUTH_INVALID_ACCESS);
       }
       const tokenPayload = decodedToken as JwtPayloadInfo;
       const accessTokenExpiry = 5;
@@ -31,7 +31,7 @@ export default class AuthController {
         `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
       ]);
 
-      reply.status(200).send();
+      reply.status(200).send({success: true});
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(401).send(err.toDto());

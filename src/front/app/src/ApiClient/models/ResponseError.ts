@@ -6,19 +6,8 @@ export enum ErrorMsg {
   UNKNOWN_SERVER_ERROR = "UNKNOWN_SERVER_ERROR"
 };
 
-interface ResponseErrorDTO {
+export interface ResponseError {
+  status: number;
   error: string;
-}
-
-export class ResponseError extends Error {
-  constructor(msg: ErrorMsg) {
-    super();
-    this.name = "ResponseError"
-    this.message = msg;
-  }
-
-  toDto(): ResponseErrorDTO {
-    return {error: this.message}
-  }
 }
 

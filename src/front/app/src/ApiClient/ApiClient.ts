@@ -2,6 +2,7 @@ import type { BasicResponse } from "../auth/models/BasicResponse";
 import { CookieHelper } from "../framework/CookieHelper/CookieHelper";
 import HttpClient from "../framework/HttpClient/HttpClient";
 import type { TGetParamValue } from "../framework/HttpClient/IHttpClient";
+import { ErrorMsg, type ResponseError } from "./models/ResponseError";
 
 export class ApiClient extends HttpClient {
   static readonly BASE_URL = import.meta.env.VITE_API_URL;
@@ -36,8 +37,9 @@ export class ApiClient extends HttpClient {
 
     try {
       return await super.request<T>(url, options);
-    } catch (error: any) {
-      if (error["status"] === 401 && error["error"]["code"] === "FST_JWT_NO_AUTHORIZATION_IN_HEADER") {
+    } catch (_error: any) {
+      const error: ResponseError = _error;
+      if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
         if ((await this.refreshToken()).success)
           return this.request<T>(url, options);
         // TODO: If not logged, redirect!
