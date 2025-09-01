@@ -1,0 +1,9 @@
+@layer components {
+  .btn {
+    @apply flex px-4 py-2 text-center items-center justify-center gap-1;
+  }
+
+  .btn-primary {
+    @apply bg-gray-800 text-gray-50 text-shadow-white rounded-full shadow-md ;
+  }
+}
