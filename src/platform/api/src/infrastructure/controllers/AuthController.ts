@@ -4,6 +4,7 @@ import { JwtAuth } from "../auth/JwtAuth";
 import { UserService } from "../../application/services/UserService";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
+import { UserProfile } from "../../application/models/UserProfile";
 
 export default class AuthController {
   private userService: UserService;
@@ -45,7 +46,9 @@ export default class AuthController {
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userInfo = request.body as UserLoginInfo;
-      const loggedUser = await this.userService.getUserByUsername(userInfo.username);
+      const loggedUser = await this.userService.getUserByIdentifier(userInfo.identifier);
+      this.userService.checkPassword(userInfo.password, loggedUser.auth.password?.hash || ""); // TODO: empty "" safe?
+
       const accessTokenExpiry = 5;
       const refreshTokenExpiry = 30;
       const mins = 60;
@@ -60,7 +63,7 @@ export default class AuthController {
         `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
       ]);
 
-      reply.status(200).send({success: true});
+      reply.status(200).send(loggedUser as UserProfile);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());
