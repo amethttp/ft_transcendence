@@ -1,6 +1,5 @@
-export interface UserRegistrationInfo {
+export interface UserRegistrationRequest {
   email: string;
   username: string;
-  avatarUrl?: string;
   password: string;
 }

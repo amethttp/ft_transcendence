@@ -4,6 +4,7 @@ import { JwtAuth } from "../auth/JwtAuth";
 import { UserService } from "../../application/services/UserService";
 import { UserLoginInfo } from "../../application/models/UserLoginInfo";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
+import { UserRegistrationRequest } from "../../application/models/UserRegistrationRequest";
 
 export default class AuthController {
   private userService: UserService;
@@ -42,24 +43,28 @@ export default class AuthController {
     }
   }
 
+  private async setJWTHeaders(id: number, reply: FastifyReply) {
+    const accessTokenExpiry = 5;
+    const refreshTokenExpiry = 30;
+    const mins = 60;
+    const days = 86400;
+    const [accessToken, refreshToken] = await Promise.all([
+      JwtAuth.sign(reply, { sub: id } as JwtPayloadInfo, accessTokenExpiry + 'm'),
+      JwtAuth.sign(reply, { sub: id } as JwtPayloadInfo, refreshTokenExpiry + 'd'),
+    ]);
+
+    reply.header('set-cookie', [
+      `AccessToken=${accessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
+      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
+    ]);
+  }
+
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userInfo = request.body as UserLoginInfo;
       const loggedUser = await this.userService.getUserByUsername(userInfo.username);
-      const accessTokenExpiry = 5;
-      const refreshTokenExpiry = 30;
-      const mins = 60;
-      const days = 86400;
-      const [accessToken, refreshToken] = await Promise.all([
-        JwtAuth.sign(reply, { sub: loggedUser.id } as JwtPayloadInfo, accessTokenExpiry + 'm'),
-        JwtAuth.sign(reply, { sub: loggedUser.id } as JwtPayloadInfo, refreshTokenExpiry + 'd'),
-      ]);
-
-      reply.header('set-cookie', [
-        `AccessToken=${accessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
-        `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
-      ]);
-
+      await this.setJWTHeaders(loggedUser.id, reply);
+      
       reply.status(200).send({success: true});
     } catch (err) {
       if (err instanceof ResponseError) {
@@ -78,5 +83,22 @@ export default class AuthController {
     ]);
 
     return reply.status(200).send({ "success": true });
+  }
+
+  async register(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userInfo = request.body as UserRegistrationRequest;
+      const registeredUser = await this.userService.registerUser(userInfo);
+      this.setJWTHeaders(registeredUser.id, reply);
+
+      reply.status(200).send({succes: true});
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(404).send(err.toDto());
+      }
+      else {
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
   }
 }
