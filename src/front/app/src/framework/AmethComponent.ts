@@ -16,6 +16,5 @@ export default abstract class AmethComponent {
       this.outlet = document.getElementById(selector) || undefined;
       if (this.outlet) this.outlet.innerHTML = (await this.template()).default;
     }
-    if (this.afterInit) this.afterInit();
   }
 }
