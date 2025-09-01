@@ -23,18 +23,20 @@ export default class UserComponent extends AmethComponent {
   }
 
   async refresh() {
-    const username = String(this.router?.currentPath.params["userId"]);
+    const username = this.router?.currentPath.params["userId"] as string;
     if (!username)
       this.userProfile = await LoggedUser.get() || undefined;
     else {
       try {
         this.userProfile = await this.userProfileService.getUserProfile(username);
       } catch (error) {
-        this.userProfile = { username: "NOT FOUND" };
+        this.router?.redirectByPath("404")
       }
     }
-    this.updateTitle();
-    this.fillView();
+    if (this.userProfile) {
+      this.updateTitle();
+      this.fillView();
+    }
   }
 
   private fillView() {

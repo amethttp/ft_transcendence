@@ -12,4 +12,4 @@ EXPOSE 5173
 EXPOSE 4173
 
 ENTRYPOINT [ "/root/init_front.sh" ]
-CMD [ "npm", "run", "build" ]
+CMD [ "tail", "-f", "/dev/null" ]

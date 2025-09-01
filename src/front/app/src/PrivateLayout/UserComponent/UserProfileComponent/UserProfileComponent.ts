@@ -16,9 +16,8 @@ export default class UserProfileComponent extends AmethComponent {
     const username = this.router?.currentPath.params["userId"] as string;
     this.userProfileService.getUserProfile(username).then(val => {
       this.userProfile = val;
-    }).catch(() => {
-      this.userProfile = { email: "NOT FOUND" };
-    }).finally(() => this.fillView());
+      this.fillView();
+    });
   }
 
   fillView() {

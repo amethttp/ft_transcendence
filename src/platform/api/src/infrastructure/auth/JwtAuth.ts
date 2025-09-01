@@ -5,12 +5,12 @@ import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError"
 export class JwtAuth {
   public static async validateRequest(request: FastifyRequest, reply: FastifyReply) {
     request.jwtVerify<JwtPayloadInfo>()
-      .catch(() => reply.status(401).send(new ResponseError(ErrorMsg.AUTH_INVALID_REQUEST).toDto()));
+      .catch(() => reply.status(401).send(new ResponseError(ErrorMsg.AUTH_EXPIRED_ACCESS).toDto()));
   }
 
   public static async sign(reply: FastifyReply, tokenPayload: JwtPayloadInfo, expirationTime: string) {
     return reply.jwtSign(tokenPayload, { expiresIn: expirationTime })
       .then(token => token)
-      .catch(() => { throw new ResponseError(ErrorMsg.AUTH_COULDNT_SIGN_JWT) });
+      .catch(() => { throw new ResponseError(ErrorMsg.AUTH_INVALID_ACCESS) });
   }
 };

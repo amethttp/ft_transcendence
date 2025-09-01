@@ -1,9 +1,11 @@
 services:
   platform:
+    command: "npm run bs"
     ports:
       - "443:443"
 
   game:
+    command: "npm run bs"
     ports:
       - "443:443"
 

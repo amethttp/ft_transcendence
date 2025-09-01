@@ -70,12 +70,12 @@ export class Router extends EventEmitter<RouterEvents> {
       if (route.path === "")
         separator = '';
       const fullPath = PathHelper.normalize(parentPath + separator + route.path);
-      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || await route.guard(route))) {
+      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
         const childTree = await this.findRouteTree(path, route.children, fullPath);
         if (childTree) return [route, ...childTree];
         else continue;
       }
-      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || await route.guard(route))) {
+      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
         return [route];
       }
     }
@@ -102,7 +102,7 @@ export class Router extends EventEmitter<RouterEvents> {
     this.emitSync("navigate", {routeTree: routeTree, path: this._currentPath, router: this});
 
     for (const [i, route] of routeTree.entries()) {
-      if (route.redirect) return this.navigateByPath(route.redirect);
+      if (route.redirect) return this.redirectByPath(route.redirect);
       if (this._currentTree[i] !== route) {
         if (this._currentComponents && this._currentComponents[i])
           await this._currentComponents[i].destroy();
@@ -125,6 +125,9 @@ export class Router extends EventEmitter<RouterEvents> {
         this._currentComponents[i].refresh();
       }
     }
+    for (const component of this._currentComponents) {
+      if (component.afterInit) component.afterInit();
+    }
     this._currentTree = routeTree;
   }
 
@@ -133,12 +136,18 @@ export class Router extends EventEmitter<RouterEvents> {
     this.navigateByUrl(newUrl);
   }
 
+  redirectByPath(path: string) {
+    const newUrl = new URL(path, location.origin);
+    history.replaceState(null, "", newUrl.href);
+    this.navigate(newUrl.pathname);
+  }
+
   navigateByUrl(newUrl: URL) {
     history.pushState(null, "", newUrl.href);
     this.navigate(newUrl.pathname);
   }
 
   refresh() {
-    this.navigateByPath(this.currentPath.fullPath);
+    this.navigate(this.currentPath.fullPath);
   }
 }
