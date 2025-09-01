@@ -1,1 +1,33 @@
-<div>LOGIN</div>
+<form id="loginForm">
+  <article class="flex flex-wrap w-full invisible" id="loginError">
+    <div class="message-body">
+      L'adreça electrònica o la contrasenya no són correctes.
+    </div>
+  </article>
+  <div class="field">
+    <label for="emailInput" class="label">Email / Username</label>
+    <div class="control">
+      <input id="emailInput" required autocapitalize="none" spellcheck="false" class="input" type="text" minlength="4"
+        autocomplete="email">
+    </div>
+    <p class="help is-danger hidden">L'adreça electrònica introduïda no és vàlida.</p>
+  </div>
+  <div class="field">
+    <label for="passwordInput" class="label">Password</label>
+    <div class="control">
+      <input id="passwordInput" required class="input" type="password" autocomplete="current-password" minlength="8">
+    </div>
+    <p class="help is-danger hidden">La contrasenya ha de tenir com a mínim 8 dígits.</p>
+  </div>
+  <div class="field text-right">
+    <p class="control">
+      <a href="/recover">Forgot password?</a>
+    </p>
+  </div>
+  <div class="field items-center">
+    <p class="control w-full">
+      <button class="btn btn-primary w-full" type="submit">Log in
+      </button>
+    </p>
+  </div>
+</form>
