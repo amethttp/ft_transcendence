@@ -1,6 +1,7 @@
 import { AuthService } from "../auth/services/AuthService";
 import AmethComponent from "../framework/AmethComponent";
 import FooterComponent from "./FooterComponent/FooterComponent";
+import NavbarComponent from "./NavbarComponent/NavbarComponent";
 
 export default class PublicLayout extends AmethComponent {
   template = () => import("./PublicLayout.html?raw");
@@ -11,8 +12,8 @@ export default class PublicLayout extends AmethComponent {
   }
   
   afterInit() {
-    this.authService = new AuthService();
-    document.getElementById("loginButton")?.addEventListener("click", this.login.bind(this));
+    const navbar = new NavbarComponent();
+    navbar.init("navbar");
     const footer = new FooterComponent();
     footer.init("footer");
   }
