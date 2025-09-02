@@ -1,9 +1,4 @@
 <form id="loginForm">
-  <article class="flex flex-wrap w-full invisible" id="loginError">
-    <div class="message-body">
-      L'adreça electrònica o la contrasenya no són correctes.
-    </div>
-  </article>
   <div class="field">
     <label for="emailInput" class="label">Email / Username</label>
     <div class="control">
@@ -24,6 +19,11 @@
       <a href="/recover">Forgot password?</a>
     </p>
   </div>
+  <article class="flex flex-wrap w-full invisible text-red-500" id="loginError">
+    <div class="message-body">
+      L'adreça electrònica o la contrasenya no són correctes.
+    </div>
+  </article>
   <div class="field items-center">
     <p class="control w-full">
       <button class="btn btn-primary w-full" type="submit">Log in
