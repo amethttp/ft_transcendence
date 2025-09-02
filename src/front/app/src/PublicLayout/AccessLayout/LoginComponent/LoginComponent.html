@@ -3,7 +3,7 @@
     <label for="emailInput" class="label">Email / Username</label>
     <div class="control">
       <input id="emailInput" required autocapitalize="none" spellcheck="false" class="input" type="text" minlength="4"
-        autocomplete="email">
+        autocomplete="username">
     </div>
     <p class="help is-danger hidden">L'adreça electrònica introduïda no és vàlida.</p>
   </div>
@@ -16,7 +16,7 @@
   </div>
   <div class="field text-right">
     <p class="control">
-      <a href="/recover">Forgot password?</a>
+      <a href="/recover" class="decorated">Forgot password?</a>
     </p>
   </div>
   <article class="flex flex-wrap w-full invisible text-red-500" id="loginError">
@@ -26,8 +26,7 @@
   </article>
   <div class="field items-center">
     <p class="control w-full">
-      <button class="btn btn-primary w-full" type="submit">Log in
-      </button>
+      <button class="btn btn-primary w-full" type="submit">Log in</button>
     </p>
   </div>
 </form>

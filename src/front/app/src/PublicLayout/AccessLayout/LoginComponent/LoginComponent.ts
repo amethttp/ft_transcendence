@@ -1,3 +1,4 @@
+import { LoggedUser } from "../../../auth/LoggedUser";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 
@@ -15,7 +16,8 @@ export default class LoginComponent extends AmethComponent {
       e.preventDefault();
       this.errorView.classList.add("invisible");
       this.authService.login({ username: (this.form[0] as HTMLInputElement).value, password: (this.form[1] as HTMLInputElement).value })
-        .then(() => {
+        .then(async () => {
+          await LoggedUser.get(true);
           this.router?.navigateByPath("/home");
         })
         .catch(() => this.errorView.classList.remove("invisible"));
