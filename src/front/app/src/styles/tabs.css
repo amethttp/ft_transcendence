@@ -1,0 +1,18 @@
+@layer components {
+  .tabs {
+    @apply flex items-center justify-center gap-1 bg-gray-300 rounded-full p-1;
+  }
+
+  .tabs > * {
+    @apply flex justify-center items-center gap-1 bg-transparent shadow-none rounded-full px-5 py-1 cursor-pointer transition-[background-color,box-shadow] duration-300;
+  }
+
+  .tabs > .active,
+  .tabs > *:hover {
+    @apply bg-gray-50 shadow;
+  }
+
+  .tabs > .active {
+    @apply shadow cursor-default;
+  }
+}

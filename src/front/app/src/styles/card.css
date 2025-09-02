@@ -1,5 +1,9 @@
 @layer components {
   .card {
-    @apply bg-white rounded-2xl shadow-md p-4;
+    @apply flex flex-col rounded-2xl shadow-md py-8 px-9 sm:outline-2 items-center justify-center gap-6 sm:m-2;
+  }
+
+  .card-center {
+    @apply text-center;
   }
 }

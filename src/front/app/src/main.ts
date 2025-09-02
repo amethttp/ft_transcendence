@@ -67,11 +67,11 @@ export const routes: Route[] = [
           }
         ]
       },
-      {
-        path: "*",
-        redirect: "/404",
-      },
     ],
+  },
+  {
+    path: "*",
+    redirect: "/404",
   },
 ];
 
