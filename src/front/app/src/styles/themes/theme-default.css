@@ -448,6 +448,6 @@
 
   --aspect-video: 16 / 9;
 
-  --default-transition-duration: 150ms;
+  --default-transition-duration: 200ms;
   --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }

@@ -1,0 +1,27 @@
+@layer components {
+  form {
+    @apply flex flex-col text-left w-full gap-4;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="number"] {
+    @apply px-3 py-2 outline w-full outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors ;
+  }
+
+  input[type="checkbox"] {
+    @apply cursor-pointer;
+  }
+
+  .field {
+    @apply flex flex-col gap-1;
+  }
+
+  .control label.checkbox {
+    @apply flex items-center gap-2 cursor-pointer;
+  }
+}
