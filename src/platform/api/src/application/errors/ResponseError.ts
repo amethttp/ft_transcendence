@@ -3,8 +3,13 @@ export enum ErrorMsg {
   UNAUTHORIZED_USER_ACTION = "UNAUTHORIZED_USER_ACTION",
   AUTH_EXPIRED_ACCESS = "AUTH_EXPIRED_ACCESS",
   AUTH_INVALID_ACCESS = "AUTH_INVALID_ACCESS",
-  UNKNOWN_SERVER_ERROR = "UNKNOWN_SERVER_ERROR"
-};
+  LOGIN_FAILED = "LOGIN_FAILED",
+  REGISTRATION_INVALID_USERNAME = "REGISTRATION_INVALID_USERNAME",
+  REGISTRATION_INVALID_EMAIL = "REGISTRATION_INVALID_EMAIL",
+  REGISTRATION_INVALID_PASSWORD = "REGISTRATION_INVALID_PASSWORD",
+  REGISTRATION_FAILED = "REGISTRATION_FAILED",
+  UNKNOWN_SERVER_ERROR = "UNKNOWN_SERVER_ERROR",
+}
 
 interface ResponseErrorDTO {
   error: string;
@@ -13,12 +18,11 @@ interface ResponseErrorDTO {
 export class ResponseError extends Error {
   constructor(msg: ErrorMsg) {
     super();
-    this.name = "ResponseError"
+    this.name = "ResponseError";
     this.message = msg;
   }
 
   toDto(): ResponseErrorDTO {
-    return {error: this.message}
+    return { error: this.message };
   }
 }
-

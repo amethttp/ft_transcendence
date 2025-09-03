@@ -19,7 +19,7 @@ export default class PublicLayout extends AmethComponent {
   }
 
   async login() {
-    await this.authService.login({username: "arcanava", password: ""});
+    await this.authService.login({identifier: "arcanava", password: ""});
     this.router?.refresh();
   }
 }

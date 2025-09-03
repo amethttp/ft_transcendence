@@ -15,7 +15,7 @@ export default class LoginComponent extends AmethComponent {
     this.form.onsubmit = e => {
       e.preventDefault();
       this.errorView.classList.add("invisible");
-      this.authService.login({ username: (this.form[0] as HTMLInputElement).value, password: (this.form[1] as HTMLInputElement).value })
+      this.authService.login({ identifier: (this.form[0] as HTMLInputElement).value, password: (this.form[1] as HTMLInputElement).value })
         .then(async () => {
           await LoggedUser.get(true);
           this.router?.redirectByPath("/home");

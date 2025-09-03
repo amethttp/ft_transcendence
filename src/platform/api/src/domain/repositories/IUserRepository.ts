@@ -4,4 +4,5 @@ import { IBaseRepository } from "./IBaseRepository";
 export interface IUserRepository extends IBaseRepository<User> {
   findByEmail(email: string): Promise<User | null> ;
   findByUsername(username: string): Promise<User | null> ;
+  getUser(userId: number, auth: boolean): Promise<User | null> ;
 }
