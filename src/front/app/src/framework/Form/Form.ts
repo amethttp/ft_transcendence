@@ -34,8 +34,8 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
           input.addEventListener("input", () => control.setValue(input.value as T[string]));
         }
         input.addEventListener("input", () => {
-          this.validate();
           input.parentElement?.classList.add("touched");
+          this.validate();
         });
       }
       else if (input.type === "submit") {
@@ -55,8 +55,8 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
 
   private _submit() {
     console.log("_submitted", this.valid, this.controls);
-    this.validate();
     this.touch();
+    this.validate();
     if (this.valid && this.submit)
       this.submit(this.value);
     else if (!this.valid)
@@ -79,8 +79,13 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
       if (this.controls[k]?.valid) {
         this._inputs[k]?.removeAttribute("aria-invalid");
         this._inputs[k]?.parentElement?.classList.remove("invalid");
+        if (this._inputs[k]?.parentNode?.querySelector(".error"))
+          (this._inputs[k].parentNode?.querySelector(".error") as HTMLParagraphElement).innerText = "";
       }
       else {
+        if (this._inputs[k]?.parentElement?.classList.contains("touched")
+          && this._inputs[k]?.parentNode?.querySelector(".error"))
+          (this._inputs[k].parentNode?.querySelector(".error") as HTMLParagraphElement).innerText = this.controls[k].errors.join(" and ");
         this._inputs[k]?.setAttribute("aria-invalid", "true");
         this._inputs[k]?.parentElement?.classList.add("invalid");
       }

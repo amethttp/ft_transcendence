@@ -4,7 +4,9 @@ import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
-import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { Validators, type ValidatorFn } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+
+
 
 export default class RegisterComponent extends AmethComponent {
   template = () => import("./RegisterComponent.html?raw");
@@ -17,11 +19,16 @@ export default class RegisterComponent extends AmethComponent {
     this.form = document.getElementById("registerForm")! as HTMLFormElement;
     this.errorView = document.getElementById("registerError")!;
 
+    const passwdControl = new FormControl("", [Validators.password]);
+    const passwordRepeat: ValidatorFn<string> = (value: string) => {
+      return  passwdControl.value === value ? null : "Passwords do not match";
+    };
+
     const form = new Form("registerForm", {
-      username: new FormControl(""),
+      username: new FormControl("", [Validators.username]),
       email: new FormControl("", [Validators.email]),
-      password: new FormControl(""),
-      repeatPassword: new FormControl(""),
+      password: passwdControl,
+      repeatPassword: new FormControl<string>("", [passwordRepeat]),
       terms: new FormControl<boolean>(false, [Validators.requiredTrue])
     });
 

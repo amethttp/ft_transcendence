@@ -1,26 +1,33 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
+import type { LoginRequest } from "../../../auth/models/LoginRequest";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
+import { Form } from "../../../framework/Form/Form";
+import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
+import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { LoginValidators } from "./LoginValidators/LoginValidators";
 
 export default class LoginComponent extends AmethComponent {
   template = () => import("./LoginComponent.html?raw");
-  private authService!: AuthService;
-  private form!: HTMLFormElement;
-  private errorView!: HTMLElement;
+  private _authService!: AuthService;
+  private _form!: Form<LoginRequest>;
+  private _errorView!: HTMLElement;
 
   afterInit() {
-    this.authService = new AuthService();
-    this.form = document.getElementById("loginForm")! as HTMLFormElement;
-    this.errorView = document.getElementById("loginError")!;
-    this.form.onsubmit = e => {
-      e.preventDefault();
-      this.errorView.classList.add("invisible");
-      this.authService.login({ identifier: (this.form[0] as HTMLInputElement).value, password: (this.form[1] as HTMLInputElement).value })
+    this._authService = new AuthService();
+    this._form = new Form("loginForm", {
+      identifier: new FormControl<string>("", [LoginValidators.identifier]),
+      password: new FormControl<string>("", [Validators.password])
+    });
+    this._errorView = document.getElementById("loginError")!;
+    this._form.submit = (value) => {
+      this._errorView.classList.add("invisible");
+      this._authService.login(value)
         .then(async () => {
           await LoggedUser.get(true);
           this.router?.redirectByPath("/home");
         })
-        .catch(() => this.errorView.classList.remove("invisible"));
+        .catch(() => this._errorView.classList.remove("invisible"));
     };
   }
 }

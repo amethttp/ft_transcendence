@@ -19,7 +19,7 @@
 
 
   input[type="checkbox"] {
-    @apply cursor-pointer;
+    @apply cursor-pointer accent-gray-700;
   }
 
   label.checkbox {
@@ -35,7 +35,7 @@
   }
 
   .field .error {
-    @apply -z-10 text-transparent transition-[margin-top,color] -mt-8;
+    @apply -z-10 text-transparent transition-[margin-top,color] -mt-9 min-h-8 ease-in duration-75;
   }
 
   .field.touched.invalid .error {
