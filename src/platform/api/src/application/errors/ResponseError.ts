@@ -8,8 +8,8 @@ export enum ErrorMsg {
   REGISTRATION_INVALID_EMAIL = "REGISTRATION_INVALID_EMAIL",
   REGISTRATION_INVALID_PASSWORD = "REGISTRATION_INVALID_PASSWORD",
   REGISTRATION_FAILED = "REGISTRATION_FAILED",
-  UNKNOWN_SERVER_ERROR = "UNKNOWN_SERVER_ERROR"
-};
+  UNKNOWN_SERVER_ERROR = "UNKNOWN_SERVER_ERROR",
+}
 
 interface ResponseErrorDTO {
   error: string;
@@ -18,12 +18,11 @@ interface ResponseErrorDTO {
 export class ResponseError extends Error {
   constructor(msg: ErrorMsg) {
     super();
-    this.name = "ResponseError"
+    this.name = "ResponseError";
     this.message = msg;
   }
 
   toDto(): ResponseErrorDTO {
-    return {error: this.message}
+    return { error: this.message };
   }
 }
-

@@ -16,7 +16,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
 
   // --------------------------------- DB helpers --------------------------------- //
 
-  private async dbGet(query: string, params: any[]): Promise<T | null> {
+  public async dbGet(query: string, params: any[]): Promise<T | null> {
     return new Promise<T | null>((resolve, reject) => {
       this._db.get(query, params, (err, row) => {
         return err ? reject(err) : resolve((row as T) ?? null);
