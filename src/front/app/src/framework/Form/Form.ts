@@ -59,15 +59,31 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
     this.touch();
     if (this.valid && this.submit)
       this.submit(this.value);
+    else if (!this.valid)
+      this.focusInvalid();
+  }
+
+  focusInvalid() {
+    for (const input of Object.values(this._inputs)) {
+      if (input.hasAttribute("aria-invalid")) {
+        input.focus({ preventScroll: true });
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+        break;
+      }
+    }
   }
 
   validate(): void {
     Object.keys(this.controls).forEach((k: string) => {
       this.controls[k].validate();
-      if (this.controls[k]?.valid)
+      if (this.controls[k]?.valid) {
+        this._inputs[k]?.removeAttribute("aria-invalid");
         this._inputs[k]?.parentElement?.classList.remove("invalid");
-      else
+      }
+      else {
+        this._inputs[k]?.setAttribute("aria-invalid", "true");
         this._inputs[k]?.parentElement?.classList.add("invalid");
+      }
     });
   }
 }
