@@ -10,18 +10,35 @@
   input[type="url"],
   input[type="tel"],
   input[type="number"] {
-    @apply px-3 py-2 outline w-full outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors ;
+    @apply px-3 py-2 outline w-full bg-gray-50 outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
   }
+
+  .touched.invalid input {
+    @apply outline-red-700 focus:ring-red-700 focus:outline-red-700;
+  }
+
 
   input[type="checkbox"] {
     @apply cursor-pointer;
   }
 
-  .field {
-    @apply flex flex-col gap-1;
+  label.checkbox {
+    @apply flex items-center gap-2 cursor-pointer select-none;
   }
 
-  .control label.checkbox {
-    @apply flex items-center gap-2 cursor-pointer;
+  .field {
+    @apply flex flex-col gap-1 transition-colors;
+  }
+
+  .touched.invalid {
+    @apply text-red-700 mb-0;
+  }
+
+  .field .error {
+    @apply -z-10 text-transparent transition-[margin-top,color] -mt-8;
+  }
+
+  .field.touched.invalid .error {
+    @apply -z-1 mt-0 text-red-700;
   }
 }
