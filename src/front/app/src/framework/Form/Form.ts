@@ -25,6 +25,7 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
       const control = this.controls[input.name];
       if (control) {
         this._inputs[input.name] = input;
+        this.createErrorMsg(input);
         if (input.type === "checkbox") {
           input.checked = control.value;
           input.parentElement?.classList.add("touched");
@@ -52,6 +53,12 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         });
       }
     }
+  }
+
+  private createErrorMsg(input: HTMLInputElement) {
+    const msg = document.createElement("p");
+    msg.classList.add("error");
+    input.parentElement?.appendChild(msg);
   }
 
   touchDirtyAll() {
