@@ -25,7 +25,8 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
       const control = this.controls[input.name];
       if (control) {
         this._inputs[input.name] = input;
-        this.createErrorMsg(input);
+        if (control.validators.length > 0)
+          this.createErrorMsg(input);
         if (input.type === "checkbox") {
           input.checked = control.value;
           input.parentElement?.classList.add("touched");
