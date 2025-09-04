@@ -13,7 +13,7 @@
     @apply px-3 py-2 outline w-full bg-gray-50 outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
   }
 
-  .touched.invalid input {
+  .touched.dirty.invalid input {
     @apply outline-red-700 focus:ring-red-700 focus:outline-red-700;
   }
 
@@ -22,7 +22,7 @@
     @apply cursor-pointer accent-gray-700 transition-colors w-[13px] h-[13px];
   }
 
-  .touched.invalid input[type="checkbox"] {
+  .touched.dirty.invalid input[type="checkbox"] {
     @apply appearance-none rounded-[2px] border-1 border-red-700;
   }
 
@@ -38,11 +38,11 @@
     @apply flex flex-col gap-1 transition-colors;
   }
 
-  .touched.invalid {
+  .touched.dirty.invalid {
     @apply text-red-700 mb-0;
   }
 
-  .touched.invalid a.decorated {
+  .touched.dirty.invalid a.decorated {
     @apply text-red-700;
   }
 
@@ -50,7 +50,7 @@
     @apply -z-10 text-transparent transition-[margin-top,color] -mt-9 min-h-8 ease-in duration-75;
   }
 
-  .field.touched.invalid .error {
+  .field.touched.dirty.invalid .error {
     @apply -z-1 mt-0 text-red-700;
   }
 }

@@ -34,9 +34,15 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
           input.addEventListener("input", () => control.setValue(input.value as T[string]));
         }
         input.addEventListener("input", () => {
-          input.parentElement?.classList.add("touched");
+          input.parentElement?.classList.add("dirty");
           this.validate();
         });
+        const onBlur = () => {
+          input.parentElement?.classList.add("touched");
+          this.validate();
+          input.removeEventListener("blur", onBlur);
+        };
+        input.addEventListener("blur", onBlur);
       }
       else if (input.type === "submit") {
         input.addEventListener("click", e => {
@@ -48,14 +54,16 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
     console.log(this._inputs);
   }
 
-  touch() {
-    for (const input of Object.values(this._inputs))
+  touchDirtyAll() {
+    for (const input of Object.values(this._inputs)) {
       input.parentElement?.classList.add("touched");
+      input.parentElement?.classList.add("dirty");
+    }
   }
 
   private _submit() {
     console.log("_submitted", this.valid, this.controls);
-    this.touch();
+    this.touchDirtyAll();
     this.validate();
     if (this.valid && this.submit)
       this.submit(this.value);
@@ -66,8 +74,8 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
   focusInvalid() {
     for (const input of Object.values(this._inputs)) {
       if (input.hasAttribute("aria-invalid")) {
-        input.focus({ preventScroll: true });
         input.scrollIntoView({ behavior: "smooth", block: "center" });
+        input.focus({ preventScroll: true });
         break;
       }
     }
@@ -84,6 +92,7 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
       }
       else {
         if (this._inputs[k]?.parentElement?.classList.contains("touched")
+          && this._inputs[k]?.parentElement?.classList.contains("dirty")
           && this._inputs[k]?.parentNode?.querySelector(".error"))
           (this._inputs[k].parentNode?.querySelector(".error") as HTMLParagraphElement).innerText = this.controls[k].errors.join(" and ");
         this._inputs[k]?.setAttribute("aria-invalid", "true");

@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   register(request: RegisterRequest): Promise<BasicResponse> {
-    return this.http.post<LoginRequest, LoginResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
+    return this.http.post<RegisterRequest, BasicResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
   }
 
 }
