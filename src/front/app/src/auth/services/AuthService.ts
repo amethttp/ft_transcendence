@@ -9,7 +9,7 @@ import type { RegisterRequest } from "../models/RegisterRequest";
 export class AuthService {
   private static readonly BASE = "/auth";
   private static readonly LOGIN_ENDPOINT = this.BASE + "/login";
-  private static readonly REGISTER_ENDPOINT = "/user";
+  private static readonly REGISTER_ENDPOINT = this.BASE + "/register";
   private readonly http: IHttpClient;
 
   constructor() {
