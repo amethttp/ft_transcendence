@@ -9,7 +9,7 @@ export class RegisterValidators {
       return !success ? null : "Username already in use";
     }
     catch (e) {
-      return "Network connection error";
+      return null;
     }
   }
 
@@ -20,7 +20,7 @@ export class RegisterValidators {
       return !success ? null : "Email already in use";
     }
     catch (e) {
-      return "Network connection error";
+      return null;
     }
   }
 }

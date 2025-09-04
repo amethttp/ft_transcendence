@@ -45,7 +45,7 @@ export default class RegisterComponent extends AmethComponent {
           await LoggedUser.get(true);
           this.router?.navigateByPath("/home");
         })
-        .catch(this.registrationError);
+        .catch(this.registrationError.bind(this));
     }
   }
 
