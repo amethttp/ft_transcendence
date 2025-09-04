@@ -5,45 +5,39 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators, type ValidatorFn } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import type { RegisterForm } from "./models/RegisterForm";
 
 
 
 export default class RegisterComponent extends AmethComponent {
   template = () => import("./RegisterComponent.html?raw");
   private authService!: AuthService;
-  private form!: HTMLFormElement;
+  private form!: Form<RegisterForm>;
   private errorView!: HTMLElement;
 
   afterInit() {
     this.authService = new AuthService();
-    this.form = document.getElementById("registerForm")! as HTMLFormElement;
     this.errorView = document.getElementById("registerError")!;
 
-    const passwdControl = new FormControl("", [Validators.password]);
+    const passwdControl = new FormControl<string>("Pepito.1234", [Validators.password]);
     const passwordRepeat: ValidatorFn<string> = (value: string) => {
-      return  passwdControl.value === value ? null : "Passwords do not match";
+      return passwdControl.value === value ? null : "Passwords do not match";
     };
 
-    const form = new Form("registerForm", {
-      username: new FormControl("", [Validators.username]),
-      email: new FormControl("", [Validators.email]),
+    this.form = new Form("registerForm", {
+      username: new FormControl<string>("arcanava2", [Validators.username]),
+      email: new FormControl<string>("arzel@gmail.com", [Validators.email]),
       password: passwdControl,
-      repeatPassword: new FormControl<string>("", [passwordRepeat]),
-      terms: new FormControl<boolean>(false, [Validators.requiredTrue])
+      repeatPassword: new FormControl<string>("Pepito.1234", [passwordRepeat]),
+      terms: new FormControl<boolean>(true, [Validators.requiredTrue])
     });
 
-    form.submit = (val: RegisterRequest) => {
-      console.log("SUBMITED", val);
-    }
-
-    this.form.onsubmit = e => {
-      e.preventDefault();
-      console.log("FORM:", form);
+    this.form.submit = (val: RegisterForm) => {
       this.errorView.classList.add("invisible");
       const registerRequest: RegisterRequest = {
-        username: (this.form[0] as HTMLInputElement).value,
-        email: (this.form[1] as HTMLInputElement).value,
-        password: (this.form[2] as HTMLInputElement).value
+        username: val.username,
+        email: val.email,
+        password: val.password
       }
       this.authService.register(registerRequest)
         .then(async () => {
@@ -51,6 +45,6 @@ export default class RegisterComponent extends AmethComponent {
           this.router?.navigateByPath("/home");
         })
         .catch(() => this.errorView.classList.remove("invisible"));
-    };
+    }
   }
 }
