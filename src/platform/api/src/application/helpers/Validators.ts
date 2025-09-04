@@ -5,7 +5,7 @@ export default class Validators {
   }
 
   static username(username: string): boolean {
-    const usernameRegex = /^[a-zA-Z0-9_]{5,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_-]{5,20}$/;
     return usernameRegex.test(username);
   }
 

@@ -27,6 +27,7 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         this._inputs[input.name] = input;
         if (input.type === "checkbox") {
           input.checked = control.value;
+          input.parentElement?.classList.add("touched");
           input.addEventListener("input", () => control.setValue(input.checked as T[string]));
         }
         else {

@@ -7,7 +7,7 @@ export class Validators {
   };
 
   static username: ValidatorFn<string> = (value: string) => {
-    const usernameRegex = /^[a-zA-Z0-9_]{5,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_-]{5,20}$/;
     return usernameRegex.test(value) ? null : "Username must be 5-20 characters and contain only letters and numbers";
   };
 

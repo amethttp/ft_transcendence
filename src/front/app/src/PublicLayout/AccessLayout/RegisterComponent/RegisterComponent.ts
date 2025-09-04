@@ -19,17 +19,17 @@ export default class RegisterComponent extends AmethComponent {
     this.authService = new AuthService();
     this.errorView = document.getElementById("registerError")!;
 
-    const passwdControl = new FormControl<string>("Pepito.1234", [Validators.password]);
+    const passwdControl = new FormControl<string>("", [Validators.password]);
     const passwordRepeat: ValidatorFn<string> = (value: string) => {
       return passwdControl.value === value ? null : "Passwords do not match";
     };
 
     this.form = new Form("registerForm", {
-      username: new FormControl<string>("arcanava2", [Validators.username]),
-      email: new FormControl<string>("arzel@gmail.com", [Validators.email]),
+      username: new FormControl<string>("", [Validators.username]),
+      email: new FormControl<string>("", [Validators.email]),
       password: passwdControl,
-      repeatPassword: new FormControl<string>("Pepito.1234", [passwordRepeat]),
-      terms: new FormControl<boolean>(true, [Validators.requiredTrue])
+      repeatPassword: new FormControl<string>("", [passwordRepeat]),
+      terms: new FormControl<boolean>(false, [Validators.requiredTrue])
     });
 
     this.form.submit = (val: RegisterForm) => {
