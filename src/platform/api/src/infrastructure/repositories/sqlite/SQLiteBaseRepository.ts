@@ -16,7 +16,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
 
   // --------------------------------- DB helpers --------------------------------- //
 
-  private async dbGet(query: string, params: any[]): Promise<T | null> {
+  public async dbGet(query: string, params: any[]): Promise<T | null> {
     return new Promise<T | null>((resolve, reject) => {
       this._db.get(query, params, (err, row) => {
         return err ? reject(err) : resolve((row as T) ?? null);
@@ -72,7 +72,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     return this.dbAll(sql, []);
   }
 
-  public async create(data: Partial<T>): Promise<T | null> {
+  public async create(data: Partial<T>): Promise<number | null> {
     const dbRecord = this.mapper.toDatabase(Object.entries(data));
     const keys = Object.keys(dbRecord);
     const values = Object.values(dbRecord);
@@ -84,12 +84,12 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     stmt.finalize(); // TODO: check this... + try catches...
 
     if (lastID)
-      return await this.findById(lastID);
+      return lastID;
 
     return null;
   }
 
-  public async update(id: number, data: Partial<T>): Promise<T | null> {
+  public async update(id: number, data: Partial<T>): Promise<number | null> {
     const dbRecord = this.mapper.toDatabase(Object.entries(data));
     dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const filteredRecord = Object.entries(dbRecord)
@@ -98,7 +98,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     const keys = Object.keys(filteredRecord);
     const values = Object.values(filteredRecord);
     if (keys.length === 0) {
-      return await this.findById(id);
+      return null;
     }
     const placeholders = keys.map(key => `${key}=?`).join(', ');
 
@@ -107,15 +107,15 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     await this.dbStmtRunAlter(stmt, [...values, id]);
     stmt.finalize();
 
-    return await this.findById(id);
+    return id;
   }
 
   public async delete(id: number): Promise<boolean> {
     const sql = `DELETE FROM ${this._tableName} WHERE id=?`;
     const stmt = this._db.prepare(sql);
-    const affectedId = await this.dbStmtRunAlter(stmt, [id]);
+    const affectedNumber = await this.dbStmtRunAlter(stmt, [id]);
     stmt.finalize();
 
-    return affectedId !>= 0;
+    return affectedNumber !>= 0;
   }
 }

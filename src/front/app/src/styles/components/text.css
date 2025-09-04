@@ -1,0 +1,25 @@
+@layer components {
+  .title-1 {
+    @apply text-4xl md:text-5xl font-extrabold text-gray-900;
+  }
+
+  .title-2 {
+    @apply text-3xl md:text-4xl font-bold text-gray-800;
+  }
+
+  .title-3 {
+    @apply text-2xl md:text-3xl font-semibold text-gray-700;
+  }
+
+  .subtitle-1 {
+    @apply text-base md:text-lg text-gray-500;
+  }
+
+  .subtitle-2 {
+    @apply text-sm md:text-base text-gray-400;
+  }
+
+  .subtitle-3 {
+    @apply text-base md:text-lg text-gray-600 italic;
+  }
+}

@@ -160,32 +160,6 @@ INSERT INTO e_tournament_state (name) VALUES ('FINISHED');
 
 
 -- DUMMY DATA --
-INSERT INTO password (hash) VALUES ('dummy1234');
-
-INSERT INTO auth (password_id)
-  SELECT id FROM password ORDER BY id DESC LIMIT 1;
-
-INSERT INTO user (email, username, avatar_url, auth_id)
-  SELECT 'cfidalgo@gmail.com', 'cfidalgo', 'testAvatar', id FROM auth ORDER BY id DESC LIMIT 1;
-
-
-INSERT INTO password (hash) VALUES ('4321ymmud');
-
-INSERT INTO auth (password_id)
-  SELECT id FROM password ORDER BY id DESC LIMIT 1;
-
-INSERT INTO user (email, username, avatar_url, auth_id)
-  SELECT 'vperez-f@gmail.com', 'vperez-f', 'vperez-f_avatar', id FROM auth ORDER BY id DESC LIMIT 1;
-
-
-INSERT INTO password (hash) VALUES ('12dummud21');
-
-INSERT INTO auth (password_id)
-  SELECT id FROM password ORDER BY id DESC LIMIT 1;
-
-INSERT INTO user (email, username, avatar_url, auth_id)
-  SELECT 'arcanava@gmail.com', 'arcanava', 'noSeProgramar.jpg', id FROM auth ORDER BY id DESC LIMIT 1;
-
 
 INSERT INTO match (name, token, is_visible, state, type) VALUES ('partidaza', 'a35Fda1', 0, 2, 2);
 
