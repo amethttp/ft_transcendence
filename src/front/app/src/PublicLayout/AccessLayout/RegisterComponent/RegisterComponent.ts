@@ -45,7 +45,12 @@ export default class RegisterComponent extends AmethComponent {
           await LoggedUser.get(true);
           this.router?.navigateByPath("/home");
         })
-        .catch(() => this.errorView.classList.remove("invisible"));
+        .catch(this.registrationError);
     }
+  }
+
+  private async registrationError() {
+    this.errorView.classList.remove("invisible");
+    await this.form.validate();
   }
 }
