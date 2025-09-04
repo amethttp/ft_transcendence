@@ -16,13 +16,13 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
     return this.findByCondition("username", username);
   }
 
-  async getUser(userId: number, auth: boolean): Promise<User | null> {
+  async findByIdPH(userId: number, auth: boolean): Promise<User | null> {
     let sql = `SELECT user.* FROM user WHERE user.id = ?`;
     if (auth) {
       sql = `
         SELECT user.*, auth.*, password.* 
         FROM user 
-        JOIN auth ON user.auth_id = auth.id 
+        JOIN auth ON user.auth = auth.id 
         LEFT JOIN password ON auth.password_id = password.id 
         WHERE user.id = ?
       `;

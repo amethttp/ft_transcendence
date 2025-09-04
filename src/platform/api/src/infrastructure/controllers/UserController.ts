@@ -14,12 +14,13 @@ export default class UserController {
     const requestedUser = request.user as JwtPayloadInfo;
 
     try {
-      return reply.send(await this.userService.getUserById(requestedUser.sub));
+      return reply.send(await this.userService.getByIdShallow(requestedUser.sub));
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(404).send(err.toDto());
       }
       else {
+        console.log(err);
         reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
@@ -27,7 +28,7 @@ export default class UserController {
 
   async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const user = await this.userService.getUserByUsername(request.params.username);
+      const user = await this.userService.getByUsername(request.params.username);
 
       reply.code(200).send(user);
     } catch (err) {
@@ -35,6 +36,7 @@ export default class UserController {
         reply.code(404).send(err.toDto());
       }
       else {
+        console.log(err);
         reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }

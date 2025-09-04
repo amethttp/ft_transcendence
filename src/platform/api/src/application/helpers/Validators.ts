@@ -24,8 +24,4 @@ export default class Validators {
     }
     return false;
   }
-
-  static matchPasswords(inputPassword: string, userPassword: string): boolean {
-    return inputPassword === userPassword;
-  }
 }
