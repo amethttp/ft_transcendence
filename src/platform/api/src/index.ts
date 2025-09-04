@@ -22,7 +22,7 @@ const server = fastify({
   }
 });
 
-const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh'];
+const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username'];
 
 server.register(cors, {
   origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
@@ -37,8 +37,11 @@ server.register(userRoutes, { prefix: '/user' });
 server.register(authRoutes, { prefix: '/auth' });
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
-  if (publicRoutes.includes(request.url))
-    return;
+  // TODO: Do it in a more secure way!!!
+  for (const route of publicRoutes) {
+    if (request.url.startsWith(route))
+      return;
+  }
 
   await JwtAuth.validateRequest(request, reply);
 });
@@ -66,7 +69,7 @@ const testUsers: UserRegistrationRequest[] = [
 const createUsers = async () => {
   for (const user of testUsers) {
     try {
-      await authController.register({body: user} as FastifyRequest, {} as FastifyReply);
+      await authController.register({ body: user } as FastifyRequest, {} as FastifyReply);
     }
     catch (e) {
       // Do nothing

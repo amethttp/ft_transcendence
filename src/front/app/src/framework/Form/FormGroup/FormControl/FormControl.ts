@@ -1,11 +1,11 @@
-import type { ValidatorFn } from "./Validators/Validators";
+import type { AsyncValidatorFn, ValidatorFn } from "./Validators/Validators";
 
 export class FormControl<T> {
   private _value: T;
   private _errors: string[] = [];
-  private validators: ValidatorFn<T>[];
+  private validators: (ValidatorFn<T> | AsyncValidatorFn<T>)[];
 
-  constructor(initialValue: T, validators: ValidatorFn<T>[] = []) {
+  constructor(initialValue: T, validators: (ValidatorFn<T> | AsyncValidatorFn<T>)[] = []) {
     this._value = initialValue;
     this.validators = validators;
     this.validate();
@@ -23,14 +23,15 @@ export class FormControl<T> {
     return this._errors;
   }
 
-  setValue(newValue: T): void {
+  setValue(newValue: T, validate: boolean = true): void {
     this._value = newValue;
-    this.validate();
+    if (validate)
+      this.validate();
   }
 
-  validate(): void {
-    this._errors = this.validators
-      .map(fn => fn(this._value))
-      .filter((err): err is string => err !== null);
+  async validate() {
+    this._errors = (await Promise.all(
+      this.validators.map(fn => fn(this._value))
+    )).filter((err): err is string => err !== null);
   }
 }

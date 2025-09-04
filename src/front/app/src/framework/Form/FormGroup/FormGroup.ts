@@ -38,6 +38,6 @@ export class FormGroup<T extends { [key: string]: any }> {
   }
 
   validate(): void {
-    Object.values(this.controls).forEach(c => c.validate());
+    Object.values(this.controls).forEach(async c => {await c.validate()});
   }
 }

@@ -1,4 +1,5 @@
 export type ValidatorFn<T> = (value: T) => string | null;
+export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 
 export class Validators {
   static email: ValidatorFn<string> = (value: string) => {

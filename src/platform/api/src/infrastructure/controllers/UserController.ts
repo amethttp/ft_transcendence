@@ -41,4 +41,34 @@ export default class UserController {
       }
     }
   }
+
+  async checkUsername(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    try {
+      await this.userService.getByUsername(request.params.username);
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(200).send({ success: false });
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async checkEmail(request: FastifyRequest<{ Params: { email: string } }>, reply: FastifyReply) {
+    try {
+      await this.userService.getByEmail(request.params.email);
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(200).send({ success: false });
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
 }

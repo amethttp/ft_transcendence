@@ -5,6 +5,7 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators, type ValidatorFn } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { RegisterValidators } from "./RegisterValidators/RegisterValidators";
 import type { RegisterForm } from "./models/RegisterForm";
 
 
@@ -25,8 +26,8 @@ export default class RegisterComponent extends AmethComponent {
     };
 
     this.form = new Form("registerForm", {
-      username: new FormControl<string>("", [Validators.username]),
-      email: new FormControl<string>("", [Validators.email]),
+      username: new FormControl<string>("", [Validators.username, RegisterValidators.usernameUnique]),
+      email: new FormControl<string>("", [Validators.email, RegisterValidators.emailUnique]),
       password: passwdControl,
       repeatPassword: new FormControl<string>("", [passwordRepeat]),
       terms: new FormControl<boolean>(false, [Validators.requiredTrue])

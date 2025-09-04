@@ -28,27 +28,27 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         if (input.type === "checkbox") {
           input.checked = control.value;
           input.parentElement?.classList.add("touched");
-          input.addEventListener("input", () => control.setValue(input.checked as T[string]));
+          input.addEventListener("input", () => control.setValue(input.checked as T[string], false));
         }
         else {
           input.value = control.value;
-          input.addEventListener("input", () => control.setValue(input.value as T[string]));
+          input.addEventListener("input", () => control.setValue(input.value as T[string], false));
         }
-        input.addEventListener("input", () => {
+        input.addEventListener("input", async () => {
           input.parentElement?.classList.add("dirty");
-          this.validate();
+          await this.validate();
         });
-        const onBlur = () => {
+        const onBlur = async () => {
           input.parentElement?.classList.add("touched");
-          this.validate();
+          await this.validate();
           input.removeEventListener("blur", onBlur);
         };
         input.addEventListener("blur", onBlur);
       }
       else if (input.type === "submit") {
-        input.addEventListener("click", e => {
+        input.addEventListener("click", async e => {
           e.preventDefault();
-          this._submit();
+          await this._submit();
         });
       }
     }
@@ -61,9 +61,9 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
     }
   }
 
-  private _submit() {
+  private async _submit() {
     this.touchDirtyAll();
-    this.validate();
+    await this.validate();
     if (this.valid && this.submit)
       this.submit(this.value);
     else if (!this.valid)
@@ -80,9 +80,9 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
     }
   }
 
-  validate(): void {
-    Object.keys(this.controls).forEach((k: string) => {
-      this.controls[k].validate();
+  async validate() {
+    for (const k of Object.keys(this.controls)) {
+      await this.controls[k].validate();
       if (this.controls[k]?.valid) {
         this._inputs[k]?.removeAttribute("aria-invalid");
         this._inputs[k]?.parentElement?.classList.remove("invalid");
@@ -97,6 +97,6 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         this._inputs[k]?.setAttribute("aria-invalid", "true");
         this._inputs[k]?.parentElement?.classList.add("invalid");
       }
-    });
+    }
   }
 }
