@@ -1,7 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
-import { UserService } from "../../application/services/UserService";
 import { UserLoginRequest } from "../../application/models/UserLoginRequest";
 import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
 import { UserProfile } from "../../application/models/UserProfile";
@@ -9,11 +8,9 @@ import { UserRegistrationRequest } from "../../application/models/UserRegistrati
 import { AuthService } from "../../application/services/AuthService";
 
 export default class AuthController {
-  private _userService: UserService;
   private _authService: AuthService;
 
-  constructor(userService: UserService, authService: AuthService) {
-    this._userService = userService;
+  constructor(authService: AuthService) {
     this._authService = authService;
   }
 
@@ -42,6 +39,7 @@ export default class AuthController {
         reply.code(401).send(err.toDto());
       }
       else {
+        console.log(err);
         reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
@@ -67,8 +65,7 @@ export default class AuthController {
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserLoginRequest;
-      this._authService.validateLoginCredentials(userCredentials); // TODO: Auth service
-      const loggedUser = await this._userService.loginUser(userCredentials);
+      const loggedUser = await this._authService.loginUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(loggedUser.id, reply);
       
       reply.header('set-cookie', JWTHeaders);
@@ -96,17 +93,19 @@ export default class AuthController {
   async register(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserRegistrationRequest;
-      this._authService.validateRegistrationCredentials(userCredentials);
-      const registeredUser = await this._userService.registerUser(userCredentials);
+      const registeredUser = await this._authService.registerUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
+      console.log(registeredUser);
       
       reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({succes: true});
     } catch (err) {
       if (err instanceof ResponseError) {
+        console.log(err);
         reply.code(404).send(err.toDto());
       }
       else {
+        console.log(err);
         reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
       }
     }

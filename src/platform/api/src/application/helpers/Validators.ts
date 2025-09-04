@@ -13,8 +13,4 @@ export default class Validators {
     const passwordRegex = /^.{8,50}$/;
     return passwordRegex.test(password);
   }
-
-  static matchPasswords(inputPassword: string, userPassword: string): boolean {
-    return inputPassword === userPassword;
-  }
 }
