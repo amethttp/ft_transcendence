@@ -19,7 +19,15 @@
 
 
   input[type="checkbox"] {
-    @apply cursor-pointer accent-gray-700;
+    @apply cursor-pointer accent-gray-700 transition-colors w-[13px] h-[13px];
+  }
+
+  .touched.invalid input[type="checkbox"] {
+    @apply appearance-none rounded-[2px] border-1 border-red-700;
+  }
+
+  label {
+    @apply transition-colors;
   }
 
   label.checkbox {
@@ -32,6 +40,10 @@
 
   .touched.invalid {
     @apply text-red-700 mb-0;
+  }
+
+  .touched.invalid a.decorated {
+    @apply text-red-700;
   }
 
   .field .error {
