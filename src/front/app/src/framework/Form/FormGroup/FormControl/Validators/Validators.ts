@@ -4,17 +4,22 @@ export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 export class Validators {
   static email: ValidatorFn<string> = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value) ? null : "Email format not valid";
+    return emailRegex.test(value) ? null : "Invalid email address";
   };
 
   static username: ValidatorFn<string> = (value: string) => {
     const usernameRegex = /^[a-zA-Z0-9_-]{5,20}$/;
-    return usernameRegex.test(value) ? null : "Username must be 5-20 characters and contain only letters and numbers";
+    return usernameRegex.test(value) ? null : "5-20 characters, letters and numbers only";
   };
 
   static password: ValidatorFn<string> = (value: string) => {
     const passwordRegex = /^.{8,50}$/;
-    return passwordRegex.test(value) ? null : "Password length must be between 8 and 50 characters.";
+    if (value.length < 8)
+      return "Password too short! Must contain at least 8 characters"
+    else if (value.length > 50)
+      return "Password too long! Can contain up to 50 characters"
+    else
+      return passwordRegex.test(value) ? null : "Invalid password";
   };
 
   static requiredTrue: ValidatorFn<boolean> = (value: boolean) => {

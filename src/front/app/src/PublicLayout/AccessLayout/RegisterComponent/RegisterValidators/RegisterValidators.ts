@@ -3,7 +3,6 @@ import { RegisterService } from "../services/RegisterService";
 
 export class RegisterValidators {
   static usernameUnique: AsyncValidatorFn<string> = async (username: string) => {
-    console.log("usernameUnique petition: ", username);
     try {
       const success = (await new RegisterService().usernameExists(username)).success;
       return !success ? null : "Username already in use";
@@ -14,7 +13,6 @@ export class RegisterValidators {
   }
 
   static emailUnique: AsyncValidatorFn<string> = async (email: string) => {
-    console.log("emailUnique petition: ", email);
     try {
       const success = (await new RegisterService().emailExists(email)).success;
       return !success ? null : "Email already in use";

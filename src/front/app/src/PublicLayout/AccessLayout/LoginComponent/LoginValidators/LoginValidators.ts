@@ -2,6 +2,6 @@ import { Validators, type ValidatorFn } from "../../../../framework/Form/FormGro
 
 export class LoginValidators {
   static identifier: ValidatorFn<string> = (identifier: string) => {
-    return Validators.email(identifier) === null || Validators.username(identifier) === null ? null : "Invalid identifier";
+    return Validators.email(identifier) === null || Validators.username(identifier) === null ? null : "Invalid username or email";
   }
 }

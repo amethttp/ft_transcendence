@@ -41,7 +41,6 @@ server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply
 
 const main = async () => {
   await createDummyUsers();
-  console.log("About to listen server");
   server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
     if (err) {
       console.error(err);

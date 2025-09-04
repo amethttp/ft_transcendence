@@ -37,6 +37,4 @@ export const createDummyUsers = async () => {
       // Do nothing
     }
   }
-
-  console.log("Finished creating users");
 }
