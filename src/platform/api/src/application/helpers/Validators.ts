@@ -10,7 +10,7 @@ export default class Validators {
   }
 
   static password(password: string): boolean {
-    const passwordRegex = /^.{12,50}$/;
+    const passwordRegex = /^.{8,50}$/;
     return passwordRegex.test(password);
   }
 

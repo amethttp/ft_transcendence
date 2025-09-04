@@ -12,8 +12,8 @@ export class Validators {
   };
 
   static password: ValidatorFn<string> = (value: string) => {
-    const passwordRegex = /^.{12,50}$/;
-    return passwordRegex.test(value) ? null : "Password length must be between 12 and 50 characters.";
+    const passwordRegex = /^.{8,50}$/;
+    return passwordRegex.test(value) ? null : "Password length must be between 8 and 50 characters.";
   };
 
   static requiredTrue: ValidatorFn<boolean> = (value: boolean) => {
