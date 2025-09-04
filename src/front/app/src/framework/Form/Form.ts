@@ -52,7 +52,6 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         });
       }
     }
-    console.log(this._inputs);
   }
 
   touchDirtyAll() {
@@ -63,7 +62,6 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
   }
 
   private _submit() {
-    console.log("_submitted", this.valid, this.controls);
     this.touchDirtyAll();
     this.validate();
     if (this.valid && this.submit)
