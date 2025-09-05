@@ -3,7 +3,7 @@ import { GoogleAuth } from "../../domain/entities/GoogleAuth";
 import { Password } from "../../domain/entities/Password";
 import { User } from "../../domain/entities/User";
 import { IAuthRepository } from "../../domain/repositories/IAuthRepository";
-import { ErrorMsg, ResponseError } from "../errors/ResponseError";
+import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import Validators from "../helpers/Validators";
 import { UserLoginRequest } from "../models/UserLoginRequest";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
@@ -24,7 +24,7 @@ export class AuthService {
 
   async newAuth(newPassword?: Password, newGoogleAuth?: GoogleAuth): Promise<Auth> {
     if (newPassword !== undefined && newGoogleAuth !== undefined) {
-      throw new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR);
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
 
     const authBlueprint: Partial<Auth> = {};
@@ -38,7 +38,7 @@ export class AuthService {
     const authId = await this._authRepository.create(authBlueprint);
     const createdAuth = await this._authRepository.findById(authId || -1);
     if (createdAuth === null) {
-      throw new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR);
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
 
     return createdAuth;
@@ -49,22 +49,22 @@ export class AuthService {
       !Validators.email(userCredentials.identifier) &&
       !Validators.username(userCredentials.identifier)
     ) {
-      throw new ResponseError(ErrorMsg.LOGIN_FAILED);
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
     if (!Validators.password(userCredentials.password)) {
-      throw new ResponseError(ErrorMsg.LOGIN_FAILED);
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
   }
 
   private validateRegistrationCredentials(userCredentials: UserRegistrationRequest) {
     if (!Validators.email(userCredentials.email)) {
-      throw new ResponseError(ErrorMsg.REGISTRATION_INVALID_EMAIL);
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_EMAIL);
     }
     if (!Validators.username(userCredentials.username)) {
-      throw new ResponseError(ErrorMsg.REGISTRATION_INVALID_USERNAME);
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_USERNAME);
     }
     if (!Validators.password(userCredentials.password)) {
-      throw new ResponseError(ErrorMsg.REGISTRATION_INVALID_PASSWORD);
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
     }
   }
 
@@ -74,7 +74,7 @@ export class AuthService {
     const deepUser = await this._userService.getByIdDeep(shallowUser.id);
     const placeholderHash = (deepUser as any).hash;
     if (!(await this._passwordService.verify(placeholderHash, userCredentials.password))) {
-      throw new ResponseError(ErrorMsg.LOGIN_FAILED);
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
 
     return shallowUser;
@@ -82,7 +82,7 @@ export class AuthService {
 
   async registerUser(userCredentials: UserRegistrationRequest): Promise<User> {
     this.validateRegistrationCredentials(userCredentials);
-    const password = await this._passwordService.newPassword(userCredentials.password);
+    const password = await this._passwordService.newPassword(userCredentials.password); // TODO: db transactions...
     const auth = await this.newAuth(password);
     const user = await this._userService.newUser(userCredentials, auth);
 

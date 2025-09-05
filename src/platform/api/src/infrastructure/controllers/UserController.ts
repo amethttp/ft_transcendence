@@ -1,7 +1,7 @@
 import { type FastifyRequest, type FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
-import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
+import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 
 export default class UserController {
   private userService: UserService;
@@ -17,11 +17,11 @@ export default class UserController {
       return reply.send(await this.userService.getByIdShallow(requestedUser.sub));
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(404).send(err.toDto());
+        reply.code(err.code).send(err.toDto());
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
@@ -33,11 +33,11 @@ export default class UserController {
       reply.code(200).send(user);
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(404).send(err.toDto());
+        reply.code(err.code).send(err.toDto());
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }

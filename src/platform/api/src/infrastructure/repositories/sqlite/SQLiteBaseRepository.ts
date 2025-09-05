@@ -81,7 +81,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     const sql = `INSERT INTO ${this._tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
     const stmt = this._db.prepare(sql);
     const lastID = await this.dbStmtRunCreate(stmt, values);
-    stmt.finalize(); // TODO: check this... + try catches...
+    stmt.finalize(); // TODO: check this...
 
     if (lastID)
       return lastID;
