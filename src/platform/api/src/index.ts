@@ -7,6 +7,7 @@ import userRoutes from "./infrastructure/routes/UserRoutes";
 import { JwtAuth } from "./infrastructure/auth/JwtAuth";
 import authRoutes from "./infrastructure/routes/AuthRoutes";
 import { createDummyUsers } from "./spec/createDummyUsers";
+import mailerPlugin from "./infrastructure/plugins/mailerPlugin";
 
 const server = fastify({
   https: {
@@ -25,6 +26,7 @@ server.register(cors, {
 
 server.register(jwt, { secret: process.env.JWT_SECRET || "" });
 server.register(cookie);
+server.register(mailerPlugin);
 
 server.register(userRoutes, { prefix: '/user' });
 server.register(authRoutes, { prefix: '/auth' });

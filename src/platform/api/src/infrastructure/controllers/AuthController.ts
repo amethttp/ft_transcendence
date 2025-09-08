@@ -68,6 +68,13 @@ export default class AuthController {
       const loggedUser = await this._authService.loginUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(loggedUser.id, reply);
       
+      const info = await request.server.mailer.sendMail({
+        from: '"AmethPong" <info@amethpong.fun>',
+        to: "arzelcanavate@gmail.com",
+        subject: "Welcome to Pong!",
+        text: "Hello! Thanks for login to Pong.",
+      });
+      console.log(info);
       reply.header('set-cookie', JWTHeaders);
       reply.status(200).send(loggedUser as UserProfile); // TODO: map correctly to UserProfile
     } catch (err) {
