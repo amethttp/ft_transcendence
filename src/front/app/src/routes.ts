@@ -37,6 +37,16 @@ export const routes: Route[] = [
             component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
             title: "Two Factor Authentication",
           },
+          {
+            path: "/recover",
+            component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
+            title: "Recover password",
+          },
+          {
+            path: "/recover/:token",
+            component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
+            title: "Create new password",
+          }
         ]
       },
       {

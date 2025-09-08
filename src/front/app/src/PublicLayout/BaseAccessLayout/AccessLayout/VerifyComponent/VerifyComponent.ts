@@ -1,10 +1,10 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
-import type { LoginRequest } from "../../../auth/models/LoginRequest";
-import { AuthService } from "../../../auth/services/AuthService";
-import AmethComponent from "../../../framework/AmethComponent";
-import { Form } from "../../../framework/Form/Form";
-import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
-import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { LoggedUser } from "../../../../auth/LoggedUser";
+import type { LoginRequest } from "../../../../auth/models/LoginRequest";
+import { AuthService } from "../../../../auth/services/AuthService";
+import AmethComponent from "../../../../framework/AmethComponent";
+import { Form } from "../../../../framework/Form/Form";
+import { FormControl } from "../../../../framework/Form/FormGroup/FormControl/FormControl";
+import { Validators } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 
 export default class VerifyComponent extends AmethComponent {
   template = () => import("./VerifyComponent.html?raw");

@@ -1,3 +1,5 @@
+import type { FormControl } from "../FormControl";
+
 export type ValidatorFn<T> = (value: T) => string | null;
 export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 
@@ -33,4 +35,11 @@ export class Validators {
       else return null;
     }
   }
+
+  static passwordRepeat(passwdControl: FormControl<string>): ValidatorFn<string> {
+    return (value: string) => {
+      return passwdControl.value === value ? null : "Passwords do not match";
+    }
+  };
+
 }

@@ -1,6 +1,4 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
-import type { LoginRequest } from "../../../auth/models/LoginRequest";
-import type { VerifyRequest } from "../../../auth/models/VerifyRequest";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";

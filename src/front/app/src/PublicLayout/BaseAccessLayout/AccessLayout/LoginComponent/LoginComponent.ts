@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../../auth/LoggedUser";
 import type { LoginRequest } from "../../../../auth/models/LoginRequest";
 import { AuthService } from "../../../../auth/services/AuthService";
 import AmethComponent from "../../../../framework/AmethComponent";
