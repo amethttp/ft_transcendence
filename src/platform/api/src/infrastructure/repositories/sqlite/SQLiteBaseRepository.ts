@@ -128,6 +128,6 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     const affectedNumber = await this.dbStmtRunAlter(stmt, [id]);
     stmt.finalize();
 
-    return affectedNumber !>= 0;
+    return affectedNumber ? affectedNumber > 0 : false;
   }
 }

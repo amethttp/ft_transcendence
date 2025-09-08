@@ -10,7 +10,7 @@ import { PasswordService } from "../../application/services/PasswordService";
 export default async function authRoutes(server: FastifyInstance) {
   const userRepository = new SQLiteUserRepository();
   const userService = new UserService(userRepository);
-  const passwordRepository = new SQLitePasswordRepository;
+  const passwordRepository = new SQLitePasswordRepository();
   const passwordService = new PasswordService(passwordRepository);
   const authRepository = new SQLiteAuthRepository(); 
   const authService = new AuthService(authRepository, userService, passwordService);

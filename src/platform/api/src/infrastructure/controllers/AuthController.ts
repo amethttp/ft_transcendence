@@ -97,7 +97,7 @@ export default class AuthController {
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
       
       reply.header('set-cookie', JWTHeaders);
-      reply.status(200).send({succes: true});
+      reply.status(200).send({success: true});
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
