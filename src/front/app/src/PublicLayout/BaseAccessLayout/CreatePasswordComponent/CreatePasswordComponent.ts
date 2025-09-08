@@ -1,3 +1,4 @@
+import type UserProfile from "../../../PrivateLayout/UserComponent/UserProfileComponent/models/UserProfile";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
@@ -7,15 +8,17 @@ import { Validators } from "../../../framework/Form/FormGroup/FormControl/Valida
 export default class CreatePasswordComponent extends AmethComponent {
   template = () => import("./CreatePasswordComponent.html?raw");
   private _authService!: AuthService;
-  private _form!: Form<{ password: string, passwordRepeat: string }>;
+  private _form!: Form<{ username: string, password: string, passwordRepeat: string }>;
   private _errorView!: HTMLElement;
   private _token?: string;
+  private _user?: UserProfile;
 
-  afterInit() {
+  async afterInit() {
     this._authService = new AuthService();
-    this.refresh();
+    await this.refresh();
     const passwdControl = new FormControl<string>("", [Validators.password]);
     this._form = new Form("createPasswordForm", {
+      username: new FormControl<string>(this._user?.username || ""),
       password: passwdControl,
       passwordRepeat: new FormControl<string>("", [Validators.passwordRepeat(passwdControl)]),
     });
@@ -31,15 +34,14 @@ export default class CreatePasswordComponent extends AmethComponent {
     };
   }
 
-  refresh() {
+  async refresh() {
     const token = this.router?.currentPath.params["token"];
     if (token) {
       this._token = token.toString();
-      this._authService.checkCreatePassword(this._token)
-        .then(async () => {
-          // TODO: Put username info hidden on form to help browser
-        })
-        .catch(() => this.invalidToken());
+      try {
+        this._user = await this._authService.checkCreatePassword(this._token);
+      }
+      catch (e) { this.invalidToken() };
     }
     else
       this.invalidToken();

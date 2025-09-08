@@ -1,4 +1,5 @@
 import { ApiClient } from "../../ApiClient/ApiClient";
+import type UserProfile from "../../PrivateLayout/UserComponent/UserProfileComponent/models/UserProfile";
 import type { IHttpClient } from "../../framework/HttpClient/IHttpClient";
 import { LoggedUser } from "../LoggedUser";
 import type { BasicResponse } from "../models/BasicResponse";
@@ -33,8 +34,8 @@ export class AuthService {
     return this.http.post<RecoverRequest, BasicResponse>(AuthService.RECOVER_ENDPOINT, request);
   }
 
-  async checkCreatePassword(token: string): Promise<BasicResponse> {
-    return this.http.get<BasicResponse>(AuthService.RECOVER_ENDPOINT + "/" + token);
+  async checkCreatePassword(token: string): Promise<UserProfile> {
+    return this.http.get<UserProfile>(AuthService.RECOVER_ENDPOINT + "/" + token);
   }
 
   async createPassword(request: CreatePasswordRequest, token: string): Promise<BasicResponse> {
