@@ -22,7 +22,7 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
       sql = `
         SELECT user.*, auth.*, password.* 
         FROM user 
-        JOIN auth ON user.auth = auth.id 
+        JOIN auth ON user.auth_id = auth.id 
         LEFT JOIN password ON auth.password_id = password.id 
         WHERE user.id = ?
       `;

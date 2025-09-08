@@ -11,7 +11,6 @@ import { PasswordService } from "./PasswordService";
 import { UserService } from "./UserService";
 
 export class AuthService {
-  // @ts-ignore
   private _authRepository: IAuthRepository;
   private _userService: UserService;
   private _passwordService: PasswordService
@@ -70,6 +69,7 @@ export class AuthService {
 
   async loginUser(userCredentials: UserLoginRequest): Promise<User> {
     this.validateLoginCredentials(userCredentials);
+
     const shallowUser = await this._userService.getByIdentifier(userCredentials.identifier);
     const deepUser = await this._userService.getByIdDeep(shallowUser.id);
     const placeholderHash = (deepUser as any).hash;
@@ -82,10 +82,18 @@ export class AuthService {
 
   async registerUser(userCredentials: UserRegistrationRequest): Promise<User> {
     this.validateRegistrationCredentials(userCredentials);
-    const password = await this._passwordService.newPassword(userCredentials.password); // TODO: db transactions...
-    const auth = await this.newAuth(password);
-    const user = await this._userService.newUser(userCredentials, auth);
 
-    return user;
+    try {
+      this._authRepository.dbBegin();
+      const password = await this._passwordService.newPassword(userCredentials.password);
+      const auth = await this.newAuth(password);
+      const user = await this._userService.newUser(userCredentials, auth);
+      this._authRepository.dbCommit();
+      
+      return user;
+    } catch (error) {
+      this._authRepository.dbRollback();
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
   }
 }

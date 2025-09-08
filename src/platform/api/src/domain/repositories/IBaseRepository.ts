@@ -4,4 +4,7 @@ export interface IBaseRepository<T> {
   create(data: Partial<T>): Promise<number | null>;
   update(id: number, data: Partial<T>): Promise<number | null>;
   delete(id: number): Promise<boolean>;
+  dbBegin(): any;
+  dbRollback(): any;
+  dbCommit(): any;
 }
