@@ -1,10 +1,10 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
-import type { RegisterRequest } from "../../../auth/models/RegisterRequest";
-import { AuthService } from "../../../auth/services/AuthService";
-import AmethComponent from "../../../framework/AmethComponent";
-import { Form } from "../../../framework/Form/Form";
-import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
-import { Validators, type ValidatorFn } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { LoggedUser } from "../../../../auth/LoggedUser";
+import type { RegisterRequest } from "../../../../auth/models/RegisterRequest";
+import { AuthService } from "../../../../auth/services/AuthService";
+import AmethComponent from "../../../../framework/AmethComponent";
+import { Form } from "../../../../framework/Form/Form";
+import { FormControl } from "../../../../framework/Form/FormGroup/FormControl/FormControl";
+import { Validators, type ValidatorFn } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 import { RegisterValidators } from "./RegisterValidators/RegisterValidators";
 import type { RegisterForm } from "./models/RegisterForm";
 

@@ -2,16 +2,19 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserLoginRequest } from "../../application/models/UserLoginRequest";
-import { UserProfile } from "../../application/models/UserProfile";
 import { UserRegistrationRequest } from "../../application/models/UserRegistrationRequest";
 import { AuthService } from "../../application/services/AuthService";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
+import { UserLoginVerificationRequest } from "../../application/models/UserLoginVerificationRequest";
+import { UserVerificationService } from "../../application/services/UserVerificationService";
 
 export default class AuthController {
   private _authService: AuthService;
+  private _userVerificationService: UserVerificationService;
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, userVerificationService: UserVerificationService) {
     this._authService = authService;
+    this._userVerificationService = userVerificationService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -33,7 +36,7 @@ export default class AuthController {
         `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
       ]);
 
-      reply.status(200).send({success: true});
+      reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
@@ -66,17 +69,15 @@ export default class AuthController {
     try {
       const userCredentials = request.body as UserLoginRequest;
       const loggedUser = await this._authService.loginUser(userCredentials);
-      const JWTHeaders = await this.setJWTHeaders(loggedUser.id, reply);
-      
-      const info = await request.server.mailer.sendMail({
+
+      const code = await this._userVerificationService.createUserVerification(loggedUser);
+      request.server.mailer.sendMail({
         from: '"AmethPong" <info@amethpong.fun>',
-        to: "arzelcanavate@gmail.com",
-        subject: "Welcome to Pong!",
-        text: "Hello! Thanks for login to Pong.",
+        to: loggedUser.email,
+        subject: "Verification code",
+        text: "Your code is: " + code,
       });
-      console.log(info);
-      reply.header('set-cookie', JWTHeaders);
-      reply.status(200).send(loggedUser as UserProfile); // TODO: map correctly to UserProfile
+      reply.status(200).send({ id: loggedUser.id });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
@@ -85,6 +86,23 @@ export default class AuthController {
         console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
+    }
+  }
+
+  async verifyLogin(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userCredentials = request.body as UserLoginVerificationRequest;
+      console.log(userCredentials);
+      if (await this._userVerificationService.verify(userCredentials.userId, userCredentials.code)) {
+        const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
+        reply.header('set-cookie', JWTHeaders);
+        reply.status(200).send({ success: true });
+      }
+      else
+        reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
+    } catch (err) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
     }
   }
 
@@ -102,9 +120,9 @@ export default class AuthController {
       const userCredentials = request.body as UserRegistrationRequest;
       const registeredUser = await this._authService.registerUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
-      
+
       reply.header('set-cookie', JWTHeaders);
-      reply.status(200).send({success: true});
+      reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

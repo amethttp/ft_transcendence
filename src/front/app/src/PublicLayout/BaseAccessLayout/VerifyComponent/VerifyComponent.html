@@ -1,0 +1,25 @@
+<div class="flex flex-col gap-1">
+  <h1 class="title-2">
+    Verify your access
+  </h1>
+  <p class="subtitle-2">
+    Please check your email inbox for the code. If you still cannot find it, re-submit <a href="/login" class="decorated">login</a>.
+  </p>
+</div>
+<form id="verifyForm">
+  <div class="field">
+    <label for="verifyInput" class="label">Your code</label>
+    <input id="verifyInput" name="code" class="input" type="number" maxlength="4" autocomplete="one-time-code"
+      inputmode="numeric">
+  </div>
+  <article class="flex flex-wrap w-full invisible text-red-700 justify-center" id="verifyError">
+    <div class="message-body">
+      Verify failed. Please try again or re-submit <a href="/login" class="decorated">login</a>.
+    </div>
+  </article>
+  <div class="field items-center">
+    <p class="control w-full">
+      <button class="btn btn-primary w-full" type="submit">Verify</button>
+    </p>
+  </div>
+</form>

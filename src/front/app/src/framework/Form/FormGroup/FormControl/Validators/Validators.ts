@@ -25,4 +25,12 @@ export class Validators {
   static requiredTrue: ValidatorFn<boolean> = (value: boolean) => {
     return value === true ? null : "Not true";
   };
+
+  static length(min: number, max: number): ValidatorFn<string> {
+    return (value: string) => {
+      if (value.length < min) return "Min. length is " + min;
+      else if (value.length > max) return "Max. length is " + max;
+      else return null;
+    }
+  }
 }

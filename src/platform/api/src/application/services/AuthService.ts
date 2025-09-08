@@ -13,7 +13,7 @@ import { UserService } from "./UserService";
 export class AuthService {
   private _authRepository: IAuthRepository;
   private _userService: UserService;
-  private _passwordService: PasswordService
+  private _passwordService: PasswordService;
 
   constructor(authRepository: IAuthRepository, userService: UserService, passwordService: PasswordService) {
     this._authRepository = authRepository;

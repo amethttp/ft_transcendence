@@ -6,6 +6,8 @@ import { UserService } from "../../application/services/UserService";
 import { AuthService } from "../../application/services/AuthService";
 import { SQLitePasswordRepository } from "../repositories/sqlite/SQLitePasswordRepository";
 import { PasswordService } from "../../application/services/PasswordService";
+import { SQLiteUserVerificationRepository } from "../repositories/sqlite/SQLiteUserVerificationRepository";
+import { UserVerificationService } from "../../application/services/UserVerificationService";
 
 export default async function authRoutes(server: FastifyInstance) {
   const userRepository = new SQLiteUserRepository();
@@ -14,7 +16,9 @@ export default async function authRoutes(server: FastifyInstance) {
   const passwordService = new PasswordService(passwordRepository);
   const authRepository = new SQLiteAuthRepository(); 
   const authService = new AuthService(authRepository, userService, passwordService);
-  const authController = new AuthController(authService);
+  const userVerificationRepository = new SQLiteUserVerificationRepository(); 
+  const userVerificationService = new UserVerificationService(userVerificationRepository);
+  const authController = new AuthController(authService, userVerificationService);
 
   server.get('/refresh', async (request, reply) => {
     await authController.refresh(request, reply, server.jwt);
@@ -22,6 +26,10 @@ export default async function authRoutes(server: FastifyInstance) {
 
   server.post("/login", async (request, reply) => {
     await authController.login(request, reply);
+  });
+
+  server.post("/login/verify", async (request, reply) => {
+    await authController.verifyLogin(request, reply);
   });
 
   server.post("/register", async (request, reply) => {

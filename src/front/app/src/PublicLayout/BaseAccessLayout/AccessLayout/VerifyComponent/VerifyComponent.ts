@@ -5,10 +5,9 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
-import { LoginValidators } from "./LoginValidators/LoginValidators";
 
-export default class LoginComponent extends AmethComponent {
-  template = () => import("./LoginComponent.html?raw");
+export default class VerifyComponent extends AmethComponent {
+  template = () => import("./VerifyComponent.html?raw");
   private _authService!: AuthService;
   private _form!: Form<LoginRequest>;
   private _errorView!: HTMLElement;
@@ -16,7 +15,7 @@ export default class LoginComponent extends AmethComponent {
   afterInit() {
     this._authService = new AuthService();
     this._form = new Form("loginForm", {
-      identifier: new FormControl<string>("", [LoginValidators.identifier]),
+      identifier: new FormControl<string>(""),
       password: new FormControl<string>("", [Validators.password])
     });
     this._errorView = document.getElementById("loginError")!;
