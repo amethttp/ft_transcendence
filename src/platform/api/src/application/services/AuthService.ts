@@ -1,3 +1,4 @@
+import { Transporter } from "nodemailer";
 import { Auth } from "../../domain/entities/Auth";
 import { GoogleAuth } from "../../domain/entities/GoogleAuth";
 import { Password } from "../../domain/entities/Password";
@@ -89,11 +90,28 @@ export class AuthService {
       const auth = await this.newAuth(password);
       const user = await this._userService.newUser(userCredentials, auth);
       this._authRepository.dbCommit();
-      
+
       return user;
     } catch (error) {
       this._authRepository.dbRollback();
       throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
+  }
+
+  async sendRecoveryEmail(mailer: Transporter, email: string, token: string) {
+    mailer.sendMail({
+      from: '"AmethPong" <info@amethpong.fun>',
+      to: email,
+      subject: "Reset your password",
+      text: `Click here to restore your password: http://localhost:5173/recover/${token}`,
+    });
+  }
+
+  async restorePassword(userId: number, newPassword: string) {
+    if (!Validators.password(newPassword))
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
+    const user = this._userService.getByIdDeep(userId);
+    const passwordId = (user as any)["password_id"];
+    this._passwordService.update(passwordId, newPassword);
   }
 }

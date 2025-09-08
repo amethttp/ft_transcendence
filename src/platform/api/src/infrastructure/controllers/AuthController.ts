@@ -7,14 +7,23 @@ import { AuthService } from "../../application/services/AuthService";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { UserLoginVerificationRequest } from "../../application/models/UserLoginVerificationRequest";
 import { UserVerificationService } from "../../application/services/UserVerificationService";
+import { RecoveryEmailRequest } from "../../application/models/RecoveryEmailRequest";
+import { PasswordRecoveryRequest } from "../../application/models/PasswordRecoveryRequest";
+import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
+import { UserService } from "../../application/services/UserService";
+import { randomBytes } from "crypto";
 
 export default class AuthController {
   private _authService: AuthService;
   private _userVerificationService: UserVerificationService;
+  private _recoverPasswordService: RecoverPasswordService;
+  private _userService: UserService;
 
-  constructor(authService: AuthService, userVerificationService: UserVerificationService) {
+  constructor(authService: AuthService, userVerificationService: UserVerificationService, recoverPasswordService: RecoverPasswordService, userService: UserService) {
     this._authService = authService;
     this._userVerificationService = userVerificationService;
+    this._recoverPasswordService = recoverPasswordService;
+    this._userService = userService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -70,13 +79,9 @@ export default class AuthController {
       const userCredentials = request.body as UserLoginRequest;
       const loggedUser = await this._authService.loginUser(userCredentials);
 
-      const code = await this._userVerificationService.createUserVerification(loggedUser);
-      request.server.mailer.sendMail({
-        from: '"AmethPong" <info@amethpong.fun>',
-        to: loggedUser.email,
-        subject: "Verification code",
-        text: "Your code is: " + code,
-      });
+      const code = await this._userVerificationService.newUserVerification(loggedUser);
+      this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, code || 0)
+
       reply.status(200).send({ id: loggedUser.id });
     } catch (err) {
       if (err instanceof ResponseError) {
@@ -103,6 +108,59 @@ export default class AuthController {
     } catch (err) {
       console.log(err);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
+
+  async recoveryEmail(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const recoveryRequest = request.body as RecoveryEmailRequest;
+      const user = await this._userService.getByEmail(recoveryRequest.email);
+      const token = randomBytes(32).toString("hex");
+      this._recoverPasswordService.newRecoverPassword(user,token);
+
+      this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(200).send({ success: true });
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserByToken(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const token = request.params as string;
+      const user = await this._recoverPasswordService.getUserByToken(token);
+
+      reply.status(200).send(user); //TODO: public USER mapper etc...
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async recoverPassword(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const token = request.params as string;
+      const passRequest = request.body as PasswordRecoveryRequest;
+      const user = await this._recoverPasswordService.getUserByToken(token);
+      this._authService.restorePassword(user.id, passRequest.password);
+
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
     }
   }
 

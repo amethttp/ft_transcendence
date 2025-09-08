@@ -75,6 +75,15 @@ CREATE TABLE
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
 
+  CREATE TABLE
+  IF NOT EXISTS recover_password (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL,
+    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+  );
+
 CREATE TABLE
   IF NOT EXISTS user_relation (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
