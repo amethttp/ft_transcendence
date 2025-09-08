@@ -23,4 +23,5 @@ export class DatabaseMapper {
   
     return dbRecord;
   }
+  // TODO: toEntity Mapper
 }

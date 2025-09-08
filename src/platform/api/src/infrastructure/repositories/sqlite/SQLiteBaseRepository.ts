@@ -16,6 +16,18 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
 
   // --------------------------------- DB helpers --------------------------------- //
 
+  public async dbBegin() {
+    this._db.exec("BEGIN");
+  }
+
+  public async dbRollback() {
+    this._db.exec("ROLLBACK");
+  }
+
+  public async dbCommit() {
+    this._db.exec("COMMIT");
+  }
+
   public async dbGet(query: string, params: any[]): Promise<T | null> {
     return new Promise<T | null>((resolve, reject) => {
       this._db.get(query, params, (err, row) => {
@@ -81,7 +93,7 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     const sql = `INSERT INTO ${this._tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
     const stmt = this._db.prepare(sql);
     const lastID = await this.dbStmtRunCreate(stmt, values);
-    stmt.finalize(); // TODO: check this... + try catches...
+    stmt.finalize(); // TODO: check this...
 
     if (lastID)
       return lastID;

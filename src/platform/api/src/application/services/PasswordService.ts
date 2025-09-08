@@ -1,7 +1,7 @@
 import argon2 from "argon2";
 import { Password } from "../../domain/entities/Password";
 import { IPasswordRepository } from "../../domain/repositories/IPasswordRepository";
-import { ErrorMsg, ResponseError } from "../errors/ResponseError";
+import { ErrorParams, ResponseError } from "../errors/ResponseError";
 
 export class PasswordService {
   private _passwordRepository: IPasswordRepository;
@@ -17,7 +17,7 @@ export class PasswordService {
     const passwordId = await this._passwordRepository.create(passwordBlueprint);
     const createdPassword = await this._passwordRepository.findById(passwordId || -1);
     if (createdPassword === null) {
-      throw new ResponseError(ErrorMsg.REGISTRATION_FAILED);
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
 
     return createdPassword;

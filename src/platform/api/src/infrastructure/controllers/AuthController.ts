@@ -2,10 +2,10 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserLoginRequest } from "../../application/models/UserLoginRequest";
-import { ErrorMsg, ResponseError } from "../../application/errors/ResponseError";
 import { UserProfile } from "../../application/models/UserProfile";
 import { UserRegistrationRequest } from "../../application/models/UserRegistrationRequest";
 import { AuthService } from "../../application/services/AuthService";
+import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -22,7 +22,7 @@ export default class AuthController {
       try {
         decodedToken = jwt.verify(refreshToken);
       } catch (verifyErr) {
-        throw new ResponseError(ErrorMsg.AUTH_INVALID_ACCESS);
+        throw new ResponseError(ErrorParams.AUTH_INVALID_ACCESS);
       }
       const tokenPayload = decodedToken as JwtPayloadInfo;
       const accessTokenExpiry = 5;
@@ -36,11 +36,11 @@ export default class AuthController {
       reply.status(200).send({success: true});
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(401).send(err.toDto());
+        reply.code(err.code).send(err.toDto());
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
@@ -72,11 +72,11 @@ export default class AuthController {
       reply.status(200).send(loggedUser as UserProfile); // TODO: map correctly to UserProfile
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(404).send(err.toDto());
+        reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
@@ -95,18 +95,16 @@ export default class AuthController {
       const userCredentials = request.body as UserRegistrationRequest;
       const registeredUser = await this._authService.registerUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
-      console.log(registeredUser);
       
       reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({succes: true});
     } catch (err) {
       if (err instanceof ResponseError) {
-        console.log(err);
-        reply.code(404).send(err.toDto());
+        reply.code(err.code).send(err.toDto());
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
