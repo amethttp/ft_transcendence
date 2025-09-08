@@ -3,3 +3,4 @@
 * Ensure hidden username input is working in front
 * Show something pretty when Recover pass mail is sent in front 
 * Check recover pass redirections (front)
+* Make form error messages lazy loaded and not always loaded!

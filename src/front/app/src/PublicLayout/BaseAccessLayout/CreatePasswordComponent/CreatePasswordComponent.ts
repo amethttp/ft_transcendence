@@ -25,7 +25,6 @@ export default class CreatePasswordComponent extends AmethComponent {
     this._errorView = document.getElementById("createPasswordError")!;
     this._form.submit = (value) => {
       this._errorView.classList.add("invisible");
-      console.log(value);
       this._authService.createPassword({ password: value.password }, this._token || "")
         .then(async () => {
           this.router?.redirectByPath("/login");

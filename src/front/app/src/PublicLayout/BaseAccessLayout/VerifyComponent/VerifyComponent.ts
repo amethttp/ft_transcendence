@@ -8,25 +8,38 @@ import { Validators } from "../../../framework/Form/FormGroup/FormControl/Valida
 export default class VerifyComponent extends AmethComponent {
   template = () => import("./VerifyComponent.html?raw");
   private _authService!: AuthService;
-  private _form!: Form<{code: string}>;
+  private _form!: Form<{ code: string }>;
   private _errorView!: HTMLElement;
+  private _userId?: number;
 
   afterInit() {
     this._authService = new AuthService();
+    this.refresh();
+    if (!this._userId) {
+      this.router?.redirectByPath("/login");
+      return;
+    }
     this._form = new Form("verifyForm", {
       code: new FormControl<string>("", [Validators.length(4, 4)])
     });
     this._errorView = document.getElementById("verifyError")!;
     this._form.submit = (value) => {
       this._errorView.classList.add("invisible");
-      console.log(value);
-        this._authService.verify({code: parseInt(value.code), userId: parseInt(sessionStorage.getItem("userId") || "")})
-          .then(async () => {
-            const user = await LoggedUser.get(true);
-            if (user)
-              this.router?.redirectByPath("/home");
-          })
-          .catch(() => this._errorView.classList.remove("invisible"));
+      this._authService.verify({ code: parseInt(value.code), userId: this._userId! })
+        .then(async () => {
+          const user = await LoggedUser.get(true);
+          if (user) {
+            sessionStorage.removeItem("userId");
+            this.router?.redirectByPath("/home");
+          }
+        })
+        .catch(() => this._errorView.classList.remove("invisible"));
     };
+  }
+
+  refresh() {
+    const userId = sessionStorage.getItem("userId");
+    if (userId)
+      this._userId = parseInt(userId);
   }
 }

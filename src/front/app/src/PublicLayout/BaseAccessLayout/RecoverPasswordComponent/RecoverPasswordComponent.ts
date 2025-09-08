@@ -19,7 +19,6 @@ export default class RecoverPasswordComponent extends AmethComponent {
     this._errorView = document.getElementById("recoverError")!;
     this._form.submit = (value) => {
       this._errorView.classList.add("invisible");
-      console.log(value);
       this._authService.recover(value)
         .then(async () => {
           alert("Check your email inbox");
