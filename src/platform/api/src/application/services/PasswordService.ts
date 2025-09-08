@@ -31,6 +31,6 @@ export class PasswordService {
     const passwordBlueprint: Partial<Password> = {
       hash: await argon2.hash(password),
     };
-    this._passwordRepository.update(id, passwordBlueprint);
+    await this._passwordRepository.update(id, passwordBlueprint);
   }
 }

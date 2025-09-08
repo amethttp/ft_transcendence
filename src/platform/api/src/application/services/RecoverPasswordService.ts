@@ -19,11 +19,11 @@ export class RecoverPasswordService {
     return (await this._recoverPasswordRepository.findById(id || -1));
   }
 
-  async getUserByToken(token: string): Promise<User> {
+  async getUserByToken(token: string): Promise<number> {
     const recoverPassword = await this._recoverPasswordRepository.findByToken(token);
-    if (recoverPassword === null || recoverPassword.user === null)
+    if (recoverPassword === null)
       throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
 
-    return recoverPassword.user;
+    return (recoverPassword as any)["user_id"];
   }
 }

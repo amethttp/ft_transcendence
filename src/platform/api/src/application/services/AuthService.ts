@@ -110,8 +110,8 @@ export class AuthService {
   async restorePassword(userId: number, newPassword: string) {
     if (!Validators.password(newPassword))
       throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
-    const user = this._userService.getByIdDeep(userId);
+    const user = await this._userService.getByIdDeep(userId);
     const passwordId = (user as any)["password_id"];
-    this._passwordService.update(passwordId, newPassword);
+    await this._passwordService.update(passwordId, newPassword);
   }
 }

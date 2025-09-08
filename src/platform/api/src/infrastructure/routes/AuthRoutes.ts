@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest } from "fastify";
 import AuthController from "../controllers/AuthController";
 import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepository";
@@ -40,11 +40,11 @@ export default async function authRoutes(server: FastifyInstance) {
     await authController.recoveryEmail(request, reply);
   });
 
-  server.get("/recover/:token", async (request, reply) => {
+  server.get("/recover/:token", async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
     await authController.getUserByToken(request, reply);
   });
 
-  server.post("/recover/:token", async (request, reply) => {
+  server.post("/recover/:token", async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
     await authController.recoverPassword(request, reply);
   });
 

@@ -28,7 +28,7 @@ export default class CreatePasswordComponent extends AmethComponent {
       console.log(value);
       this._authService.createPassword({ password: value.password }, this._token || "")
         .then(async () => {
-          alert("Check your email inbox.");
+          this.router?.redirectByPath("/login");
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };
@@ -49,6 +49,6 @@ export default class CreatePasswordComponent extends AmethComponent {
 
   private invalidToken() {
     alert("Invalid token, please re-submit forgot password.");
-    // this.router?.redirectByPath("/recover");
+    this.router?.redirectByPath("/recover");
   }
 }

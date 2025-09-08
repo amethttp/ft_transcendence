@@ -115,7 +115,7 @@ export default class AuthController {
     try {
       const recoveryRequest = request.body as RecoveryEmailRequest;
       const user = await this._userService.getByEmail(recoveryRequest.email);
-      const token = randomBytes(32).toString("hex");
+      const token = randomBytes(32).toString("base64url");
       this._recoverPasswordService.newRecoverPassword(user,token);
 
       this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
@@ -130,11 +130,11 @@ export default class AuthController {
     }
   }
 
-  async getUserByToken(request: FastifyRequest, reply: FastifyReply) {
+  async getUserByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      const token = request.params as string;
-      const user = await this._recoverPasswordService.getUserByToken(token);
-
+      const token = request.params.token;
+      const userId = await this._recoverPasswordService.getUserByToken(token);
+      const user = await this._userService.getByIdShallow(userId);
       reply.status(200).send(user); //TODO: public USER mapper etc...
     } catch (err) {
       if (err instanceof ResponseError) {
@@ -146,12 +146,13 @@ export default class AuthController {
     }
   }
 
-  async recoverPassword(request: FastifyRequest, reply: FastifyReply) {
+  async recoverPassword(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      const token = request.params as string;
+      const token = request.params.token;
       const passRequest = request.body as PasswordRecoveryRequest;
-      const user = await this._recoverPasswordService.getUserByToken(token);
-      this._authService.restorePassword(user.id, passRequest.password);
+      const userId = await this._recoverPasswordService.getUserByToken(token);
+      const user = await this._userService.getByIdShallow(userId);
+      await this._authService.restorePassword(user.id, passRequest.password);
 
       reply.status(200).send({ success: true });
     } catch (err) {
