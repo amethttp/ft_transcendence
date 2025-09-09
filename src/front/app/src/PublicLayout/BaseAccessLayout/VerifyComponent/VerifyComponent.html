@@ -1,0 +1,37 @@
+<div class="flex flex-col gap-1">
+  <h1 class="title-2">
+    Verify your access
+  </h1>
+  <p class="subtitle-2">
+    Please check your email inbox for the code. If you still cannot find it, re-submit <a href="/login" class="decorated">login</a>.
+  </p>
+</div>
+<hr class="mt-3 text-gray-200 w-1/2">
+<form id="verifyForm">
+  <div class="field">
+    <label for="verifyInput" class="label">Your code</label>
+    <input id="verifyInput" name="code" class="input" type="number" maxlength="6" autocomplete="one-time-code"
+      inputmode="numeric">
+  </div>
+  <article class="flex flex-wrap w-full invisible text-red-700 justify-center" id="verifyError">
+    <div class="message-body">
+      Verify failed. Please try again or re-submit <a href="/login" class="decorated">login</a>.
+    </div>
+  </article>
+  <div class="field items-center">
+    <p class="control w-full">
+      <button class="btn btn-primary w-full" type="submit">Verify</button>
+    </p>
+  </div>
+</form>
+<div class="flex text-left items-center gap-2 justify-center mt-5">
+  <div class="flext items-center justify-center pt-[2px]">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+      class="size-4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+    </svg>
+  </div>
+  <div>
+    <a href="/login">Back to log in</a>
+  </div>
+</div>

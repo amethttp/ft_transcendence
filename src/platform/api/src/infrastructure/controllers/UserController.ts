@@ -47,12 +47,12 @@ export default class UserController {
       await this.userService.getByUsername(request.params.username);
       reply.code(200).send({ success: true });
     } catch (err) {
+      console.log(err);
       if (err instanceof ResponseError) {
         reply.code(200).send({ success: false });
       }
       else {
-        console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }
@@ -67,7 +67,7 @@ export default class UserController {
       }
       else {
         console.log(err);
-        reply.code(500).send(new ResponseError(ErrorMsg.UNKNOWN_SERVER_ERROR).toDto())
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
   }

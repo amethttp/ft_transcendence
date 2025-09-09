@@ -16,9 +16,10 @@ export default class PathMapper {
     return path;
   }
 
-  static getParams(routeParts: string[], pathParts: string[]): Record<string, PathParam> {
+  static getParams(routeParts: string[], _pathParts: string[]): Record<string, PathParam> {
     const params: Record<string, PathParam> = {};
-    for (const [index, routePart] of routeParts.entries()) {
+    const pathParts = _pathParts.filter(part => part !== "");
+    for (const [index, routePart] of routeParts.filter(part => part !== "").entries()) {
       if (routePart.startsWith(":"))
         params[routePart.slice(1)] = pathParts[index];
     }

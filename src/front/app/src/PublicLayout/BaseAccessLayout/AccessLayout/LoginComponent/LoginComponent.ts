@@ -1,10 +1,9 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
-import type { LoginRequest } from "../../../auth/models/LoginRequest";
-import { AuthService } from "../../../auth/services/AuthService";
-import AmethComponent from "../../../framework/AmethComponent";
-import { Form } from "../../../framework/Form/Form";
-import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
-import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import type { LoginRequest } from "../../../../auth/models/LoginRequest";
+import { AuthService } from "../../../../auth/services/AuthService";
+import AmethComponent from "../../../../framework/AmethComponent";
+import { Form } from "../../../../framework/Form/Form";
+import { FormControl } from "../../../../framework/Form/FormGroup/FormControl/FormControl";
+import { Validators } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 import { LoginValidators } from "./LoginValidators/LoginValidators";
 
 export default class LoginComponent extends AmethComponent {
@@ -23,9 +22,9 @@ export default class LoginComponent extends AmethComponent {
     this._form.submit = (value) => {
       this._errorView.classList.add("invisible");
       this._authService.login(value)
-        .then(async () => {
-          await LoggedUser.get(true);
-          this.router?.redirectByPath("/home");
+        .then(({id}) => {
+          sessionStorage.setItem("userId", id.toString());
+          this.router?.redirectByPath("/verify");
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };
