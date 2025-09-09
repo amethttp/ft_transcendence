@@ -2,7 +2,7 @@ import { AEntity } from "./AEntity";
 import { GoogleAuth } from "./GoogleAuth";
 import { Password } from "./Password";
 
-const authSchema:  Record<string, string>  = {
+const authSchema: Record<string, string> = {
   lastLogin: "last_login",
   googleAuth: "google_auth_id",
   password: "password_id",

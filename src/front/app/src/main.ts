@@ -12,7 +12,7 @@ export const routes: Route[] = [
       {
         path: "/",
         component: () => import("./PublicLayout/LandingComponent/LandingComponent"),
-        title: "Play our beautiful game"
+        title: "Arcade pong easy and fun to play"
       },
       {
         path: "",
@@ -67,11 +67,11 @@ export const routes: Route[] = [
           }
         ]
       },
-      {
-        path: "*",
-        redirect: "/404",
-      },
     ],
+  },
+  {
+    path: "*",
+    redirect: "/404",
   },
 ];
 

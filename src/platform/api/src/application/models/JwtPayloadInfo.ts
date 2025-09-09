@@ -1,3 +1,3 @@
 export interface JwtPayloadInfo {
-  sub: number
+  sub: number;
 }

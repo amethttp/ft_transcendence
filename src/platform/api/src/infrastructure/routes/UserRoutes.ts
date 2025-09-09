@@ -15,4 +15,12 @@ export default async function userRoutes(server: FastifyInstance) {
   server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userController.pingUser(request, reply);
   });
+
+  server.get('/check/username/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.checkUsername(request, reply);
+  });
+
+  server.get('/check/email/:email', async (request: FastifyRequest<{ Params: { email: string } }>, reply) => {
+    await userController.checkEmail(request, reply);
+  });
 }

@@ -1,1 +1,26 @@
-<div>LOGIN</div>
+<form id="loginForm">
+  <div class="field">
+    <label for="emailInput" class="label">Email / Username</label>
+    <input id="emailInput" name="identifier" autocapitalize="none" spellcheck="false" class="input" type="text"
+      autocomplete="username">
+  </div>
+  <div class="field">
+    <label for="passwordInput" class="label">Password</label>
+    <input id="passwordInput" name="password" class="input" type="password" autocomplete="current-password">
+  </div>
+  <div class="field text-right">
+    <p class="control">
+      <a href="/recover" class="decorated">Forgot password?</a>
+    </p>
+  </div>
+  <article class="flex flex-wrap w-full invisible text-red-700 justify-center" id="loginError">
+    <div class="message-body">
+      Login failed. Please check your credentials and try again.
+    </div>
+  </article>
+  <div class="field items-center">
+    <p class="control w-full">
+      <button class="btn btn-primary w-full" type="submit">Log in</button>
+    </p>
+  </div>
+</form>

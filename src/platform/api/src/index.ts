@@ -6,6 +6,7 @@ import fs from 'fs';
 import userRoutes from "./infrastructure/routes/UserRoutes";
 import { JwtAuth } from "./infrastructure/auth/JwtAuth";
 import authRoutes from "./infrastructure/routes/AuthRoutes";
+import { createDummyUsers } from "./spec/createDummyUsers";
 
 const server = fastify({
   https: {
@@ -14,7 +15,7 @@ const server = fastify({
   }
 });
 
-const publicRoutes = ['/user/register', '/auth/login', '/auth/refresh'];
+const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username'];
 
 server.register(cors, {
   origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
@@ -25,20 +26,28 @@ server.register(cors, {
 server.register(jwt, { secret: process.env.JWT_SECRET || "" });
 server.register(cookie);
 
-server.register(userRoutes, {prefix: '/user'});
-server.register(authRoutes, {prefix: '/auth'});
+server.register(userRoutes, { prefix: '/user' });
+server.register(authRoutes, { prefix: '/auth' });
 
 server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
-  if (publicRoutes.includes(request.url))
-    return;
+  // TODO: Do it in a more secure way!!!
+  for (const route of publicRoutes) {
+    if (request.url.startsWith(route))
+      return;
+  }
 
   await JwtAuth.validateRequest(request, reply);
 });
 
-server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  console.log(`Server listening at ${address}`);
-});
+const main = async () => {
+  await createDummyUsers();
+  server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log(`Server listening at ${address}`);
+  });
+}
+
+main();
