@@ -21,8 +21,9 @@ export default class RecoverPasswordComponent extends AmethComponent {
       this._errorView.classList.add("invisible");
       this._authService.recover(value)
         .then(async () => {
-          alert("Check your email inbox");
-          // TODO: Create a beautiful view to inform the user.
+          document.getElementById("emailSpan")!.innerText = value.email;
+          document.getElementById("recoverForm")?.classList.add("hidden");
+          document.getElementById("successMessage")?.classList.remove("hidden");
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };

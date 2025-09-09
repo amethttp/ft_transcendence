@@ -116,7 +116,7 @@ export default class AuthController {
       const recoveryRequest = request.body as RecoveryEmailRequest;
       const user = await this._userService.getByEmail(recoveryRequest.email);
       const token = randomBytes(32).toString("base64url");
-      this._recoverPasswordService.newRecoverPassword(user,token);
+      await this._recoverPasswordService.newRecoverPassword(user,token);
 
       this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
       reply.status(200).send({ success: true });
