@@ -150,8 +150,10 @@ export default class AuthController {
     try {
       const token = request.params as string;
       const passRequest = request.body as PasswordRecoveryRequest;
-      const user = await this._recoverPasswordService.getUserByToken(token);
+      const recoverPassword = await this._recoverPasswordService.getByToken(token);
+      const user = await this._recoverPasswordService.getUserByToken(token); // TODO: cleanup
       this._authService.restorePassword(user.id, passRequest.password);
+      await this._recoverPasswordService.deleteById(recoverPassword.id);
 
       reply.status(200).send({ success: true });
     } catch (err) {
