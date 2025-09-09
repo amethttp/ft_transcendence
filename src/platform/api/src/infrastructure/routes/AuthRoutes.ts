@@ -10,19 +10,26 @@ import { SQLiteUserVerificationRepository } from "../repositories/sqlite/SQLiteU
 import { UserVerificationService } from "../../application/services/UserVerificationService";
 import { SQLiteRecoverPasswordRepository } from "../repositories/sqlite/SQLiteRecoverPasswordRepository";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
+import fastifyRateLimit from "@fastify/rate-limit";
 
 export default async function authRoutes(server: FastifyInstance) {
   const userRepository = new SQLiteUserRepository();
   const userService = new UserService(userRepository);
   const passwordRepository = new SQLitePasswordRepository();
   const passwordService = new PasswordService(passwordRepository);
-  const authRepository = new SQLiteAuthRepository(); 
+  const authRepository = new SQLiteAuthRepository();
   const authService = new AuthService(authRepository, userService, passwordService);
-  const userVerificationRepository = new SQLiteUserVerificationRepository(); 
+  const userVerificationRepository = new SQLiteUserVerificationRepository();
   const userVerificationService = new UserVerificationService(userVerificationRepository);
-  const recoverPasswordRepository = new SQLiteRecoverPasswordRepository(); 
+  const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
   const authController = new AuthController(authService, userVerificationService, recoverPasswordService, userService);
+
+  await server.register(fastifyRateLimit, {
+    max: 5,
+    timeWindow: '1 minute',
+    keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
+  });
 
   server.get('/refresh', async (request, reply) => {
     await authController.refresh(request, reply, server.jwt);
