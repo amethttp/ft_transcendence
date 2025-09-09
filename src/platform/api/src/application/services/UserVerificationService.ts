@@ -1,7 +1,6 @@
 import { Transporter } from "nodemailer";
 import { User } from "../../domain/entities/User";
 import { IUserVerificationRepository } from "../../domain/repositories/IUserVerificationRepository";
-import { ErrorParams, ResponseError } from "../errors/ResponseError";
 
 export class UserVerificationService {
   private _userVerificationRepository: IUserVerificationRepository;
