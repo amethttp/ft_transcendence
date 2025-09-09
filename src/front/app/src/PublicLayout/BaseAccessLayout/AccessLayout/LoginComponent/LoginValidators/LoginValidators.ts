@@ -1,4 +1,4 @@
-import { Validators, type ValidatorFn } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { Validators, type ValidatorFn } from "../../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 
 export class LoginValidators {
   static identifier: ValidatorFn<string> = (identifier: string) => {

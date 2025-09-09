@@ -2,16 +2,28 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserLoginRequest } from "../../application/models/UserLoginRequest";
-import { UserProfile } from "../../application/models/UserProfile";
 import { UserRegistrationRequest } from "../../application/models/UserRegistrationRequest";
 import { AuthService } from "../../application/services/AuthService";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
+import { UserLoginVerificationRequest } from "../../application/models/UserLoginVerificationRequest";
+import { UserVerificationService } from "../../application/services/UserVerificationService";
+import { RecoveryEmailRequest } from "../../application/models/RecoveryEmailRequest";
+import { PasswordRecoveryRequest } from "../../application/models/PasswordRecoveryRequest";
+import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
+import { UserService } from "../../application/services/UserService";
+import { randomBytes } from "crypto";
 
 export default class AuthController {
   private _authService: AuthService;
+  private _userVerificationService: UserVerificationService;
+  private _recoverPasswordService: RecoverPasswordService;
+  private _userService: UserService;
 
-  constructor(authService: AuthService) {
+  constructor(authService: AuthService, userVerificationService: UserVerificationService, recoverPasswordService: RecoverPasswordService, userService: UserService) {
     this._authService = authService;
+    this._userVerificationService = userVerificationService;
+    this._recoverPasswordService = recoverPasswordService;
+    this._userService = userService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -33,7 +45,7 @@ export default class AuthController {
         `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
       ]);
 
-      reply.status(200).send({success: true});
+      reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
@@ -66,15 +78,88 @@ export default class AuthController {
     try {
       const userCredentials = request.body as UserLoginRequest;
       const loggedUser = await this._authService.loginUser(userCredentials);
-      const JWTHeaders = await this.setJWTHeaders(loggedUser.id, reply);
-      
-      reply.header('set-cookie', JWTHeaders);
-      reply.status(200).send(loggedUser as UserProfile); // TODO: map correctly to UserProfile
+
+      const code = await this._userVerificationService.newUserVerification(loggedUser);
+      this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, code || 0)
+
+      reply.status(200).send({ id: loggedUser.id });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
       }
       else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async verifyLogin(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userCredentials = request.body as UserLoginVerificationRequest;
+      console.log(userCredentials);
+      if (await this._userVerificationService.verify(userCredentials.userId, userCredentials.code)) {
+        const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
+        reply.header('set-cookie', JWTHeaders);
+        reply.status(200).send({ success: true });
+      }
+      else
+        reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
+    } catch (err) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
+
+  async recoveryEmail(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const recoveryRequest = request.body as RecoveryEmailRequest;
+      const user = await this._userService.getByEmail(recoveryRequest.email);
+      const token = randomBytes(32).toString("base64url");
+      await this._recoverPasswordService.newRecoverPassword(user,token);
+
+      this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(200).send({ success: true });
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const token = request.params.token;
+      const user = await this._recoverPasswordService.getUserByToken(token);
+
+      reply.status(200).send(user); //TODO: public USER mapper etc...
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async recoverPassword(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const token = request.params as string;
+      const passRequest = request.body as PasswordRecoveryRequest;
+      const recoverPassword = await this._recoverPasswordService.getByToken(token);
+      const user = await this._recoverPasswordService.getUserByToken(token); // TODO: cleanup
+      this._authService.restorePassword(user.id, passRequest.password);
+      await this._recoverPasswordService.deleteById(recoverPassword.id);
+
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
         console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
@@ -95,9 +180,9 @@ export default class AuthController {
       const userCredentials = request.body as UserRegistrationRequest;
       const registeredUser = await this._authService.registerUser(userCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
-      
+
       reply.header('set-cookie', JWTHeaders);
-      reply.status(200).send({success: true});
+      reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

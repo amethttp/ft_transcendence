@@ -1,4 +1,4 @@
-import type { AsyncValidatorFn } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import type { AsyncValidatorFn } from "../../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 import { RegisterService } from "../services/RegisterService";
 
 export class RegisterValidators {

@@ -26,4 +26,11 @@ export class PasswordService {
   async verify(userPassword: string, inputPassword: string): Promise<boolean> {
     return await argon2.verify(userPassword, inputPassword);
   }
+
+  async update(id: number, password: string) {
+    const passwordBlueprint: Partial<Password> = {
+      hash: await argon2.hash(password),
+    };
+    await this._passwordRepository.update(id, passwordBlueprint);
+  }
 }

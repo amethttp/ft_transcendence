@@ -7,9 +7,13 @@ import { PasswordService } from "../application/services/PasswordService";
 import { SQLitePasswordRepository } from "../infrastructure/repositories/sqlite/SQLitePasswordRepository";
 import { UserRegistrationRequest } from "../application/models/UserRegistrationRequest";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UserVerificationService } from "../application/services/UserVerificationService";
+import { SQLiteUserVerificationRepository } from "../infrastructure/repositories/sqlite/SQLiteUserVerificationRepository";
+import { RecoverPasswordService } from "../application/services/RecoverPasswordService";
+import { SQLiteRecoverPasswordRepository } from "../infrastructure/repositories/sqlite/SQLiteRecoverPasswordRepository";
 
 export const createDummyUsers = async () => {
-  const authController = new AuthController(new AuthService(new SQLiteAuthRepository(), new UserService(new SQLiteUserRepository()), new PasswordService(new SQLitePasswordRepository)));
+  const authController = new AuthController(new AuthService(new SQLiteAuthRepository(), new UserService(new SQLiteUserRepository()), new PasswordService(new SQLitePasswordRepository)), new UserVerificationService(new SQLiteUserVerificationRepository()), new RecoverPasswordService(new SQLiteRecoverPasswordRepository()), new UserService(new SQLiteUserRepository()));
 
   const testUsers: UserRegistrationRequest[] = [
     {

@@ -1,3 +1,5 @@
+import type { FormControl } from "../FormControl";
+
 export type ValidatorFn<T> = (value: T) => string | null;
 export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 
@@ -25,4 +27,19 @@ export class Validators {
   static requiredTrue: ValidatorFn<boolean> = (value: boolean) => {
     return value === true ? null : "Not true";
   };
+
+  static length(min: number, max: number): ValidatorFn<string> {
+    return (value: string) => {
+      if (value.length < min) return "Min. length is " + min;
+      else if (value.length > max) return "Max. length is " + max;
+      else return null;
+    }
+  }
+
+  static passwordRepeat(passwdControl: FormControl<string>): ValidatorFn<string> {
+    return (value: string) => {
+      return passwdControl.value === value ? null : "Passwords do not match";
+    }
+  };
+
 }

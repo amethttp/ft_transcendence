@@ -1,5 +1,5 @@
-import { ApiClient } from "../../../../ApiClient/ApiClient";
-import type { BasicResponse } from "../../../../auth/models/BasicResponse";
+import { ApiClient } from "../../../../../ApiClient/ApiClient";
+import type { BasicResponse } from "../../../../../auth/models/BasicResponse";
 
 export class RegisterService {
   private static readonly BASE = "/user/check";
