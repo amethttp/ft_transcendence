@@ -20,7 +20,7 @@ export default class VerifyComponent extends AmethComponent {
       return;
     }
     this._form = new Form("verifyForm", {
-      code: new FormControl<string>("", [Validators.length(4, 4)])
+      code: new FormControl<string>("", [Validators.length(6, 6)])
     });
     this._errorView = document.getElementById("verifyError")!;
     this._form.submit = (value) => {

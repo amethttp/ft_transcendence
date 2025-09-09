@@ -133,8 +133,8 @@ export default class AuthController {
   async getUserByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userId = await this._recoverPasswordService.getUserByToken(token);
-      const user = await this._userService.getByIdShallow(userId);
+      const user = await this._recoverPasswordService.getUserByToken(token);
+
       reply.status(200).send(user); //TODO: public USER mapper etc...
     } catch (err) {
       if (err instanceof ResponseError) {
@@ -146,13 +146,14 @@ export default class AuthController {
     }
   }
 
-  async recoverPassword(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+  async recoverPassword(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const token = request.params.token;
+      const token = request.params as string;
       const passRequest = request.body as PasswordRecoveryRequest;
-      const userId = await this._recoverPasswordService.getUserByToken(token);
-      const user = await this._userService.getByIdShallow(userId);
-      await this._authService.restorePassword(user.id, passRequest.password);
+      const recoverPassword = await this._recoverPasswordService.getByToken(token);
+      const user = await this._recoverPasswordService.getUserByToken(token); // TODO: cleanup
+      this._authService.restorePassword(user.id, passRequest.password);
+      await this._recoverPasswordService.deleteById(recoverPassword.id);
 
       reply.status(200).send({ success: true });
     } catch (err) {
