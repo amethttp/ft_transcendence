@@ -48,7 +48,7 @@ export default async function authRoutes(server: FastifyInstance) {
   });
 
   server.get("/recover/:token", async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
-    await authController.getUserByToken(request, reply);
+    await authController.checkRecoverToken(request, reply);
   });
 
   server.post("/recover/:token", async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {

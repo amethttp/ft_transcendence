@@ -129,7 +129,7 @@ export default class AuthController {
     }
   }
 
-  async getUserByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+  async checkRecoverToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
       const userId = await this._recoverPasswordService.getUserIdByToken(token);
