@@ -12,4 +12,19 @@ export class Password extends AEntity {
   id!: number;
   hash!: string;
   updateTime!: Date;
+
+  constructor() {
+    super();
+    this.id = 0;
+    this.hash = "";
+    this.updateTime = new Date();
+  }
+
+  public get tableName() : string {
+    return Password.tableName;
+  }
+
+  public get schema() : Record<string, string> {
+    return Password.entitySchema;
+  }
 }

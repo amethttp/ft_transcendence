@@ -47,7 +47,7 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    lastLogin TEXT NOT NULL DEFAULT current_timestamp,
+    last_login TEXT NOT NULL DEFAULT current_timestamp,
     google_auth_id INTEGER UNIQUE,
     password_id INTEGER UNIQUE,
     FOREIGN KEY (google_auth_id) REFERENCES google_auth (id),

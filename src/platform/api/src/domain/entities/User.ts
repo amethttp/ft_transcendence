@@ -21,4 +21,23 @@ export class User extends AEntity {
   auth!: Auth;
   creationTime!: Date;
   updateTime!: Date;
+
+  constructor() { // TODO: Option using reflect-metadata... 
+    super();
+    this.id = 0;
+    this.email = "";
+    this.username = "";
+    this.avatarUrl = "";
+    this.auth = new Auth();
+    this.creationTime = new Date();
+    this.updateTime = new Date();
+  }
+
+  public get tableName() : string {
+    return User.tableName;
+  }
+
+  public get schema() : Record<string, string> {
+    return User.entitySchema;
+  }
 }

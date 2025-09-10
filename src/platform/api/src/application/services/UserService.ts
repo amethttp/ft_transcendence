@@ -41,6 +41,7 @@ export class UserService {
   
   async getByIdShallow(id: number): Promise<User> {
     const user = await this._userRepository.findByIdPH(id, false);
+    console.log("shallow:", user);
     if (user === null) {
       throw new ResponseError(ErrorParams.USER_NOT_FOUND);
     }
@@ -50,6 +51,11 @@ export class UserService {
 
   async getByIdDeep(id: number): Promise<User> {
     const user = await this._userRepository.findByIdPH(id, true);
+    if (user === null)
+        throw "hola";
+    console.log("deep:", user);
+    console.log(user.auth.password?.hash);
+
     if (user === null) {
       throw new ResponseError(ErrorParams.USER_NOT_FOUND);
     }

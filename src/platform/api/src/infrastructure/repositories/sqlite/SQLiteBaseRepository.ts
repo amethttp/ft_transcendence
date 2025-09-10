@@ -36,6 +36,14 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
+  public async dbGetTest(query: string, params: any[]): Promise<string | null> {
+    return new Promise<string | null>((resolve, reject) => {
+      this._db.get(query, params, (err, row) => {
+        return err ? reject(err) : resolve((row as string) ?? null);
+      });
+    });
+  }
+
   private async dbAll(query: string, params: any): Promise<T[] | null> {
     return new Promise<T[] | null>((resolve, reject) => {
       this._db.all(query, params, (err, rows) => {

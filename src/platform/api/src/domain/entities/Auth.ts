@@ -16,4 +16,19 @@ export class Auth extends AEntity {
   lastLogin!: Date;
   googleAuth?: GoogleAuth;
   password?: Password;
+
+  constructor() {
+    super();
+    this.id = 0;
+    this.lastLogin = new Date();
+    this.password = new Password();
+  }
+
+  public get tableName() : string {
+    return Auth.tableName;
+  }
+
+  public get schema() : Record<string, string> {
+    return Auth.entitySchema;
+  }
 }
