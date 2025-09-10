@@ -64,8 +64,8 @@ export const routes: Route[] = [
     children: [
       {
         path: "/home",
-        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
-        title: "Games"
+        component: () => import("./PrivateLayout/HomeComponent/HomeComponent"),
+        title: "Home"
       },
       {
         path: "profile",

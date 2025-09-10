@@ -1,0 +1,33 @@
+@layer components {
+  .sidebar {
+    @apply flex flex-row flex-1 overflow-hidden p-1 sm:p-4;
+  }
+
+  .sidebar .link {
+    
+  }
+
+  .sidebar.collapsed {
+    @apply p-1 max-w-3xl !w-[60px];
+  }
+
+  .sidebar .s-contents {
+    @apply flex flex-1 sm:flex-col gap-2 items-center overflow-auto;
+  }
+
+  .sidebar.collapsed .s-contents {
+    @apply overflow-hidden;
+  }
+
+  .sidebar.collapsed .be-hidden {
+    @apply !hidden;
+  }
+
+  .sidebar.collapsed #resizer {
+    @apply !hidden;
+  }
+
+  .sidebar.collapsed #nav {
+    @apply cursor-e-resize;
+  }
+}

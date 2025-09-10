@@ -1,6 +1,6 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
-import Sidebar from "../components/SidebarComponent/SidebarComponent";
+import Sidebar from "../SidebarComponent/SidebarComponent";
 
 export default class GameComponent extends AmethComponent {
   template = () => import("./GameComponent.html?raw");

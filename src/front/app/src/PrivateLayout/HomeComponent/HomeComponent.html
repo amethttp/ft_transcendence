@@ -1,0 +1,206 @@
+<style>
+  /* petits ajustos */
+  .glass {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px);
+  }
+  .card-img {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    width: 100%;
+  }
+</style>
+
+<section id="hero" class="relative h-screen h-[100dvh] flex items-center">
+  <img src="https://picsum.photos/seed/hero/1600/900" alt="Hero image" class="absolute inset-0 w-full h-full object-cover opacity-60" />
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <div class="inline-block p-8 rounded-2xl glass border border-slate-700 max-w-3xl">
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">Lorem ipsum dolor sit amet — demo llarga</h1>
+      <p class="mt-4 text-slate-200/90">
+        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+        Etiam vitae arcu non odio euismod lacinia aenean. (Sí, això és lorem ipsum per a testing.)
+      </p>
+      <div class="mt-6 flex justify-center gap-3">
+        <a class="px-5 py-2 rounded bg-indigo-600 hover:bg-indigo-500" href="#articles">Llegeix articles</a>
+        <a class="px-5 py-2 rounded border border-slate-700 hover:bg-slate-800" href="#gallery">Veure galeria</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT GRID: article llarg + sidebar -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <!-- Articles (col 1-2) -->
+  <section id="articles" class="lg:col-span-2 space-y-8">
+    <!-- Article 1 -->
+    <article class="prose prose-invert max-w-none bg-slate-800/20 p-6 rounded-xl border border-slate-700">
+      <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.
+        Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum.
+      </p>
+
+      <figure class="mt-4">
+        <img src="https://picsum.photos/seed/article1/1200/600" alt="Article image 1" class="w-full rounded-lg card-img" loading="lazy" />
+        <figcaption class="mt-2 text-sm text-slate-400">Caption: A random landscape from Picsum.</figcaption>
+      </figure>
+
+      <h3 class="mt-6">Subtítol i secció amb més text</h3>
+      <p>
+        Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.
+        Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor.
+      </p>
+
+      <p>
+        Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit.
+        Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+      </p>
+
+      <h4 class="mt-6">Bloc llarg de lorem (molt)</h4>
+      <p>
+        Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.
+        Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Pellentesque in ipsum id orci porta dapibus.
+      </p>
+
+      <p>
+        Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Nulla porttitor accumsan tincidunt.
+        Curabitur aliquet quam id dui posuere blandit. Donec sollicitudin molestie malesuada.
+      </p>
+
+      <p>
+        Cras ultricies ligula sed magna dictum porta. Curabitur aliquet quam id dui posuere blandit.
+        Sed porttitor lectus nibh. Donec sollicitudin molestie malesuada. Proin eget tortor risus.
+      </p>
+
+      <!-- Long lorem block to make the page long -->
+      <div class="mt-6 space-y-4">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit.
+          Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+          Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+        </p>
+        <p>
+          Curabitur blandit tempus porttitor. Maecenas sed diam eget risus varius blandit sit amet non magna.
+          Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum.
+        </p>
+        <p>
+          Etiam porta sem malesuada magna mollis euismod. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.
+          Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+        </p>
+      </div>
+    </article>
+
+    <!-- Article 2: cards grid -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div class="bg-slate-800/20 p-4 rounded-xl border border-slate-700 hover:scale-[1.01] transition-transform">
+        <img src="https://picsum.photos/seed/card1/800/500" alt="Card 1" class="rounded-lg card-img" loading="lazy" />
+        <h3 class="mt-3 text-lg font-semibold">Card títol 1</h3>
+        <p class="text-slate-300 mt-1 text-sm">Maecenas faucibus mollis interdum. Etiam porta sem malesuada magna mollis euismod.</p>
+        <div class="mt-3 flex gap-2">
+          <a class="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500" href="#">Acció</a>
+          <a class="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800" href="#">Més</a>
+        </div>
+      </div>
+
+      <div class="bg-slate-800/20 p-4 rounded-xl border border-slate-700 hover:scale-[1.01] transition-transform">
+        <img src="https://picsum.photos/seed/card2/800/500" alt="Card 2" class="rounded-lg card-img" loading="lazy" />
+        <h3 class="mt-3 text-lg font-semibold">Card títol 2</h3>
+        <p class="text-slate-300 mt-1 text-sm">Sed posuere consectetur est at lobortis. Aenean lacinia bibendum nulla sed consectetur.</p>
+        <div class="mt-3 flex gap-2">
+          <a class="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500" href="#">Acció</a>
+          <a class="px-3 py-1 rounded border border-slate-700 hover:bg-slate-800" href="#">Més</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Very long content to ensure scrolling -->
+    <article class="prose prose-invert max-w-none bg-slate-800/10 p-6 rounded-xl border border-slate-700">
+      <h2>Secció llarga: per provar scroll i layout</h2>
+      <p>
+        Donec id elit non mi porta gravida at eget metus. Aenean lacinia bibendum nulla sed consectetur.
+        Vestibulum id ligula porta felis euismod semper. Maecenas faucibus mollis interdum.
+      </p>
+
+      <p>
+        Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Nulla vitae elit libero, a pharetra augue.
+        Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.
+      </p>
+
+      <p>
+        Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
+        Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue.
+      </p>
+
+      <p>
+        Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas nec odio et ante tincidunt tempus.
+        Donec sed odio dui. In pharetra, sapien vel fermentum faucibus, sapien velit malesuada sapien, eget lacinia odio sem nec elit.
+      </p>
+    </article>
+  </section>
+
+  <!-- Sidebar (col 3) -->
+  <aside class="space-y-6">
+    <div class="sticky top-24 bg-slate-800/20 p-4 rounded-xl border border-slate-700">
+      <h4 class="font-semibold">Sobre aquesta demo</h4>
+      <p class="text-sm text-slate-300 mt-2">
+        Fitxer de prova amb lorem ipsum llarg i imatges placeholders per a test de layout, scroll i components.
+        Sense floritures innecessàries: directe i funcional.
+      </p>
+      <div class="mt-3">
+        <a class="block px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-center" href="#hero">Torna amunt</a>
+      </div>
+    </div>
+
+    <div class="bg-slate-800/10 p-4 rounded-xl border border-slate-700">
+      <h5 class="font-semibold">Galeria ràpida</h5>
+      <div id="gallery" class="mt-3 grid grid-cols-2 gap-2">
+        <img src="https://picsum.photos/seed/g1/300/200" alt="g1" class="w-full h-24 object-cover rounded" loading="lazy" />
+        <img src="https://picsum.photos/seed/g2/300/200" alt="g2" class="w-full h-24 object-cover rounded" loading="lazy" />
+        <img src="https://picsum.photos/seed/g3/300/200" alt="g3" class="w-full h-24 object-cover rounded" loading="lazy" />
+        <img src="https://picsum.photos/seed/g4/300/200" alt="g4" class="w-full h-24 object-cover rounded" loading="lazy" />
+      </div>
+    </div>
+
+    <div class="bg-slate-800/10 p-4 rounded-xl border border-slate-700">
+      <h5 class="font-semibold">Footer quick actions</h5>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button class="px-3 py-1 rounded bg-indigo-600">Like</button>
+        <button class="px-3 py-1 rounded border border-slate-700">Share</button>
+        <button class="px-3 py-1 rounded border border-slate-700">Save</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- IMAGE GALLERY FULL WIDTH -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h2 class="text-2xl font-bold text-white mb-6">Galeria: imatges xules</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- repeat images -->
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal1/800/600" alt="gal1" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal2/800/600" alt="gal2" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal3/800/600" alt="gal3" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal4/800/600" alt="gal4" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal5/800/600" alt="gal5" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal6/800/600" alt="gal6" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal7/800/600" alt="gal7" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+    <figure class="rounded-xl overflow-hidden border border-slate-700">
+      <img src="https://picsum.photos/seed/gal8/800/600" alt="gal8" class="w-full h-48 object-cover" loading="lazy" />
+    </figure>
+  </div>
+</section>

@@ -1,7 +1,7 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
-import Sidebar from "../components/SidebarComponent/SidebarComponent";
+import Sidebar from "../SidebarComponent/SidebarComponent";
 import type UserProfile from "./UserProfileComponent/models/UserProfile";
 import UserProfileService from "./UserProfileComponent/services/UserProfileService";
 
