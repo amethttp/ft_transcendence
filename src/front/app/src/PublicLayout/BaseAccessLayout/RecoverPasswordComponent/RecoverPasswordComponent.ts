@@ -24,6 +24,7 @@ export default class RecoverPasswordComponent extends AmethComponent {
           document.getElementById("emailSpan")!.innerText = value.email;
           document.getElementById("recoverForm")?.classList.add("hidden");
           document.getElementById("successMessage")?.classList.remove("hidden");
+          document.getElementById("successMessage")?.classList.add("flex");
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };

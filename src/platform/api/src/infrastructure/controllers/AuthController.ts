@@ -97,7 +97,6 @@ export default class AuthController {
   async verifyLogin(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserLoginVerificationRequest;
-      console.log(userCredentials);
       if (await this._userVerificationService.verify(userCredentials.userId, userCredentials.code)) {
         const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
         reply.header('set-cookie', JWTHeaders);
@@ -130,10 +129,11 @@ export default class AuthController {
     }
   }
 
-  async getUserByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+  async checkRecoverToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const user = await this._recoverPasswordService.getUserByToken(token);
+      const userId = await this._recoverPasswordService.getUserIdByToken(token);
+      const user = await this._userService.getByIdShallow(userId);
 
       reply.status(200).send(user); //TODO: public USER mapper etc...
     } catch (err) {
@@ -146,13 +146,13 @@ export default class AuthController {
     }
   }
 
-  async recoverPassword(request: FastifyRequest, reply: FastifyReply) {
+  async recoverPassword(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      const token = request.params as string;
+      const token = request.params.token;
       const passRequest = request.body as PasswordRecoveryRequest;
       const recoverPassword = await this._recoverPasswordService.getByToken(token);
-      const user = await this._recoverPasswordService.getUserByToken(token); // TODO: cleanup
-      this._authService.restorePassword(user.id, passRequest.password);
+      const userId = await this._recoverPasswordService.getUserIdByToken(token); // TODO: cleanup / mapper...
+      await this._authService.restorePassword(userId, passRequest.password);
       await this._recoverPasswordService.deleteById(recoverPassword.id);
 
       reply.status(200).send({ success: true });

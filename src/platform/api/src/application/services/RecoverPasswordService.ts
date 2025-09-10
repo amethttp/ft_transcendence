@@ -21,19 +21,21 @@ export class RecoverPasswordService {
 
   async getByToken(token: string): Promise<RecoverPassword> {
     const recoverPassword = await this._recoverPasswordRepository.findByToken(token);
-    if (recoverPassword === null)
+    if (recoverPassword === null) {
       throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
+    }
 
     return recoverPassword;
   }
 
-  async getUserByToken(token: string): Promise<User> {
+  async getUserIdByToken(token: string): Promise<number> {
     const recoverPassword = await this._recoverPasswordRepository.findByToken(token);
-    if (recoverPassword === null || recoverPassword.user === null)
+    if (recoverPassword === null) {
       throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
-    const user = recoverPassword.user;
+    }
+    const userId = (recoverPassword as any)["user_id"];
 
-    return user;
+    return userId;
   }
 
   async deleteById(id: number) {

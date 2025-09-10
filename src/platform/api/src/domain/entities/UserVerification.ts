@@ -4,7 +4,6 @@ import { User } from "./User";
 const userVerificationSchema: Record<string, string> = {
   user: "user_id",
   code: "code",
-  attempts: "attempts",
   creationTime: "creation_time"
 };
 
@@ -15,6 +14,5 @@ export class UserVerification extends AEntity {
   id!: number;
   user!: User;
   code!: number;
-  attempts!: number;
   creationTime!: Date;
 }

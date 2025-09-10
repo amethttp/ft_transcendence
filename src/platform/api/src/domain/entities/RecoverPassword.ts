@@ -14,5 +14,5 @@ export class RecoverPassword extends AEntity {
   id!: number;
   user!: User;
   token!: string;
-  updateTime!: Date;
+  creationTime!: Date;
 }
