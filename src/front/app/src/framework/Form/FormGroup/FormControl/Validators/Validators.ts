@@ -5,12 +5,12 @@ export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 
 export class Validators {
   static email: ValidatorFn<string> = (value: string) => {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]+/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(value) ? null : "Invalid email address";
   };
 
   static username: ValidatorFn<string> = (value: string) => {
-    const usernameRegex = /^[\w-]{5,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_-]{5,20}$/;
     return usernameRegex.test(value) ? null : "5-20 characters, letters and numbers only";
   };
 
