@@ -38,7 +38,7 @@ export class UserService {
 
     return user;
   }
-  
+
   async getByIdShallow(id: number): Promise<User> {
     const user = await this._userRepository.findByIdPH(id, false);
     if (user === null) {
@@ -61,7 +61,7 @@ export class UserService {
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
-      avatarUrl: "defaultAvatar", // TODO: handle default avatars
+      avatarUrl: "default-avatar.webp",
       auth: newAuth
     };
 
@@ -70,7 +70,7 @@ export class UserService {
     if (createdUser === null) {
       throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
-    
+
     return createdUser;
   }
 }

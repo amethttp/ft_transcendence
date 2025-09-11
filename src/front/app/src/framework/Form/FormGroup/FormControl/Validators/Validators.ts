@@ -5,7 +5,7 @@ export type AsyncValidatorFn<T> = (value: T) => Promise<string | null>;
 
 export class Validators {
   static email: ValidatorFn<string> = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(value) ? null : "Invalid email address";
   };
 
