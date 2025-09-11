@@ -8,17 +8,17 @@ export default class SidebarComponent extends AmethComponent {
     const sidebar = document.getElementById('_sidebar')!;
 
     function setWidth(width: number, offset: number = 0): void {
-      const min = 200;
+      const min = 50;
+      const collapsed = 75;
       const max = window.innerWidth * .8;
       const newWidth = width - offset;
 
-      if (newWidth < min) {
+      if (newWidth <= collapsed) {
         sidebar.classList.add("collapsed");
       }
-      else {
+      else
         sidebar.classList.remove("collapsed");
-      }
-      sidebar.style.width = Math.max(min - 1, Math.min(newWidth, max)) + "px";
+      sidebar.style.width = Math.max(min, Math.min(newWidth, max)) + "px";
     }
 
     function setStoredWidth(): void {
@@ -31,14 +31,14 @@ export default class SidebarComponent extends AmethComponent {
 
     window.addEventListener("resize", () => { setStoredWidth() })
 
-    document.getElementById("nav")!.addEventListener("click", (e) => {
-      if (sidebar.classList.contains("collapsed")) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        sidebar.classList.remove("collapsed");
-        localStorage.setItem("sidebar-x", "200px");
-      }
-    });
+    // document.getElementById("nav")!.addEventListener("click", (e) => {
+    //   if (sidebar.classList.contains("collapsed")) {
+    //     e.preventDefault();
+    //     e.stopImmediatePropagation();
+    //     sidebar.classList.remove("collapsed");
+    //     localStorage.setItem("sidebar-x", "200px");
+    //   }
+    // });
 
     resizer.addEventListener('pointerdown', e => {
       e.preventDefault();

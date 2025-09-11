@@ -283,6 +283,8 @@
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 96rem;
+  --breakpoint-short: (max-height: 600px);
+  --breakpoint-tall: (min-height: 800px);
 
   --container-3xs: 16rem;
   --container-2xs: 18rem;
