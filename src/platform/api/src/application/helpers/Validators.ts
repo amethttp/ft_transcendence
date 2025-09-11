@@ -1,11 +1,11 @@
 export default class Validators {
   static email(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]+/;
     return emailRegex.test(email);
   }
 
   static username(username: string): boolean {
-    const usernameRegex = /^[a-zA-Z0-9_-]{5,20}$/;
+    const usernameRegex = /^[\w-]{5,20}$/;
     return usernameRegex.test(username);
   }
 
