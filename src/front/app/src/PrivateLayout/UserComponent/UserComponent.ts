@@ -1,24 +1,20 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
-import Sidebar from "../SidebarComponent/SidebarComponent";
 import type UserProfile from "./UserProfileComponent/models/UserProfile";
 import UserProfileService from "./UserProfileComponent/services/UserProfileService";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
-  protected sidebar: Sidebar;
   protected userProfileService: UserProfileService;
   protected userProfile?: UserProfile;
 
   constructor() {
     super();
     this.userProfileService = new UserProfileService();
-    this.sidebar = new Sidebar();
   }
 
   async afterInit() {
-    this.sidebar.init("user-sidebar");
     await this.refresh();
   }
 

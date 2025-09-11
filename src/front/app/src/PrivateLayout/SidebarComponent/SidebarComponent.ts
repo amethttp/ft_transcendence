@@ -1,3 +1,5 @@
+import { LoggedUser } from "../../auth/LoggedUser";
+import { AuthService } from "../../auth/services/AuthService";
 import AmethComponent from "../../framework/AmethComponent";
 
 export default class SidebarComponent extends AmethComponent {
@@ -57,5 +59,36 @@ export default class SidebarComponent extends AmethComponent {
       window.addEventListener('pointermove', resize)
       window.addEventListener('pointerup', stop)
     })
+
+    const authService = new AuthService();
+    document.getElementById("logOutBtn")?.addEventListener("click", (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      authService.logout().then( async res => {
+        if (res.success) {
+          await LoggedUser.get(true);
+          this.router?.navigateByPath("/");
+        }
+      });
+    });
+    this.refresh();
+  }
+
+  refresh() {
+    const route = this.router?.currentPath.fullPath;
+    if (route) {
+      for (const link of [...document.getElementsByClassName("link")]) {
+        if (link instanceof HTMLAnchorElement) {
+          if (link.href === new URL(route, location.origin).toString())
+            link.classList.add("highlighted");
+          else
+            link.classList.remove("highlighted");
+        }
+      }
+    }
+  }
+
+  async destroy() {
+
   }
 }

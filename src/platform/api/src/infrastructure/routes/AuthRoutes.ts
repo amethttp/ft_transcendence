@@ -26,7 +26,7 @@ export default async function authRoutes(server: FastifyInstance) {
   const authController = new AuthController(authService, userVerificationService, recoverPasswordService, userService);
 
   await server.register(fastifyRateLimit, {
-    max: 5,
+    max: 15,
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });
