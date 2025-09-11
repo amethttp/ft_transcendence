@@ -2,6 +2,7 @@ import { Database, Statement } from "sqlite3";
 import { DatabaseManager } from "../../database/databaseManager";
 import { DatabaseMapper } from "../../database/databaseMapper";
 import { IBaseRepository } from "../../../domain/repositories/IBaseRepository";
+import { DatabaseRowResult } from "../models/DatabaseRowResult";
 
 export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
   private _db!: Database;
@@ -36,10 +37,10 @@ export class SQLiteBaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  public async dbGetTest(query: string, params: any[]): Promise<string | null> {
-    return new Promise<string | null>((resolve, reject) => {
+  public async dbGetTest(query: string, params: any[]): Promise<T | null> {
+    return new Promise<T | null>((resolve, reject) => {
       this._db.get(query, params, (err, row) => {
-        return err ? reject(err) : resolve((row as string) ?? null);
+        return err ? reject(err) : resolve(JSON.parse((row as DatabaseRowResult).result) ?? null);
       });
     });
   }

@@ -3,6 +3,7 @@ import { GoogleAuth } from "./GoogleAuth";
 import { Password } from "./Password";
 
 const authSchema: Record<string, string> = {
+  id: "id",
   lastLogin: "last_login",
   googleAuth: "google_auth_id",
   password: "password_id",

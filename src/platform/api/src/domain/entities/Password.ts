@@ -1,6 +1,7 @@
 import { AEntity } from "./AEntity";
 
 const passwordSchema: Record<string, string> = {
+  id: "id",
   hash: "hash",
   updateTime: "update_time",
 };

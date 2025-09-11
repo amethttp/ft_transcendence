@@ -2,6 +2,7 @@ import { AEntity } from "./AEntity";
 import { Auth } from "./Auth";
 
 const userSchema: Record<string, string> = {
+  id: "id",
   email: "email",
   username: "username",
   avatarUrl: "avatar_url",
@@ -12,7 +13,7 @@ const userSchema: Record<string, string> = {
 
 export class User extends AEntity {
   static readonly tableName = "user";
-  static readonly entitySchema = userSchema;
+  static readonly entitySchema = userSchema; // TODO: maybe change to private so as not to return the actual static in getter
 
   id!: number;
   email!: string;
@@ -33,7 +34,7 @@ export class User extends AEntity {
     this.updateTime = new Date();
   }
 
-  public get tableName() : string {
+  public get tableName(): string {
     return User.tableName;
   }
 

@@ -69,8 +69,9 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
         WHERE user.id = ?
       `;
     }
-    const res = await this.dbGetTest(sql, [userId]);
-    const user: User = JSON.parse((res as any)["result"] || ""); // TODO: DatabaseResult model
+    const user = await this.dbGetTest(sql, [userId]);
+    if (user === null)
+        throw "failed";
 
     console.log(user);
     console.log(user.auth.password?.hash);
