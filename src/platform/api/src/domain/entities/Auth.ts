@@ -20,16 +20,16 @@ export class Auth extends AEntity {
 
   constructor() {
     super();
-    this.id = 0;
+    this.id = -1;
     this.lastLogin = new Date();
     this.password = new Password();
   }
 
-  public get tableName() : string {
+  public get tableName(): string {
     return Auth.tableName;
   }
 
-  public get schema() : Record<string, string> {
+  public get schema(): Record<string, string> {
     return Auth.entitySchema;
   }
 }

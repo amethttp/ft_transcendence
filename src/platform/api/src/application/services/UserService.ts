@@ -38,24 +38,9 @@ export class UserService {
 
     return user;
   }
-  
-  async getByIdShallow(id: number): Promise<User> {
-    const user = await this._userRepository.findByIdPH(id, false);
-    console.log("shallow:", user);
-    if (user === null) {
-      throw new ResponseError(ErrorParams.USER_NOT_FOUND);
-    }
 
-    return user;
-  }
-
-  async getByIdDeep(id: number): Promise<User> {
-    const user = await this._userRepository.findByIdPH(id, true);
-    if (user === null)
-        throw "hola";
-    console.log("deep:", user);
-    console.log(user.auth.password?.hash);
-
+  async getById(id: number): Promise<User> {
+    const user = await this._userRepository.findById(id);
     if (user === null) {
       throw new ResponseError(ErrorParams.USER_NOT_FOUND);
     }
@@ -67,16 +52,19 @@ export class UserService {
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
-      avatarUrl: "defaultAvatar", // TODO: handle default avatars
+      avatarUrl: "defaultAvatar",
       auth: newAuth
     };
 
     const userId = await this._userRepository.create(userBlueprint);
-    const createdUser = await this._userRepository.findById(userId || -1);
+    if (userId === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+    const createdUser = await this._userRepository.findById(userId);
     if (createdUser === null) {
       throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
-    
+
     return createdUser;
   }
 }

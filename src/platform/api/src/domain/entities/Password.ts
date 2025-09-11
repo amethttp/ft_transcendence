@@ -16,16 +16,16 @@ export class Password extends AEntity {
 
   constructor() {
     super();
-    this.id = 0;
+    this.id = -1;
     this.hash = "";
     this.updateTime = new Date();
   }
 
-  public get tableName() : string {
+  public get tableName(): string {
     return Password.tableName;
   }
 
-  public get schema() : Record<string, string> {
+  public get schema(): Record<string, string> {
     return Password.entitySchema;
   }
 }

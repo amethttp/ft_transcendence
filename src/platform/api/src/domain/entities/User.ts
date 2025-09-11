@@ -25,7 +25,7 @@ export class User extends AEntity {
 
   constructor() { // TODO: Option using reflect-metadata... 
     super();
-    this.id = 0;
+    this.id = -1;
     this.email = "";
     this.username = "";
     this.avatarUrl = "";
@@ -38,7 +38,7 @@ export class User extends AEntity {
     return User.tableName;
   }
 
-  public get schema() : Record<string, string> {
+  public get schema(): Record<string, string> {
     return User.entitySchema;
   }
 }

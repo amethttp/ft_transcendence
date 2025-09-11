@@ -5,6 +5,6 @@ import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 export class SQLitePasswordRepository extends SQLiteBaseRepository<Password> implements IPasswordRepository {
 
   constructor() {
-    super(Password.tableName, Password.entitySchema);
+    super(new Password());
   }
 }
