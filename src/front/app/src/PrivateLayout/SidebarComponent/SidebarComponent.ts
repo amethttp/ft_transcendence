@@ -9,7 +9,7 @@ export default class SidebarComponent extends AmethComponent {
 
     function setWidth(width: number, offset: number = 0): void {
       const min = 50;
-      const collapsed = 75;
+      const collapsed = 100;
       const max = window.innerWidth * .8;
       const newWidth = width - offset;
 

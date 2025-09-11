@@ -1,30 +1,34 @@
 @layer components {
   .sidebar {
-    @apply flex flex-row flex-1 overflow-hidden p-1 sm:p-4;
+    @apply flex flex-row flex-1 overflow-hidden;
   }
 
   .sidebar.collapsed {
-    @apply px-1;
+    @apply sm:px-0;
   }
 
   .sidebar .s-contents {
-    @apply flex flex-1 sm:flex-col items-center justify-between overflow-hidden;
+    @apply flex flex-1 sm:flex-col items-center justify-between overflow-y-auto;
   }
 
   .sidebar.collapsed .s-contents {
-    @apply overflow-hidden flex-1;
+    @apply sm:flex-1 sm:p-0;
   }
 
-  .sidebar .s-contents>* {
-    @apply overflow-x-hidden flex w-full;
+  .sidebar .s-contents>*.link {
+    @apply overflow-hidden flex sm:p-4 hover:bg-brand-100 transition-colors;
+  }
+
+  .sidebar .s-contents>.highlighted {
+    @apply !bg-brand-900 !text-brand-50 !font-bold;
+  }
+
+  .sidebar.sidebar.collapsed .s-contents>* {
+    @apply sm:items-center sm:overflow-hidden sm:px-0;
   }
 
   .sidebar .links {
     @apply flex sm:flex-col gap-1;
-  }
-
-  .sidebar.sidebar.collapsed .s-contents>* {
-    @apply items-center overflow-hidden;
   }
 
   .sidebar.sidebar.collapsed .s-contents .link-icon {
@@ -48,7 +52,7 @@
   }
 
   .sidebar.collapsed .be-hidden {
-    @apply !hidden;
+    @apply sm:!hidden;
   }
 
   /* .sidebar.collapsed #resizer {
