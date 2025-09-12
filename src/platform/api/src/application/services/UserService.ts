@@ -2,6 +2,8 @@ import { Auth } from "../../domain/entities/Auth";
 import { User } from "../../domain/entities/User";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { LoggedUserResponse } from "../models/LoggedUserResponse";
+import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 
 export class UserService {
@@ -66,5 +68,31 @@ export class UserService {
     }
 
     return createdUser;
+  }
+
+
+  public toLoggedUserResponse(user: User): LoggedUserResponse {
+    const userProfile: LoggedUserResponse = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      creationTime: user.creationTime,
+      updateTime: user.updateTime,
+    };
+
+    return userProfile;
+  }
+
+  public toUserProfileResponse(user: User): UserProfileResponse {
+    const userProfile: UserProfileResponse = {
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      creationTime: user.creationTime,
+      friend: false, // TODO: implement
+      online: false // TODO: implement
+    };
+
+    return userProfile;
   }
 }

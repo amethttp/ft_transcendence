@@ -133,8 +133,9 @@ export default class AuthController {
     try {
       const token = request.params.token;
       const user = await this._recoverPasswordService.getUserByToken(token);
+      const userProfile = this._userService.toUserProfileResponse(user);
 
-      reply.status(200).send(user); //TODO: public USER mapper etc...
+      reply.code(200).send(userProfile);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

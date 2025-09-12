@@ -4,17 +4,19 @@ import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 
 export default class UserController {
-  private userService: UserService;
+  private _userService: UserService;
 
   constructor(userService: UserService) {
-    this.userService = userService;
+    this._userService = userService;
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
-    const requestedUser = request.user as JwtPayloadInfo;
-
     try {
-      return reply.send(await this.userService.getById(requestedUser.sub));
+      const requestedUser = request.user as JwtPayloadInfo;
+      const user = await this._userService.getById(requestedUser.sub);
+      const loggedUser = this._userService.toLoggedUserResponse(user);
+
+      reply.code(200).send(loggedUser);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
@@ -26,11 +28,12 @@ export default class UserController {
     }
   }
 
-  async pingUser(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+  async getUserProfile(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const user = await this.userService.getByUsername(request.params.username);
+      const user = await this._userService.getByUsername(request.params.username);
+      const userProfile = this._userService.toUserProfileResponse(user);
 
-      reply.code(200).send(user);
+      reply.code(200).send(userProfile);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
@@ -44,7 +47,7 @@ export default class UserController {
 
   async checkUsername(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      await this.userService.getByUsername(request.params.username);
+      await this._userService.getByUsername(request.params.username);
       reply.code(200).send({ success: true });
     } catch (err) {
       console.log(err);
@@ -59,7 +62,7 @@ export default class UserController {
 
   async checkEmail(request: FastifyRequest<{ Params: { email: string } }>, reply: FastifyReply) {
     try {
-      await this.userService.getByEmail(request.params.email);
+      await this._userService.getByEmail(request.params.email);
       reply.code(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
