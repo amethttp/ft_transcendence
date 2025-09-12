@@ -1,0 +1,65 @@
+@layer components {
+  .alert {
+    @apply flex justify-start items-center gap-3 flex-1 p-3 w-full border-l-3 border-r-3;
+  }
+
+  .success {
+    @apply bg-green-50 text-green-600 border-l-green-600 border-r-green-50;
+  }
+
+  .info {
+    @apply bg-cyan-50 text-cyan-600 border-l-cyan-600 border-r-cyan-50;
+  }
+
+  .warning {
+    @apply bg-yellow-50 text-yellow-600 border-l-yellow-600 border-r-yellow-50;
+  }
+
+  .error {
+    @apply bg-red-50 text-red-600 border-l-red-600 border-r-red-50;
+  }
+
+  .alert-title-container {
+    @apply font-bold;
+  }
+
+  .alert-message-container {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .alert-message {
+    @apply overflow-y-scroll max-h-20 pr-0.5;
+  }
+
+  .success .alert-message::-webkit-scrollbar {
+    @apply bg-green-50 w-0.5;
+  }
+
+  .success .alert-message::-webkit-scrollbar-thumb {
+    @apply bg-green-600 rounded-xl;
+  }
+
+  .info .alert-message::-webkit-scrollbar {
+    @apply bg-cyan-50 w-0.5;
+  }
+
+  .info .alert-message::-webkit-scrollbar-thumb {
+    @apply bg-cyan-600 rounded-xl;
+  }
+
+  .warning .alert-message::-webkit-scrollbar {
+    @apply bg-amber-50 w-0.5;
+  }
+
+  .warning .alert-message::-webkit-scrollbar-thumb {
+    @apply bg-amber-600 rounded-xl;
+  }
+
+  .error .alert-message::-webkit-scrollbar {
+    @apply bg-red-50 w-0.5;
+  }
+
+  .error .alert-message::-webkit-scrollbar-thumb {
+    @apply bg-red-600 rounded-xl;
+  }
+}
