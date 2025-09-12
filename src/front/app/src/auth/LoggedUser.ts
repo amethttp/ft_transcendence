@@ -1,16 +1,16 @@
-import type User from "../PrivateLayout/UserComponent/UserProfileComponent/models/User";
-import UserProfileService from "../PrivateLayout/UserComponent/UserProfileComponent/services/UserProfileService";
+import type User from "./models/User";
+import { AuthService } from "./services/AuthService";
 
 export class LoggedUser {
   private static _user: User | null | undefined;
-  private static _userProfileService: UserProfileService = new UserProfileService();
+  private static _authService: AuthService = new AuthService();
 
   static async get(reload: boolean = false): Promise<User | null> {
     if (!reload && this._user !== undefined)
       return this._user;
     else {
       try {
-        this._user = await this._userProfileService.getLoggedUser()
+        this._user = await this._authService.getLoggedUser()
       } catch (error) {
         this._user = null;
       }

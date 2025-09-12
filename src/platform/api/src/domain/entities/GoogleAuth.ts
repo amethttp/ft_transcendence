@@ -21,10 +21,10 @@ export class GoogleAuth extends AEntity {
   accessToken!: string;
   refreshToken!: string;
   tokenType!: string;
-  expirationTime!: Date;
+  expirationTime!: string;
   scope!: string;
-  creationTime!: Date;
-  updateTime!: Date;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();

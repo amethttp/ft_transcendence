@@ -14,7 +14,7 @@ export class Auth extends AEntity {
   static readonly entitySchema = authSchema;
 
   id!: number;
-  lastLogin!: Date;
+  lastLogin!: string;
   googleAuth?: GoogleAuth;
   password?: Password;
 

@@ -1,6 +1,7 @@
 export default interface UserProfile {
   username: string;
   avatarUrl: string;
-  creationTime: Date;
+  creationTime: string;
   friend: boolean;
+  online: boolean;
 }

@@ -1,13 +1,14 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
-import type User from "./UserProfileComponent/models/User";
-import UserProfileService from "./UserProfileComponent/services/UserProfileService";
+import UserProfileService from "./services/UserProfileService";
+import type UserProfile from "./models/UserProfile";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
   protected userProfileService: UserProfileService;
-  protected userProfile?: User;
+  protected userProfile?: UserProfile;
+  protected userName?: string;
 
   constructor() {
     super();
@@ -15,28 +16,43 @@ export default class UserComponent extends AmethComponent {
   }
 
   async afterInit() {
-    await this.refresh();
+    this.refresh();
   }
 
   async refresh() {
     const username = this.router?.currentPath.params["userId"] as string;
+    this.userName = (await LoggedUser.get())?.username;
     if (!username)
-      this.userProfile = await LoggedUser.get() || undefined;
+      this.router?.redirectByPath("404")
+    else if (username === this.userName)
+      this.userProfile = (await LoggedUser.get(true))! as unknown as UserProfile;
     else {
       try {
-        this.userProfile = await this.userProfileService.getUserProfile(username);
+        this.userProfile = await this.userProfileService.getUserProfile(username) as unknown as UserProfile;
       } catch (error) {
-        this.router?.redirectByPath("404")
+        this.router?.redirectByPath("404");
       }
     }
     if (this.userProfile) {
       this.updateTitle();
       this.fillView();
     }
+    else
+      this.router?.redirectByPath("404");
   }
 
   private fillView() {
-    document.getElementById("_userEmail")!.innerText = this.userProfile?.username || "NONE";
+    document.getElementById("UserComponentUsername")!.innerText = this.userProfile!.username;
+    document.getElementById("UserComponentCreationTime")!.innerText = new Date(this.userProfile!.creationTime).toDateString();
+    if (this.userProfile?.username === this.userName) {
+      (document.getElementById("UserComponentEditBtn")! as HTMLAnchorElement).href = `/${this.userProfile!.username}/edit`;
+    }
+    else {
+      if (this.userProfile?.online)
+        document.getElementById("UserComponentOnline")!.classList.remove("hidden");
+      else
+        document.getElementById("UserComponentOffline")!.classList.remove("hidden");
+    }
   }
 
   private updateTitle() {

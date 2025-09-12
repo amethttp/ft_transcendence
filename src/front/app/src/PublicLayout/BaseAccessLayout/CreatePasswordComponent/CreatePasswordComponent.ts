@@ -1,4 +1,4 @@
-import type User from "../../../PrivateLayout/UserComponent/UserProfileComponent/models/User";
+import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";

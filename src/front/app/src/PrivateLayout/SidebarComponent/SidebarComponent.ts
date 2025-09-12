@@ -16,7 +16,7 @@ export default class SidebarComponent extends AmethComponent {
     if (route) {
       for (const link of [...document.getElementsByClassName("link")]) {
         if (link instanceof HTMLAnchorElement) {
-          if (link.href === new URL(route, location.origin).toString())
+          if (new URL(route, location.origin).toString().startsWith(link.href))
             link.classList.add("highlighted");
           else
             link.classList.remove("highlighted");
@@ -72,7 +72,7 @@ export default class SidebarComponent extends AmethComponent {
     })
 
     const authService = new AuthService();
-    document.getElementById("logOutBtn")?.addEventListener("click", (e) => {
+    document.getElementById("sidebarLogOutBtn")?.addEventListener("click", (e) => {
       e.stopImmediatePropagation();
       e.preventDefault();
       authService.logout().then(async res => {
@@ -88,9 +88,12 @@ export default class SidebarComponent extends AmethComponent {
     const userProfile = await LoggedUser.get();
     if (userProfile) {
       if (userProfile.avatarUrl)
-        (document.getElementById("userAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
-      if (userProfile.username)
-        document.getElementById("userName")!.innerText = userProfile.username;
+        (document.getElementById("sidebarUserAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
+      if (userProfile.username) {
+        document.getElementById("sidebarUserName")!.innerText = userProfile.username;
+        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username;
+      }
+      this.refresh();
     }
   }
 

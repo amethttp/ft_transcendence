@@ -1,4 +1,4 @@
-import type User from "../../PrivateLayout/UserComponent/UserProfileComponent/models/User";
+import type User from "../models/User";
 import type { Guard } from "../../framework/Router/Route/Guard";
 import type { Route } from "../../framework/Router/Route/Route";
 import type { Router } from "../../framework/Router/Router";

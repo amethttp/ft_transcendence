@@ -20,8 +20,8 @@ export class User extends AEntity {
   username!: string;
   avatarUrl!: string;
   auth!: Auth;
-  creationTime!: Date;
-  updateTime!: Date;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() { // TODO: Option using reflect-metadata... 
     super();

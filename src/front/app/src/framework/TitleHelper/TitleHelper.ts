@@ -6,7 +6,7 @@ export class TitleHelper {
       return part;
     else if (part) {
       const _title = title;
-      title = `${part} | ${_title}`;
+      title = `${part} - ${_title}`;
     }
     return title;
   }

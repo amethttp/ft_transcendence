@@ -20,8 +20,8 @@ export class UserRelation extends AEntity {
   type!: number;
   ownerUser!: User;
   receiverUser!: User;
-  creationTime!: Date;
-  updateTime!: Date;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();

@@ -12,7 +12,7 @@ export class Password extends AEntity {
 
   id!: number;
   hash!: string;
-  updateTime!: Date;
+  updateTime!: string;
 
   constructor() {
     super();

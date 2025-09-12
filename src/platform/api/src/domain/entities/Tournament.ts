@@ -25,8 +25,8 @@ export class Tournament extends AEntity {
   playersAmount!: number;
   state!: number;
   tournamentRounds!: TournamentRound[];
-  creationTime!: Date;
-  finishTime?: Date;
+  creationTime!: string;
+  finishTime?: string;
 
   constructor() {
     super();

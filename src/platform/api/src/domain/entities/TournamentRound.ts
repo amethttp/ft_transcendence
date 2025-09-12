@@ -19,7 +19,7 @@ export class TournamentRound extends AEntity {
   token!: string;
   matches!: Match[];
   tournament!: Tournament;
-  creationTime!: Date;
+  creationTime!: string;
 
   constructor() {
     super();

@@ -26,8 +26,8 @@ export class Match extends AEntity {
   state!: number;
   players!: MatchPlayer[]; // TODO: check mapper with []
   tournamentRound?: TournamentRound;
-  creationTime!: Date;
-  finishTime?: Date;
+  creationTime!: string;
+  finishTime?: string;
 
   constructor() {
     super();

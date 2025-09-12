@@ -3,6 +3,6 @@ export default interface User {
   email: string;
   username: string;
   avatarUrl: string;
-  creationTime: Date;
-  updateTime: Date;
+  creationTime: string;
+  updateTime: string;
 }
