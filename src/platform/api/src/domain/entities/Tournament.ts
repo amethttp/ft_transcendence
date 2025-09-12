@@ -2,6 +2,7 @@ import { AEntity } from "./AEntity";
 import { TournamentRound } from "./TournamentRound";
 
 const tournamentSchema: Record<string, string> = {
+  id: "id",
   name: "name",
   token: "token",
   round: "round",
@@ -26,4 +27,26 @@ export class Tournament extends AEntity {
   tournamentRounds!: TournamentRound[];
   creationTime!: Date;
   finishTime?: Date;
+
+  constructor() {
+    super();
+    this.id = -1;
+    this.name = "";
+    this.token = "";
+    this.round = 0;
+    this.isVisible = false;
+    this.playersAmount = 0;
+    this.state = 0;
+    this.tournamentRounds = [new TournamentRound()];
+    this.creationTime = new Date();
+    this.finishTime = new Date();
+  }
+
+  public get tableName(): string {
+    return Tournament.tableName;
+  }
+
+  public get schema(): Record<string, string> {
+    return Tournament.entitySchema;
+  }
 }

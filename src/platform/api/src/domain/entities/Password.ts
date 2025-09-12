@@ -1,6 +1,7 @@
 import { AEntity } from "./AEntity";
 
 const passwordSchema: Record<string, string> = {
+  id: "id",
   hash: "hash",
   updateTime: "update_time",
 };
@@ -12,4 +13,19 @@ export class Password extends AEntity {
   id!: number;
   hash!: string;
   updateTime!: Date;
+
+  constructor() {
+    super();
+    this.id = -1;
+    this.hash = "";
+    this.updateTime = new Date();
+  }
+
+  public get tableName(): string {
+    return Password.tableName;
+  }
+
+  public get schema(): Record<string, string> {
+    return Password.entitySchema;
+  }
 }

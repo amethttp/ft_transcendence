@@ -9,6 +9,7 @@ export const ErrorParams = {
   REGISTRATION_INVALID_PASSWORD: { code: 400, message: "REGISTRATION_INVALID_PASSWORD" },
   REGISTRATION_FAILED: { code: 400, message: "REGISTRATION_FAILED" },
   PASSWORD_RECOVER_FAILED: { code: 400, message: "PASSWORD_RECOVER_FAILED" },
+  DATABASE_ERROR: { code: 555, message: "DATABASE_ERROR" },
   UNKNOWN_SERVER_ERROR: { code: 500, message: "UNKNOWN_SERVER_ERROR" },
 } as const;
 

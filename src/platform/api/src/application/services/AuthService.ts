@@ -24,7 +24,7 @@ export class AuthService {
 
   async newAuth(newPassword?: Password, newGoogleAuth?: GoogleAuth): Promise<Auth> {
     if (newPassword !== undefined && newGoogleAuth !== undefined) {
-      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
 
     const authBlueprint: Partial<Auth> = {};
@@ -36,9 +36,12 @@ export class AuthService {
     }
 
     const authId = await this._authRepository.create(authBlueprint);
-    const createdAuth = await this._authRepository.findById(authId || -1);
+    if (authId === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+    const createdAuth = await this._authRepository.findById(authId);
     if (createdAuth === null) {
-      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }
 
     return createdAuth;
@@ -71,14 +74,15 @@ export class AuthService {
   async loginUser(userCredentials: UserLoginRequest): Promise<User> {
     this.validateLoginCredentials(userCredentials);
 
-    const shallowUser = await this._userService.getByIdentifier(userCredentials.identifier);
-    const deepUser = await this._userService.getByIdDeep(shallowUser.id);
-    const placeholderHash = (deepUser as any).hash;
-    if (!(await this._passwordService.verify(placeholderHash, userCredentials.password))) {
+    const user = await this._userService.getByIdentifier(userCredentials.identifier);
+    if (user.auth.password === undefined) {
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
+    }
+    if (!(await this._passwordService.verify(user.auth.password.hash, userCredentials.password))) {
       throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
 
-    return shallowUser;
+    return user;
   }
 
   async registerUser(userCredentials: UserRegistrationRequest): Promise<User> {
@@ -107,11 +111,14 @@ export class AuthService {
     });
   }
 
-  async restorePassword(userId: number, newPassword: string) {
+  async restorePassword(user: User, newPassword: string) {
     if (!Validators.password(newPassword))
       throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
-    const user = await this._userService.getByIdDeep(userId);
-    const passwordId = (user as any)["password_id"];
+
+    if (user.auth.password === undefined) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+    const passwordId = user.auth.password.id;
     await this._passwordService.update(passwordId, newPassword);
   }
 }

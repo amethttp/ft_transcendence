@@ -79,8 +79,8 @@ export default class AuthController {
       const userCredentials = request.body as UserLoginRequest;
       const loggedUser = await this._authService.loginUser(userCredentials);
 
-      const code = await this._userVerificationService.newUserVerification(loggedUser);
-      this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, code || 0)
+      const userVerification = await this._userVerificationService.newUserVerification(loggedUser);
+      this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, userVerification.code)
 
       reply.status(200).send({ id: loggedUser.id });
     } catch (err) {
@@ -97,7 +97,7 @@ export default class AuthController {
   async verifyLogin(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserLoginVerificationRequest;
-      if (await this._userVerificationService.verify(userCredentials.userId, userCredentials.code)) {
+      if (await this._userVerificationService.verifyAndDelete(userCredentials.userId, userCredentials.code)) {
         const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
         reply.header('set-cookie', JWTHeaders);
         reply.status(200).send({ success: true });
@@ -121,7 +121,7 @@ export default class AuthController {
       reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
-        reply.code(200).send({ success: true });
+        reply.code(200).send({ success: true }); // TODO: Maybe not so strict on success only
       } else {
         console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
@@ -132,8 +132,7 @@ export default class AuthController {
   async checkRecoverToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userId = await this._recoverPasswordService.getUserIdByToken(token);
-      const user = await this._userService.getByIdShallow(userId);
+      const user = await this._recoverPasswordService.getUserByToken(token);
 
       reply.status(200).send(user); //TODO: public USER mapper etc...
     } catch (err) {
@@ -150,10 +149,8 @@ export default class AuthController {
     try {
       const token = request.params.token;
       const passRequest = request.body as PasswordRecoveryRequest;
-      const recoverPassword = await this._recoverPasswordService.getByToken(token);
-      const userId = await this._recoverPasswordService.getUserIdByToken(token); // TODO: cleanup / mapper...
-      await this._authService.restorePassword(userId, passRequest.password);
-      await this._recoverPasswordService.deleteById(recoverPassword.id);
+      const user = await this._recoverPasswordService.getUserByTokenAndDeleteRecover(token);
+      await this._authService.restorePassword(user, passRequest.password);
 
       reply.status(200).send({ success: true });
     } catch (err) {
