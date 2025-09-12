@@ -52,7 +52,7 @@ export class UserService {
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
-      avatarUrl: "defaultAvatar",
+      avatarUrl: "/default-avatar.webp",
       auth: newAuth
     };
 

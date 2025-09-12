@@ -1,19 +1,13 @@
-import { AuthService } from "../auth/services/AuthService";
 import AmethComponent from "../framework/AmethComponent";
+import SidebarComponent from "./SidebarComponent/SidebarComponent";
 
 export default class PrivateLayout extends AmethComponent {
-  private authService: AuthService;
+  template = () => import("./PrivateLayout.html?raw");
+  private _sidebar!: SidebarComponent;
 
-  constructor() {
-    super();
-    this.template = () => import("./PrivateLayout.html?raw");
-    this.authService = new AuthService();
-  }
-
-  afterInit(): void {
-    document.getElementById("logoutButton")!.onclick = async () => {
-      await this.authService.logout();
-      this.router?.refresh();
-    };
+  async afterInit() {
+    this._sidebar = new SidebarComponent();
+    await this._sidebar.init("sidebar", this.router);
+    this._sidebar.afterInit();
   }
 }
