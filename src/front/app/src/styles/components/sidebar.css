@@ -54,12 +54,4 @@
   .sidebar.collapsed .be-hidden {
     @apply sm:!hidden;
   }
-
-  /* .sidebar.collapsed #resizer {
-    @apply !hidden;
-  } */
-
-  /* .sidebar.collapsed #nav {
-    @apply cursor-e-resize;
-  } */
 }
