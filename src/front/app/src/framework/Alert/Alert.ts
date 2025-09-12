@@ -49,15 +49,18 @@ export default class Alert {
 
   private static createAlert(type: alertType, title: string, message?: string) {
     const newAlert = document.createElement('article');
+    const alertWrapper = document.createElement('div');
     const icon = Alert.icons[type];
 
     const iconDiv = Alert.createAlertIcon(icon);
     const messageContainer = Alert.createAlertMessage(title, message);
 
-    newAlert.appendChild(iconDiv);
-    newAlert.appendChild(messageContainer);
+    alertWrapper.appendChild(iconDiv);
+    alertWrapper.appendChild(messageContainer);
+    alertWrapper.classList.add('alert-wrapper', type);
 
-    newAlert.classList.add('alert', type);
+    newAlert.classList.add('alert');
+    newAlert.appendChild(alertWrapper);
 
     Alert.container?.appendChild(newAlert);
   }
