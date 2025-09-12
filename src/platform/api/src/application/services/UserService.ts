@@ -2,6 +2,7 @@ import { Auth } from "../../domain/entities/Auth";
 import { User } from "../../domain/entities/User";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
@@ -68,6 +69,17 @@ export class UserService {
     }
 
     return createdUser;
+  }
+
+  async updateUser(userId: number, updateInfo: EditUserRequest) {
+    const userBlueprint: Partial<User> = {
+      email: updateInfo.email,
+      username: updateInfo.username,
+    };
+
+    if (await this._userRepository.update(userId, userBlueprint)) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
   }
 
 

@@ -2,12 +2,30 @@ import { type FastifyRequest, type FastifyReply } from "fastify";
 import { UserService } from "../../application/services/UserService";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
+import { EditUserRequest } from "../../application/models/EditUserRequest";
 
 export default class UserController {
   private _userService: UserService;
 
   constructor(userService: UserService) {
     this._userService = userService;
+  }
+
+  async updateUser(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const requestedUpdates = request.body as EditUserRequest;
+      await this._userService.updateUser(requestedUser.sub, requestedUpdates);
+
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
