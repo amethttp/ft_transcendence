@@ -6,6 +6,26 @@ export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
 
   afterInit() {
+    this.setUserProfileView();
+    this.setSidebarEvents();
+    this.refresh();
+  }
+
+  refresh() {
+    const route = this.router?.currentPath.fullPath;
+    if (route) {
+      for (const link of [...document.getElementsByClassName("link")]) {
+        if (link instanceof HTMLAnchorElement) {
+          if (link.href === new URL(route, location.origin).toString())
+            link.classList.add("highlighted");
+          else
+            link.classList.remove("highlighted");
+        }
+      }
+    }
+  }
+
+  private setSidebarEvents() {
     const resizer = document.getElementById('resizer')!;
     const sidebar = document.getElementById('_sidebar')!;
 
@@ -23,7 +43,7 @@ export default class SidebarComponent extends AmethComponent {
       sidebar.style.width = Math.max(min, Math.min(newWidth, max)) + "px";
     }
 
-    function setStoredWidth(): void {
+    function setStoredWidth() {
       const sidebarX = localStorage.getItem("sidebar-x");
       if (sidebarX)
         setWidth(parseInt(sidebarX));
@@ -32,15 +52,6 @@ export default class SidebarComponent extends AmethComponent {
     setStoredWidth();
 
     window.addEventListener("resize", () => { setStoredWidth() })
-
-    // document.getElementById("nav")!.addEventListener("click", (e) => {
-    //   if (sidebar.classList.contains("collapsed")) {
-    //     e.preventDefault();
-    //     e.stopImmediatePropagation();
-    //     sidebar.classList.remove("collapsed");
-    //     localStorage.setItem("sidebar-x", "200px");
-    //   }
-    // });
 
     resizer.addEventListener('pointerdown', e => {
       e.preventDefault();
@@ -64,27 +75,20 @@ export default class SidebarComponent extends AmethComponent {
     document.getElementById("logOutBtn")?.addEventListener("click", (e) => {
       e.stopImmediatePropagation();
       e.preventDefault();
-      authService.logout().then( async res => {
+      authService.logout().then(async res => {
         if (res.success) {
           await LoggedUser.get(true);
           this.router?.navigateByPath("/");
         }
       });
     });
-    this.refresh();
   }
 
-  refresh() {
-    const route = this.router?.currentPath.fullPath;
-    if (route) {
-      for (const link of [...document.getElementsByClassName("link")]) {
-        if (link instanceof HTMLAnchorElement) {
-          if (link.href === new URL(route, location.origin).toString())
-            link.classList.add("highlighted");
-          else
-            link.classList.remove("highlighted");
-        }
-      }
+  private async setUserProfileView() {
+    const userProfile = await LoggedUser.get();
+    if (userProfile) {
+      (document.getElementById("userAvatar")! as HTMLImageElement).src = userProfile.avatar_url;
+      document.getElementById("userName")!.innerText = userProfile.username;
     }
   }
 

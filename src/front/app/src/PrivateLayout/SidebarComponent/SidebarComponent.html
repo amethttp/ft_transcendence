@@ -1,6 +1,7 @@
 <div class="sidebar section" id="_sidebar">
   <div class="s-contents">
-    <a href="/" class="px-2 py-8 hidden mb-7 sm:flex w-full items-center justify-center gap-2 flex-wrap h-[30px] overflow-hidden"
+    <a href="/"
+      class="px-2 py-8 hidden mb-7 sm:flex w-full items-center justify-center gap-2 flex-wrap h-[30px] overflow-hidden"
       id="nav">
       <img src="/amethpong.webp" alt="AmethPong logo" width="30" height="30" class="rounded-md">
       <h1 class="title-1 text-xl be-hidden truncate">AmethPong</h1>
@@ -13,11 +14,11 @@
       </svg>
       <span class="link-text be-hidden">Home</span>
     </a>
-    <a class="link" href="/play">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor"
-        class="link-icon">
+    <a class="link text-brand-900" href="/play">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke-width="1.2" viewBox="0 0 640 640"
+        stroke="currentColor" class="link-icon">
         <path stroke-linecap="round" stroke-linejoin="round"
-          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+          d="M161 191L228.4 123.6C266.6 85.4 318.4 64 372.4 64C484.9 64 576.1 155.2 576.1 267.6C576.1 314 560.3 358.7 531.6 394.6C508 377.8 479.2 367.9 448.1 367.9C417 367.9 388.2 377.8 364.7 394.5L161 191zM304 512C304 521.7 305 531.1 306.8 540.2C287 535 268.8 524.7 254.1 510C241.9 497.8 222.2 497.8 210 510L160.6 559.4C150 570 135.6 576 120.6 576C89.4 576 64 550.7 64 519.4C64 504.4 70 490 80.6 479.4L130 430C142.2 417.8 142.2 398.1 130 385.9C108.3 364.2 96.1 334.7 96.1 304C96.1 274.6 107.2 246.4 127.2 225L330.6 428.6C313.9 452.1 304 480.9 304 512zM448 416C501 416 544 459 544 512C544 565 501 608 448 608C395 608 352 565 352 512C352 459 395 416 448 416z" />
       </svg>
       <span class="link-text be-hidden">Play</span>
     </a>
@@ -40,15 +41,18 @@
     <div class="hidden sm:flex invisible sm:visible sm:flex-1 items-start">
     </div>
 
-    <a class="link justify-center py-3" href="/profile">
-      <span class="link-icon rounded-full aspect-square flex-none overflow-hidden flex justify-center items-center size-8">
-        <img src="/default-avatar.webp" alt="user avatar" class="h-full w-full" width="50" height="50">
+    <a class="link justify-center py-3 sm:py-5" href="/profile">
+      <span
+        class="link-icon rounded-full aspect-square flex-none overflow-hidden flex justify-center items-center size-8">
+        <img src="/default-avatar.webp" alt="user avatar" class="h-full w-full" width="50" height="50" id="userAvatar">
       </span>
-      <span class="link-text be-hidden truncate">arcanava (online)</span>
+      <span class="link-text be-hidden truncate" id="userName">arcanava</span>
       <div class="btn btn-secondary be-hidden p-2" id="logOutBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="size-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-        </svg>        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor"
+          class="size-4">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+        </svg>
       </div>
     </a>
   </div>
