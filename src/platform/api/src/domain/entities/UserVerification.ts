@@ -19,6 +19,7 @@ export class UserVerification extends AEntity {
 
   constructor() {
     super();
+    this.id = -1;
     this.user = new User();
     this.code = 0;
     this.creationTime = new Date();

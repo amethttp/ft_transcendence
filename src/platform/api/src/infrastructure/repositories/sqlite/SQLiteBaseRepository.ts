@@ -73,14 +73,12 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
     });
   }
 
-  // TODO: Delete the linter ignore below!
-  // @ts-ignore
-  public async findLastInstanceOf(): Promise<T | null> {
-    const sql = `SELECT id FROM ${this._entity.tableName} ORDER BY id DESC LIMIT 1`;
-    return this.dbGet(sql, []);
-  }
-
   // --------------------------------- CRUD --------------------------------- //
+
+  public async baseFind(query: string, args: any[]): Promise<T | null> {
+    const sql = DatabaseMapper.mapEntityToQuery(this._entity) + query;
+    return this.dbGet(sql, args);
+  }
 
   public async findById(id: number): Promise<T | null> {
     const sql = DatabaseMapper.mapEntityToQuery(this._entity) + `WHERE ${this._entity.tableName}.id=?`;
