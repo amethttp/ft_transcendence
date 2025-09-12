@@ -11,23 +11,6 @@ export default class UserController {
     this._userService = userService;
   }
 
-  async updateUser(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const requestedUser = request.user as JwtPayloadInfo;
-      const requestedUpdates = request.body as EditUserRequest;
-      await this._userService.updateUser(requestedUser.sub, requestedUpdates);
-
-    } catch (err) {
-      if (err instanceof ResponseError) {
-        reply.code(err.code).send(err.toDto());
-      }
-      else {
-        console.log(err);
-        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
-      }
-    }
-  }
-
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
     try {
       const requestedUser = request.user as JwtPayloadInfo;
@@ -85,6 +68,41 @@ export default class UserController {
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(200).send({ success: false });
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async updateUser(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const requestedUpdates = request.body as EditUserRequest;
+      await this._userService.updateUser(requestedUser.sub, requestedUpdates);
+
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async eraseAccount(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      await this._userService.deleteUser(requestedUser.sub);
+
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
       }
       else {
         console.log(err);

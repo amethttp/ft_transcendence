@@ -14,6 +14,26 @@ export class UserService {
     this._userRepository = userRepository;
   }
 
+  async newUser(newUser: UserRegistrationRequest, newAuth: Auth): Promise<User> {
+    const userBlueprint: Partial<User> = {
+      email: newUser.email,
+      username: newUser.username,
+      avatarUrl: "/default-avatar.webp",
+      auth: newAuth
+    };
+
+    const userId = await this._userRepository.create(userBlueprint);
+    if (userId === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+    const createdUser = await this._userRepository.findById(userId);
+    if (createdUser === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+
+    return createdUser;
+  }
+
   async getByUsername(username: string): Promise<User> {
     const user = await this._userRepository.findByUsername(username);
     if (user === null) {
@@ -51,26 +71,6 @@ export class UserService {
     return user;
   }
 
-  async newUser(newUser: UserRegistrationRequest, newAuth: Auth): Promise<User> {
-    const userBlueprint: Partial<User> = {
-      email: newUser.email,
-      username: newUser.username,
-      avatarUrl: "/default-avatar.webp",
-      auth: newAuth
-    };
-
-    const userId = await this._userRepository.create(userBlueprint);
-    if (userId === null) {
-      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
-    }
-    const createdUser = await this._userRepository.findById(userId);
-    if (createdUser === null) {
-      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
-    }
-
-    return createdUser;
-  }
-
   async updateUser(userId: number, updateInfo: EditUserRequest) {
     const userBlueprint: Partial<User> = {
       email: updateInfo.email,
@@ -78,6 +78,12 @@ export class UserService {
     };
 
     if (await this._userRepository.update(userId, userBlueprint)) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
+
+  async deleteUser(userId: number) {
+    if (!(await this._userRepository.delete(userId))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
   }
