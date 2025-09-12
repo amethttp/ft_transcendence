@@ -25,25 +25,29 @@ export default class Alert {
     return newIcon;
   }
 
-  private static createAlertMessage(title: string, message: string) {
-    const newMessageContainer = document.createElement('div');
-    const newTitleContainer = document.createElement('div');
-    const newMessage = document.createElement('div');
+  private static createAlertDiv(classes: string[], content: string = '') {
+    const newDiv = document.createElement('div');
 
-    newTitleContainer.innerHTML = title;
-    newMessage.innerHTML = message;
+    newDiv.classList.add(...classes);
+    newDiv.innerHTML = content;
+
+    return newDiv;
+  }
+
+  private static createAlertMessage(title: string, message?: string) {
+    const newMessageContainer = document.createElement('div');
+    const newTitleContainer = Alert.createAlertDiv(['alert-title-container'], title);
+    const newMessage = Alert.createAlertDiv(['alert-message'], message);
 
     newMessageContainer.classList.add('alert-message-container');
-    newTitleContainer.classList.add('alert-title-container');
-    newMessage.classList.add('alert-message');
-
     newMessageContainer.appendChild(newTitleContainer);
-    newMessageContainer.appendChild(newMessage);
+    if (message)
+      newMessageContainer.appendChild(newMessage);
 
     return newMessageContainer;
   }
 
-  private static createAlert(type: alertType, title: string, message: string) {
+  private static createAlert(type: alertType, title: string, message?: string) {
     const newAlert = document.createElement('article');
     const icon = Alert.icons[type];
 
@@ -58,19 +62,19 @@ export default class Alert {
     Alert.container?.appendChild(newAlert);
   }
 
-  public static success(title: string, message: string) {
+  public static success(title: string, message?: string) {
     Alert.createAlert('success', title, message);
   }
 
-  public static info(title: string, message: string) {
+  public static info(title: string, message?: string) {
     Alert.createAlert('info', title, message);
   }
 
-  public static warning(title: string, message: string) {
+  public static warning(title: string, message?: string) {
     Alert.createAlert('warning', title, message);
   }
 
-  public static error(title: string, message: string) {
+  public static error(title: string, message?: string) {
     Alert.createAlert('error', title, message);
   }
 }
