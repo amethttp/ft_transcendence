@@ -7,7 +7,18 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 
-  --color-brand: green;
+
+  --color-brand-50: rgb(249, 247, 253);
+  --color-brand-100: rgb(234, 229, 250);
+  --color-brand-200: rgb(219, 210, 245);
+  --color-brand-300: rgb(204, 192, 241);
+  --color-brand-400: rgb(189, 171, 236);
+  --color-brand-500: rgb(174, 151, 231);
+  --color-brand-600: rgb(159, 129, 226);
+  --color-brand-700: rgb(142, 105, 216);
+  --color-brand-800: rgb(124, 83, 197);
+  --color-brand-900: rgb(104, 61, 177);
+  --color-brand-950: rgb(80, 42, 140);
 
   --color-red-50: oklch(97.1% 0.013 17.38);
   --color-red-100: oklch(93.6% 0.032 17.717);
@@ -283,6 +294,8 @@
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 96rem;
+  --breakpoint-short: (max-height: 600px);
+  --breakpoint-tall: (min-height: 800px);
 
   --container-3xs: 16rem;
   --container-2xs: 18rem;
@@ -406,6 +419,7 @@
   }
 
   @keyframes ping {
+
     75%,
     100% {
       transform: scale(2);
@@ -420,6 +434,7 @@
   }
 
   @keyframes bounce {
+
     0%,
     100% {
       transform: translateY(-25%);

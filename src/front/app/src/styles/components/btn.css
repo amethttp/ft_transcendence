@@ -3,6 +3,10 @@
     @apply flex px-4 py-2 text-center items-center justify-center gap-1 cursor-pointer;
   }
 
+  .btn-secondary {
+    @apply rounded hover:bg-brand-200 transition-colors;
+  }
+
   .btn-primary {
     @apply bg-gray-800 hover:bg-gray-700 text-gray-50 text-shadow-white rounded-full shadow-md transition-[background-color,box-shadow] hover:shadow-transparent ;
   }
