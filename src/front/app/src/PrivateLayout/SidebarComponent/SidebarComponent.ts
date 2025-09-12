@@ -87,8 +87,10 @@ export default class SidebarComponent extends AmethComponent {
   private async setUserProfileView() {
     const userProfile = await LoggedUser.get();
     if (userProfile) {
-      (document.getElementById("userAvatar")! as HTMLImageElement).src = userProfile.avatar_url;
-      document.getElementById("userName")!.innerText = userProfile.username;
+      if (userProfile.avatarUrl)
+        (document.getElementById("userAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
+      if (userProfile.username)
+        document.getElementById("userName")!.innerText = userProfile.username;
     }
   }
 

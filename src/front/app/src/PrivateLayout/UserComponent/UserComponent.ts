@@ -1,13 +1,13 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
-import type UserProfile from "./UserProfileComponent/models/UserProfile";
+import type User from "./UserProfileComponent/models/User";
 import UserProfileService from "./UserProfileComponent/services/UserProfileService";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
   protected userProfileService: UserProfileService;
-  protected userProfile?: UserProfile;
+  protected userProfile?: User;
 
   constructor() {
     super();

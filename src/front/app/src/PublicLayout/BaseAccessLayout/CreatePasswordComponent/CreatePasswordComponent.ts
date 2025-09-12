@@ -1,4 +1,4 @@
-import type UserProfile from "../../../PrivateLayout/UserComponent/UserProfileComponent/models/UserProfile";
+import type User from "../../../PrivateLayout/UserComponent/UserProfileComponent/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
@@ -11,7 +11,7 @@ export default class CreatePasswordComponent extends AmethComponent {
   private _form!: Form<{ username: string, password: string, passwordRepeat: string }>;
   private _errorView!: HTMLElement;
   private _token?: string;
-  private _user?: UserProfile;
+  private _user?: User;
 
   async afterInit() {
     this._authService = new AuthService();

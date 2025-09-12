@@ -1,11 +1,11 @@
 import AmethComponent from "../../../framework/AmethComponent";
-import type UserProfile from "./models/UserProfile";
+import type User from "./models/User";
 import UserProfileService from "./services/UserProfileService";
 
 export default class UserProfileComponent extends AmethComponent {
   template = () => import("./UserProfileComponent.html?raw");
   protected userProfileService: UserProfileService;
-  protected userProfile?: UserProfile;
+  protected userProfile?: User;
 
   constructor() {
     super();
