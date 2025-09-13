@@ -2,6 +2,7 @@ import { Auth } from "../../domain/entities/Auth";
 import { User } from "../../domain/entities/User";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import Validators from "../helpers/Validators";
 import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
 import { UserProfileResponse } from "../models/UserProfileResponse";
@@ -72,6 +73,9 @@ export class UserService {
   }
 
   async updateUser(userId: number, updateInfo: EditUserRequest) {
+    if (!Validators.email(updateInfo.email) || !Validators.username(updateInfo.username)) {
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
+    }
     const userBlueprint: Partial<User> = {
       email: updateInfo.email,
       username: updateInfo.username,

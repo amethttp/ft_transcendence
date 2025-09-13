@@ -10,6 +10,7 @@ import { UserLoginRequest } from "../models/UserLoginRequest";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { PasswordService } from "./PasswordService";
 import { UserService } from "./UserService";
+import StringTime from "../helpers/StringTime";
 
 export class AuthService {
   private _authRepository: IAuthRepository;
@@ -83,6 +84,13 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async updateLastLogin(user: User) {
+    const authBlueprint: Partial<Auth> = {
+      lastLogin: StringTime.now(),
+    };
+    await this._authRepository.update(user.auth.id, authBlueprint);
   }
 
   async registerUser(userCredentials: UserRegistrationRequest): Promise<User> {

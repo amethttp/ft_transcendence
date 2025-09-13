@@ -28,7 +28,6 @@ export default async function userRoutes(server: FastifyInstance) {
     await userController.updateUser(request, reply);
   });
 
-
   server.delete('', async (request: FastifyRequest, reply) => {
     await userController.eraseAccount(request, reply);
   });

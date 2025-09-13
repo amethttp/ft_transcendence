@@ -5,6 +5,7 @@ import { IBaseRepository } from "../../../domain/repositories/IBaseRepository";
 import { DatabaseRowResult } from "../models/DatabaseRowResult";
 import { AEntity } from "../../../domain/entities/AEntity";
 import { ErrorParams, ResponseError } from "../../../application/errors/ResponseError";
+import StringTime from "../../../application/helpers/StringTime";
 
 export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<T> {
   private _db!: Database;
@@ -114,7 +115,9 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
 
   public async update(id: number, data: Partial<T>): Promise<number | null> {
     const dbRecord = DatabaseMapper.toDatabase(Object.entries(data), this._entity.schema);
-    dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    if ('updateTime' in this._entity.schema) {
+      dbRecord[this._entity.schema['updateTime']] = StringTime.now();
+    }
     const filteredRecord = Object.entries(dbRecord)
       .filter(([key, value]) => value !== undefined && value !== null && key !== 'id')
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});

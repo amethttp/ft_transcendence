@@ -19,7 +19,7 @@ export class TournamentRound extends AEntity {
   token!: string;
   matches!: Match[];
   tournament!: Tournament;
-  creationTime!: Date;
+  creationTime!: string;
 
   constructor() {
     super();
@@ -28,7 +28,7 @@ export class TournamentRound extends AEntity {
     this.token = "";
     this.matches = [new Match()];
     this.tournament = new Tournament();
-    this.creationTime = new Date();
+    this.creationTime = "";
   }
 
   public get tableName(): string {

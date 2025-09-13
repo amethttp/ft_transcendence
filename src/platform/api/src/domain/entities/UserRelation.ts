@@ -20,8 +20,8 @@ export class UserRelation extends AEntity {
   type!: number;
   ownerUser!: User;
   receiverUser!: User;
-  creationTime!: Date;
-  updateTime!: Date;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();
@@ -30,8 +30,8 @@ export class UserRelation extends AEntity {
     this.type = 0;
     this.ownerUser = new User();
     this.receiverUser = new User();
-    this.creationTime = new Date();
-    this.updateTime = new Date();
+    this.creationTime = "";
+    this.updateTime = "";
   }
 
   public get tableName(): string {

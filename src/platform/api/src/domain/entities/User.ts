@@ -20,8 +20,8 @@ export class User extends AEntity {
   username!: string;
   avatarUrl!: string;
   auth!: Auth;
-  creationTime!: Date;
-  updateTime!: Date;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();
@@ -30,8 +30,8 @@ export class User extends AEntity {
     this.username = "";
     this.avatarUrl = "";
     this.auth = new Auth();
-    this.creationTime = new Date();
-    this.updateTime = new Date();
+    this.creationTime = "";
+    this.updateTime = "";
   }
 
   public get tableName(): string {

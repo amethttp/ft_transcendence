@@ -45,7 +45,7 @@ export class DatabaseMapper {
     let querySelect = "";
     for (const [key, value] of entries) {
       if (key in schema) {
-        querySelect += "\'" + key.toString() + "\',";
+        querySelect += "\'" + key.toString() + "\',"; // DO NOT replace the single quotes
         if (typeof value === "object" && this.isValidObj(value)) {
           querySelect += "json_object(" + this.mapObjectSelect(Object.entries(value), value.tableName, value.schema) + "),";
         } else {

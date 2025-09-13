@@ -15,14 +15,14 @@ export class UserVerification extends AEntity {
   id!: number;
   user!: User;
   code!: number;
-  creationTime!: Date;
+  creationTime!: string;
 
   constructor() {
     super();
     this.id = -1;
     this.user = new User();
     this.code = 0;
-    this.creationTime = new Date();
+    this.creationTime = "";
   }
 
   public get tableName(): string {

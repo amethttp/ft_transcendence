@@ -12,13 +12,13 @@ export class Password extends AEntity {
 
   id!: number;
   hash!: string;
-  updateTime!: Date;
+  updateTime!: string;
 
   constructor() {
     super();
     this.id = -1;
     this.hash = "";
-    this.updateTime = new Date();
+    this.updateTime = "";
   }
 
   public get tableName(): string {
