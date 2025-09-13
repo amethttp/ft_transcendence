@@ -1,7 +1,7 @@
 export interface UserProfileResponse {
   username: string;
   avatarUrl: string;
-  creationTime: Date;
+  creationTime: string;
   friend: boolean;
   online: boolean;
 }

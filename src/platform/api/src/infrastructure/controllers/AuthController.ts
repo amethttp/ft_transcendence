@@ -77,7 +77,7 @@ export default class AuthController {
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserLoginRequest;
-      const loggedUser = await this._authService.loginUser(userCredentials);
+      const loggedUser = await this._authService.loginUser(userCredentials); // TODO: update lastLogin here microsoft style?
 
       const userVerification = await this._userVerificationService.newUserVerification(loggedUser);
       this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, userVerification.code)
@@ -99,6 +99,8 @@ export default class AuthController {
       const userCredentials = request.body as UserLoginVerificationRequest;
       if (await this._userVerificationService.verifyAndDelete(userCredentials.userId, userCredentials.code)) {
         const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
+        const user = await this._userService.getById(userCredentials.userId);
+        await this._authService.updateLastLogin(user);
         reply.header('set-cookie', JWTHeaders);
         reply.status(200).send({ success: true });
       }
