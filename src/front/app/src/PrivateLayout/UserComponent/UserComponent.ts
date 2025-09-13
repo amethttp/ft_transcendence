@@ -4,6 +4,7 @@ import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
 import UserProfileService from "./services/UserProfileService";
 import type UserProfile from "./models/UserProfile";
 import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
+import { AuthService } from "../../auth/services/AuthService";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -42,18 +43,54 @@ export default class UserComponent extends AmethComponent {
       this.router?.redirectByPath("404");
   }
 
-  private async fillView() {
+  private clearView() {
+    for (const action of [...(document.getElementById("userActions")?.getElementsByClassName("btn")!)]) {
+      action.classList.add("hidden");
+    }
+  }
+
+  private fillView() {
+    this.clearView();
     document.getElementById("UserComponentUsername")!.innerText = this.userProfile!.username;
     document.getElementById("UserComponentCreationTime")!.innerText = new Date(this.userProfile!.creationTime).toDateString();
     if (this.userProfile?.username === this.userName) {
-      (document.getElementById("UserComponentEditBtn")! as HTMLAnchorElement).href = `/${this.userProfile!.username}/edit`;
+      const editBtn = (document.getElementById("UserComponentEditBtn")! as HTMLAnchorElement);
+      editBtn.href = `/${this.userProfile!.username}/edit`;
+      editBtn.classList.remove("hidden");
+      const logOutBtn = document.getElementById("UserComponentLogout")!;
+      logOutBtn.onclick = this.logOut.bind(this);
+      logOutBtn.classList.remove("hidden");
     }
     else {
-      if (this.userProfile?.online)
+      this.setOnlineStatus();
+      this.setFriendStatus();
+    }
+    this.initStatsComponent();
+  }
+
+  private logOut() {
+    const authService = new AuthService();
+    authService.logout().then( async () => {
+      await LoggedUser.get(true);
+      this.router?.redirectByPath("/");
+    });
+  }
+
+  private setFriendStatus() {
+    if (this.userProfile?.friend)
+      document.getElementById("UserComponentDeleteFriendBtn")!.classList.remove("hidden");
+    else
+      document.getElementById("UserComponentAddFriendBtn")!.classList.remove("hidden");
+  }
+
+  private setOnlineStatus() {
+    if (this.userProfile?.online)
         document.getElementById("UserComponentOnline")!.classList.remove("hidden");
       else
         document.getElementById("UserComponentOffline")!.classList.remove("hidden");
-    }
+  }
+
+  private async initStatsComponent() {
     const userStats = new UserStatsComponent();
     await userStats.init("UserComponentStats", this.router);
     userStats.afterInit();
