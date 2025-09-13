@@ -19,7 +19,7 @@ export class AuthService {
   private readonly http: IHttpClient;
 
   constructor() {
-    this.http = new ApiClient();
+    this.http = new ApiClient(false);
   }
 
   login(request: LoginRequest): Promise<LoginResponse> {
