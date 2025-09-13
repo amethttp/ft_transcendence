@@ -18,7 +18,7 @@ export class Password extends AEntity {
     super();
     this.id = -1;
     this.hash = "";
-    this.updateTime = new Date();
+    this.updateTime = "";
   }
 
   public get tableName(): string {

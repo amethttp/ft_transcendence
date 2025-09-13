@@ -33,10 +33,10 @@ export class GoogleAuth extends AEntity {
     this.accessToken = "";
     this.refreshToken = "";
     this.tokenType = "";
-    this.expirationTime = new Date();
+    this.expirationTime = "";
     this.scope = "";
-    this.creationTime = new Date();
-    this.updateTime = new Date();
+    this.creationTime = "";
+    this.updateTime = "";
   }
 
   public get tableName(): string {

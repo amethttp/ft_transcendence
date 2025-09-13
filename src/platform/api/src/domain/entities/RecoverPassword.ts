@@ -22,7 +22,7 @@ export class RecoverPassword extends AEntity {
     this.id = -1;
     this.user = new User();
     this.token = "";
-    this.creationTime = new Date();
+    this.creationTime = "";
   }
 
   public get tableName(): string {

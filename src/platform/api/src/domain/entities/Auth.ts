@@ -21,7 +21,7 @@ export class Auth extends AEntity {
   constructor() {
     super();
     this.id = -1;
-    this.lastLogin = new Date();
+    this.lastLogin = "";
     this.password = new Password();
   }
 

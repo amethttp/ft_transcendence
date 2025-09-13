@@ -22,7 +22,7 @@ export class UserVerification extends AEntity {
     this.id = -1;
     this.user = new User();
     this.code = 0;
-    this.creationTime = new Date();
+    this.creationTime = "";
   }
 
   public get tableName(): string {

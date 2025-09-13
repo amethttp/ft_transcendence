@@ -39,8 +39,8 @@ export class Match extends AEntity {
     this.state = 0;
     this.players = [new MatchPlayer()];
     this.tournamentRound = new TournamentRound();
-    this.creationTime = new Date();
-    this.finishTime = new Date();
+    this.creationTime = "";
+    this.finishTime = "";
   }
 
   public get tableName(): string {
