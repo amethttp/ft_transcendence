@@ -22,6 +22,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   async refresh() {
+    this.clearView();
     const username = this.router?.currentPath.params["userId"] as string;
     this.userName = (await LoggedUser.get())?.username;
     if (!username)
@@ -50,7 +51,6 @@ export default class UserComponent extends AmethComponent {
   }
 
   private fillView() {
-    this.clearView();
     document.getElementById("UserComponentUsername")!.innerText = this.userProfile!.username;
     document.getElementById("UserComponentCreationTime")!.innerText = new Date(this.userProfile!.creationTime).toDateString();
     if (this.userProfile?.username === this.userName) {

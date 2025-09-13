@@ -23,6 +23,14 @@ export class ApiClient extends HttpClient {
     return super.delete<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
   }
 
+  async patch<BodyType, ResponseType>(path: string, body?: BodyType, options?: RequestInit): Promise<ResponseType> {
+    return super.patch<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
+  }
+
+  async put<BodyType, ResponseType>(path: string, body?: BodyType, options?: RequestInit): Promise<ResponseType> {
+    return super.put<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
+  }
+
   private refreshToken(): Promise<BasicResponse> {
     return this.get("/auth/refresh", undefined, { credentials: "include" });
   }

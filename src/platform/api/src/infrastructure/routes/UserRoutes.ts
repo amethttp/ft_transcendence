@@ -24,7 +24,7 @@ export default async function userRoutes(server: FastifyInstance) {
     await userController.checkEmail(request, reply);
   });
 
-  server.patch('', async (request: FastifyRequest, reply) => {
+  server.put('', async (request: FastifyRequest, reply) => {
     await userController.updateUser(request, reply);
   });
 

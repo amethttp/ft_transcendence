@@ -6,17 +6,18 @@ export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
 
   afterInit() {
-    this.setUserProfileView();
     this.setSidebarEvents();
     this.refresh();
   }
-
-  refresh() {
+  
+  async refresh() {
+    await this.setUserProfileView();
     const route = this.router?.currentPath.fullPath;
     if (route) {
+      const url = new URL(route, location.origin);
       for (const link of [...document.getElementsByClassName("link")]) {
         if (link instanceof HTMLAnchorElement) {
-          if (new URL(route, location.origin).toString().startsWith(link.href))
+          if (url.toString().startsWith(link.href))
             link.classList.add("highlighted");
           else
             link.classList.remove("highlighted");
@@ -93,7 +94,6 @@ export default class SidebarComponent extends AmethComponent {
         document.getElementById("sidebarUserName")!.innerText = userProfile.username;
         (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username;
       }
-      this.refresh();
     }
   }
 

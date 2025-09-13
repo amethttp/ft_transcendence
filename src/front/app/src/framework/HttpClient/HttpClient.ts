@@ -29,6 +29,18 @@ export default class HttpClient implements IHttpClient {
     return this.request<ResponseType>(url, options);
   }
 
+  async patch<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
+    options.method = 'patch';
+    options.body = JSON.stringify(body);
+    return this.request<ResponseType>(url, options);
+  }
+
+  async put<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
+    options.method = 'put';
+    options.body = JSON.stringify(body);
+    return this.request<ResponseType>(url, options);
+  }
+
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(url, options);
     if (!response.ok) {

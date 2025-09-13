@@ -102,6 +102,8 @@ export class Router extends EventEmitter<RouterEvents> {
     this.emitSync("navigate", {routeTree: routeTree, path: this._currentPath, router: this});
 
     let lastI = 0;
+    const oldComponents: AmethComponent[] = [];
+    this._currentComponents.forEach(comp => oldComponents.push(comp));
     for (const [i, route] of routeTree.entries()) {
       lastI = i;
       if (route.redirect) return this.redirectByPath(route.redirect);
@@ -128,7 +130,12 @@ export class Router extends EventEmitter<RouterEvents> {
       }
     }
     for (const [i, component] of this._currentComponents.entries()) {
-      if (component.afterInit && i <= lastI) component.afterInit();
+      if (i <= lastI){
+        if (i >= oldComponents.length || component != oldComponents[i])
+          component.afterInit();
+        else
+          component.refresh();
+      }
     }
     this._currentTree = routeTree;
   }
