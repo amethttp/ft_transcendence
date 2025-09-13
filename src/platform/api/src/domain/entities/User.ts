@@ -13,7 +13,7 @@ const userSchema: Record<string, string> = {
 
 export class User extends AEntity {
   static readonly tableName = "user";
-  static readonly entitySchema = userSchema; // TODO: maybe change to private so as not to return the actual static in getter
+  static readonly entitySchema = userSchema;
 
   id!: number;
   email!: string;
@@ -23,7 +23,7 @@ export class User extends AEntity {
   creationTime!: string;
   updateTime!: string;
 
-  constructor() { // TODO: Option using reflect-metadata... 
+  constructor() {
     super();
     this.id = -1;
     this.email = "";

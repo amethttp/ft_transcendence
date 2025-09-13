@@ -13,7 +13,7 @@ export default async function userRoutes(server: FastifyInstance) {
   });
 
   server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
-    await userController.pingUser(request, reply);
+    await userController.getUserProfile(request, reply);
   });
 
   server.get('/check/username/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
@@ -22,5 +22,14 @@ export default async function userRoutes(server: FastifyInstance) {
 
   server.get('/check/email/:email', async (request: FastifyRequest<{ Params: { email: string } }>, reply) => {
     await userController.checkEmail(request, reply);
+  });
+
+  server.patch('', async (request: FastifyRequest, reply) => {
+    await userController.updateUser(request, reply);
+  });
+
+
+  server.delete('', async (request: FastifyRequest, reply) => {
+    await userController.eraseAccount(request, reply);
   });
 }
