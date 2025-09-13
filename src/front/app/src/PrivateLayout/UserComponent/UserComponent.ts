@@ -3,6 +3,7 @@ import AmethComponent from "../../framework/AmethComponent";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
 import UserProfileService from "./services/UserProfileService";
 import type UserProfile from "./models/UserProfile";
+import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -41,7 +42,7 @@ export default class UserComponent extends AmethComponent {
       this.router?.redirectByPath("404");
   }
 
-  private fillView() {
+  private async fillView() {
     document.getElementById("UserComponentUsername")!.innerText = this.userProfile!.username;
     document.getElementById("UserComponentCreationTime")!.innerText = new Date(this.userProfile!.creationTime).toDateString();
     if (this.userProfile?.username === this.userName) {
@@ -53,6 +54,9 @@ export default class UserComponent extends AmethComponent {
       else
         document.getElementById("UserComponentOffline")!.classList.remove("hidden");
     }
+    const userStats = new UserStatsComponent();
+    await userStats.init("UserComponentStats", this.router);
+    userStats.afterInit();
   }
 
   private updateTitle() {
