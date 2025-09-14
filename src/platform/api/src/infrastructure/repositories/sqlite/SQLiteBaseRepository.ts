@@ -130,8 +130,11 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
 
     const sql = `UPDATE ${this._entity.tableName} SET ${placeholders} WHERE id=?`;
     const stmt = this._db.prepare(sql);
-    await this.dbStmtRunAlter(stmt, [...values, id]);
+    const changes = await this.dbStmtRunAlter(stmt, [...values, id]);
     stmt.finalize();
+
+    if (changes === null)
+        return null;
 
     return id;
   }
