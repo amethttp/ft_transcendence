@@ -1,5 +1,29 @@
-<div class="user">
-  <p class="text-brand">Funciona User</p>
-  <p>username: <span id="_userEmail">None</span></p>
-  <div class="router-outlet"></div>
+<div class="flex flex-col items-center user gap-10 p-4 sm:p-8">
+  <div class="flex flex-1 flex-col sm:flex-row flex-wrap items-center gap-7 justify-center">
+    <div class="flex flex-1 flex-wrap gap-5 items-center justify-center">
+      <img src="/default-avatar.webp" class="rounded-full aspect-square max-w-sm w-1/4 min-w-[100px] object-cover object-center transform scale-[0.9999]" alt="User avatar"
+        id="userAvatar" width="800" height="800">
+      <div class="flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+          <h2 class="title-2 relative -top-1" id="UserComponentUsername"></h2>
+          <div class="hidden tooltip bg-green-50 outline-green-600 before:bg-green-600" id="UserComponentOnline">
+            online
+          </div>
+          <div class="hidden tooltip bg-gray-50 outline-gray-600 before:bg-gray-600" id="UserComponentOffline">
+            offline
+          </div>
+        </div>
+        <div class="whitespace-nowrap">
+          Joined on <span id="UserComponentCreationTime"></h2>
+        </div>
+      </div>
+    </div>
+    <div class="flex sm:flex-col gap-2 flex-wrap justify-center" id="userActions">
+      <a class="btn btn-terciary" id="UserComponentEditBtn">Edit profile</a>
+      <a class="btn btn-primary" id="UserComponentAddFriendBtn">Add friend</a>
+      <a class="btn btn-primary" id="UserComponentDeleteFriendBtn">Delete friend</a>
+      <a class="btn btn-danger" id="UserComponentLogout">Log out</a>
+    </div>
+  </div>
+  <div id="UserComponentStats"></div>
 </div>

@@ -32,6 +32,8 @@ export default class VerifyComponent extends AmethComponent {
             sessionStorage.removeItem("userId");
             this.router?.redirectByPath("/home");
           }
+          else
+            this._errorView.classList.remove("invisible");
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };

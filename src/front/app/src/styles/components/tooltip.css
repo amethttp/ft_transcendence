@@ -1,0 +1,5 @@
+@layer components {
+  .tooltip {
+    @apply flex relative justify-center items-center gap-1 outline-1 rounded-full px-2 py-1 text-xs relative before:content-[''] before:w-2 before:h-2 before:rounded-full;
+  }
+}

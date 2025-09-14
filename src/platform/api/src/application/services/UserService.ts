@@ -105,8 +105,7 @@ export class UserService {
       email: updateInfo.email,
       username: updateInfo.username,
     };
-
-    if (!(await this._userRepository.update(userId, userBlueprint))) {
+    if (!await this._userRepository.update(userId, userBlueprint)) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
   }

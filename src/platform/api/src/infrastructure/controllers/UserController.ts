@@ -62,11 +62,11 @@ export default class UserController {
       await this._userService.getByUsername(request.params.username);
       reply.code(200).send({ success: true });
     } catch (err) {
-      console.log(err);
       if (err instanceof ResponseError) {
         reply.code(200).send({ success: false });
       }
       else {
+        console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
@@ -95,11 +95,11 @@ export default class UserController {
 
       reply.code(200).send({ success: true });
     } catch (err) {
+      console.error(err);
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
       }
       else {
-        console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }
