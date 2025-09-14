@@ -46,12 +46,34 @@ export default class UserEditComponent extends AmethComponent {
         });
     }
 
+    const avatarInput = document.getElementById("UserEditAvatarInput")! as HTMLInputElement;
+    document.getElementById("UserEditAvatarPicker")!.onclick = () => {
+      avatarInput.click();
+    }
+
+    avatarInput.oninput = (e) => {
+      console.debug(e, avatarInput.files?.[0]);
+      const file = avatarInput.files?.[0];
+      if (file && file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024) {
+        const url = URL.createObjectURL(file);
+        (document.getElementById("UserEditImg")! as HTMLImageElement).src = url;
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 2000);
+      }
+      else {
+        avatarInput.value = '';
+        alert("Not a valid file. Only images up to 10MB are allowed.");
+      }
+    };
+
     document.getElementById("UserEditChangePassword")!.onclick = () => {
       const authService = new AuthService();
       authService.recover({ email: this._user.email })
         .then(() => alert("Check your inbox!"))
         .catch(err => alert("Error: " + JSON.stringify(err)));
     }
+    
     // TODO: Do it in the right way!
     const blob = new Blob([JSON.stringify(this._user)], { type: 'application/json' });
     const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);
