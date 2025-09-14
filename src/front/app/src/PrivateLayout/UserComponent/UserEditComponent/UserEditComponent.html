@@ -1,22 +1,24 @@
-<div class="flex flex-col items-center gap-4">
-  <nav class="flex w-full gap-4">
+<div class="flex flex-col items-center gap-4 relative">
+  <nav
+    class="flex w-full gap-4 items-center p-2 sm:p-4 bg-gray-50/70 backdrop-blur-md will-change-transform transition-all sticky top-0 z-100">
     <a href="./" class="btn btn-secondary">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
         class="size-4">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
     </a>
-    <h2 class="title-2 text-2xl">Edit profile</h2>
+    <h2 class="title-2 text-xl text-shadow-gray-700">Edit profile</h2>
   </nav>
-  <div class="flex flex-col w-full items-center gap-9">
-    <div class="flex max-w-[250px] w-1/4 min-w-[100px] rounded-full aspect-square overflow-hidden cursor-pointer">
-      <img src="/default-avatar.webp" alt="User avatar" class="w-full" width="800" height="800" id="UserEditImg">
-    </div>
-    <div class="card max-w-sm">
-      <form id="UserEditForm">
+  <div class="flex flex-col w-full items-center gap-16 px-4 pb-4 sm:px-8 sm:pb-8">
+    <div class="flex flex-col items-center w-full max-w-sm gap-8">
+      <div class="flex max-w-[250px] w-full min-w-[100px] rounded-full aspect-square overflow-hidden cursor-pointer">
+        <img src="/default-avatar.webp" alt="User avatar" class="w-full" width="800" height="800" id="UserEditImg">
+      </div>
+      <form id="UserEditForm" class="gap-6">
         <div class="field">
           <label for="usernameInput" class="label">Username</label>
-          <input id="usernameInput" name="username" class="input" type="text" spellcheck="false" autocomplete="username">
+          <input id="usernameInput" name="username" class="input" type="text" spellcheck="false"
+            autocomplete="username">
         </div>
         <div class="field">
           <label for="emailInput" class="label">Email</label>
@@ -29,6 +31,26 @@
           </p>
         </div>
       </form>
+    </div>
+    <div class="flex flex-col w-full max-w-sm gap-8">
+      <div class="flex flex-col justify-center gap-2">
+        <a class="btn btn-terciary" id="UserEditChangePassword">Change password</a>
+        <p class="text-gray-600 text-xs px-2">
+          We'll send you an email with update instructions.
+        </p>
+      </div>
+      <div class="flex flex-col justify-center gap-2">
+        <a class="btn btn-terciary" id="UserEditDownload" href="https://localhost:8080/user" download="amethpong-user.json">Download my data</a>
+        <p class="text-gray-600 text-xs px-2">
+          All your data will be downloaded in a .json file.
+        </p>
+      </div>
+      <div class="flex flex-col justify-center gap-2">
+        <a class="btn btn-danger" id="UserEditDeleteBtn">Delete account</a>
+        <p class="text-gray-600 text-xs px-2">
+          No data of yours will be remaining on our servers after this action!
+        </p>
+      </div>
     </div>
   </div>
 </div>

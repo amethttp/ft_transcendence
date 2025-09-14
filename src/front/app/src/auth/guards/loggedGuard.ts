@@ -5,7 +5,7 @@ import type { Router } from "../../framework/Router/Router";
 import { LoggedUser } from "../LoggedUser";
 
 export const loggedGuard: Guard = async (_route: Route, router: Router): Promise<boolean> => {
-  const loggedUser: User | null = await LoggedUser.get();
+  const loggedUser: User | null = await LoggedUser.get(true);
   if (loggedUser === null) {
     router.redirectByPath('/login');
     return false;

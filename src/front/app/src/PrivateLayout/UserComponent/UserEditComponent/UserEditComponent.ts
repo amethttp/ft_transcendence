@@ -1,5 +1,6 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import type User from "../../../auth/models/User";
+import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
@@ -23,6 +24,7 @@ export default class UserEditComponent extends AmethComponent {
     this._user = (await LoggedUser.get(true))!;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
+    this._form.validate();
   }
 
   async afterInit() {
@@ -42,6 +44,33 @@ export default class UserEditComponent extends AmethComponent {
         .catch(e => {
           alert("error: " + JSON.stringify(e));
         });
+    }
+
+    document.getElementById("UserEditChangePassword")!.onclick = () => {
+      const authService = new AuthService();
+      authService.recover({ email: this._user.email })
+        .then(() => alert("Check your inbox!"))
+        .catch(err => alert("Error: " + JSON.stringify(err)));
+    }
+    // TODO: Do it in the right way!
+    const blob = new Blob([JSON.stringify(this._user)], { type: 'application/json' });
+    const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);
+    downloadBtn.href = URL.createObjectURL(blob);
+    downloadBtn.onclick = () => alert("Downloading amethpong-user.json");
+    document.getElementById("UserEditDeleteBtn")!.onclick = () => {
+      const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
+      if (challenge === "sure") {
+        this._userEditService.deleteUser()
+          .then(async () => {
+            alert("Successfully deleted user");
+            this.router?.navigateByPath("/");
+          })
+          .catch(error => {
+            alert("error: " + JSON.stringify(error));
+          });
+      }
+      else if (challenge !== null)
+        alert("Failed challenge \"" + challenge + "\" is not \"sure\".");
     }
   }
 }

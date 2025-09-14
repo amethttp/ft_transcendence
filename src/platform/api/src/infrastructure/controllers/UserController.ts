@@ -98,7 +98,11 @@ export default class UserController {
     try {
       const requestedUser = request.user as JwtPayloadInfo;
       await this._userService.deleteUser(requestedUser.sub);
-
+      // TODO: Unify logout!
+      reply.header('set-cookie', [
+        `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
+        `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
+      ]);
       reply.code(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
