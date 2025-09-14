@@ -57,4 +57,14 @@ export class RecoverPasswordService {
 
     return user;
   }
+
+  async eraseAllUserRecoverPasswords(user: User) {
+    await this._recoverPasswordRepository.deleteAllByUser(user.id);
+  }
+
+  async delete(recoverPassword: RecoverPassword) {
+    if (!(await this._recoverPasswordRepository.delete(recoverPassword.id))) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
 }

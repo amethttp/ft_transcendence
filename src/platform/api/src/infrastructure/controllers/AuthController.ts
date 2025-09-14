@@ -12,18 +12,27 @@ import { PasswordRecoveryRequest } from "../../application/models/PasswordRecove
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import { UserService } from "../../application/services/UserService";
 import { randomBytes } from "crypto";
+import { PasswordService } from "../../application/services/PasswordService";
 
 export default class AuthController {
   private _authService: AuthService;
-  private _userVerificationService: UserVerificationService;
+  private _passwordService: PasswordService;
   private _recoverPasswordService: RecoverPasswordService;
   private _userService: UserService;
+  private _userVerificationService: UserVerificationService;
 
-  constructor(authService: AuthService, userVerificationService: UserVerificationService, recoverPasswordService: RecoverPasswordService, userService: UserService) {
+  constructor(
+    authService: AuthService,
+    passwordService: PasswordService,
+    recoverPasswordService: RecoverPasswordService,
+    userService: UserService,
+    userVerificationService: UserVerificationService,
+  ) {
     this._authService = authService;
-    this._userVerificationService = userVerificationService;
+    this._passwordService = passwordService;
     this._recoverPasswordService = recoverPasswordService;
     this._userService = userService;
+    this._userVerificationService = userVerificationService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -76,13 +85,16 @@ export default class AuthController {
 
   async login(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const userCredentials = request.body as UserLoginRequest;
-      const loggedUser = await this._authService.loginUser(userCredentials); // TODO: update lastLogin here microsoft style?
+      const loginCredentials = request.body as UserLoginRequest;
+      this._authService.validateLoginCredentials(loginCredentials);
+      const user = await this._userService.getByIdentifier(loginCredentials.identifier);
+      const needs2FA = await this._authService.applyLoginMethod(user, loginCredentials);
+      if (needs2FA) {
+        const userVerification = await this._userVerificationService.newUserVerification(user);
+        this._userVerificationService.sendVerificationCode(request.server.mailer, user.email, userVerification.code);
+      }
 
-      const userVerification = await this._userVerificationService.newUserVerification(loggedUser);
-      this._userVerificationService.sendVerificationCode(request.server.mailer, loggedUser.email, userVerification.code)
-
-      reply.status(200).send({ id: loggedUser.id });
+      reply.status(200).send({ id: user.id });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(400).send(new ResponseError(ErrorParams.LOGIN_FAILED).toDto());
@@ -117,7 +129,7 @@ export default class AuthController {
       const recoveryRequest = request.body as RecoveryEmailRequest;
       const user = await this._userService.getByEmail(recoveryRequest.email);
       const token = randomBytes(32).toString("base64url");
-      await this._recoverPasswordService.newRecoverPassword(user,token);
+      await this._recoverPasswordService.newRecoverPassword(user, token);
 
       this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
       reply.status(200).send({ success: true });
@@ -153,7 +165,7 @@ export default class AuthController {
       const token = request.params.token;
       const passRequest = request.body as PasswordRecoveryRequest;
       const user = await this._recoverPasswordService.getUserByTokenAndDeleteRecover(token);
-      await this._authService.restorePassword(user, passRequest.password);
+      await this._passwordService.restoreUserPassword(user, passRequest.password);
 
       reply.status(200).send({ success: true });
     } catch (err) {
@@ -177,8 +189,9 @@ export default class AuthController {
 
   async register(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const userCredentials = request.body as UserRegistrationRequest;
-      const registeredUser = await this._authService.registerUser(userCredentials);
+      const registrationCredentials = request.body as UserRegistrationRequest;
+      this._authService.validateRegistrationCredentials(registrationCredentials);
+      const registeredUser = await this._userService.registerUser(registrationCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
 
       reply.header('set-cookie', JWTHeaders);

@@ -81,6 +81,11 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
     return this.dbGet(sql, args);
   }
 
+  public async baseFindAll(query: string, args: any[]): Promise<T[] | null> {
+    const sql = DatabaseMapper.mapEntityToQuery(this._entity) + query;
+    return this.dbAll(sql, args);
+  }
+
   public async findById(id: number): Promise<T | null> {
     const sql = DatabaseMapper.mapEntityToQuery(this._entity) + `WHERE ${this._entity.tableName}.id=?`;
     return this.dbGet(sql, [id]);
@@ -115,7 +120,7 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
 
   public async update(id: number, data: Partial<T>): Promise<number | null> {
     const dbRecord = DatabaseMapper.toDatabase(Object.entries(data), this._entity.schema);
-    if ('updateTime' in this._entity.schema) {
+    if ('updateTime' in this._entity.schema) { // TODO: can use ON UPDATE in database
       dbRecord[this._entity.schema['updateTime']] = StringTime.now();
     }
     const filteredRecord = Object.entries(dbRecord)
@@ -137,6 +142,15 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
         return null;
 
     return id;
+  }
+
+  public async baseDelete(query: string, args: any[]): Promise<boolean> {
+    const sql = `DELETE FROM ${this._entity.tableName}` + " " + query;
+    const stmt = this._db.prepare(sql);
+    const affectedNumber = await this.dbStmtRunAlter(stmt, args);
+    stmt.finalize();
+
+    return affectedNumber ? affectedNumber > 0 : false;
   }
 
   public async delete(id: number): Promise<boolean> {

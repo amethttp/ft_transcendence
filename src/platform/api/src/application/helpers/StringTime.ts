@@ -4,4 +4,10 @@ export default class StringTime {
 
     return time;
   }
+
+  static epoch(): string {
+    const time = new Date(0).toISOString().replace('T', ' ').slice(0, 19);
+
+    return time;
+  }
 }
