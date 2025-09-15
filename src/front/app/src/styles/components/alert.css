@@ -32,39 +32,23 @@
   }
 
   .alert-message {
-    @apply overflow-y-scroll max-h-16 pr-0.5;
+    @apply overflow-y-scroll max-h-16 pr-0.5 scrollbar-thin;
   }
 
-  .success .alert-message::-webkit-scrollbar {
-    @apply bg-green-50 w-0.5;
+  .success .alert-message {
+    @apply scrollbar-track-green-50 scrollbar-thumb-green-600;
   }
 
-  .success .alert-message::-webkit-scrollbar-thumb {
-    @apply bg-green-600 rounded-xl;
+  .info .alert-message {
+    @apply scrollbar-track-cyan-50 scrollbar-thumb-cyan-600;
   }
 
-  .info .alert-message::-webkit-scrollbar {
-    @apply bg-cyan-50 w-0.5;
+  .warning .alert-message {
+    @apply scrollbar-track-amber-50 scrollbar-thumb-amber-600;
   }
 
-  .info .alert-message::-webkit-scrollbar-thumb {
-    @apply bg-cyan-600 rounded-xl;
-  }
-
-  .warning .alert-message::-webkit-scrollbar {
-    @apply bg-amber-50 w-0.5;
-  }
-
-  .warning .alert-message::-webkit-scrollbar-thumb {
-    @apply bg-amber-600 rounded-xl;
-  }
-
-  .error .alert-message::-webkit-scrollbar {
-    @apply bg-red-50 w-0.5;
-  }
-
-  .error .alert-message::-webkit-scrollbar-thumb {
-    @apply bg-red-600 rounded-xl;
+  .error .alert-message {
+    @apply scrollbar-track-red-50 scrollbar-thumb-red-600;
   }
 
   .closeAlertButton {
