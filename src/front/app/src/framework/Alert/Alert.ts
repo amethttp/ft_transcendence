@@ -47,11 +47,29 @@ export default class Alert {
     return newMessageContainer;
   }
 
+  private static addAlertAnimation(alert: HTMLElement) {
+    const anim = alert.animate([
+      { transform: 'translateX(50rem)', opacity: 0, offset: 0 },
+      { transform: 'translateX(0rem)', offset: 0.1 },
+      { opacity: 1, offset: 0.2 },
+      { transform: 'translateX(0rem)', opacity: 1, offset: 0.9 },
+      { transform: 'translateX(50rem)', opacity: 0, offset: 1 },
+    ], {
+      duration: 10000,
+      fill: 'forwards'
+    });
+
+    anim.onfinish = () => alert.remove();
+
+    return anim;
+  }
+
   private static createAlert(type: alertType, title: string, message?: string) {
     const newAlert = document.createElement('article');
     const alertWrapper = document.createElement('div');
     const icon = Alert.icons[type];
 
+    Alert.addAlertAnimation(newAlert);
     const iconDiv = Alert.createAlertIcon(icon);
     const messageContainer = Alert.createAlertMessage(title, message);
 

@@ -1,10 +1,10 @@
 @layer components {
   .alert {
-    @apply overflow-hidden rounded shadow-xs shrink-0;
+    @apply overflow-hidden rounded w-full shadow-xs shrink-0;
   }
 
   .alert-wrapper {
-    @apply flex flex-1 justify-start items-center gap-3 p-3 w-full border-l-3 border-r-3;
+    @apply flex justify-start items-center gap-3 p-3 border-l-3 border-r-3;
   }
 
   .success {
