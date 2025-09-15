@@ -51,15 +51,26 @@ export default class UserEditComponent extends AmethComponent {
       avatarInput.click();
     }
 
-    avatarInput.oninput = (e) => {
-      console.debug(e, avatarInput.files?.[0]);
+    avatarInput.oninput = () => {
       const file = avatarInput.files?.[0];
-      if (file && file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024) {
+      if (!file)
+        return;
+      if (file.type.startsWith("image/") && file.size <= 10 * 1024 * 1024) {
         const url = URL.createObjectURL(file);
         (document.getElementById("UserEditImg")! as HTMLImageElement).src = url;
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-        }, 2000);
+        const formData = new FormData();
+        formData.append('file', file);
+        this._userEditService.uploadAvatar(formData)
+          .then(() => {
+            alert("Avatar uploaded succesfully");
+          })
+          .catch(() => {
+            alert("Something went wrong, avatar could not be uploaded :(");
+          })
+          .finally(() => {
+            URL.revokeObjectURL(url);
+            this.router?.refresh();
+          });
       }
       else {
         avatarInput.value = '';
@@ -73,7 +84,7 @@ export default class UserEditComponent extends AmethComponent {
         .then(() => alert("Check your inbox!"))
         .catch(err => alert("Error: " + JSON.stringify(err)));
     }
-    
+
     // TODO: Do it in the right way!
     const blob = new Blob([JSON.stringify(this._user)], { type: 'application/json' });
     const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);

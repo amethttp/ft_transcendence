@@ -6,6 +6,10 @@ import { EditUserRequest } from "../../application/models/EditUserRequest";
 import { UserVerificationService } from "../../application/services/UserVerificationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import { UserRelationService } from "../../application/services/UserRelationService";
+import path from "path";
+import { randomBytes } from "crypto";
+import { createWriteStream, unlink } from "fs";
+import { BusboyFileStream } from "@fastify/busboy";
 
 export default class UserController {
   private _userService: UserService;
@@ -14,7 +18,7 @@ export default class UserController {
   private _recoverPasswordService: RecoverPasswordService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService , recoverPasswordService: RecoverPasswordService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
@@ -127,6 +131,50 @@ export default class UserController {
         console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
+    }
+  }
+
+  private newFileName(filePath: string, userId: number): string {
+    const uniqueId = randomBytes(8).toString('hex');
+    const ext = path.extname(filePath);
+    return `/uploads/${userId}${uniqueId}${ext}`;
+  }
+
+  private _storeFile(file: BusboyFileStream, filePath: string) {
+    return new Promise((resolve, reject) => {
+      const ws = createWriteStream(process.env.UPLOADS_PATH + filePath);
+      file.pipe(ws);
+      ws.on('finish', () => resolve(true));
+      ws.on('error', reject);
+    });
+  }
+
+  private _removeFile(path: string) {
+    unlink(process.env.UPLOADS_PATH + path, (err) => {
+      if (err)
+        console.log("error removing file " + path + ": ", err);
+    });
+  }
+
+  async uploadAvatar(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const data = await request.file();
+      if (!data || !data.mimetype.startsWith("image/"))
+        return reply.code(400).send(new ResponseError(ErrorParams.BAD_REQUEST).toDto());
+
+      const requestedUser = request.user as JwtPayloadInfo;
+      const filePath = this.newFileName(data.filename, requestedUser.sub);
+      await this._storeFile(data.file, filePath);
+
+      const oldAvatarUrl = (await this._userService.getById(requestedUser.sub)).avatarUrl;
+      this._removeFile(oldAvatarUrl);
+
+      await this._userService.updateAvatar(requestedUser.sub, filePath);
+
+      return reply.send({ success: true });
+    } catch (error) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
     }
   }
 }

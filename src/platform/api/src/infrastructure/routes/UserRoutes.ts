@@ -14,6 +14,7 @@ import { SQLiteRecoverPasswordRepository } from "../repositories/sqlite/SQLiteRe
 import { UserVerificationService } from "../../application/services/UserVerificationService";
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
+import fastifyMultipart from "@fastify/multipart";
 
 export default async function userRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
@@ -55,4 +56,11 @@ export default async function userRoutes(server: FastifyInstance) {
   server.delete('', async (request: FastifyRequest, reply) => {
     await userController.eraseAccount(request, reply);
   });
+
+  server.register(fastifyMultipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10 MB
+    }
+  });
+  server.post('/avatar', async (request, reply) => await userController.uploadAvatar(request, reply));
 }

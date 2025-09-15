@@ -3,7 +3,6 @@ import { RegisterValidators } from "../../../../PublicLayout/BaseAccessLayout/Ac
 
 export class UserEditValidators {
   static usernameUnique(_username: string): AsyncValidatorFn<string> {
-    console.log("USERNAME", _username);
     return async (username: string) => {
       if (_username !== username) return RegisterValidators.usernameUnique(username);
       else

@@ -164,4 +164,13 @@ export class UserService {
 
     return userProfile;
   }
+
+  async updateAvatar(userId: number, newPath: string) {
+    const userBlueprint: Partial<User> = {
+      avatarUrl: newPath,
+    };
+    if (!await this._userRepository.update(userId, userBlueprint)) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
 }

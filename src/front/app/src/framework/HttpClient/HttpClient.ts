@@ -17,31 +17,39 @@ export default class HttpClient implements IHttpClient {
     return this.request<ResponseType>(_url.href, options);
   }
 
+  private _bodyRequest<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
+    options.body = body as BodyInit;
+    return this.request<ResponseType>(url, options)
+  }
+
   async post<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
     options.method = 'post';
-    options.body = JSON.stringify(body);
-    return this.request<ResponseType>(url, options);
+    return this._bodyRequest(url, body, options);
   }
 
   async delete<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
     options.method = 'delete';
-    options.body = JSON.stringify(body);
-    return this.request<ResponseType>(url, options);
+    return this._bodyRequest(url, body, options);
   }
 
   async patch<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
     options.method = 'patch';
-    options.body = JSON.stringify(body);
-    return this.request<ResponseType>(url, options);
+    return this._bodyRequest(url, body, options);
   }
 
   async put<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
     options.method = 'put';
-    options.body = JSON.stringify(body);
-    return this.request<ResponseType>(url, options);
+    return this._bodyRequest(url, body, options);
   }
 
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
+    if (!(options.body instanceof FormData) && !(options.body instanceof Blob)) {
+      options.headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+      options.body = JSON.stringify(options.body);
+    }
     const response = await fetch(url, options);
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

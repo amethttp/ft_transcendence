@@ -41,7 +41,6 @@ export class ApiClient extends HttpClient {
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const token = CookieHelper.get("AccessToken");
     options.headers = {
-      "Content-Type": "application/json",
       ...(token ? { Authorization: "Bearer " + token } : {}),
       ...options.headers,
     };

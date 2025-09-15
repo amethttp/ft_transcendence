@@ -51,6 +51,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   private fillView() {
+    (document.getElementById("userAvatar")! as HTMLImageElement).src = this.userProfile!.avatarUrl;
     document.getElementById("UserComponentUsername")!.innerText = this.userProfile!.username;
     document.getElementById("UserComponentCreationTime")!.innerText = new Date(this.userProfile!.creationTime).toDateString();
     if (this.userProfile?.username === this.userName) {
