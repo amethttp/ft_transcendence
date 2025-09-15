@@ -1,4 +1,4 @@
-type alertType = 'success' | 'info' | 'warning' | 'error';
+type alertType = 'success' | 'info' | 'warning' | 'error' | 'close';
 
 export default class Alert {
   private static container = document.getElementById('alert-container');
@@ -14,6 +14,9 @@ export default class Alert {
               </svg>`,
     error: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>`,
+    close: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>`
   };
 
@@ -52,7 +55,7 @@ export default class Alert {
       { transform: 'translateX(50rem)', opacity: 0, offset: 0 },
       { transform: 'translateX(0rem)', offset: 0.1 },
       { opacity: 1, offset: 0.2 },
-      { transform: 'translateX(0rem)', opacity: 1, offset: 0.9 },
+      { transform: 'translateX(0rem)', opacity: 1, offset: 0.95 },
       { transform: 'translateX(50rem)', opacity: 0, offset: 1 },
     ], {
       duration: 10000,
@@ -64,23 +67,40 @@ export default class Alert {
     return anim;
   }
 
+  private static skipAnimation(alertAnimation: Animation) {
+    const timing = alertAnimation.effect?.getTiming();
+
+    if (typeof alertAnimation.currentTime === "number" && 
+        timing && typeof timing.duration === "number") {
+
+      if (alertAnimation.currentTime < timing.duration * 0.95) {
+        alertAnimation.currentTime = timing.duration * 0.95;
+      }
+    }
+  }
+
   private static createAlert(type: alertType, title: string, message?: string) {
     const newAlert = document.createElement('article');
     const alertWrapper = document.createElement('div');
     const icon = Alert.icons[type];
-
-    Alert.addAlertAnimation(newAlert);
+    const closeIcon = Alert.icons.close;
+    const alertAnimation = Alert.addAlertAnimation(newAlert);
     const iconDiv = Alert.createAlertIcon(icon);
+    const closeButtonDiv = Alert.createAlertIcon(closeIcon);
     const messageContainer = Alert.createAlertMessage(title, message);
 
     alertWrapper.appendChild(iconDiv);
     alertWrapper.appendChild(messageContainer);
+    alertWrapper.appendChild(closeButtonDiv);
     alertWrapper.classList.add('alert-wrapper', type);
+
+    closeButtonDiv.classList.add('closeAlertButton');
+    closeButtonDiv.addEventListener('click', () => Alert.skipAnimation(alertAnimation));
 
     newAlert.classList.add('alert');
     newAlert.appendChild(alertWrapper);
 
-    Alert.container?.appendChild(newAlert);
+    Alert.container?.prepend(newAlert);
   }
 
   public static success(title: string, message?: string) {

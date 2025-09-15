@@ -66,4 +66,24 @@
   .error .alert-message::-webkit-scrollbar-thumb {
     @apply bg-red-600 rounded-xl;
   }
+
+  .closeAlertButton {
+    @apply ml-auto cursor-pointer;
+  }
+
+  .success .closeAlertButton {
+    @apply hover:text-green-950;
+  }
+
+  .info .closeAlertButton {
+    @apply hover:text-cyan-950;
+  }
+
+  .warning .closeAlertButton {
+    @apply hover:text-amber-950;
+  }
+
+  .error .closeAlertButton {
+    @apply hover:text-red-950;
+  }
 }
