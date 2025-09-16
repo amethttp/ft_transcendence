@@ -5,6 +5,7 @@ import UserProfileService from "./services/UserProfileService";
 import type UserProfile from "./models/UserProfile";
 import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 import { AuthService } from "../../auth/services/AuthService";
+import { Relation } from "./models/RelationType";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -64,7 +65,7 @@ export default class UserComponent extends AmethComponent {
     }
     else {
       this.setOnlineStatus();
-      this.setFriendStatus();
+      this.setRelationStatus();
     }
     this.initStatsComponent();
   }
@@ -77,11 +78,23 @@ export default class UserComponent extends AmethComponent {
     });
   }
 
-  private setFriendStatus() {
-    if (this.userProfile?.friend)
-      document.getElementById("UserComponentDeleteFriendBtn")!.classList.remove("hidden");
-    else
-      document.getElementById("UserComponentAddFriendBtn")!.classList.remove("hidden");
+  private setRelationStatus() {
+    switch (this.userProfile?.relation ) {
+      case Relation.FRIENDSHIP_ACCEPTED:
+        document.getElementById("UserComponentDeleteFriendBtn")!.classList.remove("hidden");
+        break;
+      case Relation.FRIENDSHIP_REQUESTED:
+        document.getElementById("username")!.innerHTML = this.userProfile?.username ?? "";
+        document.getElementById("UserComponentPendingRequestBtn")!.classList.remove("hidden");
+        break;
+      case Relation.BLOCKED:
+        document.getElementById("UserComponentBlockedBtn")!.classList.remove("hidden");
+        break;
+    
+      default:
+        document.getElementById("UserComponentAddFriendBtn")!.classList.remove("hidden");
+        break;
+    }
   }
 
   private setOnlineStatus() {

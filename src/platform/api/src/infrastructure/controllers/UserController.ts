@@ -46,8 +46,11 @@ export default class UserController {
 
   async getUserProfile(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const user = await this._userService.getByUsername(request.params.username);
-      const userProfile = this._userService.toUserProfileResponse(user);
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const requestedUser = await this._userService.getByUsername(request.params.username);
+      const relation = await this._userRelationService.getRelationStatus(originUser, requestedUser);
+      const userProfile = this._userService.toUserProfileResponse(requestedUser, relation, true);
 
       reply.code(200).send(userProfile);
     } catch (err) {
@@ -122,7 +125,7 @@ export default class UserController {
         `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
       ]);
 
-      reply.code(200).send({ success: true }); // TODO: remove jwt access ...
+      reply.code(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

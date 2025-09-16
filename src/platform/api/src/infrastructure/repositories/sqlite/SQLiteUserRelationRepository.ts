@@ -13,6 +13,11 @@ export class SQLiteUserRelationRepository extends SQLiteBaseRepository<UserRelat
     return this.baseFindAll(query, [id, id]);
   }
 
+  findByAnyTwoUsers(id1: number, id2: number): Promise<UserRelation | null> {
+    const query = `WHERE (owner_user_id=? OR receiver_user_id=?) OR (owner_user_id=? OR receiver_user_id=?)`;
+    return this.baseFind(query, [id1, id2, id2, id1]);
+  }
+
   deleteAllBySingleUser(id: number): Promise<boolean | null> {
     const query = `WHERE owner_user_id=? OR receiver_user_id=?`;
     return this.baseDelete(query, [id, id]);

@@ -28,26 +28,30 @@ export class DatabaseMapper {
     return false;
   }
 
-  private static mapObjectJoins(entries: [string, any][], tableName: string, schema: Record<string, string>): string {
+  private static mapObjectJoins(entries: [string, any][], tableName: string, schema: Record<string, string>, counter: number): string {
     let queryJoin = "";
     for (const [key, value] of entries) {
       if (key in schema) {
         if (typeof value === "object" && this.isValidObj(value)) {
-          queryJoin += "LEFT JOIN " + value.tableName + " ON " + tableName + "." + value.tableName + "_id = " + value.tableName + ".id\n";
-          queryJoin += this.mapObjectJoins(Object.entries(value), value.tableName, value.schema);
+          counter++;
+          const adjustedTableName = schema[key].slice(0,-3);
+          queryJoin += "LEFT JOIN " + value.tableName + ` ${adjustedTableName}${counter}` + " ON " + tableName + "." + adjustedTableName + "_id = " + adjustedTableName + counter + ".id\n";
+          queryJoin += this.mapObjectJoins(Object.entries(value), adjustedTableName + counter, value.schema, counter);
         }
       }
     }
     return queryJoin;
   }
 
-  private static mapObjectSelect(entries: [string, any][], tableName: string, schema: Record<string, string>): string {
+  private static mapObjectSelect(entries: [string, any][], tableName: string, schema: Record<string, string>, counter: number): string {
     let querySelect = "";
     for (const [key, value] of entries) {
       if (key in schema) {
         querySelect += "\'" + key.toString() + "\',"; // DO NOT replace the single quotes
         if (typeof value === "object" && this.isValidObj(value)) {
-          querySelect += "json_object(" + this.mapObjectSelect(Object.entries(value), value.tableName, value.schema) + "),";
+          counter++;
+          const adjustedTableName = schema[key].slice(0,-3);
+          querySelect += "json_object(" + this.mapObjectSelect(Object.entries(value), adjustedTableName + counter, value.schema, counter) + "),";
         } else {
           querySelect += tableName + "." + schema[key] + ",";
         }
@@ -62,8 +66,8 @@ export class DatabaseMapper {
 
   public static mapEntityToQuery(entity: AEntity): string {
     const entries = Object.entries(entity);
-    const querySelect = this.mapObjectSelect(entries, entity.tableName, entity.schema);  // TODO: Unify into same func {string string}...
-    const queryJoin = this.mapObjectJoins(entries, entity.tableName, entity.schema);
+    const querySelect = this.mapObjectSelect(entries, entity.tableName, entity.schema, 0);
+    const queryJoin = this.mapObjectJoins(entries, entity.tableName, entity.schema, 0);
 
     let sqlRes = `
       SELECT

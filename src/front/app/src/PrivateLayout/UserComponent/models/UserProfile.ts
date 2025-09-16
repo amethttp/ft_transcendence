@@ -1,7 +1,9 @@
+import type { RelationType } from "./RelationType";
+
 export default interface UserProfile {
   username: string;
   avatarUrl: string;
   creationTime: string;
-  friend: boolean;
+  relation: RelationType;
   online: boolean;
 }
