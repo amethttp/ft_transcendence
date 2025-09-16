@@ -99,7 +99,7 @@ export class UserService {
 
   async updateUser(userId: number, updateInfo: EditUserRequest) {
     if (!Validators.email(updateInfo.email) || !Validators.username(updateInfo.username)) {
-      throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      throw new ResponseError(ErrorParams.BAD_REQUEST);
     }
     const userBlueprint: Partial<User> = {
       email: updateInfo.email,

@@ -1,5 +1,5 @@
 import { GoogleAuth } from "../../domain/entities/GoogleAuth";
-import { IGoogleAuthRepository } from "../../domain/repositories/IGoogleAuthRepositroy";
+import { IGoogleAuthRepository } from "../../domain/repositories/IGoogleAuthRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 
 export class GoogleAuthService {
