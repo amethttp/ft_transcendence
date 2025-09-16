@@ -40,7 +40,7 @@ export default class RegisterComponent extends AmethComponent {
       this.authService.register(registerRequest)
         .then(async () => {
           await LoggedUser.get(true);
-          this.router?.navigateByPath("/home");
+          this.router?.navigateByPath("/login");
         })
         .catch(this.registrationError.bind(this));
     }

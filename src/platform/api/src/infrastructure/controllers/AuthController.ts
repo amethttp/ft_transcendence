@@ -191,10 +191,8 @@ export default class AuthController {
     try {
       const registrationCredentials = request.body as UserRegistrationRequest;
       this._authService.validateRegistrationCredentials(registrationCredentials);
-      const registeredUser = await this._userService.registerUser(registrationCredentials);
-      const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
+      await this._userService.registerUser(registrationCredentials);
 
-      reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
