@@ -72,36 +72,44 @@ export default class UserComponent extends AmethComponent {
 
   private logOut() {
     const authService = new AuthService();
-    authService.logout().then( async () => {
+    authService.logout().then(async () => {
       await LoggedUser.get(true);
       this.router?.redirectByPath("/");
     });
   }
 
   private setRelationStatus() {
-    switch (this.userProfile?.relation ) {
+    switch (this.userProfile?.relation) {
       case Relation.FRIENDSHIP_ACCEPTED:
-        document.getElementById("UserComponentDeleteFriendBtn")!.classList.remove("hidden");
+        const delFriend = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLAnchorElement);
+        delFriend.href = ``;
+        delFriend.classList.remove("hidden");
         break;
       case Relation.FRIENDSHIP_REQUESTED:
         document.getElementById("username")!.innerHTML = this.userProfile?.username ?? "";
-        document.getElementById("UserComponentPendingRequestBtn")!.classList.remove("hidden");
+        const pendingRequest = (document.getElementById("UserComponentPendingRequestBtn")! as HTMLAnchorElement); // TODO: 2 buttons accept/decline??
+        pendingRequest.href = ``;
+        pendingRequest.classList.remove("hidden");
         break;
       case Relation.BLOCKED:
+        document.getElementById("UserComponentOnline")!.classList.add("hidden");
+        document.getElementById("UserComponentOffline")!.classList.remove("hidden"); // TODO: refactor
         document.getElementById("UserComponentBlockedBtn")!.classList.remove("hidden");
         break;
-    
+
       default:
-        document.getElementById("UserComponentAddFriendBtn")!.classList.remove("hidden");
+        const addFriend = (document.getElementById("UserComponentAddFriendBtn")! as HTMLAnchorElement);
+        addFriend.href = ``;
+        addFriend.classList.remove("hidden");
         break;
     }
   }
 
   private setOnlineStatus() {
     if (this.userProfile?.online)
-        document.getElementById("UserComponentOnline")!.classList.remove("hidden");
-      else
-        document.getElementById("UserComponentOffline")!.classList.remove("hidden");
+      document.getElementById("UserComponentOnline")!.classList.remove("hidden");
+    else
+      document.getElementById("UserComponentOffline")!.classList.remove("hidden");
   }
 
   private async initStatsComponent() {
