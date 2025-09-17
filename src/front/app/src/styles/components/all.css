@@ -3,4 +3,9 @@
 @import "./text";
 @import "./form";
 @import "./tabs";
+<<<<<<< Updated upstream
+=======
+@import "./section";
+@import "./sidebar";
+>>>>>>> Stashed changes
 @import "./alert";
