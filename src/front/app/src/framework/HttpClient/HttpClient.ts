@@ -1,3 +1,4 @@
+import Alert from "../Alert/Alert";
 import type { IHttpClient, TGetParamValue } from "./IHttpClient";
 
 
@@ -50,12 +51,22 @@ export default class HttpClient implements IHttpClient {
       };
       options.body = JSON.stringify(options.body);
     }
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw { status: response.status, ...errorData };
-    }
+    try
+    {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw { status: response.status, ...errorData };
+      }
 
-    return response.json().catch(err => { throw err });
+      return response.json().catch(err => { throw err });
+    }
+    catch(err: any)
+    {
+      if (!Object.keys(err).includes("status"))
+        Alert.error('Network error');
+
+      throw err;
+    }
   }
 }

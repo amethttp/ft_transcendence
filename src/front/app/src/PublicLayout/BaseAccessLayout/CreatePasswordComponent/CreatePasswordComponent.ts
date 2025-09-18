@@ -1,5 +1,6 @@
 import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
+import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
@@ -47,7 +48,7 @@ export default class CreatePasswordComponent extends AmethComponent {
   }
 
   private invalidToken() {
-    alert("Invalid token, please re-submit forgot password.");
+    Alert.error("Invalid recover link", "Please re-submit forgot password.");
     this.router?.redirectByPath("/recover");
   }
 }
