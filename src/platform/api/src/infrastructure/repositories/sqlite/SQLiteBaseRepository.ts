@@ -5,6 +5,7 @@ import { IBaseRepository } from "../../../domain/repositories/IBaseRepository";
 import { DatabaseRowResult } from "../models/DatabaseRowResult";
 import { AEntity } from "../../../domain/entities/AEntity";
 import { ErrorParams, ResponseError } from "../../../application/errors/ResponseError";
+import StringTime from "../../../application/helpers/StringTime";
 
 export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<T> {
   private _db!: Database;
@@ -80,6 +81,11 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
     return this.dbGet(sql, args);
   }
 
+  public async baseFindAll(query: string, args: any[]): Promise<T[] | null> {
+    const sql = DatabaseMapper.mapEntityToQuery(this._entity) + query;
+    return this.dbAll(sql, args);
+  }
+
   public async findById(id: number): Promise<T | null> {
     const sql = DatabaseMapper.mapEntityToQuery(this._entity) + `WHERE ${this._entity.tableName}.id=?`;
     return this.dbGet(sql, [id]);
@@ -114,7 +120,9 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
 
   public async update(id: number, data: Partial<T>): Promise<number | null> {
     const dbRecord = DatabaseMapper.toDatabase(Object.entries(data), this._entity.schema);
-    dbRecord['update_time'] = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    if ('updateTime' in this._entity.schema) { // TODO: can use ON UPDATE in database
+      dbRecord[this._entity.schema['updateTime']] = StringTime.now();
+    }
     const filteredRecord = Object.entries(dbRecord)
       .filter(([key, value]) => value !== undefined && value !== null && key !== 'id')
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
@@ -127,10 +135,22 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
 
     const sql = `UPDATE ${this._entity.tableName} SET ${placeholders} WHERE id=?`;
     const stmt = this._db.prepare(sql);
-    await this.dbStmtRunAlter(stmt, [...values, id]);
+    const changes = await this.dbStmtRunAlter(stmt, [...values, id]);
     stmt.finalize();
 
+    if (changes === null)
+        return null;
+
     return id;
+  }
+
+  public async baseDelete(query: string, args: any[]): Promise<boolean> {
+    const sql = `DELETE FROM ${this._entity.tableName}` + " " + query;
+    const stmt = this._db.prepare(sql);
+    const affectedNumber = await this.dbStmtRunAlter(stmt, args);
+    stmt.finalize();
+
+    return affectedNumber ? affectedNumber > 0 : false;
   }
 
   public async delete(id: number): Promise<boolean> {

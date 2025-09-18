@@ -69,43 +69,31 @@ export const routes: Route[] = [
       },
       {
         path: "/play",
-        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
         title: "Play"
       },
       {
         path: "/game",
-        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
         title: "Join a game"
       },
       {
         path: "/tournament",
-        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
         title: "Join a tournament"
       },
       {
-        path: "/profile",
-        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
-        title: "Your profile"
-      },
-      {
         path: "/friends",
-        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
         title: "Your profile"
       },
       {
         path: "/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
-        children: [
-          {
-            path: "",
-            component: () => import("./PrivateLayout/UserComponent/UserProfileComponent/UserProfileComponent")
-          },
-          {
-            path: "stats",
-            component: () => import("./PrivateLayout/UserComponent/UserStatsComponent/UserStatsComponent"),
-            title: "Stats"
-          }
-        ]
+      },
+      {
+        path: "/:userId/edit",
+        component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
       },
     ],
   },

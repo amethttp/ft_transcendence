@@ -6,17 +6,18 @@ export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
 
   afterInit() {
-    this.setUserProfileView();
     this.setSidebarEvents();
     this.refresh();
   }
-
-  refresh() {
+  
+  async refresh() {
+    await this.setUserProfileView();
     const route = this.router?.currentPath.fullPath;
     if (route) {
+      const url = new URL(route, location.origin);
       for (const link of [...document.getElementsByClassName("link")]) {
         if (link instanceof HTMLAnchorElement) {
-          if (link.href === new URL(route, location.origin).toString())
+          if (url.toString().startsWith(link.href))
             link.classList.add("highlighted");
           else
             link.classList.remove("highlighted");
@@ -32,7 +33,7 @@ export default class SidebarComponent extends AmethComponent {
     function setWidth(width: number, offset: number = 0): void {
       const min = 50;
       const collapsed = 100;
-      const max = window.innerWidth * .8;
+      const max = window.innerWidth * .4;
       const newWidth = width - offset;
 
       if (newWidth <= collapsed) {
@@ -72,7 +73,7 @@ export default class SidebarComponent extends AmethComponent {
     })
 
     const authService = new AuthService();
-    document.getElementById("logOutBtn")?.addEventListener("click", (e) => {
+    document.getElementById("sidebarLogOutBtn")?.addEventListener("click", (e) => {
       e.stopImmediatePropagation();
       e.preventDefault();
       authService.logout().then(async res => {
@@ -87,8 +88,12 @@ export default class SidebarComponent extends AmethComponent {
   private async setUserProfileView() {
     const userProfile = await LoggedUser.get();
     if (userProfile) {
-      (document.getElementById("userAvatar")! as HTMLImageElement).src = userProfile.avatar_url;
-      document.getElementById("userName")!.innerText = userProfile.username;
+      if (userProfile.avatarUrl)
+        (document.getElementById("sidebarUserAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
+      if (userProfile.username) {
+        document.getElementById("sidebarUserName")!.innerText = userProfile.username;
+        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username;
+      }
     }
   }
 

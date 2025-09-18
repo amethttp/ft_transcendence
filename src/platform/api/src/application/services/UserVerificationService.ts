@@ -47,4 +47,14 @@ export class UserVerificationService {
       text: "Your code is: " + code,
     });
   }
+
+  async eraseAllUserVerifications(user: User) {
+    await this._userVerificationRepository.deleteAllByUser(user.id);
+  }
+
+  async delete(userVerification: UserVerification) {
+    if (!(await this._userVerificationRepository.delete(userVerification.id))) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
 }

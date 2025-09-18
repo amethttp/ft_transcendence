@@ -11,22 +11,26 @@ import { UserVerificationService } from "../../application/services/UserVerifica
 import { SQLiteRecoverPasswordRepository } from "../repositories/sqlite/SQLiteRecoverPasswordRepository";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import fastifyRateLimit from "@fastify/rate-limit";
+import { GoogleAuthService } from "../../application/services/googleAuthService";
+import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleAuthRepository";
 
 export default async function authRoutes(server: FastifyInstance) {
-  const userRepository = new SQLiteUserRepository();
-  const userService = new UserService(userRepository);
+  const googleAuthRepository = new SQLiteGoogleAuthRepository();
   const passwordRepository = new SQLitePasswordRepository();
-  const passwordService = new PasswordService(passwordRepository);
   const authRepository = new SQLiteAuthRepository();
-  const authService = new AuthService(authRepository, userService, passwordService);
   const userVerificationRepository = new SQLiteUserVerificationRepository();
-  const userVerificationService = new UserVerificationService(userVerificationRepository);
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
+  const userRepository = new SQLiteUserRepository();
+  const passwordService = new PasswordService(passwordRepository);
+  const googleAuthService = new GoogleAuthService(googleAuthRepository);
+  const authService = new AuthService(authRepository, passwordService);
+  const userVerificationService = new UserVerificationService(userVerificationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
-  const authController = new AuthController(authService, userVerificationService, recoverPasswordService, userService);
+  const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
+  const authController = new AuthController(authService, passwordService, recoverPasswordService, userService, userVerificationService);
 
   await server.register(fastifyRateLimit, {
-    max: 15,
+    max: 25,
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });

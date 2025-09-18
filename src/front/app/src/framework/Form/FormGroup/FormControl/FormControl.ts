@@ -27,6 +27,10 @@ export class FormControl<T> {
     return this._validators;
   }
 
+  set validators(validators: (ValidatorFn<T> | AsyncValidatorFn<T>)[]) {
+    this._validators = validators;
+  }
+
   setValue(newValue: T, validate: boolean = true): void {
     this._value = newValue;
     if (validate)

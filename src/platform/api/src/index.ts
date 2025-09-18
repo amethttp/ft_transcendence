@@ -21,13 +21,13 @@ const main = async () => {
 
   const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover'];
 
-  server.register(cors, {
+  await server.register(cors, {
     origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],
-    methods: ['GET', 'POST', 'DELETE'],
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true
   })
 
-  await server.register(fastifyRateLimit);
+  await server.register(fastifyRateLimit); // TODO: Is it necessary?
   await server.register(fastifyRateLimit, {
     max: 1000,
     timeWindow: '1 minute',

@@ -9,16 +9,14 @@ import Validators from "../helpers/Validators";
 import { UserLoginRequest } from "../models/UserLoginRequest";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { PasswordService } from "./PasswordService";
-import { UserService } from "./UserService";
+import StringTime from "../helpers/StringTime";
 
 export class AuthService {
   private _authRepository: IAuthRepository;
-  private _userService: UserService;
   private _passwordService: PasswordService;
 
-  constructor(authRepository: IAuthRepository, userService: UserService, passwordService: PasswordService) {
+  constructor(authRepository: IAuthRepository, passwordService: PasswordService) {
     this._authRepository = authRepository;
-    this._userService = userService;
     this._passwordService = passwordService;
   }
 
@@ -47,7 +45,7 @@ export class AuthService {
     return createdAuth;
   }
 
-  private validateLoginCredentials(userCredentials: UserLoginRequest) {
+  public validateLoginCredentials(userCredentials: UserLoginRequest) {
     if (
       !Validators.email(userCredentials.identifier) &&
       !Validators.username(userCredentials.identifier)
@@ -59,7 +57,7 @@ export class AuthService {
     }
   }
 
-  private validateRegistrationCredentials(userCredentials: UserRegistrationRequest) {
+  public validateRegistrationCredentials(userCredentials: UserRegistrationRequest) {
     if (!Validators.email(userCredentials.email)) {
       throw new ResponseError(ErrorParams.REGISTRATION_INVALID_EMAIL);
     }
@@ -71,35 +69,26 @@ export class AuthService {
     }
   }
 
-  async loginUser(userCredentials: UserLoginRequest): Promise<User> {
-    this.validateLoginCredentials(userCredentials);
-
-    const user = await this._userService.getByIdentifier(userCredentials.identifier);
-    if (user.auth.password === undefined) {
+  async applyLoginMethod(user: User, loginCredentials: UserLoginRequest): Promise<boolean> {
+    if (user.auth.password) {
+      if (!(await this._passwordService.verify(user.auth.password.hash, loginCredentials.password))) {
+        throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      }
+      return true;
+    } else if (user.auth.googleAuth) {
+      // TODO: login via Google
+      // return false;
+      throw new ResponseError(ErrorParams.LOGIN_FAILED);
+    } else {
       throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
-    if (!(await this._passwordService.verify(user.auth.password.hash, userCredentials.password))) {
-      throw new ResponseError(ErrorParams.LOGIN_FAILED);
-    }
-
-    return user;
   }
 
-  async registerUser(userCredentials: UserRegistrationRequest): Promise<User> {
-    this.validateRegistrationCredentials(userCredentials);
-
-    try {
-      this._authRepository.dbBegin();
-      const password = await this._passwordService.newPassword(userCredentials.password);
-      const auth = await this.newAuth(password);
-      const user = await this._userService.newUser(userCredentials, auth);
-      this._authRepository.dbCommit();
-
-      return user;
-    } catch (error) {
-      this._authRepository.dbRollback();
-      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
-    }
+  async updateLastLogin(user: User) {
+    const authBlueprint: Partial<Auth> = {
+      lastLogin: StringTime.now(),
+    };
+    await this._authRepository.update(user.auth.id, authBlueprint);
   }
 
   async sendRecoveryEmail(mailer: Transporter, email: string, token: string) {
@@ -111,14 +100,16 @@ export class AuthService {
     });
   }
 
-  async restorePassword(user: User, newPassword: string) {
-    if (!Validators.password(newPassword))
-      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
+  async erasePersonalInformation(user: User) {
+    const authBlueprint: Partial<Auth> = {
+      lastLogin: StringTime.epoch(),
+    };
+    await this._authRepository.update(user.auth.id, authBlueprint);
+  }
 
-    if (user.auth.password === undefined) {
+  async delete(auth: Auth) {
+    if (!(await this._authRepository.delete(auth.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-    const passwordId = user.auth.password.id;
-    await this._passwordService.update(passwordId, newPassword);
   }
 }

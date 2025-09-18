@@ -14,14 +14,14 @@ export class Auth extends AEntity {
   static readonly entitySchema = authSchema;
 
   id!: number;
-  lastLogin!: Date;
+  lastLogin!: string;
   googleAuth?: GoogleAuth;
   password?: Password;
 
   constructor() {
     super();
     this.id = -1;
-    this.lastLogin = new Date();
+    this.lastLogin = "";
     this.password = new Password();
   }
 

@@ -1,6 +1,6 @@
 @layer components {
   form {
-    @apply flex flex-col text-left w-full gap-4;
+    @apply flex flex-col text-left w-full gap-4 relative z-0;
   }
 
   input[type="text"],

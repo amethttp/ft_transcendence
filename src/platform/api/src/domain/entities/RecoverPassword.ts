@@ -15,14 +15,14 @@ export class RecoverPassword extends AEntity {
   id!: number;
   user!: User;
   token!: string;
-  creationTime!: Date;
+  creationTime!: string;
 
   constructor() {
     super();
     this.id = -1;
     this.user = new User();
     this.token = "";
-    this.creationTime = new Date();
+    this.creationTime = "";
   }
 
   public get tableName(): string {

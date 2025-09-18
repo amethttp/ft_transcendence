@@ -10,4 +10,8 @@ export default class PrivateLayout extends AmethComponent {
     await this._sidebar.init("sidebar", this.router);
     this._sidebar.afterInit();
   }
+
+  refresh(): void {
+      this._sidebar.refresh();
+  }
 }

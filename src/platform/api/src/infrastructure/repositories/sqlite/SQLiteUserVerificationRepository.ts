@@ -13,4 +13,14 @@ export class SQLiteUserVerificationRepository extends SQLiteBaseRepository<UserV
     const query = `WHERE user_id =? AND ${UserVerification.tableName}.code =? AND (strftime('%s','now') - strftime('%s', ${UserVerification.tableName}.creation_time)) <?`;
     return this.baseFind(query, [id, code, expirationSeconds]);
   };
+
+  findAllByUser(id: number): Promise<UserVerification[] | null> {
+    const query = `WHERE user_id =?`;
+    return this.baseFindAll(query, [id]);
+  }
+
+  deleteAllByUser(id: number): Promise<boolean | null> {
+    const query = `WHERE user_id=?`;
+    return this.baseDelete(query, [id]);
+  }
 }

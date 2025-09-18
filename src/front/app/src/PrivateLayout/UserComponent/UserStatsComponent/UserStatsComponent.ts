@@ -1,7 +1,7 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
 
-export default class UserComponent extends AmethComponent {
+export default class UserStatsComponent extends AmethComponent {
   template = () => import("./UserStatsComponent.html?raw");
 
   constructor() {
@@ -10,7 +10,7 @@ export default class UserComponent extends AmethComponent {
 
   async afterInit() {
     document.getElementById("userIdw")!.innerHTML =
-      (await LoggedUser.get())?.id?.toString() || "None";
+      (await LoggedUser.get())?.id.toString() || "None";
   }
 
   refresh() {

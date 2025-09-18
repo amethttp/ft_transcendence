@@ -25,8 +25,8 @@ export class Tournament extends AEntity {
   playersAmount!: number;
   state!: number;
   tournamentRounds!: TournamentRound[];
-  creationTime!: Date;
-  finishTime?: Date;
+  creationTime!: string;
+  finishTime?: string;
 
   constructor() {
     super();
@@ -38,8 +38,8 @@ export class Tournament extends AEntity {
     this.playersAmount = 0;
     this.state = 0;
     this.tournamentRounds = [new TournamentRound()];
-    this.creationTime = new Date();
-    this.finishTime = new Date();
+    this.creationTime = "";
+    this.finishTime = "";
   }
 
   public get tableName(): string {

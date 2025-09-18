@@ -50,8 +50,8 @@ CREATE TABLE
     last_login TEXT NOT NULL DEFAULT current_timestamp,
     google_auth_id INTEGER UNIQUE,
     password_id INTEGER UNIQUE,
-    FOREIGN KEY (google_auth_id) REFERENCES google_auth (id),
-    FOREIGN KEY (password_id) REFERENCES password (id)
+    FOREIGN KEY (google_auth_id) REFERENCES google_auth (id) ON DELETE SET NULL,
+    FOREIGN KEY (password_id) REFERENCES password (id) ON DELETE SET NULL
   );
 
 CREATE TABLE
