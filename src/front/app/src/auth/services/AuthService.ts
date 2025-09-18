@@ -1,7 +1,6 @@
 import { ApiClient } from "../../ApiClient/ApiClient";
 import type UserProfile from "../../PrivateLayout/UserComponent/UserProfileComponent/models/UserProfile";
 import type { IHttpClient } from "../../framework/HttpClient/IHttpClient";
-import { LoggedUser } from "../LoggedUser";
 import type { BasicResponse } from "../models/BasicResponse";
 import type { CreatePasswordRequest } from "../models/CreatePasswordRequest";
 import type { LoginRequest } from "../models/LoginRequest";
@@ -43,14 +42,7 @@ export class AuthService {
   }
 
   async logout(): Promise<BasicResponse> {
-    try {
-      const response = await this.http.delete<null, BasicResponse>(AuthService.LOGIN_ENDPOINT, null, { credentials: "include" });
-      if (response.success)
-        await LoggedUser.get(true);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    return this.http.delete<null, BasicResponse>(AuthService.LOGIN_ENDPOINT, null, { credentials: "include" });
   }
 
   register(request: RegisterRequest): Promise<BasicResponse> {

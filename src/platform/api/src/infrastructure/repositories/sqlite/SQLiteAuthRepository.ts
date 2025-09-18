@@ -5,6 +5,6 @@ import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 export class SQLiteAuthRepository extends SQLiteBaseRepository<Auth> implements IAuthRepository {
 
   constructor() {
-    super(Auth.tableName, Auth.entitySchema);
+    super(new Auth());
   }
 }

@@ -3,6 +3,7 @@ import { MatchPlayer } from "./MatchPlayer";
 import { TournamentRound } from "./TournamentRound";
 
 const matchSchema: Record<string, string> = {
+  id: "id",
   name: "name",
   token: "token",
   type: "type",
@@ -23,8 +24,30 @@ export class Match extends AEntity {
   type!: number;
   isVisible!: boolean;
   state!: number;
-  players!: MatchPlayer[];
+  players!: MatchPlayer[]; // TODO: check mapper with []
   tournamentRound?: TournamentRound;
   creationTime!: Date;
   finishTime?: Date;
+
+  constructor() {
+    super();
+    this.id = -1;
+    this.name = "";
+    this.token = "";
+    this.type = -1;
+    this.isVisible = false;
+    this.state = 0;
+    this.players = [new MatchPlayer()];
+    this.tournamentRound = new TournamentRound();
+    this.creationTime = new Date();
+    this.finishTime = new Date();
+  }
+
+  public get tableName(): string {
+    return Match.tableName;
+  }
+
+  public get schema(): Record<string, string> {
+    return Match.entitySchema;
+  }
 }

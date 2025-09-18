@@ -5,12 +5,12 @@ import { IUserVerificationRepository } from "../../../domain/repositories/IUserV
 export class SQLiteUserVerificationRepository extends SQLiteBaseRepository<UserVerification> implements IUserVerificationRepository {
 
   constructor() {
-    super(UserVerification.tableName, UserVerification.entitySchema);
+    super(new UserVerification());
   }
 
   findByUserIdAndCode(id: number, code: number): Promise<UserVerification | null> {
     const expirationSeconds = 300;
-    const query = `SELECT * FROM user_verification WHERE user_id =? AND code =? AND (strftime('%s','now') - strftime('%s', creation_time)) <?`;
-    return this.dbGet(query, [id, code, expirationSeconds]);
+    const query = `WHERE user_id =? AND ${UserVerification.tableName}.code =? AND (strftime('%s','now') - strftime('%s', ${UserVerification.tableName}.creation_time)) <?`;
+    return this.baseFind(query, [id, code, expirationSeconds]);
   };
 }

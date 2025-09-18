@@ -2,6 +2,7 @@ import { AEntity } from "./AEntity";
 import { User } from "./User";
 
 const userVerificationSchema: Record<string, string> = {
+  id: "id",
   user: "user_id",
   code: "code",
   creationTime: "creation_time"
@@ -15,4 +16,20 @@ export class UserVerification extends AEntity {
   user!: User;
   code!: number;
   creationTime!: Date;
+
+  constructor() {
+    super();
+    this.id = -1;
+    this.user = new User();
+    this.code = 0;
+    this.creationTime = new Date();
+  }
+
+  public get tableName(): string {
+    return UserVerification.tableName;
+  }
+
+  public get schema(): Record<string, string> {
+    return UserVerification.entitySchema;
+  }
 }

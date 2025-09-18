@@ -14,8 +14,12 @@ export class PasswordService {
     const passwordBlueprint: Partial<Password> = {
       hash: await argon2.hash(password),
     };
+
     const passwordId = await this._passwordRepository.create(passwordBlueprint);
-    const createdPassword = await this._passwordRepository.findById(passwordId || -1);
+    if (passwordId === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }    
+    const createdPassword = await this._passwordRepository.findById(passwordId);
     if (createdPassword === null) {
       throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
     }

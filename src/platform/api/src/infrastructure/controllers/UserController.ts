@@ -14,7 +14,7 @@ export default class UserController {
     const requestedUser = request.user as JwtPayloadInfo;
 
     try {
-      return reply.send(await this.userService.getByIdShallow(requestedUser.sub));
+      return reply.send(await this.userService.getById(requestedUser.sub));
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

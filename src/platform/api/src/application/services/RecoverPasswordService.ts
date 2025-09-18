@@ -15,8 +15,17 @@ export class RecoverPasswordService {
       user: inputUser,
       token: inputToken
     };
+
     const id = await this._recoverPasswordRepository.create(recoverPasswordBlueprint);
-    return (await this._recoverPasswordRepository.findById(id || -1));
+    if (id === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+    const recoverPassword = await this._recoverPasswordRepository.findById(id);
+    if (recoverPassword === null) {
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+
+    return recoverPassword;
   }
 
   async getByToken(token: string): Promise<RecoverPassword> {
@@ -28,17 +37,24 @@ export class RecoverPasswordService {
     return recoverPassword;
   }
 
-  async getUserIdByToken(token: string): Promise<number> {
+  async getUserByToken(token: string): Promise<User> {
     const recoverPassword = await this._recoverPasswordRepository.findByToken(token);
     if (recoverPassword === null) {
       throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
     }
-    const userId = (recoverPassword as any)["user_id"];
+    const user = recoverPassword.user;
 
-    return userId;
+    return user;
   }
 
-  async deleteById(id: number) {
-    await this._recoverPasswordRepository.delete(id);
+  async getUserByTokenAndDeleteRecover(token: string): Promise<User> {
+    const recoverPassword = await this._recoverPasswordRepository.findByToken(token);
+    if (recoverPassword === null) {
+      throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
+    }
+    const user = recoverPassword.user;
+    await this._recoverPasswordRepository.delete(recoverPassword.id);
+
+    return user;
   }
 }

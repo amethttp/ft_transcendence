@@ -1,27 +1,79 @@
+import { AEntity } from "../../domain/entities/AEntity";
+
 export class DatabaseMapper {
-  private _entitySchema!: Record<string, string>;
-
-  constructor(entitySchema: Record<string, string>) {
-    this._entitySchema = entitySchema;
-  }
-
-  private extractValue(value: any): any {
+  private static extractValue(value: any): any {
     if (typeof value === 'object' && value !== null && 'id' in value) {
-        return value.id;
+      return value.id;
     }
     return value;
   }
 
-  public toDatabase(entries: [string, any][]): Record<string, any> {
+  public static toDatabase(entries: [string, any][], entitySchema: Record<string, string>): Record<string, any> {
     let dbRecord: Record<string, any> = {};
-  
+
     for (const [key, value] of entries) {
-      if (key in this._entitySchema) {
-        dbRecord[this._entitySchema[key]] = this.extractValue(value);
+      if (key in entitySchema) {
+        dbRecord[entitySchema[key]] = DatabaseMapper.extractValue(value);
       }
     }
-  
+
     return dbRecord;
   }
-  // TODO: toEntity Mapper
+
+  private static isValidObj(value: any): boolean {
+    if (typeof value === "object" && value !== null && value instanceof AEntity) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static mapObjectJoins(entries: [string, any][], tableName: string, schema: Record<string, string>): string {
+    let queryJoin = "";
+    for (const [key, value] of entries) {
+      if (key in schema) {
+        if (typeof value === "object" && this.isValidObj(value)) {
+          queryJoin += "LEFT JOIN " + value.tableName + " ON " + tableName + "." + value.tableName + "_id = " + value.tableName + ".id\n";
+          queryJoin += this.mapObjectJoins(Object.entries(value), value.tableName, value.schema);
+        }
+      }
+    }
+    return queryJoin;
+  }
+
+  private static mapObjectSelect(entries: [string, any][], tableName: string, schema: Record<string, string>): string {
+    let querySelect = "";
+    for (const [key, value] of entries) {
+      if (key in schema) {
+        querySelect += "\'" + key.toString() + "\',";
+        if (typeof value === "object" && this.isValidObj(value)) {
+          querySelect += "json_object(" + this.mapObjectSelect(Object.entries(value), value.tableName, value.schema) + "),";
+        } else {
+          querySelect += tableName + "." + schema[key] + ",";
+        }
+      }
+    }
+    if (querySelect[querySelect.length - 1] === ",") {
+      querySelect = querySelect.slice(0, -1);
+    }
+
+    return querySelect;
+  }
+
+  public static mapEntityToQuery(entity: AEntity): string {
+    const entries = Object.entries(entity);
+    const querySelect = this.mapObjectSelect(entries, entity.tableName, entity.schema);  // TODO: Unify into same func {string string}...
+    const queryJoin = this.mapObjectJoins(entries, entity.tableName, entity.schema);
+
+    let sqlRes = `
+      SELECT
+        json_object(
+        ${querySelect}
+        ) as result
+      FROM ${entity.tableName}
+      ${queryJoin}
+    `;
+
+    return sqlRes;
+  }
 }

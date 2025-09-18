@@ -1,0 +1,5 @@
+@layer components {
+  .section {
+    @apply relative flex flex-col m-2 sm:m-4 bg-gray-50 shadow outline-1 outline-gray-800 rounded-lg rounded-br-lg overflow-auto shadow;
+  }
+}
