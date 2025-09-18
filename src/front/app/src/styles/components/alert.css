@@ -32,7 +32,7 @@
   }
 
   .alert-message {
-    @apply overflow-y-scroll max-h-16 pr-0.5 scrollbar-thin;
+    @apply overflow-y-auto max-h-16 pr-0.5 scrollbar-thin;
   }
 
   .alert .success .alert-message {
