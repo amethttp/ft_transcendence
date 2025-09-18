@@ -49,6 +49,22 @@ export default async function userRoutes(server: FastifyInstance) {
     await userController.checkEmail(request, reply);
   });
 
+  server.post('/relation/add/:username', async (request: FastifyRequest, reply) => {
+    await userController.handleRelationRequest(request, reply);
+  });
+
+  server.post('/relation/remove/:username', async (request: FastifyRequest, reply) => {
+    await userController.handleRelationRequest(request, reply);
+  });
+
+  server.post('/relation/block/:username', async (request: FastifyRequest, reply) => {
+    await userController.handleRelationRequest(request, reply);
+  });
+
+  server.post('/relation/unblock/:username', async (request: FastifyRequest, reply) => {
+    await userController.handleRelationRequest(request, reply);
+  });
+
   server.put('', async (request: FastifyRequest, reply) => {
     await userController.updateUser(request, reply);
   });

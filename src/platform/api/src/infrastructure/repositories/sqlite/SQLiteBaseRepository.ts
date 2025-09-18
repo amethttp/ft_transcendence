@@ -45,15 +45,29 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
           }
         } else {
           return resolve(null);
-        }
+        } 
       });
     });
   }
-
-  public async dbAll(query: string, params: any): Promise<T[] | null> { // TODO: Check this with mapper JSON parse
+  public async dbAll(query: string, params: any): Promise<T[] | null> {
     return new Promise<T[] | null>((resolve, reject) => {
       this._db.all(query, params, (err, rows) => {
-        return err ? reject(err) : resolve((rows as T[]) ?? null);
+        if (err) {
+          return reject(err);
+        }
+        if (rows) { 
+          try {
+            let result: T[] = [];
+            for (const row of rows) {
+              result.push(JSON.parse((row as DatabaseRowResult).result) as T); // TODO: refactor this
+            }
+            return resolve(result);
+          } catch (error) {
+            return reject(new ResponseError(ErrorParams.DATABASE_ERROR));
+          }
+        } else {
+          return resolve(null);
+        }
       });
     });
   }

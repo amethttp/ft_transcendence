@@ -1,4 +1,4 @@
-import type { RelationType } from "./RelationType";
+import { RelationType } from "./RelationType";
 
 export default interface RelationRequest {
   username: string;

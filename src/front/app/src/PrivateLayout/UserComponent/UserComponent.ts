@@ -6,6 +6,7 @@ import type UserProfile from "./models/UserProfile";
 import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 import { AuthService } from "../../auth/services/AuthService";
 import { Relation } from "./models/RelationType";
+import type RelationRequest from "./models/RelationRequest";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -79,28 +80,47 @@ export default class UserComponent extends AmethComponent {
   }
 
   private setRelationStatus() {
+    let relationRequest: RelationRequest = {
+      username: this.userProfile?.username ?? "",
+      relation: Relation.NO_RELATION
+    };
+
     switch (this.userProfile?.relation) {
       case Relation.FRIENDSHIP_ACCEPTED:
-        const delFriend = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLAnchorElement);
-        delFriend.href = ``;
-        delFriend.classList.remove("hidden");
+        const delFriendBtn = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLAnchorElement);
+        delFriendBtn.classList.remove("hidden");
+        delFriendBtn.onclick = async () => { // TODO: abstract this into a private func
+          relationRequest.relation = Relation.FRIENDSHIP_ACCEPTED;
+          this.userProfileService.removeFriend(relationRequest)
+            .then(() => this.router?.refresh())
+            .catch(() => console.log("Something went wrong"));
+        }
         break;
       case Relation.FRIENDSHIP_REQUESTED:
         document.getElementById("username")!.innerHTML = this.userProfile?.username ?? "";
-        const pendingRequest = (document.getElementById("UserComponentPendingRequestBtn")! as HTMLAnchorElement); // TODO: 2 buttons accept/decline??
-        pendingRequest.href = ``;
-        pendingRequest.classList.remove("hidden");
+        const pendingRequestBtn = (document.getElementById("UserComponentPendingRequestBtn")! as HTMLAnchorElement); // TODO: 2 buttons accept/decline??
+        pendingRequestBtn.classList.remove("hidden");
+        pendingRequestBtn.onclick = async () => {
+          relationRequest.relation = Relation.FRIENDSHIP_REQUESTED;
+          this.userProfileService.addFriend(relationRequest)
+            .then(() => this.router?.refresh())
+            .catch(() => console.log("Something went wrong"));
+        }
         break;
       case Relation.BLOCKED:
         document.getElementById("UserComponentOnline")!.classList.add("hidden");
-        document.getElementById("UserComponentOffline")!.classList.remove("hidden"); // TODO: refactor
+        document.getElementById("UserComponentOffline")!.classList.remove("hidden"); // TODO: probably back will check this
         document.getElementById("UserComponentBlockedBtn")!.classList.remove("hidden");
         break;
 
       default:
-        const addFriend = (document.getElementById("UserComponentAddFriendBtn")! as HTMLAnchorElement);
-        addFriend.href = ``;
-        addFriend.classList.remove("hidden");
+        const addFriendBtn = (document.getElementById("UserComponentAddFriendBtn")! as HTMLAnchorElement);
+        addFriendBtn.classList.remove("hidden");
+        addFriendBtn.onclick = async () => {
+          this.userProfileService.addFriend(relationRequest)
+            .then(() => this.router?.refresh())
+            .catch(() => console.log("Something went wrong"));
+        }
         break;
     }
   }
