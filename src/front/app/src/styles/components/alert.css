@@ -7,19 +7,19 @@
     @apply flex justify-start items-center gap-3 p-3 border-l-3 border-r-3;
   }
 
-  .success {
+  .alert .success {
     @apply bg-green-50 text-green-600 border-l-green-600 border-r-green-50;
   }
 
-  .info {
+  .alert .info {
     @apply bg-cyan-50 text-cyan-600 border-l-cyan-600 border-r-cyan-50;
   }
 
-  .warning {
+  .alert .warning {
     @apply bg-yellow-50 text-yellow-600 border-l-yellow-600 border-r-yellow-50;
   }
 
-  .error {
+  .alert .error {
     @apply bg-red-50 text-red-600 border-l-red-600 border-r-red-50;
   }
 
@@ -35,39 +35,39 @@
     @apply overflow-y-scroll max-h-16 pr-0.5 scrollbar-thin;
   }
 
-  .success .alert-message {
+  .alert .success .alert-message {
     @apply scrollbar-track-green-50 scrollbar-thumb-green-600;
   }
 
-  .info .alert-message {
+  .alert .info .alert-message {
     @apply scrollbar-track-cyan-50 scrollbar-thumb-cyan-600;
   }
 
-  .warning .alert-message {
+  .alert .warning .alert-message {
     @apply scrollbar-track-amber-50 scrollbar-thumb-amber-600;
   }
 
-  .error .alert-message {
+  .alert .error .alert-message {
     @apply scrollbar-track-red-50 scrollbar-thumb-red-600;
   }
 
-  .closeAlertButton {
+  .alert .closeAlertButton {
     @apply ml-auto cursor-pointer;
   }
 
-  .success .closeAlertButton {
+  .alert .success .closeAlertButton {
     @apply hover:text-green-950;
   }
 
-  .info .closeAlertButton {
+  .alert .info .closeAlertButton {
     @apply hover:text-cyan-950;
   }
 
-  .warning .closeAlertButton {
+  .alert .warning .closeAlertButton {
     @apply hover:text-amber-950;
   }
 
-  .error .closeAlertButton {
+  .alert .error .closeAlertButton {
     @apply hover:text-red-950;
   }
 }

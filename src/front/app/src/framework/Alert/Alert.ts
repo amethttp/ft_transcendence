@@ -15,7 +15,7 @@ export default class Alert {
     error: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>`,
-    close: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    close: `<svg class='size-4' xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>`
   };
@@ -70,7 +70,7 @@ export default class Alert {
   private static skipAnimation(alertAnimation: Animation) {
     const timing = alertAnimation.effect?.getTiming();
 
-    if (typeof alertAnimation.currentTime === "number" && 
+    if (typeof alertAnimation.currentTime === "number" &&
         timing && typeof timing.duration === "number") {
 
       if (alertAnimation.currentTime < timing.duration * 0.95) {
