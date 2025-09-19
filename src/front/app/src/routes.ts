@@ -84,8 +84,19 @@ export const routes: Route[] = [
       },
       {
         path: "/friends",
-        component: () => import("./PrivateLayout/GameComponent/GameComponent"),
-        title: "Your profile"
+        component: () => import("./PrivateLayout/FriendsComponent/FriendsComponent"),
+        title: "My friends",
+        children: [
+          {
+            path: "",
+            component: () => import("./PrivateLayout/FriendsComponent/FriendsListComponent/FriendsListComponent")
+          },
+          {
+            path: "/requests",
+            component: () => import("./PrivateLayout/FriendsComponent/FriendsRequestsComponent/FriendsRequestsComponent"),
+            title: "Requests"
+          }
+        ]
       },
       {
         path: "/:userId",
