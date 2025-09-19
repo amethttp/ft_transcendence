@@ -16,7 +16,7 @@ export default class RelationService {
     this._apiClient = new ApiClient();
   }
 
-  addFriend(username: string): Promise<BasicResponse> {
+  addFriend(username: string): Promise<BasicResponse> { // TODO: change GET methods
     return this._apiClient.get(RelationService.ADD_FRIEND_ENDPOINT + username);
   }
 
