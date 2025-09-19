@@ -46,6 +46,14 @@ export class UserRelationService {
     return this.userRelationsToUserProfiles(originUser, relations);
   }
 
+  async getAllUserBlockedProfiles(originUser: User): Promise<UserProfileResponse[]> {
+    const relations = await this._userRelationRepository.findAllBlockedBySingleUser(originUser.id);
+    if (relations === null)
+      return [] as UserProfileResponse[];
+
+    return this.userRelationsToUserProfiles(originUser, relations);
+  }
+
   async sendFriendRequest(originUser: User, requestedUser: User) {
     const relationBlueprint: Partial<UserRelation> = {};
 

@@ -32,6 +32,10 @@ export default async function UserRelationRoutes(server: FastifyInstance) {
     await userRelationController.getUserPendingRequests(request, reply);
   });
 
+  server.get('/blocked', async (request: FastifyRequest, reply) => {
+    await userRelationController.getUserBlockedList(request, reply);
+  });
+
   server.get('/add/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.addFriend(request, reply);
   });

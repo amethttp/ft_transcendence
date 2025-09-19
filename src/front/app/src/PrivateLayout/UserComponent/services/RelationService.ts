@@ -6,6 +6,7 @@ export default class RelationService {
   private static readonly BASE_RELATION = "/relation";
   private static readonly GET_FRIENDS = this.BASE_RELATION + "/friends";
   private static readonly GET_REQUESTS = this.BASE_RELATION + "/requests";
+  private static readonly GET_BLOCKED_LIST = this.BASE_RELATION + "/blocked";
   private static readonly ADD_FRIEND_ENDPOINT = this.BASE_RELATION + "/add/";
   private static readonly REMOVE_FRIEND_ENDPOINT = this.BASE_RELATION + "/remove/";
   private static readonly ACCEPT_REQUEST_ENDPOINT = this.BASE_RELATION + "/accept/";
@@ -24,6 +25,10 @@ export default class RelationService {
 
   getUserRequests(): Promise<BasicResponse> {
     return this._apiClient.get(RelationService.GET_REQUESTS);
+  }
+
+  getBlockedUsers(): Promise<BasicResponse> {
+    return this._apiClient.get(RelationService.GET_BLOCKED_LIST);
   }
 
   addFriend(username: string): Promise<BasicResponse> { // TODO: change GET methods

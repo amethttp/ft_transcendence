@@ -28,6 +28,11 @@ export class SQLiteUserRelationRepository extends SQLiteBaseRepository<UserRelat
     return this.baseFindAll(query, [id]);
   }
 
+  findAllBlockedBySingleUser(id: number): Promise<UserRelation[] | null> {
+    const query = `WHERE (owner_user_id=? AND type=3)`;
+    return this.baseFindAll(query, [id]);
+  }
+
   deleteAllBySingleUser(id: number): Promise<boolean | null> {
     const query = `WHERE owner_user_id=? OR receiver_user_id=?`;
     return this.baseDelete(query, [id, id]);
