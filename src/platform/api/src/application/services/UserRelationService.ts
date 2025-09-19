@@ -30,7 +30,7 @@ export class UserRelationService {
     return res;
   }
 
-  async getAllUserRelations(originUser: User): Promise<UserRelation[]> {
+  async getAllUserFriends(originUser: User): Promise<UserRelation[]> {
     const relations = await this._userRelationRepository.findAllFriendsBySingleUser(originUser.id);
     if (relations === null)
       return [] as UserRelation[];
@@ -52,9 +52,11 @@ export class UserRelationService {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
       case Relation.FRIENDSHIP_ACCEPTED:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
       case Relation.FRIENDSHIP_REQUESTED:
+        if (originUser.id === relation.ownerUser.id) { throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION); };
         relationBlueprint.type = Relation.FRIENDSHIP_ACCEPTED;
         if (!(await this._userRelationRepository.update(relation.id, relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
@@ -86,6 +88,7 @@ export class UserRelationService {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
     }
   }
@@ -96,9 +99,11 @@ export class UserRelationService {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
       case Relation.FRIENDSHIP_ACCEPTED:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
       case Relation.FRIENDSHIP_REQUESTED:
+        if (originUser.id === relation.ownerUser.id) { throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION); };
         relationBlueprint.type = Relation.FRIENDSHIP_ACCEPTED;
         if (!(await this._userRelationRepository.update(relation.id, relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
@@ -107,6 +112,7 @@ export class UserRelationService {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
     }
   }
@@ -115,6 +121,7 @@ export class UserRelationService {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
       case Relation.FRIENDSHIP_ACCEPTED:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
       case Relation.FRIENDSHIP_REQUESTED:
@@ -125,6 +132,7 @@ export class UserRelationService {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
     }
   }
@@ -137,10 +145,14 @@ export class UserRelationService {
     };
 
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    if (relation)
+    if (relation) {    
+      if (relation.type === Relation.BLOCKED) {
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+      }
       if (!(await this._userRelationRepository.delete(relation.id))) {
         new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
       };
+    }
 
     if (!(await this._userRelationRepository.create(relationBlueprint))) {
       new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
@@ -149,10 +161,14 @@ export class UserRelationService {
 
   async unblockUser(originUser: User, requestedUser: User) {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    if (relation && relation.type === Relation.BLOCKED)
+    if (relation && relation.type === Relation.BLOCKED) {
+      if (originUser.id === relation.receiverUser.id) {
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+      };
       if (!(await this._userRelationRepository.delete(relation.id))) {
         new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
       };
+    }
   }
 
   async eraseAllUserRelations(user: User) {
