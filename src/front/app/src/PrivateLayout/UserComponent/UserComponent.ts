@@ -116,7 +116,7 @@ export default class UserComponent extends AmethComponent {
     }
     const acceptBtn = document.getElementById("UserComponentAcceptBtn")!;
     const declineBtn = document.getElementById("UserComponentDeclineBtn")!;
-    document.getElementById("pendingReqText")!.innerHTML = `${targetUser}: Wants to be your friend!`;
+    document.getElementById("pendingReqText")!.innerHTML = `${targetUser} wants to be your friend!`;
 
     pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
