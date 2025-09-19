@@ -10,20 +10,23 @@ import path from "path";
 import { randomBytes } from "crypto";
 import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
+import { DownloadDataService } from "../../application/services/DownloadDataService";
+import { Transporter } from "nodemailer";
 
 export default class UserController {
   private _userService: UserService;
   private _userVerificationService: UserVerificationService;
   private _userRelationService: UserRelationService;
   private _recoverPasswordService: RecoverPasswordService;
+  private _downloadDataService: DownloadDataService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, downloadDataService: DownloadDataService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
     this._recoverPasswordService = recoverPasswordService;
-
+    this._downloadDataService = downloadDataService;
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
@@ -178,6 +181,44 @@ export default class UserController {
     } catch (error) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
+
+  async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const token = request.params.token;
+      const user = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
+      const data = { ...user }; // TODO: Add games, tournaments, etc...
+
+      reply.header("Content-Type", "application/json")
+        .header("Content-Disposition", `attachment; filename=${user.username}-amethpong.json`)
+        .send(JSON.stringify(data, null, 2));
+    } catch (err) {
+        reply.code(404).send();
+    }
+  }
+
+  private _sendDownloadDataEmail(mailer: Transporter, email: string, token: string) {
+    mailer.sendMail({
+      from: '"AmethPong" <info@amethpong.fun>',
+      to: email,
+      subject: "Download your data",
+      html: `Click here to download your data: <a href="http://localhost:5173/user/download/${token} target="_blank">http://localhost:5173/user/download/${token}</a>`
+    });
+  }
+
+  async requestDownloadData(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const user = await this._userService.getById(requestedUser.sub);
+      const token = randomBytes(32).toString("base64url");
+      await this._downloadDataService.newDownloadData(user, token);
+
+      this._sendDownloadDataEmail(request.server.mailer, user.email, token);
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
 }
