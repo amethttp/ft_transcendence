@@ -9,18 +9,18 @@ export class SQLiteUserRelationRepository extends SQLiteBaseRepository<UserRelat
   }
 
   findByAnyTwoUsers(id1: number, id2: number): Promise<UserRelation | null> {
-    const query = `WHERE (owner_user_id=? OR receiver_user_id=?) OR (owner_user_id=? OR receiver_user_id=?)`;
+    const query = `WHERE (owner_user_id=? AND receiver_user_id=?) OR (owner_user_id=? AND receiver_user_id=?)`;
     return this.baseFind(query, [id1, id2, id2, id1]);
   }
 
   findAllBySingleUser(id: number): Promise<UserRelation[] | null> {
-    const query = `WHERE owner_user_id=? OR receiver_user_id=?`;
+    const query = `WHERE (owner_user_id=? OR receiver_user_id=?)`;
     return this.baseFindAll(query, [id, id]);
   }
 
   findAllFriendsBySingleUser(id: number): Promise<UserRelation[] | null> {
-    const query = `WHERE (receiver_user_id=? AND type=2)`;
-    return this.baseFindAll(query, [id]);
+    const query = `WHERE ((receiver_user_id=? OR owner_user_id=?) AND type=2)`;
+    return this.baseFindAll(query, [id, id]);
   }
 
   findAllFindRequestsBySingleUser(id: number): Promise<UserRelation[] | null> {

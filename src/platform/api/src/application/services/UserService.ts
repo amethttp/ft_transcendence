@@ -141,7 +141,7 @@ export class UserService {
     }
   }
 
-  public toLoggedUserResponse(user: User): LoggedUserResponse {
+  public static toLoggedUserResponse(user: User): LoggedUserResponse {
     const userProfile: LoggedUserResponse = {
       id: user.id,
       email: user.email,
@@ -154,7 +154,7 @@ export class UserService {
     return userProfile;
   }
 
-  public toUserProfileResponse(user: User, relationStatus: RelationInfo, online: boolean): UserProfileResponse {
+  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: boolean): UserProfileResponse {
     const userProfile: UserProfileResponse = {
       username: user.username,
       avatarUrl: user.avatarUrl,

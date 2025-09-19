@@ -24,6 +24,14 @@ export default async function UserRelationRoutes(server: FastifyInstance) {
   const userRelationService = new UserRelationService(userRelationRepository);
   const userRelationController = new UserRelationController(userService, userRelationService);
 
+  server.get('/friends', async (request: FastifyRequest, reply) => {
+    await userRelationController.getUserFriends(request, reply);
+  });
+
+  server.get('/requests', async (request: FastifyRequest, reply) => {
+    await userRelationController.getUserPendingRequests(request, reply);
+  });
+
   server.get('/add/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.addFriend(request, reply);
   });

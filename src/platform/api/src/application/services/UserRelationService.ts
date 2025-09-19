@@ -3,6 +3,8 @@ import { UserRelation } from "../../domain/entities/UserRelation";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
+import { UserProfileResponse } from "../models/UserProfileResponse";
+import { UserService } from "./UserService";
 
 export class UserRelationService {
   private _userRelationRepository: IUserRelationRepository;
@@ -19,31 +21,29 @@ export class UserRelationService {
     return false;
   }
 
-  async getRelationStatus(originUser: User, requestedUser: User): Promise<RelationInfo> {
+  async getRelationInfo(originUser: User, requestedUser: User): Promise<RelationInfo> {
     const res: RelationInfo = { type: Relation.NO_RELATION, owner: false };
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     if (relation === null)
       return res;
 
-    res.type = relation.type as RelationType;
-    res.owner = (relation.ownerUser.id === originUser.id);
-    return res;
+    return UserRelationService.toRelationInfo(originUser, relation);
   }
 
-  async getAllUserFriends(originUser: User): Promise<UserRelation[]> {
+  async getAllUserFriendsRelationsProfiles(originUser: User): Promise<UserProfileResponse[]> {
     const relations = await this._userRelationRepository.findAllFriendsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserRelation[];
+      return [] as UserProfileResponse[];
 
-    return relations as UserRelation[];
+    return this.userRelationsToUserProfiles(originUser, relations);
   }
 
-  async getAllUserFriendRequests(originUser: User): Promise<UserRelation[]> {
+  async getAllUserFriendRequestsProfiles(originUser: User): Promise<UserProfileResponse[]> {
     const relations = await this._userRelationRepository.findAllFindRequestsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserRelation[];
+      return [] as UserProfileResponse[];
 
-    return relations as UserRelation[];
+    return this.userRelationsToUserProfiles(originUser, relations);
   }
 
   async sendFriendRequest(originUser: User, requestedUser: User) {
@@ -145,7 +145,7 @@ export class UserRelationService {
     };
 
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    if (relation) {    
+    if (relation) {
       if (relation.type === Relation.BLOCKED) {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
       }
@@ -181,12 +181,22 @@ export class UserRelationService {
     }
   }
 
-  public toRelationInfo(originUser: User, relation: UserRelation): RelationInfo {
+  public static toRelationInfo(originUser: User, relation: UserRelation): RelationInfo {
     const userProfile: RelationInfo = {
       type: relation.type as RelationType,
       owner: (relation.ownerUser.id === originUser.id)
     };
 
     return userProfile;
+  }
+
+  private userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): UserProfileResponse[] {
+    const profiles = relations.map(relation => UserService.toUserProfileResponse(
+      relation.ownerUser.id === originUser.id
+        ? relation.receiverUser
+        : relation.ownerUser,
+      UserRelationService.toRelationInfo(originUser, relation),
+      true));
+    return profiles;
   }
 }
