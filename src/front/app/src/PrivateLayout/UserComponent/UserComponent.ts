@@ -86,7 +86,7 @@ export default class UserComponent extends AmethComponent {
 
   private sendFriendRequest(targetUser: string) {
     this.blockUser(targetUser);
-    const addFriendBtn = (document.getElementById("UserComponentAddFriendBtn")! as HTMLAnchorElement);
+    const addFriendBtn = (document.getElementById("UserComponentAddFriendBtn")! as HTMLButtonElement);
     addFriendBtn.classList.remove("hidden");
     addFriendBtn.onclick = async () => {
       this.RelationService.addFriend(targetUser)
@@ -97,7 +97,7 @@ export default class UserComponent extends AmethComponent {
 
   private removeFriend(targetUser: string) {
     this.blockUser(targetUser);
-    const delFriendBtn = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLAnchorElement);
+    const delFriendBtn = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLButtonElement);
     delFriendBtn.classList.remove("hidden");
     delFriendBtn.onclick = async () => {
       this.RelationService.removeFriend(targetUser)
@@ -109,7 +109,7 @@ export default class UserComponent extends AmethComponent {
   private handleFriendRequest(targetUser: string) { // TODO: Probably this will never show here
     this.blockUser(targetUser);
     const pendingRequestEl = document.getElementById("UserComponentPendingRequest")!;
-    if (!this.userProfile?.relation.owner) {
+    if (this.userProfile?.relation.owner) {
       document.getElementById("pendingReqText")!.innerHTML = `Waiting for acceptance...`;
       pendingRequestEl.classList.remove("hidden");
       return;
@@ -135,7 +135,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   private blockUser(targetUser: string) {
-    const blockBtn = (document.getElementById("UserComponentBlockBtn")! as HTMLAnchorElement);
+    const blockBtn = (document.getElementById("UserComponentBlockBtn")! as HTMLButtonElement);
     blockBtn.classList.remove("hidden");
     blockBtn.onclick = async () => {
       this.RelationService.blockUser(targetUser)
@@ -147,8 +147,10 @@ export default class UserComponent extends AmethComponent {
   private unblockUser(targetUser: string) {
     document.getElementById("UserComponentOnline")!.classList.add("hidden");
     document.getElementById("UserComponentOffline")!.classList.remove("hidden"); // TODO: probably back will check this
-    if (this.userProfile?.relation.owner === true) { return; }
-    const delFriendBtn = (document.getElementById("UserComponentUnBlockBtn")! as HTMLAnchorElement);
+    if (!this.userProfile?.relation.owner) {
+      return;
+    }
+    const delFriendBtn = (document.getElementById("UserComponentUnblockBtn")! as HTMLButtonElement);
     delFriendBtn.classList.remove("hidden");
     delFriendBtn.onclick = async () => {
       this.RelationService.unblockUser(targetUser)

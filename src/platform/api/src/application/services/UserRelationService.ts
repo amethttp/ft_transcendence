@@ -26,7 +26,7 @@ export class UserRelationService {
       return res;
 
     res.type = relation.type as RelationType;
-    res.owner = (relation.ownerUser === originUser);
+    res.owner = (relation.ownerUser.id === originUser.id);
     return res;
   }
 
@@ -168,7 +168,7 @@ export class UserRelationService {
   public toRelationInfo(originUser: User, relation: UserRelation): RelationInfo {
     const userProfile: RelationInfo = {
       type: relation.type as RelationType,
-      owner: (relation.ownerUser === originUser)
+      owner: (relation.ownerUser.id === originUser.id)
     };
 
     return userProfile;
