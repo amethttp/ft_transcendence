@@ -2,7 +2,7 @@ import { User } from "../../domain/entities/User";
 import { UserRelation } from "../../domain/entities/UserRelation";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
-import { Relation, RelationType } from "../models/RelationType";
+import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
 
 export class UserRelationService {
   private _userRelationRepository: IUserRelationRepository;
@@ -19,12 +19,31 @@ export class UserRelationService {
     return false;
   }
 
-  async getRelationStatus(originUser: User, requestedUser: User): Promise<RelationType> {
+  async getRelationStatus(originUser: User, requestedUser: User): Promise<RelationInfo> {
+    const res: RelationInfo = { type: Relation.NO_RELATION, owner: false };
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     if (relation === null)
-      return Relation.NO_RELATION;
+      return res;
 
-    return relation.type as RelationType;
+    res.type = relation.type as RelationType;
+    res.owner = (relation.ownerUser === originUser);
+    return res;
+  }
+
+  async getAllUserRelations(originUser: User): Promise<UserRelation[]> {
+    const relations = await this._userRelationRepository.findAllFriendsBySingleUser(originUser.id);
+    if (relations === null)
+      return [] as UserRelation[];
+
+    return relations as UserRelation[];
+  }
+
+  async getAllUserFriendRequests(originUser: User): Promise<UserRelation[]> {
+    const relations = await this._userRelationRepository.findAllFindRequestsBySingleUser(originUser.id);
+    if (relations === null)
+      return [] as UserRelation[];
+
+    return relations as UserRelation[];
   }
 
   async sendFriendRequest(originUser: User, requestedUser: User) {
@@ -52,6 +71,25 @@ export class UserRelationService {
     }
   }
 
+  async removeFriend(originUser: User, requestedUser: User) {
+    const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
+    switch (relation?.type) {
+      case Relation.FRIENDSHIP_ACCEPTED:
+        if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
+        break;
+
+      case Relation.FRIENDSHIP_REQUESTED:
+        if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
+        break;
+
+      case Relation.BLOCKED:
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+
+      default:
+        break;
+    }
+  }
+
   async acceptFriendRequest(originUser: User, requestedUser: User) {
     const relationBlueprint: Partial<UserRelation> = {};
 
@@ -63,25 +101,6 @@ export class UserRelationService {
       case Relation.FRIENDSHIP_REQUESTED:
         relationBlueprint.type = Relation.FRIENDSHIP_ACCEPTED;
         if (!(await this._userRelationRepository.update(relation.id, relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
-        break;
-
-      case Relation.BLOCKED:
-        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
-
-      default:
-        break;
-    }
-  }
-
-  async unfriendUser(originUser: User, requestedUser: User) {
-    const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    switch (relation?.type) {
-      case Relation.FRIENDSHIP_ACCEPTED:
-        if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
-        break;
-
-      case Relation.FRIENDSHIP_REQUESTED:
-        if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
       case Relation.BLOCKED:
@@ -144,5 +163,14 @@ export class UserRelationService {
     if (!(await this._userRelationRepository.delete(relation.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+  }
+
+  public toRelationInfo(originUser: User, relation: UserRelation): RelationInfo {
+    const userProfile: RelationInfo = {
+      type: relation.type as RelationType,
+      owner: (relation.ownerUser === originUser)
+    };
+
+    return userProfile;
   }
 }

@@ -21,10 +21,18 @@
     <div class="flex sm:flex-col gap-2 flex-wrap justify-center" id="userActions">
       <a class="btn btn-tertiary" id="UserComponentEditBtn">Edit profile</a>
       <a class="btn btn-primary" id="UserComponentAddFriendBtn">Add friend</a>
-      <a class="btn btn-primary" id="UserComponentBlockedBtn">Blocked</a>
-      <a class="btn btn-primary" id="UserComponentUnBlockBtn">Unblock</a>
-      <a class="btn btn-primary" id="UserComponentPendingRequestBtn"><span id="username">None</span>wants to be your friend!</a>
       <a class="btn btn-primary" id="UserComponentDeleteFriendBtn">Delete friend</a>
+      <div id="UserComponentPendingRequest" class="hidden flex flex-col items-center gap-2 w-full sm:w-auto">
+        <p class="text-center text-sm sm:text-base font-medium text-gray-700">
+          <span id="pendingReqText">Wants to be your friend!</span>
+        </p>
+        <div class="flex gap-2 justify-center flex-wrap">
+          <button id="UserComponentAcceptBtn" class="btn btn-primary px-4 py-2">Accept</button>
+          <button id="UserComponentDeclineBtn" class="btn btn-danger px-4 py-2">Decline</button>
+        </div>
+      </div>
+      <a class="btn btn-primary" id="UserComponentBlockBtn">Block</a>
+      <a class="btn btn-primary" id="UserComponentUnBlockBtn">Unblock</a>
       <a class="btn btn-danger" id="UserComponentLogout">Log out</a>
     </div>
   </div>

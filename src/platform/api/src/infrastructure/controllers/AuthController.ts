@@ -13,7 +13,7 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import { UserService } from "../../application/services/UserService";
 import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
-import { Relation } from "../../application/models/RelationType";
+import { Relation } from "../../application/models/RelationInfo";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -148,7 +148,8 @@ export default class AuthController {
     try {
       const token = request.params.token;
       const user = await this._recoverPasswordService.getUserByToken(token);
-      const userProfile = this._userService.toUserProfileResponse(user, Relation.NO_RELATION, false); // TODO: Check if necessary to return a full user
+      const relationInfo = { type: Relation.NO_RELATION, owner: false };
+      const userProfile = this._userService.toUserProfileResponse(user, relationInfo, false); // TODO: Check if necessary to return a full user
 
       reply.code(200).send(userProfile);
     } catch (err) {

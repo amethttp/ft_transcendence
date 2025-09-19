@@ -8,10 +8,8 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import { UserRelationService } from "../../application/services/UserRelationService";
 import path from "path";
 import { randomBytes } from "crypto";
-import { createWriteStream, read, unlink } from "fs";
+import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
-import RelationRequest from "../../application/models/RelationRequest";
-import { Relation } from "../../application/models/RelationType";
 
 export default class UserController {
   private _userService: UserService;
@@ -46,32 +44,13 @@ export default class UserController {
     }
   }
 
-  async addFriend(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
-    try {
-      const jwtUser = request.user as JwtPayloadInfo;
-      const originUser = await this._userService.getById(jwtUser.sub);
-      const requestedUser = await this._userService.getByUsername(request.params.username);
-      await this._userRelationService.sendFriendRequest(originUser, requestedUser);
-
-      reply.code(200).send({ success: true });
-    } catch (err) {
-      if (err instanceof ResponseError) {
-        reply.code(err.code).send(err.toDto());
-      }
-      else {
-        console.log(err);
-        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
-      }
-    }
-  }
-
   async getUserProfile(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
-      const relation = await this._userRelationService.getRelationStatus(originUser, requestedUser);
-      const userProfile = this._userService.toUserProfileResponse(requestedUser, relation, true);
+      const relationInfo = await this._userRelationService.getRelationStatus(originUser, requestedUser);
+      const userProfile = this._userService.toUserProfileResponse(requestedUser, relationInfo, true);
 
       reply.code(200).send(userProfile);
     } catch (err) {

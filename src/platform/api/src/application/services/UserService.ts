@@ -6,7 +6,7 @@ import StringTime from "../helpers/StringTime";
 import Validators from "../helpers/Validators";
 import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
-import { RelationType } from "../models/RelationType";
+import { RelationInfo } from "../models/RelationInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { AuthService } from "./AuthService";
@@ -154,7 +154,7 @@ export class UserService {
     return userProfile;
   }
 
-  public toUserProfileResponse(user: User, relationStatus: RelationType, online: boolean): UserProfileResponse {
+  public toUserProfileResponse(user: User, relationStatus: RelationInfo, online: boolean): UserProfileResponse {
     const userProfile: UserProfileResponse = {
       username: user.username,
       avatarUrl: user.avatarUrl,
