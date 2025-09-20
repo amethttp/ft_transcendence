@@ -30,7 +30,7 @@ export default class UserController {
     try {
       const requestedUser = request.user as JwtPayloadInfo;
       const user = await this._userService.getById(requestedUser.sub);
-      const loggedUser = this._userService.toLoggedUserResponse(user);
+      const loggedUser = UserService.toLoggedUserResponse(user);
 
       reply.code(200).send(loggedUser);
     } catch (err) {
@@ -49,8 +49,8 @@ export default class UserController {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
-      const relationInfo = await this._userRelationService.getRelationStatus(originUser, requestedUser);
-      const userProfile = this._userService.toUserProfileResponse(requestedUser, relationInfo, true);
+      const relationInfo = await this._userRelationService.getRelationInfo(originUser, requestedUser);
+      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, true);
 
       reply.code(200).send(userProfile);
     } catch (err) {

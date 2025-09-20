@@ -14,6 +14,64 @@ export default class UserRelationController {
 
   }
 
+  async getUserFriends(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const friendsProfiles = await this._userRelationService.getAllUserFriendsRelationsProfiles(originUser);
+
+      reply.code(200).send(friendsProfiles);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        console.log(err);
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserPendingRequests(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const requestsProfiles = await this._userRelationService.getAllUserFriendRequestsProfiles(originUser);
+
+      reply.code(200).send(requestsProfiles);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        console.log(err);
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserBlockedList(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const blockedProfiles = await this._userRelationService.getAllUserBlockedProfiles(originUser);
+      // TODO: Cap any info we dont want to send...
+
+      reply.code(200).send(blockedProfiles);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        console.log(err);
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   async addFriend(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
       const jwtUser = request.user as JwtPayloadInfo;
