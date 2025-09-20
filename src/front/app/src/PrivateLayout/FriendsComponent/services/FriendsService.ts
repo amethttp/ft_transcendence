@@ -1,11 +1,21 @@
 import { ApiClient } from "../../../ApiClient/ApiClient";
+import type UserProfile from "../../UserComponent/models/UserProfile";
 
 export class FriendsService {
-  private static readonly BASE = "/friends";
-  private static readonly LIST_ENDPOINT = "";
+  private static readonly BASE = "/relation";
+  private static readonly FRIENDS_ENDPOINT = this.BASE + "/friends";
+  private static readonly REQUESTS_ENDPOINT = this.BASE + "/requests";
   private _api: ApiClient;
 
   constructor() {
     this._api = new ApiClient();
+  }
+
+  getAll(): Promise<UserProfile[]> {
+    return this._api.get(FriendsService.FRIENDS_ENDPOINT);
+  }
+
+  getRequests(): Promise<UserProfile[]> {
+    return this._api.get(FriendsService.REQUESTS_ENDPOINT);
   }
 }

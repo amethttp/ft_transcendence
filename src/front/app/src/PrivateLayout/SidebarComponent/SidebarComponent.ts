@@ -1,11 +1,16 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import { AuthService } from "../../auth/services/AuthService";
 import AmethComponent from "../../framework/AmethComponent";
+import FriendsListComponent from "../FriendsComponent/FriendsListComponent/FriendsListComponent";
 
 export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
+  friendsList!: FriendsListComponent;
 
-  afterInit() {
+  async afterInit() {
+    this.friendsList = new FriendsListComponent();
+    await this.friendsList.init("SidebarFriendsList", this.router);
+    this.friendsList.afterInit();
     this.setSidebarEvents();
     this.refresh();
   }
@@ -24,6 +29,7 @@ export default class SidebarComponent extends AmethComponent {
         }
       }
     }
+    this.friendsList.refresh();
   }
 
   private setSidebarEvents() {
