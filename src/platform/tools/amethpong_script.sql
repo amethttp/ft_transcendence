@@ -25,6 +25,12 @@ CREATE TABLE
   );
 
 CREATE TABLE
+  IF NOT EXISTS e_user_status_type (
+    value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL
+  );
+
+CREATE TABLE
   IF NOT EXISTS google_auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     google_user_id TEXT NOT NULL,
@@ -82,6 +88,16 @@ CREATE TABLE
     token TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (user_id) REFERENCES user (id)
+  );
+
+CREATE TABLE
+  IF NOT EXISTS user_status (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    type INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    FOREIGN KEY (type) REFERENCES e_status_type (value),
+    FOREIGN KEY (user_id) REFERENCES user (id),
   );
 
 CREATE TABLE
@@ -158,6 +174,9 @@ CREATE TABLE
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
+
+INSERT INTO e_user_status_type (name) VALUES ('OFFLINE');
+INSERT INTO e_user_status_type (name) VALUES ('ONLINE');
 
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_REQUESTED');
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_ACCEPTED');
