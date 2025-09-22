@@ -94,10 +94,10 @@ CREATE TABLE
   IF NOT EXISTS user_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     type INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    FOREIGN KEY (type) REFERENCES e_status_type (value),
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (type) REFERENCES e_user_status_type (value),
+    FOREIGN KEY (user_id) REFERENCES user (id)
   );
 
 CREATE TABLE

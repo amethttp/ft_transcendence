@@ -29,7 +29,6 @@ const main = async () => {
     credentials: true
   })
 
-  await server.register(fastifyRateLimit); // TODO: Is it necessary?
   await server.register(fastifyRateLimit, {
     max: 1000,
     timeWindow: '1 minute',

@@ -14,7 +14,7 @@ export default class UserStatusController {
     try {
       const jwtUser = request.user as JwtPayloadInfo;
       const status = await this._userStatusService.getUserConnectionStatus(jwtUser.sub);
-      return reply.status(200).send({"status": status});
+      return reply.status(200).send(status);
 
     } catch (err) {
       if (err instanceof ResponseError) {
