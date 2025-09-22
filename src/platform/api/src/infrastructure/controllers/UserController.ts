@@ -12,8 +12,6 @@ import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { Transporter } from "nodemailer";
-import { Password } from "../../domain/entities/Password";
-import { GoogleAuth } from "../../domain/entities/GoogleAuth";
 
 export default class UserController {
   private _userService: UserService;
