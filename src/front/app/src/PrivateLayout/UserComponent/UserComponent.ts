@@ -5,16 +5,20 @@ import UserProfileService from "./services/UserProfileService";
 import type UserProfile from "./models/UserProfile";
 import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 import { AuthService } from "../../auth/services/AuthService";
+import { Relation } from "./models/RelationInfo";
+import RelationService from "./services/RelationService";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
   protected userProfileService: UserProfileService;
+  protected RelationService: RelationService;
   protected userProfile?: UserProfile;
   protected userName?: string;
 
   constructor() {
     super();
     this.userProfileService = new UserProfileService();
+    this.RelationService = new RelationService();
   }
 
   async afterInit() {
@@ -48,6 +52,9 @@ export default class UserComponent extends AmethComponent {
     for (const action of [...(document.getElementById("userActions")?.getElementsByClassName("btn")!)]) {
       action.classList.add("hidden");
     }
+    document.getElementById("UserComponentPendingRequest")?.classList.add("hidden");
+    document.getElementById("UserComponentOnline")!.classList.add("hidden");
+    document.getElementById("UserComponentOffline")!.classList.add("hidden");
   }
 
   private fillView() {
@@ -64,31 +71,119 @@ export default class UserComponent extends AmethComponent {
     }
     else {
       this.setOnlineStatus();
-      this.setFriendStatus();
+      this.setRelationStatus();
     }
     this.initStatsComponent();
   }
 
   private logOut() {
     const authService = new AuthService();
-    authService.logout().then( async () => {
+    authService.logout().then(async () => {
       await LoggedUser.get(true);
       this.router?.redirectByPath("/");
     });
   }
 
-  private setFriendStatus() {
-    if (this.userProfile?.friend)
-      document.getElementById("UserComponentDeleteFriendBtn")!.classList.remove("hidden");
-    else
-      document.getElementById("UserComponentAddFriendBtn")!.classList.remove("hidden");
+  private sendFriendRequest(targetUser: string) {
+    this.blockUser(targetUser);
+    const addFriendBtn = (document.getElementById("UserComponentAddFriendBtn")! as HTMLButtonElement);
+    addFriendBtn.classList.remove("hidden");
+    addFriendBtn.onclick = async () => {
+      this.RelationService.addFriend(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    }
+  }
+
+  private removeFriend(targetUser: string) {
+    this.blockUser(targetUser);
+    const delFriendBtn = (document.getElementById("UserComponentDeleteFriendBtn")! as HTMLButtonElement);
+    delFriendBtn.classList.remove("hidden");
+    delFriendBtn.onclick = async () => {
+      this.RelationService.removeFriend(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    }
+  }
+
+  private handleFriendRequest(targetUser: string) { // TODO: Probably this will never show here
+    this.blockUser(targetUser);
+    const pendingRequestEl = document.getElementById("UserComponentPendingRequest")!;
+    if (this.userProfile?.relation.owner) {
+      document.getElementById("pendingReqText")!.innerHTML = `Waiting for acceptance...`;
+      pendingRequestEl.classList.remove("hidden");
+      return;
+    }
+    const acceptBtn = document.getElementById("UserComponentAcceptBtn")!;
+    const declineBtn = document.getElementById("UserComponentDeclineBtn")!;
+    document.getElementById("pendingReqText")!.innerHTML = `${targetUser} wants to be your friend!`;
+
+    pendingRequestEl.classList.remove("hidden");
+    acceptBtn.classList.remove("hidden");
+    declineBtn.classList.remove("hidden");
+
+    acceptBtn.onclick = async () => {
+      this.RelationService.acceptRequest(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    };
+    declineBtn.onclick = async () => {
+      this.RelationService.declineRequest(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    };
+  }
+
+  private blockUser(targetUser: string) {
+    const blockBtn = (document.getElementById("UserComponentBlockBtn")! as HTMLButtonElement);
+    blockBtn.classList.remove("hidden");
+    blockBtn.onclick = async () => {
+      this.RelationService.blockUser(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    }
+  }
+
+  private unblockUser(targetUser: string) {
+    document.getElementById("UserComponentOnline")!.classList.add("hidden");
+    document.getElementById("UserComponentOffline")!.classList.remove("hidden"); // TODO: probably back will check this
+    if (!this.userProfile?.relation.owner) {
+      return;
+    }
+    const delFriendBtn = (document.getElementById("UserComponentUnblockBtn")! as HTMLButtonElement);
+    delFriendBtn.classList.remove("hidden");
+    delFriendBtn.onclick = async () => {
+      this.RelationService.unblockUser(targetUser)
+        .then(() => this.router?.refresh())
+        .catch(() => console.log("Something went wrong"));
+    }
+  }
+
+  private setRelationStatus() {
+    switch (this.userProfile?.relation.type) {
+      case Relation.NO_RELATION:
+        this.sendFriendRequest(this.userProfile.username);
+        break;
+      case Relation.FRIENDSHIP_ACCEPTED:
+        this.removeFriend(this.userProfile.username);
+        break;
+      case Relation.FRIENDSHIP_REQUESTED:
+        this.handleFriendRequest(this.userProfile.username);
+        break;
+      case Relation.BLOCKED:
+        this.unblockUser(this.userProfile.username);
+        break;
+
+      default:
+        break;
+    }
   }
 
   private setOnlineStatus() {
     if (this.userProfile?.online)
-        document.getElementById("UserComponentOnline")!.classList.remove("hidden");
-      else
-        document.getElementById("UserComponentOffline")!.classList.remove("hidden");
+      document.getElementById("UserComponentOnline")!.classList.remove("hidden");
+    else
+      document.getElementById("UserComponentOffline")!.classList.remove("hidden");
   }
 
   private async initStatsComponent() {

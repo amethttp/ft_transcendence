@@ -15,7 +15,7 @@
     @apply bg-red-50 outline-1 outline-red-700 hover:bg-red-700 text-red-700 hover:text-red-50 text-shadow-white rounded-full shadow-md transition-[background-color,box-shadow] hover:shadow-transparent ;
   }
 
-  .btn-terciary {
+  .btn-tertiary {
     @apply bg-gray-50 hover:bg-gray-800 outline-1 outline-gray-800 text-gray-900 hover:text-gray-50 text-shadow-white rounded-full shadow-md transition-[background-color,box-shadow] hover:shadow-transparent ;
   }
 }
