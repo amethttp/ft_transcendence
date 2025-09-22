@@ -8,22 +8,32 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import { UserRelationService } from "../../application/services/UserRelationService";
 import path from "path";
 import { randomBytes } from "crypto";
-import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
+import { MatchPlayerService } from "../../application/services/matchPlayerService";
+import { TournamentPlayerService } from "../../application/services/tournamentPlayerService";
+import { createWriteStream, unlink } from "fs";
+import { MatchService } from "../../application/services/matchService";
+import { UserStatsResponse } from "../../application/models/UserStatsResponse";
+import { TournamentInfo } from "../../application/models/TournamentInfo";
 
 export default class UserController {
   private _userService: UserService;
   private _userVerificationService: UserVerificationService;
   private _userRelationService: UserRelationService;
   private _recoverPasswordService: RecoverPasswordService;
+  private _matchService: MatchService;
+  private _matchPlayerService: MatchPlayerService;
+  private _tournamentPlayerService: TournamentPlayerService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, matchService: MatchService, matchPlayerService: MatchPlayerService, tournamentPlayerService: TournamentPlayerService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
     this._recoverPasswordService = recoverPasswordService;
-
+    this._matchService = matchService;
+    this._matchPlayerService = matchPlayerService;
+    this._tournamentPlayerService = tournamentPlayerService;
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
@@ -53,6 +63,42 @@ export default class UserController {
       const userProfile = this._userService.toUserProfileResponse(requestedUser, relationInfo, true);
 
       reply.code(200).send(userProfile);
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    try {
+      // const jwtUser = request.user as JwtPayloadInfo;
+      // const originUser = await this._userService.getById(jwtUser.sub);
+      // const game1 = await this._matchService.newLocalMatch("game1");
+      // const game2 = await this._matchService.newLocalMatch("game2");
+      // const game3 = await this._matchService.newLocalMatch("game3");
+      // await this._matchPlayerService.newMatchPlayer(originUser, game1);
+      // await this._matchPlayerService.newMatchPlayer(originUser, game2);
+      // await this._matchPlayerService.newMatchPlayer(originUser, game3);
+      console.log(this._matchService);
+
+      const requestedUser = await this._userService.getByUsername(request.params.username);
+      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
+      const tournaments = await this._tournamentPlayerService.getAllUserTournaments(requestedUser);
+      const stats: UserStatsResponse = {
+        last10Matches: matches,
+        last10Torunaments: tournaments as any as TournamentInfo[],
+        totalMatches: matches.length,
+        matchWinRate: 53,
+        totalTournaments: tournaments.length,
+        tournamentAvg: 4,
+      }
+
+      reply.code(200).send(stats);
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());

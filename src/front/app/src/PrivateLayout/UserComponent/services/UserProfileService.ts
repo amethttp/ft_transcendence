@@ -6,6 +6,7 @@ import type User from "../../../auth/models/User";
 export default class UserProfileService {
   private static readonly BASE = "/user";
   private static readonly PROFILE_ENDPOINT = this.BASE + "/";
+  private static readonly STATS_ENDPOINT = this.BASE + "/stats/";
   private readonly http: IHttpClient;
 
   constructor() {
@@ -14,5 +15,9 @@ export default class UserProfileService {
 
   getUserProfile(username: string): Promise<User> {
     return this.http.get(UserProfileService.PROFILE_ENDPOINT + username);
+  }
+
+  getUserStats(username: string): Promise<any> {
+    return this.http.get(UserProfileService.STATS_ENDPOINT + username);
   }
 }

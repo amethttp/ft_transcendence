@@ -187,7 +187,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   private async initStatsComponent() {
-    const userStats = new UserStatsComponent();
+    const userStats = new UserStatsComponent(this.userProfile?.username || "");
     await userStats.init("UserComponentStats", this.router);
     userStats.afterInit();
   }

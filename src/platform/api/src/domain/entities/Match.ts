@@ -24,7 +24,7 @@ export class Match extends AEntity {
   type!: number;
   isVisible!: boolean;
   state!: number;
-  players!: MatchPlayer[];
+  players!: MatchPlayer[]; 
   tournamentRound?: TournamentRound;
   creationTime!: string;
   finishTime?: string;
@@ -37,7 +37,7 @@ export class Match extends AEntity {
     this.type = -1;
     this.isVisible = false;
     this.state = 0;
-    this.players = [new MatchPlayer()];
+    this.players = undefined as unknown as MatchPlayer[]; // [MatchPlayer]
     this.tournamentRound = new TournamentRound();
     this.creationTime = "";
     this.finishTime = "";

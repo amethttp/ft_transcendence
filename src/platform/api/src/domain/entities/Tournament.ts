@@ -37,7 +37,7 @@ export class Tournament extends AEntity {
     this.isVisible = false;
     this.playersAmount = 0;
     this.state = 0;
-    this.tournamentRounds = [new TournamentRound()];
+    this.tournamentRounds = undefined as unknown as TournamentRound[];// [new TournamentRound()]
     this.creationTime = "";
     this.finishTime = "";
   }

@@ -1,16 +1,23 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
+import UserProfileService from "../services/UserProfileService";
+import type { UserStats } from "./models/UserStats";
+
 
 export default class UserStatsComponent extends AmethComponent {
   template = () => import("./UserStatsComponent.html?raw");
+  protected userProfileService: UserProfileService;
+  protected targetUser: string;
 
-  constructor() {
+  constructor(targetUser: string) {
     super();
+    this.userProfileService = new UserProfileService();
+    this.targetUser = targetUser;
   }
 
   async afterInit() {
-    document.getElementById("userIdw")!.innerHTML =
-      (await LoggedUser.get())?.id.toString() || "None";
+    const stats = await this.userProfileService.getUserStats(this.targetUser) as UserStats;
+    console.log(stats);
+    document.getElementById("userIdw")!.innerHTML = stats.matchWinRate.toString() + "%";
   }
 
   refresh() {

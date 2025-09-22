@@ -15,6 +15,12 @@ import { UserVerificationService } from "../../application/services/UserVerifica
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import fastifyMultipart from "@fastify/multipart";
+import { TournamentPlayerService } from "../../application/services/tournamentPlayerService";
+import { MatchPlayerService } from "../../application/services/matchPlayerService";
+import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchPlayerRepository";
+import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
+import { MatchService } from "../../application/services/matchService";
+import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
 
 export default async function userRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
@@ -24,6 +30,9 @@ export default async function userRoutes(server: FastifyInstance) {
   const userVerificationRepository = new SQLiteUserVerificationRepository();
   const userRelationRepository = new SQLiteUserRelationRepository();
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
+  const matchRepository = new SQLiteMatchRepository();
+  const matchPlayerRepository = new SQLiteMatchPlayerRepository();
+  const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
   const userVerificationService = new UserVerificationService(userVerificationRepository);
   const userRelationService = new UserRelationService(userRelationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
@@ -31,7 +40,10 @@ export default async function userRoutes(server: FastifyInstance) {
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
-  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService);
+  const matchService = new MatchService(matchRepository);
+  const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
+  const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
+  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, matchService, matchPlayerService, tournamentPlayerService);
 
   server.get('', async (request: FastifyRequest, reply) => {
     await userController.getLoggedUser(request, reply);
@@ -39,6 +51,10 @@ export default async function userRoutes(server: FastifyInstance) {
 
   server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userController.getUserProfile(request, reply);
+  });
+
+  server.get('/stats/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.getUserStats(request, reply);
   });
 
   server.get('/check/username/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {

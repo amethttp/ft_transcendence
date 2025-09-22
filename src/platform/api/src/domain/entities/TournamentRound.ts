@@ -26,7 +26,7 @@ export class TournamentRound extends AEntity {
     this.id = -1;
     this.top = "";
     this.token = "";
-    this.matches = [new Match()];
+    this.matches = undefined as unknown as Match[]; // [new Match()]
     this.tournament = new Tournament();
     this.creationTime = "";
   }
