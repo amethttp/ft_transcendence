@@ -2,6 +2,7 @@ import { TournamentPlayer } from "../../domain/entities/TournamentPlayer";
 import { User } from "../../domain/entities/User";
 import { ITournamentPlayerRepository } from "../../domain/repositories/ITournamentPlayerRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { TournamentInfo } from "../models/TournamentInfo";
 
 
 export class TournamentPlayerService {
@@ -31,5 +32,14 @@ export class TournamentPlayerService {
     if (!(await this._tournamentPlayerRepository.delete(tournamentPlayer.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+  }
+
+  public calculateAvgPlacement(tournaments: TournamentInfo[]): number {
+    let placement = 0;
+    for (const tournament of tournaments) {
+      placement += tournament.placement;
+    }
+
+    return (placement / tournaments.length);
   }
 }

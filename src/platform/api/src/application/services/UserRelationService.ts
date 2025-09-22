@@ -9,8 +9,8 @@ import { UserService } from "./UserService";
 export class UserRelationService {
   private _userRelationRepository: IUserRelationRepository;
 
-  constructor(UserRelationRepository: IUserRelationRepository) {
-    this._userRelationRepository = UserRelationRepository;
+  constructor(userRelationRepository: IUserRelationRepository) {
+    this._userRelationRepository = userRelationRepository;
   }
 
   async getFriendshipStatus(originUser: User, requestedUser: User): Promise<boolean> {

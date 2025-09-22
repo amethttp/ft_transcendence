@@ -6,7 +6,7 @@ import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepositor
 import { AuthService } from "../../application/services/AuthService";
 import { SQLitePasswordRepository } from "../repositories/sqlite/SQLitePasswordRepository";
 import { PasswordService } from "../../application/services/PasswordService";
-import { GoogleAuthService } from "../../application/services/googleAuthService";
+import { GoogleAuthService } from "../../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleAuthRepository";
 import { SQLiteUserVerificationRepository } from "../repositories/sqlite/SQLiteUserVerificationRepository";
 import { SQLiteUserRelationRepository } from "../repositories/sqlite/SQLiteUserRelationRepository";
@@ -15,11 +15,11 @@ import { UserVerificationService } from "../../application/services/UserVerifica
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import fastifyMultipart from "@fastify/multipart";
-import { TournamentPlayerService } from "../../application/services/tournamentPlayerService";
-import { MatchPlayerService } from "../../application/services/matchPlayerService";
+import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
+import { MatchPlayerService } from "../../application/services/MatchPlayerService";
 import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchPlayerRepository";
 import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
-import { MatchService } from "../../application/services/matchService";
+import { MatchService } from "../../application/services/MatchService";
 import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
 
 export default async function userRoutes(server: FastifyInstance) {

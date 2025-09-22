@@ -5,7 +5,7 @@ import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepositor
 import { AuthService } from "../../application/services/AuthService";
 import { SQLitePasswordRepository } from "../repositories/sqlite/SQLitePasswordRepository";
 import { PasswordService } from "../../application/services/PasswordService";
-import { GoogleAuthService } from "../../application/services/googleAuthService";
+import { GoogleAuthService } from "../../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleAuthRepository";
 import { SQLiteUserRelationRepository } from "../repositories/sqlite/SQLiteUserRelationRepository";
 import { UserRelationService } from "../../application/services/UserRelationService";

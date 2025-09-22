@@ -11,7 +11,7 @@ import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
-import { GoogleAuthService } from "./googleAuthService";
+import { GoogleAuthService } from "./GoogleAuthService";
 
 export class UserService {
   private _userRepository: IUserRepository;

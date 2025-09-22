@@ -19,7 +19,7 @@ export class MatchPlayerService {
   async newMatchPlayer(user: User, match: Match): Promise<MatchPlayer> {
     const matchPlayerBlueprint: Partial<MatchPlayer> = {
       score: randomInt(5), // TODO: Change placeholder
-      isWinner: false,
+      isWinner: randomInt(2)? true : false,
       user: user,
       match: match,
     };
@@ -90,9 +90,7 @@ export class MatchPlayerService {
       opponent: undefined as any as UserProfileResponse,
       isWinner: mPlayer.isWinner,
       finishTime: mPlayer.match.finishTime || "Aborted"
-    }
-    console.log(mPlayer.match.players);
-    console.log(mPlayer.match.id);    
+    }   
 
     if (mPlayer.match.players && mPlayer.match.players.length > 1) {
       opponent = (mPlayer.match.players[0].user.id === mPlayer.user.id)
@@ -107,5 +105,15 @@ export class MatchPlayerService {
       matchInfo.opponent = UserService.toUserProfileResponse(mPlayer.user, relation, false);
     }
       return matchInfo;
+  }
+
+  public calculateMatchWinRate(matches: MatchInfo[]): number {
+    let wins = 0;
+    for (const match of matches) {
+      if (match.isWinner)
+        wins++;
+    }
+
+    return (wins / matches.length);
   }
 }

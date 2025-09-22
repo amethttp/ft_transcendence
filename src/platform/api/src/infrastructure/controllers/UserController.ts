@@ -9,10 +9,10 @@ import { UserRelationService } from "../../application/services/UserRelationServ
 import path from "path";
 import { randomBytes } from "crypto";
 import { BusboyFileStream } from "@fastify/busboy";
-import { MatchPlayerService } from "../../application/services/matchPlayerService";
-import { TournamentPlayerService } from "../../application/services/tournamentPlayerService";
+import { MatchPlayerService } from "../../application/services/MatchPlayerService";
+import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
 import { createWriteStream, unlink } from "fs";
-import { MatchService } from "../../application/services/matchService";
+import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
 import { TournamentInfo } from "../../application/models/TournamentInfo";
 
@@ -76,29 +76,31 @@ export default class UserController {
 
   async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      const jwtUser = request.user as JwtPayloadInfo;
-      const originUser = await this._userService.getById(jwtUser.sub);
+      // const jwtUser = request.user as JwtPayloadInfo;
+      // const originUser = await this._userService.getById(jwtUser.sub);
+      // const game1 = await this._matchService.newLocalMatch("game1");
+      // const game2 = await this._matchService.newLocalMatch("game2");
+      // const game3 = await this._matchService.newLocalMatch("game3");
+      // await this._matchPlayerService.newMatchPlayer(originUser, game1);
+      // await this._matchPlayerService.newMatchPlayer(requestedUser, game1);
+      // await this._matchPlayerService.newMatchPlayer(originUser, game2);
+      // await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
+      // await this._matchPlayerService.newMatchPlayer(originUser, game3);
+      // await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
+      console.log(this._matchService);
+      
       const requestedUser = await this._userService.getByUsername(request.params.username);
-      const game1 = await this._matchService.newLocalMatch("game1");
-      const game2 = await this._matchService.newLocalMatch("game2");
-      const game3 = await this._matchService.newLocalMatch("game3");
-      await this._matchPlayerService.newMatchPlayer(originUser, game1);
-      await this._matchPlayerService.newMatchPlayer(requestedUser, game1);
-      await this._matchPlayerService.newMatchPlayer(originUser, game2);
-      await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
-      await this._matchPlayerService.newMatchPlayer(originUser, game3);
-      await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
-      // console.log(this._matchService);
-
       const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
       const tournaments = await this._tournamentPlayerService.getAllUserTournaments(requestedUser);
+      const winRate = this._matchPlayerService.calculateMatchWinRate(matches);
+      const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments as any as TournamentInfo[]);
       const stats: UserStatsResponse = {
-        last10Matches: matches,
-        last10Torunaments: tournaments as any as TournamentInfo[],
+        last10Matches: matches.slice(-10),
+        last10Torunaments: tournaments.slice(-10) as any as TournamentInfo[],
         totalMatches: matches.length,
-        matchWinRate: 53,
+        matchWinRate: winRate,
         totalTournaments: tournaments.length,
-        tournamentAvg: 4,
+        tournamentAvg: tournamentAvg,
       }
 
       reply.code(200).send(stats);

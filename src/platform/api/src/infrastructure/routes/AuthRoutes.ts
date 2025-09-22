@@ -11,7 +11,7 @@ import { UserVerificationService } from "../../application/services/UserVerifica
 import { SQLiteRecoverPasswordRepository } from "../repositories/sqlite/SQLiteRecoverPasswordRepository";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import fastifyRateLimit from "@fastify/rate-limit";
-import { GoogleAuthService } from "../../application/services/googleAuthService";
+import { GoogleAuthService } from "../../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleAuthRepository";
 
 export default async function authRoutes(server: FastifyInstance) {

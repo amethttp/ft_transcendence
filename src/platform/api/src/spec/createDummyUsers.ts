@@ -11,7 +11,7 @@ import { UserVerificationService } from "../application/services/UserVerificatio
 import { SQLiteUserVerificationRepository } from "../infrastructure/repositories/sqlite/SQLiteUserVerificationRepository";
 import { RecoverPasswordService } from "../application/services/RecoverPasswordService";
 import { SQLiteRecoverPasswordRepository } from "../infrastructure/repositories/sqlite/SQLiteRecoverPasswordRepository";
-import { GoogleAuthService } from "../application/services/googleAuthService";
+import { GoogleAuthService } from "../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../infrastructure/repositories/sqlite/SQLiteGoogleAuthRepository";
 
 export const createDummyUsers = async () => {
