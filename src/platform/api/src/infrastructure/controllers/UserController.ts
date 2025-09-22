@@ -12,6 +12,8 @@ import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { Transporter } from "nodemailer";
+import { Password } from "../../domain/entities/Password";
+import { GoogleAuth } from "../../domain/entities/GoogleAuth";
 
 export default class UserController {
   private _userService: UserService;
@@ -187,11 +189,13 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const user = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
-      const data = { ...user }; // TODO: Add games, tournaments, etc...
+      const userData = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
+      userData.auth.password = undefined;
+      userData.auth.googleAuth = undefined;
+      const data = { ...userData }; // TODO: Add games, tournaments, etc...
 
       reply.header("Content-Type", "application/json")
-        .header("Content-Disposition", `attachment; filename=${user.username}-amethpong.json`)
+        .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)
         .send(JSON.stringify(data, null, 2));
     } catch (err) {
         reply.code(404).send();
