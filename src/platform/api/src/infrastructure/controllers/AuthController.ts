@@ -14,6 +14,7 @@ import { UserService } from "../../application/services/UserService";
 import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
 import { Relation } from "../../application/models/RelationInfo";
+import { UserStatusService } from "../../application/services/UserStatusService";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -21,6 +22,7 @@ export default class AuthController {
   private _recoverPasswordService: RecoverPasswordService;
   private _userService: UserService;
   private _userVerificationService: UserVerificationService;
+  private _userStatusService: UserStatusService;
 
   constructor(
     authService: AuthService,
@@ -28,12 +30,14 @@ export default class AuthController {
     recoverPasswordService: RecoverPasswordService,
     userService: UserService,
     userVerificationService: UserVerificationService,
+    userStatusService: UserStatusService
   ) {
     this._authService = authService;
     this._passwordService = passwordService;
     this._recoverPasswordService = recoverPasswordService;
     this._userService = userService;
     this._userVerificationService = userVerificationService;
+    this._userStatusService = userStatusService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -195,6 +199,7 @@ export default class AuthController {
       this._authService.validateRegistrationCredentials(registrationCredentials);
       const registeredUser = await this._userService.registerUser(registrationCredentials);
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
+      await this._userStatusService.createUserConnectionStatus(registeredUser);
 
       reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({ success: true });
