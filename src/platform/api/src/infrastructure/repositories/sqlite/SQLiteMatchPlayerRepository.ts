@@ -18,6 +18,11 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
     return this.baseFindAll(query, [id]);
   }
 
+  findAllByMatch(id: number): Promise<MatchPlayer[] | null> {
+    const query = `WHERE match_id =?`;
+    return this.baseFindAll(query, [id]);
+  }
+
   deleteAllByUser(id: number): Promise<boolean | null> {
     const query = `WHERE user_id=?`;
     return this.baseDelete(query, [id]);

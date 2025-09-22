@@ -6,12 +6,17 @@ import { IMatchPlayerRepository } from "../../domain/repositories/IMatchPlayerRe
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { MatchInfo } from "../models/MatchInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
+import { UserService } from "./UserService";
+import { Relation, RelationInfo } from "../models/RelationInfo";
+import { MatchService } from "./matchService";
 
 export class MatchPlayerService {
   private _matchPlayerRepository: IMatchPlayerRepository;
+  private _matchService: MatchService;
 
-  constructor(matchPlayerRepository: IMatchPlayerRepository) {
+  constructor(matchPlayerRepository: IMatchPlayerRepository, matchService: MatchService) {
     this._matchPlayerRepository = matchPlayerRepository;
+    this._matchService = matchService;
   }
 
   async newMatchPlayer(user: User, match: Match): Promise<MatchPlayer> {
@@ -48,8 +53,19 @@ export class MatchPlayerService {
     if (matches === null)
       return [] as MatchInfo[];
 
+    const matchesWithPlayers = matches.map(match => { 
+      match.match.players = await this.
+    });
     const matchesInfo = matches.map(match => this.toMatchInfo(match));
     return matchesInfo;
+  }
+
+  async getAllSingleMatchPlayers(originUser: User): Promise<MatchPlayer[]> {
+    const matches = await this._matchPlayerRepository.findAllByUser(originUser.id);
+    if (matches === null)
+      return [] as MatchPlayer[];
+
+    
   }
 
   async delete(matchPlayer: MatchPlayer) {
@@ -59,16 +75,31 @@ export class MatchPlayerService {
   }
 
   public toMatchInfo(mPlayer: MatchPlayer): MatchInfo {
+    let opponent: MatchPlayer;
     const matchInfo: MatchInfo = {
       name: mPlayer.match.name,
       state: mPlayer.match.state,
       score: mPlayer.score,
-      opponentScore: randomInt(5), // TODO: WIP
-      opponent: mPlayer.user as any as UserProfileResponse, // TODO: WIP
+      opponentScore: 0,
+      opponent: undefined as any as UserProfileResponse,
       isWinner: mPlayer.isWinner,
       finishTime: mPlayer.match.finishTime || "Aborted"
     }
+    console.log(mPlayer.match.players);
+    console.log(mPlayer.match.id);    
 
-    return matchInfo;
+    if (mPlayer.match.players && mPlayer.match.players.length > 1) {
+      opponent = (mPlayer.match.players[0].user.id === mPlayer.user.id)
+      ? mPlayer.match.players[1]
+      : mPlayer.match.players[0];
+      const relation: RelationInfo = {
+        type: Relation.NO_RELATION,
+        owner: false,
+      };
+
+      matchInfo.opponentScore = opponent.score;
+      matchInfo.opponent = UserService.toUserProfileResponse(mPlayer.user, relation, false);
+    }
+      return matchInfo;
   }
 }

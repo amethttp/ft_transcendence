@@ -76,17 +76,20 @@ export default class UserController {
 
   async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
-      // const jwtUser = request.user as JwtPayloadInfo;
-      // const originUser = await this._userService.getById(jwtUser.sub);
-      // const game1 = await this._matchService.newLocalMatch("game1");
-      // const game2 = await this._matchService.newLocalMatch("game2");
-      // const game3 = await this._matchService.newLocalMatch("game3");
-      // await this._matchPlayerService.newMatchPlayer(originUser, game1);
-      // await this._matchPlayerService.newMatchPlayer(originUser, game2);
-      // await this._matchPlayerService.newMatchPlayer(originUser, game3);
-      console.log(this._matchService);
-
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
+      const game1 = await this._matchService.newLocalMatch("game1");
+      const game2 = await this._matchService.newLocalMatch("game2");
+      const game3 = await this._matchService.newLocalMatch("game3");
+      await this._matchPlayerService.newMatchPlayer(originUser, game1);
+      await this._matchPlayerService.newMatchPlayer(requestedUser, game1);
+      await this._matchPlayerService.newMatchPlayer(originUser, game2);
+      await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
+      await this._matchPlayerService.newMatchPlayer(originUser, game3);
+      await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
+      // console.log(this._matchService);
+
       const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
       const tournaments = await this._tournamentPlayerService.getAllUserTournaments(requestedUser);
       const stats: UserStatsResponse = {
