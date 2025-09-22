@@ -8,20 +8,17 @@ import { MatchInfo } from "../models/MatchInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserService } from "./UserService";
 import { Relation, RelationInfo } from "../models/RelationInfo";
-import { MatchService } from "./matchService";
 
 export class MatchPlayerService {
   private _matchPlayerRepository: IMatchPlayerRepository;
-  private _matchService: MatchService;
 
-  constructor(matchPlayerRepository: IMatchPlayerRepository, matchService: MatchService) {
+  constructor(matchPlayerRepository: IMatchPlayerRepository) {
     this._matchPlayerRepository = matchPlayerRepository;
-    this._matchService = matchService;
   }
 
   async newMatchPlayer(user: User, match: Match): Promise<MatchPlayer> {
     const matchPlayerBlueprint: Partial<MatchPlayer> = {
-      score: randomInt(5),
+      score: randomInt(5), // TODO: Change placeholder
       isWinner: false,
       user: user,
       match: match,
@@ -44,7 +41,13 @@ export class MatchPlayerService {
     if (matches === null)
       return [] as MatchInfo[];
 
-    const matchesInfo = matches.map(match => this.toMatchInfo(match));
+    const matchesWithPlayers = await Promise.all (
+        matches.map(async matchPlayer => { 
+        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match);
+        return matchPlayer;
+      })
+    );
+    const matchesInfo = matchesWithPlayers.map(match => this.toMatchInfo(match));
     return matchesInfo;
   }
 
@@ -53,19 +56,22 @@ export class MatchPlayerService {
     if (matches === null)
       return [] as MatchInfo[];
 
-    const matchesWithPlayers = matches.map(match => { 
-      match.match.players = await this.
-    });
-    const matchesInfo = matches.map(match => this.toMatchInfo(match));
+    const matchesWithPlayers = await Promise.all (
+        matches.map(async matchPlayer => { 
+        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match);
+        return matchPlayer;
+      })
+    );
+    const matchesInfo = matchesWithPlayers.map(match => this.toMatchInfo(match));
     return matchesInfo;
   }
 
-  async getAllSingleMatchPlayers(originUser: User): Promise<MatchPlayer[]> {
-    const matches = await this._matchPlayerRepository.findAllByUser(originUser.id);
-    if (matches === null)
+  async getAllSingleMatchPlayers(match: Match): Promise<MatchPlayer[]> {
+    const matches = await this._matchPlayerRepository.findAllByMatch(match.id);
+    if (matches === null) 
       return [] as MatchPlayer[];
 
-    
+    return matches;
   }
 
   async delete(matchPlayer: MatchPlayer) {
