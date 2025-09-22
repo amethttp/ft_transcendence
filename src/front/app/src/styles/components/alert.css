@@ -1,0 +1,73 @@
+@layer components {
+  .alert {
+    @apply overflow-hidden rounded w-full shadow-xs shrink-0;
+  }
+
+  .alert-wrapper {
+    @apply flex justify-start items-center gap-3 p-3 border-l-3 border-r-3;
+  }
+
+  .alert .success {
+    @apply bg-green-50 text-green-600 border-l-green-600 border-r-green-50;
+  }
+
+  .alert .info {
+    @apply bg-cyan-50 text-cyan-600 border-l-cyan-600 border-r-cyan-50;
+  }
+
+  .alert .warning {
+    @apply bg-yellow-50 text-yellow-600 border-l-yellow-600 border-r-yellow-50;
+  }
+
+  .alert .error {
+    @apply bg-red-50 text-red-600 border-l-red-600 border-r-red-50;
+  }
+
+  .alert-title-container {
+    @apply font-bold max-h-6 overflow-hidden;
+  }
+
+  .alert-message-container {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .alert-message {
+    @apply overflow-y-auto max-h-16 pr-0.5 scrollbar-thin;
+  }
+
+  .alert .success .alert-message {
+    @apply scrollbar-track-green-50 scrollbar-thumb-green-600;
+  }
+
+  .alert .info .alert-message {
+    @apply scrollbar-track-cyan-50 scrollbar-thumb-cyan-600;
+  }
+
+  .alert .warning .alert-message {
+    @apply scrollbar-track-amber-50 scrollbar-thumb-amber-600;
+  }
+
+  .alert .error .alert-message {
+    @apply scrollbar-track-red-50 scrollbar-thumb-red-600;
+  }
+
+  .alert .closeAlertButton {
+    @apply ml-auto cursor-pointer;
+  }
+
+  .alert .success .closeAlertButton {
+    @apply hover:text-green-950;
+  }
+
+  .alert .info .closeAlertButton {
+    @apply hover:text-cyan-950;
+  }
+
+  .alert .warning .closeAlertButton {
+    @apply hover:text-amber-950;
+  }
+
+  .alert .error .closeAlertButton {
+    @apply hover:text-red-950;
+  }
+}
