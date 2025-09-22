@@ -6,6 +6,7 @@ import type UserProfile from "./models/UserProfile";
 import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 import RelationService from "./services/RelationService";
 import UserProfileComponent from "./UserProfileComponent/UserProfileComponent";
+import UserProfileActionsComponent from "./UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -44,7 +45,7 @@ export default class UserComponent extends AmethComponent {
 
   async afterInit() {
     await this.setUserProfile();
-    this.userProfileComponent = new UserProfileComponent(this.userProfile);
+    this.userProfileComponent = new UserProfileActionsComponent(this.userProfile);
     await this.userProfileComponent.init('UserComponentProfile', this.router);
     this.userProfileComponent.afterInit();
     this.userStats = new UserStatsComponent();

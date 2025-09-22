@@ -16,7 +16,7 @@
   }
 
   .sidebar .s-contents>*.link {
-    @apply overflow-hidden flex sm:p-4 hover:bg-brand-100 transition-colors;
+    @apply overflow-hidden flex sm:p-4 hover:bg-brand-100 transition-colors sm:shrink-0;
   }
 
   .sidebar .s-contents>.highlighted {

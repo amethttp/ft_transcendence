@@ -5,6 +5,7 @@ export class FriendsService {
   private static readonly BASE = "/relation";
   private static readonly FRIENDS_ENDPOINT = this.BASE + "/friends";
   private static readonly REQUESTS_ENDPOINT = this.BASE + "/requests";
+  private static readonly BLOCKED_ENDPOINT = this.BASE + "/blocked";
   private _api: ApiClient;
 
   constructor() {
@@ -17,5 +18,9 @@ export class FriendsService {
 
   getRequests(): Promise<Friends> {
     return this._api.get(FriendsService.REQUESTS_ENDPOINT);
+  }
+
+  getBlocked(): Promise<Friends> {
+    return this._api.get(FriendsService.BLOCKED_ENDPOINT);
   }
 }

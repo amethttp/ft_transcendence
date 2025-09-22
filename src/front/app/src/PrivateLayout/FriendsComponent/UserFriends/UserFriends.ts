@@ -20,17 +20,17 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   }
 
   startPoolings() {
-    this.profilePooling = setInterval(() => {
-      this.get(true);
-    }, 2000);
+    // this.profilePooling = setInterval(() => {
+    //   this.get(true);
+    // }, 2000);
   }
 
   async get(force = false): Promise<Friends> {
     if (force || this._friends === undefined) {
       try {
         this._friends = await (new FriendsService().getAll());
-        console.log("Friends", this._friends);
-        super.emit("profile", this._friends);
+        console.count("Friends");
+        super.emit("profile", structuredClone(this._friends));
         return this._friends;
       } catch (error) {
         console.warn(error);

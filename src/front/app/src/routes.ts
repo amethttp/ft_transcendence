@@ -83,18 +83,24 @@ export const routes: Route[] = [
         title: "Join a tournament"
       },
       {
-        path: "/friends",
+        path: "/social",
         component: () => import("./PrivateLayout/FriendsComponent/FriendsComponent"),
-        title: "My friends",
+        title: "Social",
         children: [
           {
             path: "",
-            component: () => import("./PrivateLayout/FriendsComponent/FriendsListComponent/FriendsListComponent")
+            component: () => import("./PrivateLayout/FriendsComponent/FriendsListComponent/FriendsListComponent"),
+            title: "Friends"
           },
           {
             path: "/requests",
             component: () => import("./PrivateLayout/FriendsComponent/FriendsRequestsComponent/FriendsRequestsComponent"),
             title: "Requests"
+          },
+          {
+            path: "/blocked",
+            component: () => import("./PrivateLayout/FriendsComponent/FriendsBlockedComponent/FriendsBlockedComponent"),
+            title: "Blocked"
           }
         ]
       },

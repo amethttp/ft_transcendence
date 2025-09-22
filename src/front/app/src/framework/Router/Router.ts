@@ -126,7 +126,7 @@ export class Router extends EventEmitter<RouterEvents> {
         }
       }
       else {
-        this._currentComponents[i].refresh();
+        // this._currentComponents[i].refresh();
       }
     }
     for (const [i, component] of this._currentComponents.entries()) {

@@ -1,21 +1,22 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import { AuthService } from "../../auth/services/AuthService";
 import AmethComponent from "../../framework/AmethComponent";
-import FriendsListComponent from "../FriendsComponent/FriendsListComponent/FriendsListComponent";
+import FriendsListSidebarComponent from "../FriendsComponent/FriendsListComponent/variants/FriendsListSidebarComponent/FriendsListSidebarComponent";
 
 export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
-  friendsList!: FriendsListComponent;
+  friendsList!: FriendsListSidebarComponent;
 
   async afterInit() {
-    this.friendsList = new FriendsListComponent();
+    this.friendsList = new FriendsListSidebarComponent();
     await this.friendsList.init("SidebarFriendsList", this.router);
     this.friendsList.afterInit();
     this.setSidebarEvents();
-    this.refresh();
+    await this.setUserProfileView();
+    this._checkRoutes();
   }
 
-  async refresh() {
+  private _checkRoutes() {
     const route = this.router?.currentPath.fullPath;
     if (route) {
       const url = new URL(route, location.origin);
@@ -28,7 +29,12 @@ export default class SidebarComponent extends AmethComponent {
         }
       }
     }
+  }
+
+  async refresh() {
     await this.setUserProfileView();
+    this._checkRoutes();
+    await this.friendsList.refresh();
   }
 
   private setSidebarEvents() {

@@ -19,6 +19,6 @@ export default class PrivateLayout extends AmethComponent {
   }
 
   refresh(): void {
-      this._sidebar.refresh();
+    this._sidebar.refresh();
   }
 }

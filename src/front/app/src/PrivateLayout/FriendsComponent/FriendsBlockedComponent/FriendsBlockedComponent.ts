@@ -4,8 +4,8 @@ import type UserProfile from "../../UserComponent/models/UserProfile";
 import UserProfileActionsComponent from "../../UserComponent/UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 import { FriendsService } from "../services/FriendsService";
 
-export default class FriendsRequestsComponent extends AmethComponent {
-  template = () => import("./FriendsRequestsComponent.html?raw");
+export default class FriendsBlockedComponent extends AmethComponent {
+  template = () => import("./FriendsBlockedComponent.html?raw");
   private friendsService: FriendsService;
   private _container!: HTMLDivElement;
 
@@ -20,7 +20,7 @@ export default class FriendsRequestsComponent extends AmethComponent {
   }
 
   clearView() {
-    this._container.innerHTML = "Still no requests :(";
+    this._container.innerHTML = "Still no blocked :)";
   }
 
   async fillView(friends: UserProfile[]) {
@@ -41,7 +41,7 @@ export default class FriendsRequestsComponent extends AmethComponent {
 
   async refresh() {
     this.clearView();
-    this.friendsService.getRequests().then(val => {
+    this.friendsService.getBlocked().then(val => {
       this.fillView(val);
     }).catch(val => alert("Some error occurred: " + JSON.stringify(val)));
   }
