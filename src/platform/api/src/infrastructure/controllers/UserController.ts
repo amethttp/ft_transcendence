@@ -120,6 +120,8 @@ export default class UserController {
       await this._userVerificationService.eraseAllUserVerifications(user);
       await this._recoverPasswordService.eraseAllUserRecoverPasswords(user); // TODO: Move inside user service inisde begin commit block
       await this._userRelationService.eraseAllUserRelations(user);
+      if (!user.avatarUrl.endsWith("default-avatar.webp"))
+        this._removeFile(user.avatarUrl);
       reply.header('set-cookie', [
         `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
         `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
@@ -170,7 +172,8 @@ export default class UserController {
       await this._storeFile(data.file, filePath);
 
       const oldAvatarUrl = (await this._userService.getById(requestedUser.sub)).avatarUrl;
-      this._removeFile(oldAvatarUrl);
+      if (!oldAvatarUrl.endsWith("default-avatar.webp"))
+        this._removeFile(oldAvatarUrl);
 
       await this._userService.updateAvatar(requestedUser.sub, filePath);
 
