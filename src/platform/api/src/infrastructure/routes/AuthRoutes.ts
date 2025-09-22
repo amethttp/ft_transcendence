@@ -67,7 +67,7 @@ export default async function authRoutes(server: FastifyInstance) {
     await authController.register(request, reply);
   });
 
-  server.delete("/login", async (_request, reply) => {
-    await authController.logout(reply);
+  server.post("/logout", async (request, reply) => {
+    await authController.logout(request, reply);
   });
 }

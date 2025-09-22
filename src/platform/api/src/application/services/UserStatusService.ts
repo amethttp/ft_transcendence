@@ -47,4 +47,15 @@ export class UserStatusService {
 
     return createdUserStatus;
   }
+
+  async setUserOffline(user: User) {
+    const userStatusBlueprint: Partial<UserStatus> = {
+      type: Status.OFFLINE,
+      user: user,
+    };
+
+    if (!await this._userStatusRepository.update(user.id, userStatusBlueprint)) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
 }

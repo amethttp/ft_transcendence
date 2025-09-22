@@ -184,7 +184,11 @@ export default class AuthController {
     }
   }
 
-  async logout(reply: FastifyReply) {
+  async logout(request: FastifyRequest, reply: FastifyReply) {
+    const jwtUser = request.user as JwtPayloadInfo;
+    const user = await this._userService.getById(jwtUser.sub);
+    await this._userStatusService.setUserOffline(user);
+
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
       `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
