@@ -14,7 +14,6 @@ export default class PrivateLayout extends AmethComponent {
 
     this._apiClient = new ApiClient();
     this._intervalId = setInterval(() => {
-      console.log('interval check!');
       this._apiClient.post('/status/refresh', '{}')
         .then(() => {})
         .catch(err => console.error(err));

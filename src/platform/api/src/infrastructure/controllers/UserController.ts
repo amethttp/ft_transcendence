@@ -10,20 +10,22 @@ import path from "path";
 import { randomBytes } from "crypto";
 import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
+import { UserStatusService } from "../../application/services/UserStatusService";
 
 export default class UserController {
   private _userService: UserService;
   private _userVerificationService: UserVerificationService;
   private _userRelationService: UserRelationService;
   private _recoverPasswordService: RecoverPasswordService;
+  private _userStatusService: UserStatusService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, userStatusService: UserStatusService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
     this._recoverPasswordService = recoverPasswordService;
-
+    this._userStatusService = userStatusService;
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
@@ -50,7 +52,8 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
       const relationInfo = await this._userRelationService.getRelationInfo(originUser, requestedUser);
-      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, true);
+      const status = await this._userStatusService.getUserConnectionStatus(requestedUser.id);
+      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, status.value);
 
       reply.code(200).send(userProfile);
     } catch (err) {

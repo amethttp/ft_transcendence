@@ -9,7 +9,7 @@ export class SQLiteUserStatusRepository extends SQLiteBaseRepository<UserStatus>
   }
 
   findByUserId(id: number): Promise<UserStatus | null> {
-    const query = `WHERE user_id=?`;
-    return this.baseFind(query, [id]);
+    const query = `WHERE user_id=? AND (strftime('%s','now') - strftime('%s', ${UserStatus.tableName}.update_time)) < ?`;
+    return this.baseFind(query, [id, 20000]);
   }
 }

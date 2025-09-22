@@ -4,14 +4,17 @@ import { ErrorParams, ResponseError } from "../../application/errors/ResponseErr
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { UserService } from "../../application/services/UserService";
 import { Status } from "../../application/models/StatusInfo";
+import { UserRelationService } from "../../application/services/UserRelationService";
 
 export default class UserStatusController {
   private _userService: UserService;
   private _userStatusService: UserStatusService;
+  private _userRelationService: UserRelationService;
 
-  constructor(userService: UserService, userStatusService: UserStatusService) {
+  constructor(userService: UserService, userStatusService: UserStatusService, userRelationService: UserRelationService) {
     this._userService = userService;
     this._userStatusService = userStatusService;
+    this._userRelationService = userRelationService;
   }
 
   async getUserStatus(request: FastifyRequest, reply: FastifyReply) {
@@ -20,6 +23,31 @@ export default class UserStatusController {
       const status = await this._userStatusService.getUserConnectionStatus(jwtUser.sub);
       return reply.status(200).send(status);
 
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        console.log(err);
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getAllUserFriendsStatus(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const user = await this._userService.getById(jwtUser.sub);
+      const friendsProfiles = await this._userRelationService.getAllUserFriendsRelationsProfiles(user);
+      const friendsStatus = friendsProfiles.map(profile => {
+          return {
+            username: profile.username,
+            online: profile.online
+          };
+      });
+
+      reply.code(200).send(friendsStatus);
     } catch (err) {
       if (err instanceof ResponseError) {
         console.log(err);

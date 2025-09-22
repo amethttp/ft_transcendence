@@ -21,7 +21,7 @@ export class UserStatusService {
   }
 
   async getUserConnectionStatus(userId: number): Promise<StatusInfo> {
-    const result: StatusInfo = { userId: -1, value: Status.OFFLINE }
+    const result: StatusInfo = { userId: userId, value: Status.OFFLINE }
     const userStatus = await this._userStatusRepository.findByUserId(userId);
 
     if (userStatus === null)
