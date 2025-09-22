@@ -6,6 +6,7 @@ const userStatusSchema: Record<string, string> = {
   type: "type",
   user: "user_id",
   creationTime: "creation_time",
+  updateTime: "update_time",
 };
 
 export class UserStatus extends AEntity {
@@ -16,6 +17,7 @@ export class UserStatus extends AEntity {
   type!: number;
   user!: User;
   creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();
@@ -23,6 +25,7 @@ export class UserStatus extends AEntity {
     this.type = 0;
     this.user = new User();
     this.creationTime = "";
+    this.updateTime = "";
   }
 
   public get tableName(): string {

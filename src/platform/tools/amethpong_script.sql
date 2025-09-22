@@ -96,6 +96,7 @@ CREATE TABLE
     type INTEGER NOT NULL,
     user_id INTEGER NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    update_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (type) REFERENCES e_user_status_type (value),
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
