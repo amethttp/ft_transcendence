@@ -1,3 +1,4 @@
+import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import { DOMHelper } from "../../../utils/DOMHelper";
 import type UserProfile from "../../UserComponent/models/UserProfile";
@@ -43,6 +44,6 @@ export default class FriendsBlockedComponent extends AmethComponent {
     this.clearView();
     this.friendsService.getBlocked().then(val => {
       this.fillView(val);
-    }).catch(val => alert("Some error occurred: " + JSON.stringify(val)));
+    }).catch(() => Alert.error("Some error occurred", "Could not retrieve blocked users"));
   }
 }
