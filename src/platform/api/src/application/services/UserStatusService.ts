@@ -48,9 +48,9 @@ export class UserStatusService {
     return createdUserStatus;
   }
 
-  async setUserOffline(user: User) {
+  async setUserStatus(user: User, newStatus: StatusType) {
     const userStatusBlueprint: Partial<UserStatus> = {
-      type: Status.OFFLINE,
+      type: newStatus,
       user: user,
     };
 

@@ -15,6 +15,7 @@ import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
 import { Relation } from "../../application/models/RelationInfo";
 import { UserStatusService } from "../../application/services/UserStatusService";
+import { Status } from "../../application/models/StatusInfo";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -187,7 +188,7 @@ export default class AuthController {
   async logout(request: FastifyRequest, reply: FastifyReply) {
     const jwtUser = request.user as JwtPayloadInfo;
     const user = await this._userService.getById(jwtUser.sub);
-    await this._userStatusService.setUserOffline(user);
+    await this._userStatusService.setUserStatus(user, Status.OFFLINE);
 
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
