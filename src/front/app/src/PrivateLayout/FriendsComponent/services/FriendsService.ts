@@ -1,5 +1,5 @@
 import { ApiClient } from "../../../ApiClient/ApiClient";
-import type UserProfile from "../../UserComponent/models/UserProfile";
+import type { Friends } from "../UserFriends/UserFriends";
 
 export class FriendsService {
   private static readonly BASE = "/relation";
@@ -11,11 +11,11 @@ export class FriendsService {
     this._api = new ApiClient();
   }
 
-  getAll(): Promise<UserProfile[]> {
+  getAll(): Promise<Friends> {
     return this._api.get(FriendsService.FRIENDS_ENDPOINT);
   }
 
-  getRequests(): Promise<UserProfile[]> {
+  getRequests(): Promise<Friends> {
     return this._api.get(FriendsService.REQUESTS_ENDPOINT);
   }
 }

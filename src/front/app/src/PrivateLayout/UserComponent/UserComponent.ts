@@ -36,9 +36,8 @@ export default class UserComponent extends AmethComponent {
         this.router?.redirectByPath("404");
       }
     }
-    if (this.userProfile) {
+    if (this.userProfile)
       this.updateTitle();
-    }
     else
       this.router?.redirectByPath("404");
   }
@@ -51,6 +50,7 @@ export default class UserComponent extends AmethComponent {
     this.userStats = new UserStatsComponent();
     await this.userStats.init("UserComponentStats", this.router);
     this.userStats.afterInit();
+    this.userProfileComponent.on("change", () => this.router?.refresh());
   }
 
   async refresh() {
@@ -66,6 +66,7 @@ export default class UserComponent extends AmethComponent {
   }
 
   async destroy() {
+    super.destroy();
     Promise.all([this.userProfileComponent?.destroy(), this.userStats?.destroy()]);
     this.userProfileComponent = undefined;
     this.userStats = undefined;

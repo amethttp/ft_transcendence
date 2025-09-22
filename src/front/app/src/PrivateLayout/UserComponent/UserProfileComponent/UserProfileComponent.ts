@@ -46,7 +46,6 @@ export default class UserProfileComponent extends AmethComponent {
     (this.outlet?.getElementsByClassName("userAvatar")[0]! as HTMLImageElement).src = this.userProfile!.avatarUrl;
     (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).innerText = this.userProfile!.username;
     (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this.userProfile!.creationTime).toDateString();
-    console.log(this.userProfile?.username, this.userName);
     if (this.userProfile?.username === this.userName) {
       const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
       editBtn.href = `/${this.userProfile!.username}/edit`;
@@ -75,7 +74,7 @@ export default class UserProfileComponent extends AmethComponent {
     addFriendBtn.classList.remove("hidden");
     addFriendBtn.onclick = async () => {
       this.RelationService.addFriend(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     }
   }
@@ -86,7 +85,7 @@ export default class UserProfileComponent extends AmethComponent {
     delFriendBtn.classList.remove("hidden");
     delFriendBtn.onclick = async () => {
       this.RelationService.removeFriend(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     }
   }
@@ -109,12 +108,12 @@ export default class UserProfileComponent extends AmethComponent {
 
     acceptBtn.onclick = async () => {
       this.RelationService.acceptRequest(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     };
     declineBtn.onclick = async () => {
       this.RelationService.declineRequest(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     };
   }
@@ -124,7 +123,7 @@ export default class UserProfileComponent extends AmethComponent {
     blockBtn.classList.remove("hidden");
     blockBtn.onclick = async () => {
       this.RelationService.blockUser(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     }
   }
@@ -139,7 +138,7 @@ export default class UserProfileComponent extends AmethComponent {
     delFriendBtn.classList.remove("hidden");
     delFriendBtn.onclick = async () => {
       this.RelationService.unblockUser(targetUser)
-        .then(() => this.router?.refresh())
+        .then(() => this.emit("change", null))
         .catch(() => console.log("Something went wrong"));
     }
   }
@@ -172,6 +171,6 @@ export default class UserProfileComponent extends AmethComponent {
   }
 
   async destroy() {
-      
+    super.destroy();
   }
 }

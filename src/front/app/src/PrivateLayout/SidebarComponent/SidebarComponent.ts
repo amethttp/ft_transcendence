@@ -14,9 +14,8 @@ export default class SidebarComponent extends AmethComponent {
     this.setSidebarEvents();
     this.refresh();
   }
-  
+
   async refresh() {
-    await this.setUserProfileView();
     const route = this.router?.currentPath.fullPath;
     if (route) {
       const url = new URL(route, location.origin);
@@ -29,7 +28,7 @@ export default class SidebarComponent extends AmethComponent {
         }
       }
     }
-    this.friendsList.refresh();
+    await this.setUserProfileView();
   }
 
   private setSidebarEvents() {
