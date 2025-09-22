@@ -3,4 +3,12 @@
 <div class="user">
   <p class="text-brand">User stats</p>
   <p>User id: <span id="userIdw">None</span></p>
+  <div id="chart-container" class="relative w-64 h-64 mx-auto">
+    <div id="matchChart" class="w-full h-full"></div>
+    <div id="donut-center-text" class="flex flex-col absolute inset-0 items-center justify-center text-center hidden opacity-0 transition-opacity duration-700">
+      <span class="text-2xl font-semibold text-gray-700"></span>
+      <span class="text-1xl font-semibold text-gray-700">Matches</span>
+    </div>
+    <div id="tournamentChart" class="w-full h-full"></div>
+  </div>
 </div>

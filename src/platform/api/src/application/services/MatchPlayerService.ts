@@ -107,13 +107,13 @@ export class MatchPlayerService {
       return matchInfo;
   }
 
-  public calculateMatchWinRate(matches: MatchInfo[]): number {
+  public countWins(matches: MatchInfo[]): number {
     let wins = 0;
     for (const match of matches) {
-      if (match.isWinner)
+      if (match.isWinner) // TODO: check only non-tournament games?
         wins++;
     }
 
-    return (wins / matches.length);
+    return wins;
   }
 }

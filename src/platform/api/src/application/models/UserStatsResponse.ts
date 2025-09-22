@@ -5,7 +5,7 @@ export interface UserStatsResponse {
   last10Matches: MatchInfo[],
   last10Torunaments: TournamentInfo[],
   totalMatches: number,
-  matchWinRate: number,
+  matchesWon: number,
   totalTournaments: number,
   tournamentAvg: number,
 }
