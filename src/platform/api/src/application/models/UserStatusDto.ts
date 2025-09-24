@@ -5,7 +5,7 @@ export const Status = {
 
 export type StatusType = typeof Status[keyof typeof Status];
 
-export type StatusInfo = {
+export type UserStatusDto = {
   userId: number,
   value: StatusType,
 }

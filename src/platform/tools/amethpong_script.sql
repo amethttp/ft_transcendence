@@ -176,8 +176,8 @@ CREATE TABLE
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
 
-INSERT INTO e_user_status_type (name) VALUES ('OFFLINE');
 INSERT INTO e_user_status_type (name) VALUES ('ONLINE');
+INSERT INTO e_user_status_type (name) VALUES ('OFFLINE');
 
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_REQUESTED');
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_ACCEPTED');

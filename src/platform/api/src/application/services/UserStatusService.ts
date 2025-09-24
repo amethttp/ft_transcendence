@@ -2,32 +2,32 @@ import { User } from "../../domain/entities/User";
 import { UserStatus } from "../../domain/entities/UserStatus";
 import { IUserStatusRepository } from "../../domain/repositories/IUserStatusRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
-import { Status, StatusInfo, StatusType } from "../models/StatusInfo";
+import { Status, UserStatusDto, StatusType } from "../models/UserStatusDto";
 
 export class UserStatusService {
   private _userStatusRepository: IUserStatusRepository;
 
-  private static toStatusInfo(userStatus: UserStatus): StatusInfo {
-    const statusInfo: StatusInfo = {
+  private static toUserStatusDto(userStatus: UserStatus): UserStatusDto {
+    const userStatusDto: UserStatusDto = {
       userId: userStatus.user.id,
       value: userStatus.type as StatusType
     };
 
-    return statusInfo;
+    return userStatusDto;
   }
 
   constructor(userStatusRepository: IUserStatusRepository) {
     this._userStatusRepository = userStatusRepository;
   }
 
-  async getUserConnectionStatus(userId: number): Promise<StatusInfo> {
-    const result: StatusInfo = { userId: userId, value: Status.OFFLINE }
+  async getUserConnectionStatus(userId: number): Promise<UserStatusDto> {
+    const result: UserStatusDto = { userId: userId, value: Status.OFFLINE }
     const userStatus = await this._userStatusRepository.findByUserId(userId);
 
     if (userStatus === null)
       return result;
 
-    return UserStatusService.toStatusInfo(userStatus);
+    return UserStatusService.toUserStatusDto(userStatus);
   }
 
   async createUserConnectionStatus(user: User): Promise<UserStatus> {

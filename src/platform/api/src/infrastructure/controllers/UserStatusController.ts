@@ -3,7 +3,7 @@ import { UserStatusService } from "../../application/services/UserStatusService"
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { UserService } from "../../application/services/UserService";
-import { Status } from "../../application/models/StatusInfo";
+import { Status } from "../../application/models/UserStatusDto";
 import { UserRelationService } from "../../application/services/UserRelationService";
 
 export default class UserStatusController {

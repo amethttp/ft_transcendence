@@ -15,7 +15,7 @@ import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
 import { Relation } from "../../application/models/RelationInfo";
 import { UserStatusService } from "../../application/services/UserStatusService";
-import { Status } from "../../application/models/StatusInfo";
+import { Status } from "../../application/models/UserStatusDto";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -204,7 +204,7 @@ export default class AuthController {
       this._authService.validateRegistrationCredentials(registrationCredentials);
       const registeredUser = await this._userService.registerUser(registrationCredentials);
       await this._userStatusService.createUserConnectionStatus(registeredUser);
-      
+
       const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
       reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({ success: true });
