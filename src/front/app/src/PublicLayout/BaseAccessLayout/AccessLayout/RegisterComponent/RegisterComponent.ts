@@ -20,6 +20,8 @@ export default class RegisterComponent extends AmethComponent {
     this.authService = new AuthService();
     this.errorView = document.getElementById("registerError")!;
 
+    this.setMaxDate();
+
     const passwdControl = new FormControl<string>("", [Validators.password]);
 
     this.form = new Form("registerForm", {
@@ -27,6 +29,7 @@ export default class RegisterComponent extends AmethComponent {
       email: new FormControl<string>("", [Validators.email, RegisterValidators.emailUnique]),
       password: passwdControl,
       repeatPassword: new FormControl<string>("", [Validators.passwordRepeat(passwdControl)]),
+      date: new FormControl<string>("", [Validators.isValidDate]),
       terms: new FormControl<boolean>(false, [Validators.requiredTrue])
     });
 
@@ -44,6 +47,26 @@ export default class RegisterComponent extends AmethComponent {
         })
         .catch(this.registrationError.bind(this));
     }
+  }
+
+  private setMaxDate() {
+    let today = new Date();
+    let dayValue = today.getUTCDate();
+    let day = dayValue.toString();
+    let monthValue = today.getUTCMonth() + 1;
+    let month = monthValue.toString();
+    let year = today.getUTCFullYear().toString();
+
+    if (dayValue < 10) {
+      day = '0' + day;
+    }
+
+    if (monthValue < 10) {
+      month = '0' + month;
+    }
+
+    let maxDate = year + '-' + month + '-' + day;
+    document.getElementById("dateInput")?.setAttribute("max", maxDate);
   }
 
   private async registrationError() {
