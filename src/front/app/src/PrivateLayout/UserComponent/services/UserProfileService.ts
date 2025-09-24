@@ -12,7 +12,7 @@ export default class UserProfileService {
     this.http = new ApiClient();
   }
 
-  getUserProfile(userName: string): Promise<User> {
-    return this.http.get(UserProfileService.PROFILE_ENDPOINT + userName);
+  getUserProfile(username: string): Promise<User> {
+    return this.http.get(UserProfileService.PROFILE_ENDPOINT + username);
   }
 }

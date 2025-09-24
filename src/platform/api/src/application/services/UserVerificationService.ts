@@ -11,6 +11,14 @@ export class UserVerificationService {
     this._userVerificationRepository = userVerificationRepository;
   }
 
+  async getAllVerifications(originUser: User): Promise<UserVerification[]> {
+    const relations = await this._userVerificationRepository.findAllByUser(originUser.id);
+    if (relations === null)
+      return [new UserVerification()];
+
+    return relations;
+  }
+
   async newUserVerification(user: User): Promise<UserVerification> {
     const code = Math.floor(100000 + Math.random() * 900000);
     const userVerificationBlueprint: Partial<UserVerification> = {

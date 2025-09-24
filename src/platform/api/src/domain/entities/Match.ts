@@ -24,7 +24,7 @@ export class Match extends AEntity {
   type!: number;
   isVisible!: boolean;
   state!: number;
-  players!: MatchPlayer[]; // TODO: check mapper with []
+  players!: MatchPlayer[];
   tournamentRound?: TournamentRound;
   creationTime!: string;
   finishTime?: string;

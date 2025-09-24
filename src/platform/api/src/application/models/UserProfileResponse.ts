@@ -1,7 +1,9 @@
+import { RelationInfo } from "./RelationInfo";
+
 export interface UserProfileResponse {
   username: string;
   avatarUrl: string;
   creationTime: string;
-  friend: boolean;
+  relation: RelationInfo;
   online: boolean;
 }
