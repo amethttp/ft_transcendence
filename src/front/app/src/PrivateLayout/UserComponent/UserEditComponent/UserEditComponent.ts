@@ -83,14 +83,15 @@ export default class UserEditComponent extends AmethComponent {
       const authService = new AuthService();
       authService.recover({ email: this._user.email })
         .then(() => Alert.info("Check your inbox", "Follow email instructions to change your password."))
-        .catch(() => Alert.error("Could not send email"));
+        .catch(() => Alert.error("Could not send change password instructions email"));
     }
 
-    // TODO: Do it in the right way!
-    const blob = new Blob([JSON.stringify(this._user)], { type: 'application/json' });
     const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);
-    downloadBtn.href = URL.createObjectURL(blob);
-    downloadBtn.onclick = () => Alert.info("Downloading amethpong-user.json");
+    downloadBtn.onclick = () => {
+      this._userEditService.requestDownloadData()
+        .then(() => Alert.info("Check your inbox", "Follow email instructions to download your data."))
+        .catch(() => Alert.error("Could not send data download email"));
+    }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
       const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
       if (challenge === "sure") {

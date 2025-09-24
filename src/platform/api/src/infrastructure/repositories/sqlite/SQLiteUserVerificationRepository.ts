@@ -10,7 +10,7 @@ export class SQLiteUserVerificationRepository extends SQLiteBaseRepository<UserV
 
   findByUserIdAndCode(id: number, code: number): Promise<UserVerification | null> {
     const expirationSeconds = 300;
-    const query = `WHERE user_id =? AND ${UserVerification.tableName}.code =? AND (strftime('%s','now') - strftime('%s', ${UserVerification.tableName}.creation_time)) <?`;
+    const query = `WHERE user_id =? AND ${UserVerification.tableName}.code =? AND (strftime('%s','now') - strftime('%s', ${UserVerification.tableName}.creation_time)) < ?`;
     return this.baseFind(query, [id, code, expirationSeconds]);
   };
 

@@ -154,13 +154,13 @@ export class UserService {
     return userProfile;
   }
 
-  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: boolean): UserProfileResponse {
+  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: number): UserProfileResponse {
     const userProfile: UserProfileResponse = {
       username: user.username,
       avatarUrl: user.avatarUrl,
       creationTime: user.creationTime,
       relation: relationStatus,
-      online: online // TODO: implement
+      online: online
     };
 
     return userProfile;

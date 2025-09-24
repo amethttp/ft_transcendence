@@ -10,18 +10,22 @@ import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleA
 import { SQLiteUserRelationRepository } from "../repositories/sqlite/SQLiteUserRelationRepository";
 import { UserRelationService } from "../../application/services/UserRelationService";
 import UserRelationController from "../controllers/UserRelationController";
+import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
+import { UserStatusService } from "../../application/services/UserStatusService";
 
 export default async function UserRelationRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
   const passwordRepository = new SQLitePasswordRepository();
   const authRepository = new SQLiteAuthRepository();
   const userRepository = new SQLiteUserRepository();
+  const userRelationRepository = new SQLiteUserRelationRepository();
+  const userStatusRepository = new SQLiteUserStatusRepository();
   const passwordService = new PasswordService(passwordRepository);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
-  const userRelationRepository = new SQLiteUserRelationRepository();
-  const userRelationService = new UserRelationService(userRelationRepository);
+  const userStatusService = new UserStatusService(userStatusRepository);
+  const userRelationService = new UserRelationService(userStatusService, userRelationRepository);
   const userRelationController = new UserRelationController(userService, userRelationService);
 
   server.get('/friends', async (request: FastifyRequest, reply) => {
@@ -39,23 +43,23 @@ export default async function UserRelationRoutes(server: FastifyInstance) {
   server.get('/add/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.addFriend(request, reply);
   });
-  
+
   server.get('/remove/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.removeFriend(request, reply);
   });
-  
+
   server.get('/accept/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.acceptFriendRequest(request, reply);
   });
-  
+
   server.get('/decline/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.declineFriendRequest(request, reply);
   });
-  
+
   server.get('/block/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.blockUser(request, reply);
   });
-  
+
   server.get('/unblock/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userRelationController.unblockUser(request, reply);
   });
