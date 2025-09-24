@@ -85,6 +85,15 @@ CREATE TABLE
   );
 
 CREATE TABLE
+  IF NOT EXISTS download_data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL,
+    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    FOREIGN KEY (user_id) REFERENCES user (id)
+  );
+
+CREATE TABLE
   IF NOT EXISTS user_relation (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     alias TEXT,
