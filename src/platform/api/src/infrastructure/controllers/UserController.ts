@@ -188,8 +188,8 @@ export default class UserController {
     try {
       const token = request.params.token;
       const userData = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
-      userData.auth.password = undefined;
-      userData.auth.googleAuth = undefined;
+      delete userData.auth.password;
+      delete userData.auth.googleAuth;
       const data = { ...userData }; // TODO: Add games, tournaments, etc...
 
       reply.header("Content-Type", "application/json")
