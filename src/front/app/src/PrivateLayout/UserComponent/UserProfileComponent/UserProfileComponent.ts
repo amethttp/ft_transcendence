@@ -7,13 +7,17 @@ import UserProfileService from "../services/UserProfileService";
 export default class UserProfileComponent extends AmethComponent {
   template = () => import("./UserProfileComponent.html?raw");
   protected userProfileService: UserProfileService;
-  protected userProfile?: UserProfile;
+  protected _userProfile: UserProfile;
   protected userName?: string;
 
   constructor(userProfile: UserProfile) {
     super();
-    this.userProfile = userProfile;
+    this._userProfile = userProfile;
     this.userProfileService = new UserProfileService();
+  }
+
+  get userProfile(): UserProfile {
+    return this._userProfile;
   }
 
   async afterInit() {
@@ -22,7 +26,7 @@ export default class UserProfileComponent extends AmethComponent {
 
   async refresh(userProfile?: UserProfile) {
     if (userProfile)
-      this.userProfile = userProfile;
+      this._userProfile = userProfile;
     this.userName = (await LoggedUser.get())?.username;
     this.clearView();
     this.fillView();
@@ -35,24 +39,24 @@ export default class UserProfileComponent extends AmethComponent {
   }
 
   protected fillData() {
-    (this.outlet?.getElementsByClassName("userAvatar")[0]! as HTMLImageElement).src = this.userProfile!.avatarUrl;
-    (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).innerText = this.userProfile!.username;
+    (this.outlet?.getElementsByClassName("userAvatar")[0]! as HTMLImageElement).src = this._userProfile!.avatarUrl;
+    (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).innerText = this._userProfile!.username;
     const anchor = this.outlet?.getElementsByClassName("UserProfileComponentAnchor")[0] as HTMLAnchorElement;
     if (anchor) {
-      anchor.href = `/${this.userProfile?.username}`;
+      anchor.href = `/${this._userProfile?.username}`;
     }
   }
 
   protected fillView() {
     this.fillData();
-    if (this.userProfile?.username === this.userName)
+    if (this._userProfile?.username === this.userName)
       this.showMyProfile();
     else
       this.setRelationStatus();
   }
 
   protected setOnlineStatus() {
-    if (this.userProfile?.online)
+    if (this._userProfile?.online)
       this.outlet?.getElementsByClassName("UserComponentOnline")[0]!.classList.remove("hidden");
     else
       this.outlet?.getElementsByClassName("UserComponentOffline")[0]!.classList.remove("hidden");
@@ -62,18 +66,18 @@ export default class UserProfileComponent extends AmethComponent {
   }
 
   private setRelationStatus() {
-    switch (this.userProfile?.relation?.type) {
+    switch (this._userProfile?.relation?.type) {
       case Relation.NO_RELATION:
-        this.showNoRelation(this.userProfile);
+        this.showNoRelation(this._userProfile);
         break;
       case Relation.FRIENDSHIP_ACCEPTED:
-        this.showFriend(this.userProfile);
+        this.showFriend(this._userProfile);
         break;
       case Relation.FRIENDSHIP_REQUESTED:
-        this.showRequestedFriend(this.userProfile);
+        this.showRequestedFriend(this._userProfile);
         break;
       case Relation.BLOCKED:
-        this.showBlockedUser(this.userProfile);
+        this.showBlockedUser(this._userProfile);
         break;
 
       default:
@@ -90,5 +94,14 @@ export default class UserProfileComponent extends AmethComponent {
   protected showRequestedFriend(_targetUser: UserProfile) { }
 
   protected showBlockedUser(_targetUser: UserProfile) { }
+
+  // TODO: Update only necessary data maybe
+  update(newProfile: UserProfile) {
+    this.refresh(newProfile);
+  }
+
+  protected updateStatus() {
+    this.setOnlineStatus();
+  }
 
 }

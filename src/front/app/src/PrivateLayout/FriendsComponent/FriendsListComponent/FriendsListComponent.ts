@@ -2,18 +2,27 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Context } from "../../../framework/Context/Context";
 import { DOMHelper } from "../../../utils/DOMHelper";
 import type UserProfile from "../../UserComponent/models/UserProfile";
+import type UserProfileComponent from "../../UserComponent/UserProfileComponent/UserProfileComponent";
 import UserProfileActionsComponent from "../../UserComponent/UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 
-export default class FriendsListComponent extends AmethComponent {
+export default class FriendsListComponent<Component extends UserProfileComponent = UserProfileActionsComponent> extends AmethComponent {
   template = () => import("./FriendsListComponent.html?raw");
   protected _container!: HTMLDivElement;
+  protected userProfiles: Component[];
+  fillView: (friends: UserProfile[]) => Promise<void>;
 
   constructor() {
     super();
+    this.userProfiles = [];
+    this.fillView = this._fillView.bind(this);
   }
 
   async afterInit() {
     this._container = this.outlet?.getElementsByClassName("friendsListContainer")[0]! as HTMLDivElement;
+    this.listenData();
+  }
+
+  protected listenData() {
     Context.friends.on("profile", this.fillView);
   }
 
@@ -21,29 +30,56 @@ export default class FriendsListComponent extends AmethComponent {
     this._container.innerHTML = "Still no friends :(";
   }
 
-  // TODO: Store all components and destroy them!
-  fillView = async (friends: UserProfile[]) => {
-    console.count("Friends");
-    if (friends.length > 0)
-      this._container.innerHTML = "";
-    for (const friend of friends) {
-      let template = `
-        <a class="" href="/${friend.username}"></a>
-      `;
-      const elem = DOMHelper.createElementFromHTML(template);
-      this._container.appendChild(elem);
-      const profile = new UserProfileActionsComponent(friend);
-      await profile.init(elem.id, this.router);
-      profile.on("change", () => this.router?.refresh());
-      profile.afterInit();
+  // TODO: Ensure its working correctly
+  deleteUnused(friends: UserProfile[]) {
+    if (friends.length === 0)
+      this.clearView();
+    else if (this.userProfiles.length === 0)
+      this._container.innerHTML = '';
+    else {
+      this.userProfiles = this.userProfiles.filter(component => {
+        if (!friends.find(friend => friend.username === component.userProfile.username)) {
+          component.destroy();
+          component.outlet?.remove();
+          return false;
+        }
+        else
+          return true;
+      });
     }
   }
 
-  async refresh() {
-    this.clearView();
+  protected async _fillView(friends: UserProfile[]) {
+    this.deleteUnused(friends);
+    for (const friend of friends) {
+      let profile = this.userProfiles.find(profile => profile.userProfile.username === friend.username);
+      if (profile)
+        profile.update(friend);
+      else
+        this.userProfiles.push(await this.createProfile(friend));
+    }
+  }
+
+  async createProfile(friend: UserProfile): Promise<Component> {
+    let template = `
+            <a class="" href="/${friend.username}"></a>
+          `;
+    const elem = DOMHelper.createElementFromHTML(template);
+    this._container.appendChild(elem);
+    const profile = new UserProfileActionsComponent(friend) as unknown as Component;
+    await profile.init(elem.id, this.router);
+    profile.on("change", () => this.router?.refresh());
+    profile.afterInit();
+    return profile;
+  }
+
+  protected stopListenData() {
+    Context.friends.off("profile", this.fillView);
   }
 
   async destroy() {
-    Context.friends.off("profile", this.fillView);
+    this.stopListenData();
+    this.deleteUnused([]);
+    super.destroy();
   }
 }

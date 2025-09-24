@@ -4,7 +4,7 @@ import type UserProfile from "../../../../UserComponent/models/UserProfile";
 import UserProfileSidebarComponent from "../../../../UserComponent/UserProfileComponent/variants/UserProfileSidebarComponent/UserProfileSidebarComponent";
 import FriendsListComponent from "../../FriendsListComponent";
 
-export default class FriendsListSidebarComponent extends FriendsListComponent {
+export default class FriendsListSidebarComponent extends FriendsListComponent<UserProfileSidebarComponent> {
   template = () => import("./FriendsListSidebarComponent.html?raw");
 
   clearView() {
@@ -15,18 +15,18 @@ export default class FriendsListSidebarComponent extends FriendsListComponent {
     super.afterInit();
     Context.friends.get(true);
   }
-  fillView = async (friends: UserProfile[]) => {
-    this._container.innerHTML = "";
-    for (const friend of friends) {
-      let template = `
-        <div class="flex w-full"></div>
-      `;
-      const elem = DOMHelper.createElementFromHTML(template);
-      this._container.appendChild(elem);
-      const profile = new UserProfileSidebarComponent(friend);
-      await profile.init(elem.id);
-      profile.afterInit();
-    }
+
+  async createProfile(friend: UserProfile): Promise<UserProfileSidebarComponent> {
+    let template = `
+      <div class="flex w-full"></div>
+    `;
+    const elem = DOMHelper.createElementFromHTML(template);
+    this._container.appendChild(elem);
+    const profile = new UserProfileSidebarComponent(friend);
+    await profile.init(elem.id, this.router);
+    profile.on("change", () => this.router?.refresh());
+    profile.afterInit();
+    return profile;
   }
 
   async refresh() {

@@ -37,13 +37,13 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   protected fillView() {
     super.fillView();
-    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this.userProfile!.creationTime).toDateString();
+    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this._userProfile!.creationTime).toDateString();
   }
 
   protected showMyProfile() {
     super.showMyProfile();
     const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
-    editBtn.href = `/${this.userProfile!.username}/edit`;
+    editBtn.href = `/${this._userProfile!.username}/edit`;
     editBtn.classList.remove("hidden");
     const logOutBtn = this.outlet?.getElementsByClassName("UserComponentLogout")[0]! as HTMLElement;
     logOutBtn.onclick = (e) => {
@@ -93,7 +93,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     super.showRequestedFriend(targetUser);
     this.showBlockUser(targetUser.username);
     const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
-    if (this.userProfile?.relation.owner) {
+    if (this._userProfile?.relation.owner) {
       this.outlet!.getElementsByClassName("pendingReqText")[0]!.innerHTML = `Waiting for acceptance...`;
       pendingRequestEl.classList.remove("hidden");
       return;
@@ -133,7 +133,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   protected showBlockedUser(targetUser: UserProfile) {
     super.showBlockedUser(targetUser);
-    if (!this.userProfile?.relation.owner) {
+    if (!this._userProfile?.relation.owner) {
       return;
     }
     const delFriendBtn = (this.outlet?.getElementsByClassName("UserComponentUnblockBtn")[0]! as HTMLButtonElement);
@@ -144,9 +144,5 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
     }
-  }
-
-  async destroy() {
-    super.destroy();
   }
 }
