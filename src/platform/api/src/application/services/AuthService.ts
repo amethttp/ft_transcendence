@@ -67,6 +67,9 @@ export class AuthService {
     if (!Validators.password(userCredentials.password)) {
       throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
     }
+    if (!Validators.birthDate(userCredentials.birthDate)) {
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_BIRTH_DATE);
+    }
   }
 
   async applyLoginMethod(user: User, loginCredentials: UserLoginRequest): Promise<boolean> {

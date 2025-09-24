@@ -13,4 +13,33 @@ export default class Validators {
     const passwordRegex = /^.{8,50}$/;
     return passwordRegex.test(password);
   }
+
+  private static isOverSixteenYears(formDate: Date, currentDate: Date) {
+    const formDateJson = { y: formDate.getUTCFullYear(), m: formDate.getUTCMonth(), d: formDate.getUTCDate() };
+    const currentDateJson = { y: currentDate.getUTCFullYear(), m: currentDate.getUTCMonth(), d: currentDate.getUTCDate() };
+
+    let years = currentDateJson.y - formDateJson.y;
+    if (currentDateJson.m < formDateJson.m
+      || (currentDateJson.m === formDateJson.m && currentDateJson.d < formDateJson.d)) {
+      years -= 1;
+    }
+
+    return years >= 16;
+  }
+
+  static birthDate(birthDate: string): boolean {
+    const formDate: Date = new Date(birthDate);
+    const currentDate: Date = new Date();
+
+    if (isNaN(formDate.getTime()))
+      return false;
+
+    if (formDate.getTime() > currentDate.getTime())
+      return false;
+
+    if (!Validators.isOverSixteenYears(formDate, currentDate))
+      return false;
+
+    return true;
+  }
 }

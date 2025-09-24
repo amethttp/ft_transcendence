@@ -30,17 +30,20 @@ export const createDummyUsers = async () => {
     {
       username: "vperez-f",
       email: "vperez-f@gmail.com",
-      password: "Pepito.1234"
+      password: "Pepito.1234",
+      birthDate: '1997-10-21'
     },
     {
       username: "arcanava",
       email: "arzelcanavate@gmail.com",
-      password: "Pepito.1234"
+      password: "Pepito.1234",
+      birthDate: '1997-10-21'
     },
     {
       username: "cfidalgo",
       email: "cfidalgo@gmail.com",
-      password: "12dummud21"
+      password: "12dummud21",
+      birthDate: '1997-10-21'
     }
   ]
 
@@ -49,7 +52,7 @@ export const createDummyUsers = async () => {
       await authController.register({ body: user } as FastifyRequest, {} as FastifyReply);
     }
     catch (e) {
-      // Do nothing
+      console.log(e);
     }
   }
 }

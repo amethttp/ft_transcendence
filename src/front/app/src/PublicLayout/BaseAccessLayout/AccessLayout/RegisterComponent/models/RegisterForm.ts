@@ -3,6 +3,6 @@ export interface RegisterForm {
   email: string;
   password: string;
   repeatPassword: string;
-  date: string;
+  birthDate: string;
   terms: boolean;
 }

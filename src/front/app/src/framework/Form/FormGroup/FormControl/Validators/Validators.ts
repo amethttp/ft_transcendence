@@ -55,7 +55,7 @@ export class Validators {
     return years >= 16;
   }
 
-  static isValidDate: ValidatorFn<string> = (dateString: string) => {
+  static isValidBirthDate: ValidatorFn<string> = (dateString: string) => {
     const formDate: Date = new Date(dateString);
     const currentDate: Date = new Date();
 
