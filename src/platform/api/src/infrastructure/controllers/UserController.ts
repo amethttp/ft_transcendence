@@ -95,8 +95,8 @@ export default class UserController {
       const victories = this._matchPlayerService.countWins(matches);
       const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments as any as TournamentInfo[]);
       const stats: UserStatsResponse = {
-        last10Matches: matches.slice(-10),
-        last10Torunaments: tournaments.slice(-10) as any as TournamentInfo[],
+        last10Matches: matches.slice(-10).reverse(),
+        last10Torunaments: tournaments.slice(-10).reverse() as any as TournamentInfo[],
         totalMatches: matches.length,
         matchesWon: victories,
         totalTournaments: tournaments.length,

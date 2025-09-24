@@ -102,9 +102,10 @@ export class MatchPlayerService {
       };
 
       matchInfo.opponentScore = opponent.score;
-      matchInfo.opponent = UserService.toUserProfileResponse(mPlayer.user, relation, false);
+      matchInfo.opponent = UserService.toUserProfileResponse(opponent.user, relation, false);
     }
-      return matchInfo;
+
+    return matchInfo;
   }
 
   public countWins(matches: MatchInfo[]): number {

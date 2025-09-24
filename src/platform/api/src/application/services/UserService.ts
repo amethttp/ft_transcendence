@@ -155,7 +155,7 @@ export class UserService {
   }
 
   public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: boolean): UserProfileResponse {
-    const userProfile: UserProfileResponse = {
+    const userProfile: UserProfileResponse = { // TODO: send user ID
       username: user.username,
       avatarUrl: user.avatarUrl,
       creationTime: user.creationTime,

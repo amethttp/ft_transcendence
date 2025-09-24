@@ -3,6 +3,7 @@ import { Match } from "../../domain/entities/Match";
 import { IMatchRepository } from "../../domain/repositories/IMatchRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
+import StringTime from "../helpers/StringTime";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
@@ -17,7 +18,8 @@ export class MatchService {
       token: randomBytes(32).toString("base64url"), // TODO: here or on controller??
       type: 1,
       isVisible: false,
-      state: 1
+      state: 1,
+      finishTime: StringTime.now() // TODO: erase
     };
 
     const id = await this._matchRepository.create(matchBlueprint);
