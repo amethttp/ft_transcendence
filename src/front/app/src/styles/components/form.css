@@ -9,8 +9,13 @@
   input[type="search"],
   input[type="url"],
   input[type="tel"],
-  input[type="number"] {
+  input[type="number"],
+  input[type="date"] {
     @apply px-3 py-2 outline w-full bg-gray-50 outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
+  }
+
+  input[type="date"] {
+    @apply appearance-none cursor-text;
   }
 
   .touched.dirty.invalid input {

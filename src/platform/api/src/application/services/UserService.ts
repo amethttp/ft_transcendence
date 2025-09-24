@@ -30,6 +30,7 @@ export class UserService {
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
+      birthDate: newUser.birthDate,
       avatarUrl: "/default-avatar.webp",
       auth: newAuth
     };
@@ -99,12 +100,15 @@ export class UserService {
   }
 
   async updateUser(userId: number, updateInfo: EditUserRequest) {
-    if (!Validators.email(updateInfo.email) || !Validators.username(updateInfo.username)) {
+    if (!Validators.email(updateInfo.email)
+        || !Validators.username(updateInfo.username)
+        || !Validators.birthDate(updateInfo.birthDate)) {
       throw new ResponseError(ErrorParams.BAD_REQUEST);
     }
     const userBlueprint: Partial<User> = {
       email: updateInfo.email,
       username: updateInfo.username,
+      birthDate: updateInfo.birthDate,
     };
     if (!await this._userRepository.update(userId, userBlueprint)) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
@@ -146,6 +150,7 @@ export class UserService {
       id: user.id,
       email: user.email,
       username: user.username,
+      birthDate: user.birthDate,
       avatarUrl: user.avatarUrl,
       creationTime: user.creationTime,
       updateTime: user.updateTime,
