@@ -1,6 +1,5 @@
 import { LoggedUser } from "../../../../../auth/LoggedUser";
 import { AuthService } from "../../../../../auth/services/AuthService";
-import { Relation } from "../../../models/RelationInfo";
 import type UserProfile from "../../../models/UserProfile";
 import RelationService from "../../../services/RelationService";
 import UserProfileService from "../../../services/UserProfileService";
@@ -10,7 +9,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   template = () => import("./UserProfileActionsComponent.html?raw");
   protected userProfileService: UserProfileService;
   protected relationService: RelationService;
-  protected userName?: string;
 
   constructor(userProfile: UserProfile) {
     super(userProfile);
@@ -25,7 +23,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   async refresh(userProfile?: UserProfile) {
     super.refresh(userProfile);
-    this.userName = (await LoggedUser.get())?.username;
     this.clearView();
     this.fillView();
   }
@@ -40,23 +37,21 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   protected fillView() {
     super.fillView();
-
     (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this.userProfile!.creationTime).toDateString();
-    if (this.userProfile?.username === this.userName) {
-      const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
-      editBtn.href = `/${this.userProfile!.username}/edit`;
-      editBtn.classList.remove("hidden");
-      const logOutBtn = this.outlet?.getElementsByClassName("UserComponentLogout")[0]! as HTMLElement;
-      logOutBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        this.logOut();
-      };
-      logOutBtn.classList.remove("hidden");
-    }
-    else {
-      this.setRelationStatus();
-    }
+  }
+
+  protected showMyProfile() {
+    super.showMyProfile();
+    const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
+    editBtn.href = `/${this.userProfile!.username}/edit`;
+    editBtn.classList.remove("hidden");
+    const logOutBtn = this.outlet?.getElementsByClassName("UserComponentLogout")[0]! as HTMLElement;
+    logOutBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      this.logOut();
+    };
+    logOutBtn.classList.remove("hidden");
   }
 
   private logOut() {
@@ -67,33 +62,36 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     });
   }
 
-  private showSendFriendRequest(targetUser: string) {
-    this.showBlockUser(targetUser);
+  protected showNoRelation(targetUser: UserProfile) {
+    super.showNoRelation(targetUser);
+    this.showBlockUser(targetUser.username);
     const addFriendBtn = (this.outlet?.getElementsByClassName("UserComponentAddFriendBtn")[0]! as HTMLButtonElement);
     addFriendBtn.classList.remove("hidden");
     addFriendBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
 
-      this.relationService.addFriend(targetUser)
+      this.relationService.addFriend(targetUser.username)
         .finally(() => this.emit("change", null));
     }
   }
 
-  private showRemoveFriend(targetUser: string) {
-    this.showBlockUser(targetUser);
+  protected showFriend(targetUser: UserProfile) {
+    super.showFriend(targetUser);
+    this.showBlockUser(targetUser.username);
     const delFriendBtn = (this.outlet?.getElementsByClassName("UserComponentDeleteFriendBtn")[0]! as HTMLButtonElement);
     delFriendBtn.classList.remove("hidden");
     delFriendBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      this.relationService.removeFriend(targetUser)
+      this.relationService.removeFriend(targetUser.username)
         .finally(() => this.emit("change", null));
     }
   }
 
-  private showHandleFriendRequest(targetUser: string) { // TODO: Probably this will never show here
-    this.showBlockUser(targetUser);
+  protected showRequestedFriend(targetUser: UserProfile) {
+    super.showRequestedFriend(targetUser);
+    this.showBlockUser(targetUser.username);
     const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this.userProfile?.relation.owner) {
       this.outlet!.getElementsByClassName("pendingReqText")[0]!.innerHTML = `Waiting for acceptance...`;
@@ -102,7 +100,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
-    this.outlet!.getElementsByClassName("pendingReqText")![0].innerHTML = `${targetUser} wants to be your friend!`;
+    this.outlet!.getElementsByClassName("pendingReqText")![0].innerHTML = `${targetUser.username} wants to be your friend!`;
 
     pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
@@ -111,13 +109,13 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     acceptBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      this.relationService.acceptRequest(targetUser)
+      this.relationService.acceptRequest(targetUser.username)
         .finally(() => this.emit("change", null));
     };
     declineBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      this.relationService.declineRequest(targetUser)
+      this.relationService.declineRequest(targetUser.username)
         .finally(() => this.emit("change", null));
     };
   }
@@ -133,9 +131,8 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     }
   }
 
-  private showUnblockUser(targetUser: string) {
-    this.outlet?.getElementsByClassName("UserComponentOnline")[0]!.classList.add("hidden");
-    this.outlet?.getElementsByClassName("UserComponentOffline")[0]!.classList.remove("hidden"); // TODO: probably back will check this
+  protected showBlockedUser(targetUser: UserProfile) {
+    super.showBlockedUser(targetUser);
     if (!this.userProfile?.relation.owner) {
       return;
     }
@@ -144,28 +141,8 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     delFriendBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      this.relationService.unblockUser(targetUser)
+      this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
-    }
-  }
-
-  private setRelationStatus() {
-    switch (this.userProfile?.relation?.type) {
-      case Relation.NO_RELATION:
-        this.showSendFriendRequest(this.userProfile.username);
-        break;
-      case Relation.FRIENDSHIP_ACCEPTED:
-        this.showRemoveFriend(this.userProfile.username);
-        break;
-      case Relation.FRIENDSHIP_REQUESTED:
-        this.showHandleFriendRequest(this.userProfile.username);
-        break;
-      case Relation.BLOCKED:
-        this.showUnblockUser(this.userProfile.username);
-        break;
-
-      default:
-        break;
     }
   }
 
