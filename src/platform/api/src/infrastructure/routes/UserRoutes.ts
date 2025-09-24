@@ -17,6 +17,8 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import fastifyMultipart from "@fastify/multipart";
 import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
 import { UserStatusService } from "../../application/services/UserStatusService";
+import { DownloadDataService } from "../../application/services/DownloadDataService";
+import { SQLiteDownloadDataRepository } from "../repositories/sqlite/SQLiteDownloadDataRepository";
 
 export default async function userRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
@@ -35,7 +37,9 @@ export default async function userRoutes(server: FastifyInstance) {
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
-  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, userStatusService);
+  const downloadDataRepository = new SQLiteDownloadDataRepository();
+  const downloadDataService = new DownloadDataService(downloadDataRepository);
+  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, userStatusService, downloadDataService);
 
   server.get('', async (request: FastifyRequest, reply) => {
     await userController.getLoggedUser(request, reply);
@@ -67,4 +71,12 @@ export default async function userRoutes(server: FastifyInstance) {
     }
   });
   server.post('/avatar', async (request, reply) => await userController.uploadAvatar(request, reply));
+
+  server.get('/download/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
+    await userController.downloadData(request, reply);
+  });
+
+  server.get('/download', async (request, reply) => {
+    await userController.requestDownloadData(request, reply);
+  });
 }

@@ -21,7 +21,7 @@ const main = async () => {
     }
   });
 
-  const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover'];
+  const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
   await server.register(cors, {
     origin: ['https://localhost:4321', 'http://localhost:5173', 'http://localhost:4173'],

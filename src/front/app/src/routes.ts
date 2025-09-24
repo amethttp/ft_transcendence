@@ -13,6 +13,11 @@ export const routes: Route[] = [
         title: "Arcade pong easy and fun to play"
       },
       {
+        path: "/user/download/:token",
+        component: () => import("./PublicLayout/DownloadDataComponent/DownloadDataComponent"),
+        title: "Download your data"
+      },
+      {
         path: "",
         component: () => import("./PublicLayout/BaseAccessLayout/BaseAccessLayout"),
         children: [
