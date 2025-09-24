@@ -18,7 +18,7 @@ export default class HttpClient implements IHttpClient {
     return this.request<ResponseType>(_url.href, options);
   }
 
-  private _bodyRequest<BodyType, ResponseType>(url: string, body?: BodyType, options: RequestInit = {}): Promise<ResponseType> {
+  private _bodyRequest<BodyType, ResponseType>(url: string, body: BodyType, options: RequestInit = {}): Promise<ResponseType> {
     options.body = body as BodyInit;
     return this.request<ResponseType>(url, options)
   }
@@ -44,15 +44,14 @@ export default class HttpClient implements IHttpClient {
   }
 
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
-    if (!(options.body instanceof FormData) && !(options.body instanceof Blob)) {
+    if (options.body && !(options.body instanceof FormData) && !(options.body instanceof Blob)) {
       options.headers = {
         'Content-Type': 'application/json',
         ...options.headers,
       };
       options.body = JSON.stringify(options.body);
     }
-    try
-    {
+    try {
       const response = await fetch(url, options);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -61,8 +60,7 @@ export default class HttpClient implements IHttpClient {
 
       return response.json().catch(err => { throw err });
     }
-    catch(err: any)
-    {
+    catch (err: any) {
       if (!Object.keys(err).includes("status"))
         Alert.error('Network error');
 

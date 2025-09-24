@@ -15,6 +15,8 @@ import { UserVerificationService } from "../../application/services/UserVerifica
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
 import fastifyMultipart from "@fastify/multipart";
+import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
+import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { SQLiteDownloadDataRepository } from "../repositories/sqlite/SQLiteDownloadDataRepository";
 
@@ -26,8 +28,10 @@ export default async function userRoutes(server: FastifyInstance) {
   const userVerificationRepository = new SQLiteUserVerificationRepository();
   const userRelationRepository = new SQLiteUserRelationRepository();
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
+  const userStatusRepository = new SQLiteUserStatusRepository();
   const userVerificationService = new UserVerificationService(userVerificationRepository);
-  const userRelationService = new UserRelationService(userRelationRepository);
+  const userStatusService = new UserStatusService(userStatusRepository);
+  const userRelationService = new UserRelationService(userStatusService, userRelationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
   const passwordService = new PasswordService(passwordRepository);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
@@ -35,7 +39,7 @@ export default async function userRoutes(server: FastifyInstance) {
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const downloadDataRepository = new SQLiteDownloadDataRepository();
   const downloadDataService = new DownloadDataService(downloadDataRepository);
-  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, downloadDataService);
+  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, userStatusService, downloadDataService);
 
   server.get('', async (request: FastifyRequest, reply) => {
     await userController.getLoggedUser(request, reply);

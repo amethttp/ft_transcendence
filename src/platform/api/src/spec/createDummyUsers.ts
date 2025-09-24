@@ -13,6 +13,8 @@ import { RecoverPasswordService } from "../application/services/RecoverPasswordS
 import { SQLiteRecoverPasswordRepository } from "../infrastructure/repositories/sqlite/SQLiteRecoverPasswordRepository";
 import { GoogleAuthService } from "../application/services/googleAuthService";
 import { SQLiteGoogleAuthRepository } from "../infrastructure/repositories/sqlite/SQLiteGoogleAuthRepository";
+import { UserStatusService } from "../application/services/UserStatusService";
+import { SQLiteUserStatusRepository } from "../infrastructure/repositories/sqlite/SQLiteUserStatusRepository";
 
 export const createDummyUsers = async () => {
   const authController = new AuthController(
@@ -21,6 +23,7 @@ export const createDummyUsers = async () => {
     new RecoverPasswordService(new SQLiteRecoverPasswordRepository()),
     new UserService(new SQLiteUserRepository(), new AuthService(new SQLiteAuthRepository(), new PasswordService(new SQLitePasswordRepository)), new PasswordService(new SQLitePasswordRepository), new GoogleAuthService(new SQLiteGoogleAuthRepository)),
     new UserVerificationService(new SQLiteUserVerificationRepository()),
+    new UserStatusService(new SQLiteUserStatusRepository())
   );
 
   const testUsers: UserRegistrationRequest[] = [

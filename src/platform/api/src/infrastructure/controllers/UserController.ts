@@ -10,6 +10,7 @@ import path from "path";
 import { randomBytes } from "crypto";
 import { createWriteStream, unlink } from "fs";
 import { BusboyFileStream } from "@fastify/busboy";
+import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { Transporter } from "nodemailer";
 
@@ -18,14 +19,16 @@ export default class UserController {
   private _userVerificationService: UserVerificationService;
   private _userRelationService: UserRelationService;
   private _recoverPasswordService: RecoverPasswordService;
+  private _userStatusService: UserStatusService;
   private _downloadDataService: DownloadDataService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, downloadDataService: DownloadDataService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, userStatusService: UserStatusService, downloadDataService: DownloadDataService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
     this._recoverPasswordService = recoverPasswordService;
+    this._userStatusService = userStatusService;
     this._downloadDataService = downloadDataService;
   }
 
@@ -53,7 +56,8 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
       const relationInfo = await this._userRelationService.getRelationInfo(originUser, requestedUser);
-      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, true);
+      const status = await this._userStatusService.getUserConnectionStatus(requestedUser.id);
+      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, status.value);
 
       reply.code(200).send(userProfile);
     } catch (err) {

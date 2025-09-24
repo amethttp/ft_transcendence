@@ -14,6 +14,8 @@ import { UserService } from "../../application/services/UserService";
 import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
 import { Relation } from "../../application/models/RelationInfo";
+import { UserStatusService } from "../../application/services/UserStatusService";
+import { Status } from "../../application/models/UserStatusDto";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -21,6 +23,7 @@ export default class AuthController {
   private _recoverPasswordService: RecoverPasswordService;
   private _userService: UserService;
   private _userVerificationService: UserVerificationService;
+  private _userStatusService: UserStatusService;
 
   constructor(
     authService: AuthService,
@@ -28,12 +31,14 @@ export default class AuthController {
     recoverPasswordService: RecoverPasswordService,
     userService: UserService,
     userVerificationService: UserVerificationService,
+    userStatusService: UserStatusService
   ) {
     this._authService = authService;
     this._passwordService = passwordService;
     this._recoverPasswordService = recoverPasswordService;
     this._userService = userService;
     this._userVerificationService = userVerificationService;
+    this._userStatusService = userStatusService;
   }
 
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
@@ -149,7 +154,7 @@ export default class AuthController {
       const token = request.params.token;
       const user = await this._recoverPasswordService.getUserByToken(token);
       const relationInfo = { type: Relation.NO_RELATION, owner: false };
-      const userProfile = UserService.toUserProfileResponse(user, relationInfo, false); // TODO: Check if necessary to return a full user
+      const userProfile = UserService.toUserProfileResponse(user, relationInfo, 2); // TODO: Check if necessary to return a full user
 
       reply.code(200).send(userProfile);
     } catch (err) {
@@ -180,7 +185,11 @@ export default class AuthController {
     }
   }
 
-  async logout(reply: FastifyReply) {
+  async logout(request: FastifyRequest, reply: FastifyReply) {
+    const jwtUser = request.user as JwtPayloadInfo;
+    const user = await this._userService.getById(jwtUser.sub);
+    await this._userStatusService.setUserStatus(user, Status.OFFLINE);
+
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
       `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
@@ -193,8 +202,11 @@ export default class AuthController {
     try {
       const registrationCredentials = request.body as UserRegistrationRequest;
       this._authService.validateRegistrationCredentials(registrationCredentials);
-      await this._userService.registerUser(registrationCredentials);
+      const registeredUser = await this._userService.registerUser(registrationCredentials);
+      await this._userStatusService.createUserConnectionStatus(registeredUser);
 
+      const JWTHeaders = await this.setJWTHeaders(registeredUser.id, reply);
+      reply.header('set-cookie', JWTHeaders);
       reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
