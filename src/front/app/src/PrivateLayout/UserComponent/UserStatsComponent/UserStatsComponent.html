@@ -1,7 +1,7 @@
 <div id="user-sidebar"></div>
 
-<div class="user rounded-lg shadow-sm bg-gray-200">
-  <div id="chart-container" class="flex flex-wrap gap-4 justify-center">
+<div class="user bg-gray-100 rounded-lg shadow-sm">
+  <div id="chart-container" class="flex flex-wrap gap-5 justify-center">
     <div class="relative w-80 h-80 mt-8">
       <div id="matchChart" class="w-full h-full"></div>
         <div id="matchChart-center-text" class="flex flex-col absolute inset-0 items-center justify-center text-center hidden opacity-0 transition-opacity duration-700">
@@ -14,7 +14,7 @@
         <div id="tournamentStats-center-text" class="flex flex-col absolute inset-0 items-center justify-center text-center hidden opacity-0 transition-opacity duration-700">
           <span id="tournamentAvg" class="text-2xl font-semibold text-gray-800"></span>
           <span class="text-1xl font-semibold text-gray-800">Avg. Placement</span>
-          <svg class="podium-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 447 447" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 447 447">
+          <svg class="podium-svg block m-0 p-0 w-full h-full" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 447 447" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 447 447">
             <g>
               <g>
                 <path class="podium stroke-black stroke-2 fill-none opacity-0 transition-opacity duration-2000" d="M423.5,224h-112c-2.997,0-5.862,0.57-8.5,1.597V103.5c0-12.958-10.542-23.5-23.5-23.5h-112    c-12.958,0-23.5,10.542-23.5,23.5v58.097c-2.638-1.027-5.503-1.597-8.5-1.597h-112C10.542,160,0,170.542,0,183.5v176    c0,4.143,3.358,7.5,7.5,7.5h432c4.142,0,7.5-3.357,7.5-7.5v-112C447,234.542,436.458,224,423.5,224z M159,103.5    c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352H159V103.5z M15,183.5c0-4.687,3.813-8.5,8.5-8.5h112    c4.687,0,8.5,3.813,8.5,8.5V352H15V183.5z M432,352H303V247.5c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352z"/>
@@ -31,9 +31,17 @@
           <span class="text-1xl font-semibold text-gray-800">Tournaments</span>
         </div>
     </div>
-    <div id="match-history" class="w-full max-w-4xl mx-auto mt-8 p-6 rounded-lg shadow-sm bg-gray-100">
-      <h2 class="text-3xl font-bold mb-4 text-center">Match History</h2>
-      <ul id="match-history-list" class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+    <div id="match-history" class="w-full max-w-4xl mt-4 mb-8 p-4 rounded-lg shadow-sm bg-gray-200">
+      <div class="tabs title-3 text-2xl bg-gray-300">
+        <button id="matchHistory-btn">
+          Matches
+        </button>
+        <span>|</span>
+        <button id="tournamentHistory-btn">
+          Tournaments
+        </button>
+      </div>
+      <ul id="match-history-list" class="mt-4 divide-y divide-gray-300 max-h-96 overflow-y-auto">
       </ul>
     </div>
   </div>

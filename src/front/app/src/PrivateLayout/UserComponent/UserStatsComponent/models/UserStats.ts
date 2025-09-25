@@ -4,7 +4,7 @@ import type { TournamentInfo } from "./TournamentInfo";
 
 export interface UserStats {
   last10Matches: MatchInfo[],
-  last10Torunaments: TournamentInfo[],
+  last10Tournaments: TournamentInfo[],
   totalMatches: number,
   matchesWon: number,
   totalTournaments: number,

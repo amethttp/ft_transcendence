@@ -14,7 +14,6 @@ import { TournamentPlayerService } from "../../application/services/TournamentPl
 import { createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
-import { TournamentInfo } from "../../application/models/TournamentInfo";
 
 export default class UserController {
   private _userService: UserService;
@@ -91,12 +90,12 @@ export default class UserController {
       // console.log(this._matchService);
       
       const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
-      const tournaments = await this._tournamentPlayerService.getAllUserTournaments(requestedUser);
+      const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
       const victories = this._matchPlayerService.countWins(matches);
-      const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments as any as TournamentInfo[]);
+      const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
       const stats: UserStatsResponse = {
         last10Matches: matches.slice(-10).reverse(),
-        last10Torunaments: tournaments.slice(-10).reverse() as any as TournamentInfo[],
+        last10Torunaments: tournaments.slice(-10).reverse(),
         totalMatches: matches.length,
         matchesWon: victories,
         totalTournaments: tournaments.length,
