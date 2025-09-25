@@ -1,33 +1,27 @@
-import { ApiClient } from "../ApiClient/ApiClient";
 import AmethComponent from "../framework/AmethComponent";
 import { Context } from "../framework/Context/Context";
 import { UserFriends } from "./FriendsComponent/UserFriends/UserFriends";
-import type { IHttpClient } from "../framework/HttpClient/IHttpClient";
 import SidebarComponent from "./SidebarComponent/SidebarComponent";
+import { StatusService } from "./services/StatusService";
 
 export default class PrivateLayout extends AmethComponent {
   template = () => import("./PrivateLayout.html?raw");
   private _sidebar!: SidebarComponent;
   private _statusIntervalId?: number;
-  private _apiClient: IHttpClient;
+  private _statusService: StatusService;
 
   constructor() {
     super();
     Context.friends = new UserFriends();
-    this._apiClient = new ApiClient();
+    this._statusService = new StatusService();
     this._startStatusPooling();
   }
 
   private _startStatusPooling() {
-    this._refreshStatus();
+    this._statusService.refreshStatus();
     this._statusIntervalId = setInterval(() => {
-      this._refreshStatus();
+      this._statusService.refreshStatus();
     }, 20000)
-  }
-
-  private _refreshStatus() {
-    this._apiClient.post('/status/refresh')
-      .catch(err => console.warn(err));
   }
 
   async afterInit() {

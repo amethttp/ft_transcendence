@@ -1,5 +1,7 @@
 import { LoggedUser } from "../../../../../auth/LoggedUser";
 import { AuthService } from "../../../../../auth/services/AuthService";
+import { Context } from "../../../../../framework/Context/Context";
+import type { FriendsStatus } from "../../../../models/FriendsStatus";
 import type UserProfile from "../../../models/UserProfile";
 import RelationService from "../../../services/RelationService";
 import UserProfileService from "../../../services/UserProfileService";
@@ -35,8 +37,15 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.add("hidden");
   }
 
+  private updateStatus = (statuses: FriendsStatus) => {
+    const status = statuses[this.userProfile.username];
+    if (status)
+      this.setOnlineStatus(status);
+  }
+
   protected fillView() {
     super.fillView();
+    Context.friends.on('status', this.updateStatus);
     (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this._userProfile!.creationTime).toDateString();
   }
 
@@ -144,5 +153,10 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
     }
+  }
+
+  async destroy() {
+    Context.friends.off('status', this.updateStatus);
+    super.destroy();
   }
 }

@@ -1,5 +1,6 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
+import { UserStatus, type TUserStatus } from "../../models/UserStatus";
 import { Relation } from "../models/RelationInfo";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
@@ -55,11 +56,15 @@ export default class UserProfileComponent extends AmethComponent {
       this.setRelationStatus();
   }
 
-  protected setOnlineStatus() {
-    if (this._userProfile?.online)
+  setOnlineStatus(status: TUserStatus) {
+    if (status === UserStatus.ONLINE) {
       this.outlet?.getElementsByClassName("UserComponentOnline")[0]!.classList.remove("hidden");
-    else
+      this.outlet?.getElementsByClassName("UserComponentOffline")[0]!.classList.add("hidden");
+    }
+    else {
       this.outlet?.getElementsByClassName("UserComponentOffline")[0]!.classList.remove("hidden");
+      this.outlet?.getElementsByClassName("UserComponentOnline")[0]!.classList.add("hidden");
+    }
   }
 
   protected showMyProfile() {
@@ -87,21 +92,16 @@ export default class UserProfileComponent extends AmethComponent {
 
   protected showNoRelation(_targetUser: UserProfile) { }
 
-  protected showFriend(_targetUser: UserProfile) {
-    this.setOnlineStatus();
+  protected showFriend(targetUser: UserProfile) {
+    this.setOnlineStatus(targetUser.status);
   }
 
   protected showRequestedFriend(_targetUser: UserProfile) { }
 
   protected showBlockedUser(_targetUser: UserProfile) { }
 
-  // TODO: Update only necessary data maybe
   update(newProfile: UserProfile) {
     this.refresh(newProfile);
-  }
-
-  protected updateStatus() {
-    this.setOnlineStatus();
   }
 
 }

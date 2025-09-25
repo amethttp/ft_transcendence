@@ -9,6 +9,7 @@ import { LoggedUserResponse } from "../models/LoggedUserResponse";
 import { RelationInfo } from "../models/RelationInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
+import { StatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
 import { GoogleAuthService } from "./googleAuthService";
@@ -154,13 +155,13 @@ export class UserService {
     return userProfile;
   }
 
-  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: number): UserProfileResponse {
+  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: StatusType): UserProfileResponse {
     const userProfile: UserProfileResponse = {
       username: user.username,
       avatarUrl: user.avatarUrl,
       creationTime: user.creationTime,
       relation: relationStatus,
-      online: online
+      status: online
     };
 
     return userProfile;

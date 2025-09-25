@@ -1,6 +1,7 @@
 import AmethComponent from "../../../framework/AmethComponent";
 import { Context } from "../../../framework/Context/Context";
 import { DOMHelper } from "../../../utils/DOMHelper";
+import type { FriendsStatus } from "../../models/FriendsStatus";
 import type UserProfile from "../../UserComponent/models/UserProfile";
 import type UserProfileComponent from "../../UserComponent/UserProfileComponent/UserProfileComponent";
 import UserProfileActionsComponent from "../../UserComponent/UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
@@ -10,11 +11,13 @@ export default class FriendsListComponent<Component extends UserProfileComponent
   protected _container!: HTMLDivElement;
   protected userProfiles: Component[];
   fillView: (friends: UserProfile[]) => Promise<void>;
+  updateStatuses: (statuses: FriendsStatus) => void;
 
   constructor() {
     super();
     this.userProfiles = [];
     this.fillView = this._fillView.bind(this);
+    this.updateStatuses = this._updateStatuses.bind(this);
   }
 
   async afterInit() {
@@ -24,14 +27,14 @@ export default class FriendsListComponent<Component extends UserProfileComponent
 
   protected listenData() {
     Context.friends.on("profile", this.fillView);
+    Context.friends.on("status", this.updateStatuses);
   }
 
   clearView() {
     this._container.innerHTML = "Still no friends :(";
   }
 
-  // TODO: Ensure its working correctly
-  deleteUnused(friends: UserProfile[]) {
+  protected deleteUnused(friends: UserProfile[]) {
     if (friends.length === 0)
       this.clearView();
     else if (this.userProfiles.length === 0)
@@ -73,8 +76,14 @@ export default class FriendsListComponent<Component extends UserProfileComponent
     return profile;
   }
 
+  protected _updateStatuses(statuses: FriendsStatus) {
+    for (const profile of this.userProfiles)
+      profile.setOnlineStatus(statuses[profile.userProfile.username]);
+  }
+
   protected stopListenData() {
     Context.friends.off("profile", this.fillView);
+    Context.friends.off("status", this.updateStatuses);
   }
 
   async destroy() {

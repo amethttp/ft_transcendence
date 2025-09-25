@@ -4,6 +4,7 @@ import { IUserRelationRepository } from "../../domain/repositories/IUserRelation
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
+import { Status } from "../models/UserStatusDto";
 import { UserService } from "./UserService";
 import { UserStatusService } from "./UserStatusService";
 
@@ -208,9 +209,13 @@ export class UserRelationService {
           ? relation.receiverUser
           : relation.ownerUser,
         UserRelationService.toRelationInfo(originUser, relation),
-        relation.type === Relation.BLOCKED ?
-          2 :
-          (await this._userStatusService.getUserConnectionStatus(relation.receiverUser.id)).value)));
+        relation.type === Relation.BLOCKED
+          ? Status.OFFLINE
+          : (await this._userStatusService.getUserConnectionStatus(
+            relation.ownerUser.id === originUser.id
+              ? relation.receiverUser.id
+              : relation.ownerUser.id
+          )).value)));
 
     return profiles;
   }

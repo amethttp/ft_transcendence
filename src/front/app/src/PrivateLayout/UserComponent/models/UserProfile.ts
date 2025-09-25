@@ -1,3 +1,4 @@
+import type { TUserStatus } from "../../models/UserStatus";
 import type { RelationInfo } from "./RelationInfo";
 
 export default interface UserProfile {
@@ -5,5 +6,5 @@ export default interface UserProfile {
   avatarUrl: string;
   creationTime: string;
   relation: RelationInfo;
-  online: boolean;
+  status: TUserStatus;
 }

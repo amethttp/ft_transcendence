@@ -1,35 +1,47 @@
 import EventEmitter from "../../../framework/EventEmitter/EventEmitter";
 import type UserProfile from "../../UserComponent/models/UserProfile";
+import type { FriendsStatus } from "../../models/FriendsStatus";
+import { StatusService } from "../../services/StatusService";
 import { FriendsService } from "../services/FriendsService";
 
 export type Friends = UserProfile[];
 
 export type FriendsEvents = {
-  status: Record<number, boolean>,
+  status: FriendsStatus,
   profile: Friends
 }
 
 export class UserFriends extends EventEmitter<FriendsEvents> {
+  private _friendsService: FriendsService;
+  private _statusService: StatusService;
   private _friends: Friends | undefined;
-  private profilePooling?: number;
-  // private static connectedPooling;
+  private _statusPooling?: number;
 
   constructor() {
     super();
+    this._friendsService = new FriendsService();
+    this._statusService = new StatusService();
     this.startPoolings();
   }
 
   startPoolings() {
-    // this.profilePooling = setInterval(() => {
-    //   this.get(true);
-    // }, 500);
+    this._statusPooling = setInterval(this.getStatuses.bind(this), 20000);
+  }
+
+  async getStatuses() {
+    try {
+      const friendsStatus = await this._statusService.getFriendsStatus();
+      this.emit("status", friendsStatus);
+    } catch (error) {
+      console.warn(error);
+    }
   }
 
   async get(force = false): Promise<Friends> {
     if (force || this._friends === undefined) {
       try {
-        this._friends = await (new FriendsService().getAll());
-        super.emit("profile", structuredClone(this._friends));
+        this._friends = await (this._friendsService.getAll());
+        this.emit("profile", structuredClone(this._friends));
         return this._friends;
       } catch (error) {
         console.warn(error);
@@ -41,6 +53,6 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   }
 
   destroy() {
-    clearInterval(this.profilePooling);
+    clearInterval(this._statusPooling);
   }
 }
