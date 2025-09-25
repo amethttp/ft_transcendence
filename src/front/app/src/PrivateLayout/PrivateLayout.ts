@@ -1,14 +1,16 @@
 import AmethComponent from "../framework/AmethComponent";
 import { Context } from "../framework/Context/Context";
+import ContextBarComponent from "./ContextBarComponent/ContextBarComponent";
 import { UserFriends } from "./FriendsComponent/UserFriends/UserFriends";
 import SidebarComponent from "./SidebarComponent/SidebarComponent";
 import { StatusService } from "./services/StatusService";
 
 export default class PrivateLayout extends AmethComponent {
   template = () => import("./PrivateLayout.html?raw");
-  private _sidebar!: SidebarComponent;
   private _statusIntervalId?: number;
   private _statusService: StatusService;
+  private _sidebar!: SidebarComponent;
+  private _contextBar!: ContextBarComponent;
 
   constructor() {
     super();
@@ -28,14 +30,20 @@ export default class PrivateLayout extends AmethComponent {
     this._sidebar = new SidebarComponent();
     await this._sidebar.init("sidebar", this.router);
     this._sidebar.afterInit();
+    this._contextBar = new ContextBarComponent();
+    await this._contextBar.init("PrivateLayoutContextBarComponent");
+    this._contextBar.afterInit();
   }
 
   refresh(): void {
     this._sidebar.refresh();
+    this._contextBar.refresh();
   }
 
   async destroy() {
     super.destroy();
     clearInterval(this._statusIntervalId);
+    await this._sidebar.destroy();
+    await this._contextBar.destroy();
   }
 }

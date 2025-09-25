@@ -54,6 +54,10 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         });
       }
     }
+    this._form.onsubmit = async e => {
+      e.preventDefault();
+      await this._submit();
+    }
   }
 
   private createErrorMsg(input: HTMLInputElement) {
