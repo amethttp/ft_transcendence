@@ -43,7 +43,7 @@ export class MatchPlayerService {
 
     const matchesWithPlayers = await Promise.all (
         matches.map(async matchPlayer => { 
-        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match);
+        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match); // TODO: criminal query
         return matchPlayer;
       })
     );
@@ -58,10 +58,11 @@ export class MatchPlayerService {
 
     const matchesWithPlayers = await Promise.all (
         matches.map(async matchPlayer => { 
-        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match);
+        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match); // TODO: criminal query
         return matchPlayer;
       })
     );
+
     const matchesInfo = matchesWithPlayers.map(match => this.toMatchInfo(match));
     return matchesInfo;
   }

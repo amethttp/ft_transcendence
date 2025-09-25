@@ -14,6 +14,7 @@ import { TournamentPlayerService } from "../../application/services/TournamentPl
 import { createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
+import { Tournament } from "../../domain/entities/Tournament";
 
 export default class UserController {
   private _userService: UserService;
@@ -87,9 +88,15 @@ export default class UserController {
       await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
       await this._matchPlayerService.newMatchPlayer(originUser, game3);
       await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
+      // const tournament1 = ;
+      // const tournament2 = ;
+      // const tournament3 = ;
+      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament1, 1);
+      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament2, 4);
+      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament3, 8);
       // console.log(this._matchService);
       
-      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
+      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser); // TODO: refactor efficency
       const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
       const victories = this._matchPlayerService.countWins(matches);
       const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);

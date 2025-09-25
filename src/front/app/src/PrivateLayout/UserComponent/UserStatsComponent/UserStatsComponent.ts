@@ -86,20 +86,26 @@ export default class UserStatsComponent extends AmethComponent {
     if (this.mode === "tournament") { return; }
     this.mode = "tournament";
     matchHistoryList.innerHTML = "";
-    if (!userStats.last10Tournaments) { return; }
+    if (!userStats.last10Tournaments) {
+      const fallback = document.createElement("span");
+      fallback.innerHTML = "No tournaments yet...";
+      fallback.classList.add("subtitle-3", "text-center");
+      matchHistoryList.append(fallback);
+      return;
+    }
 
     for (const tournament of userStats.last10Tournaments) {
-      const li = document.createElement("li");
-      li.className = "py-3 flex flex-col justify-between items-center gap-2 bg-gray-50 rounded-lg";
+      const div = document.createElement("div");
+      div.className = "py-3 flex flex-col justify-between items-center gap-2 bg-gray-50 rounded-lg";
 
       const tournamentLabel = document.createElement("span");
       tournamentLabel.textContent = `${tournament.name.toUpperCase()}`;
 
       const playersSpan = document.createElement("span");
-      playersSpan.classList.add("flex", "flex-row", "items-center", "gap-4", "w-full");
+      playersSpan.classList.add("flex", "flex-wrap", "items-center", "gap-4", "w-full");
 
       const userLabel = document.createElement("span");
-      userLabel.classList.add("flex", "flex-row", "flex-1", "justify-end", "gap-3");
+      userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
       userName.href = `/${this.targetUser}`;
@@ -124,10 +130,10 @@ export default class UserStatsComponent extends AmethComponent {
 
       footerLabel.append(timeStamp);
 
-      li.appendChild(tournamentLabel);
-      li.appendChild(playersSpan);
-      li.appendChild(footerLabel);
-      matchHistoryList.appendChild(li);
+      div.appendChild(tournamentLabel);
+      div.appendChild(playersSpan);
+      div.appendChild(footerLabel);
+      matchHistoryList.appendChild(div);
     }
   }
 
@@ -135,42 +141,48 @@ export default class UserStatsComponent extends AmethComponent {
     if (this.mode === "match") { return; }
     this.mode = "match";
     matchHistoryList.innerHTML = "";
+    if (!userStats.last10Matches) {
+      const fallback = document.createElement("span");
+      fallback.innerHTML = "No matches yet...";
+      fallback.classList.add("subtitle-3", "text-center");
+      matchHistoryList.append(fallback);
+    }
 
     for (const match of userStats.last10Matches) {
-      const li = document.createElement("li");
-      li.className = "py-3 flex flex-col justify-between items-center gap-2 bg-gray-50 rounded-lg";
+      const div = document.createElement("div");
+      div.className = "py-3 flex flex-wrap flex-col justify-between items-center gap-2 bg-gray-50 rounded-lg";
 
       const matchLabel = document.createElement("span");
       matchLabel.textContent = `${match.name.toUpperCase()}`;
 
       const playersSpan = document.createElement("span");
-      playersSpan.classList.add("flex", "flex-row", "items-center", "gap-4", "w-full");
+      playersSpan.classList.add("flex", "flex-wrap", "items-center", "gap-4", "w-full");
 
       const userLabel = document.createElement("span");
-      userLabel.classList.add("flex", "flex-row", "flex-1", "justify-end", "gap-3");
+      userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
       userName.href = `/${this.targetUser}`;
       userName.textContent = `${this.targetUser}`;
-      userName.classList.add("text-xl", "hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
+      userName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const userScore = document.createElement("span");
       userScore.textContent = match.score.toString();
-      userScore.classList.add("text-xl", "text-brand-900", "font-semibold");
+      userScore.classList.add("text-brand-900", "font-semibold");
 
       const vsText = document.createElement("span");
       vsText.textContent = " VS ";
-      vsText.classList.add("text-xl", "font-semibold");
+      vsText.classList.add("font-semibold");
 
       const opponentLabel = document.createElement("span");
-      opponentLabel.classList.add("flex", "flex-row", "flex-1", "justify-start", "gap-3");
+      opponentLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-start", "gap-3");
 
       const opponentName = document.createElement("a");
       opponentName.href = `/${match.opponent.username}`
       opponentName.textContent = `${match.opponent.username}`;
-      opponentName.classList.add("text-xl", "hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
+      opponentName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const opponentScore = document.createElement("span");
       opponentScore.textContent = match.opponentScore.toString();
-      opponentScore.classList.add("text-xl", "text-brand-900", "font-semibold");
+      opponentScore.classList.add("text-brand-900", "font-semibold");
 
       userLabel.append(userName, userScore);
       opponentLabel.append(opponentScore, opponentName);
@@ -190,10 +202,10 @@ export default class UserStatsComponent extends AmethComponent {
       if (match.finishTime !== 'Aborted') {
         if (match.isWinner) {
           resultSpan.textContent = "win";
-          resultSpan.classList.add("text-xl", "text-green-400");
+          resultSpan.classList.add("text-green-400");
         } else {
           resultSpan.textContent = "loss";
-          resultSpan.classList.add("text-xl", "text-red-400");
+          resultSpan.classList.add("text-red-400");
         }
       }
 
@@ -203,10 +215,10 @@ export default class UserStatsComponent extends AmethComponent {
 
       footerLabel.append(resultSpan, timeStamp);
 
-      li.appendChild(matchLabel);
-      li.appendChild(playersSpan);
-      li.appendChild(footerLabel);
-      matchHistoryList.appendChild(li);
+      div.appendChild(matchLabel);
+      div.appendChild(playersSpan);
+      div.appendChild(footerLabel);
+      matchHistoryList.appendChild(div);
     }
   }
 
@@ -309,9 +321,13 @@ export default class UserStatsComponent extends AmethComponent {
     if (matchHistoryList) {
       this.displayMatchHistory(matchHistoryList, stats);
       matchHistoryBtn.onclick = () => {
+        tournamentHistoryBtn.classList.remove("active");
+        matchHistoryBtn.classList.add("active");
         this.displayMatchHistory(matchHistoryList, stats);
       };
       tournamentHistoryBtn.onclick = () => {
+        matchHistoryBtn.classList.remove("active");
+        tournamentHistoryBtn.classList.add("active");
         this.displayTournamentHistory(matchHistoryList, stats);
       };
     }

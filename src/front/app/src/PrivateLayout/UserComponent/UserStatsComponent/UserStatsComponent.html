@@ -1,48 +1,56 @@
-<div id="user-sidebar"></div>
-
-<div class="user bg-gray-100 rounded-lg shadow-sm">
-  <div id="chart-container" class="flex flex-wrap gap-5 justify-center">
-    <div class="relative w-80 h-80 mt-8">
+<div id="chart-container" class="max-w-5xl w-full flex flex-col gap-9 sm:gap-20 justify-center p-4 sm:p-8">
+  <div class="flex w-full justify-center items-center flex-wrap gap-6 sm:gap-9">
+    <div class="relative w-80 h-80 max-w-[60vw] max-h-[60vh]">
       <div id="matchChart" class="w-full h-full"></div>
-        <div id="matchChart-center-text" class="flex flex-col absolute inset-0 items-center justify-center text-center hidden opacity-0 transition-opacity duration-700">
-          <span id="matchTotal" class="text-2xl font-semibold text-gray-800"></span>
-          <span class="text-1xl font-semibold text-gray-800">Matches</span>
-        </div>
-    </div>
-    <div class="relative w-80 h-80 mt-8">
-      <div id="tournamentStats" class="w-full h-full"></div>
-        <div id="tournamentStats-center-text" class="flex flex-col absolute inset-0 items-center justify-center text-center hidden opacity-0 transition-opacity duration-700">
-          <span id="tournamentAvg" class="text-2xl font-semibold text-gray-800"></span>
-          <span class="text-1xl font-semibold text-gray-800">Avg. Placement</span>
-          <svg class="podium-svg block m-0 p-0 w-full h-full" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 447 447" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 447 447">
-            <g>
-              <g>
-                <path class="podium stroke-black stroke-2 fill-none opacity-0 transition-opacity duration-2000" d="M423.5,224h-112c-2.997,0-5.862,0.57-8.5,1.597V103.5c0-12.958-10.542-23.5-23.5-23.5h-112    c-12.958,0-23.5,10.542-23.5,23.5v58.097c-2.638-1.027-5.503-1.597-8.5-1.597h-112C10.542,160,0,170.542,0,183.5v176    c0,4.143,3.358,7.5,7.5,7.5h432c4.142,0,7.5-3.357,7.5-7.5v-112C447,234.542,436.458,224,423.5,224z M159,103.5    c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352H159V103.5z M15,183.5c0-4.687,3.813-8.5,8.5-8.5h112    c4.687,0,8.5,3.813,8.5,8.5V352H15V183.5z M432,352H303V247.5c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m335.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m375.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m67.5,239c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m107.5,239c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m415.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z"/>
-                <path class="podiumPath stroke-black stroke-2 fill-none opacity-0" d="m215.5,248c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5z"/>
-              </g>
-            </g>
-          </svg>
-          <span id="tournamentTotal" class="text-2xl font-semibold text-gray-800"></span>
-          <span class="text-1xl font-semibold text-gray-800">Tournaments</span>
-        </div>
-    </div>
-    <div id="match-history" class="w-full max-w-4xl mt-4 mb-8 p-4 rounded-lg shadow-sm bg-gray-200">
-      <div class="tabs title-3 text-2xl bg-gray-300">
-        <button id="matchHistory-btn">
-          Matches
-        </button>
-        <span>|</span>
-        <button id="tournamentHistory-btn">
-          Tournaments
-        </button>
+      <div id="matchChart-center-text"
+        class="flex flex-col absolute inset-0 items-center justify-center text-center opacity-0 transition-opacity duration-700">
+        <span id="matchTotal" class="text-2xl font-semibold text-gray-800"></span>
+        <span class="text-1xl font-semibold text-gray-800">Matches</span>
       </div>
-      <ul id="match-history-list" class="mt-4 divide-y divide-gray-300 max-h-96 overflow-y-auto">
-      </ul>
+    </div>
+    <div class="relative w-80 h-80 max-w-[60vw] max-h-[60vh]">
+      <div id="tournamentStats-center-text"
+        class="flex flex-col absolute inset-0 items-center justify-center text-center opacity-0 transition-opacity duration-700">
+        <span id="tournamentAvg" class="text-2xl font-semibold text-gray-800"></span>
+        <span class="text-1xl font-semibold text-gray-800">Avg. Placement</span>
+        <svg class="podium-svg block m-0 p-0 w-full h-full" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 447 447" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink"
+          enable-background="new 0 0 447 447">
+          <g>
+            <g>
+              <path class="podium stroke-black stroke-2 fill-none opacity-0 transition-opacity duration-2000"
+                d="M423.5,224h-112c-2.997,0-5.862,0.57-8.5,1.597V103.5c0-12.958-10.542-23.5-23.5-23.5h-112    c-12.958,0-23.5,10.542-23.5,23.5v58.097c-2.638-1.027-5.503-1.597-8.5-1.597h-112C10.542,160,0,170.542,0,183.5v176    c0,4.143,3.358,7.5,7.5,7.5h432c4.142,0,7.5-3.357,7.5-7.5v-112C447,234.542,436.458,224,423.5,224z M159,103.5    c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352H159V103.5z M15,183.5c0-4.687,3.813-8.5,8.5-8.5h112    c4.687,0,8.5,3.813,8.5,8.5V352H15V183.5z M432,352H303V247.5c0-4.687,3.813-8.5,8.5-8.5h112c4.687,0,8.5,3.813,8.5,8.5V352z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m335.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m375.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m67.5,239c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m107.5,239c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m415.5,271c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5z" />
+              <path class="podiumPath stroke-black stroke-2 fill-none opacity-0"
+                d="m215.5,248c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h16c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-0.5v-49h0.5c4.142,0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-16c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5 7.5,7.5h0.5v49h-0.5z" />
+            </g>
+          </g>
+        </svg>
+        <span id="tournamentTotal" class="text-2xl font-semibold text-gray-800"></span>
+        <span class="text-1xl font-semibold text-gray-800">Tournaments</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="match-history" class="flex flex-col mt-4 mb-8 p-4 rounded-lg shadow-sm bg-gray-200 justify-center items-center">
+    <div class="tabs bg-gray-300 sticky top-4">
+      <button id="matchHistory-btn" class="active">
+        Matches
+      </button>
+      <button id="tournamentHistory-btn">
+        Tournaments
+      </button>
+    </div>
+    <div id="match-history-list" class="flex flex-col mt-4 divide-y divide-gray-300 min-h-50 w-full justify-center">
     </div>
   </div>
 </div>

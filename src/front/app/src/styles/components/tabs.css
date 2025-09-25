@@ -1,6 +1,6 @@
 @layer components {
   .tabs {
-    @apply flex items-center justify-center gap-1 bg-gray-300 rounded-full p-1;
+    @apply flex flex-wrap items-center justify-center gap-1 bg-gray-300 rounded-full p-1;
   }
 
   .tabs > * {

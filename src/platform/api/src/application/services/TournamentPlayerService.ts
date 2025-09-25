@@ -1,3 +1,4 @@
+import { Tournament } from "../../domain/entities/Tournament";
 import { TournamentPlayer } from "../../domain/entities/TournamentPlayer";
 import { User } from "../../domain/entities/User";
 import { ITournamentPlayerRepository } from "../../domain/repositories/ITournamentPlayerRepository";
@@ -10,6 +11,25 @@ export class TournamentPlayerService {
 
   constructor(tournamentPlayerRepository: ITournamentPlayerRepository) {
     this._tournamentPlayerRepository = tournamentPlayerRepository;
+  }
+
+  async newtournamentPlayer(user: User, tournament: Tournament, round: number): Promise<TournamentPlayer> {
+    const tournamentPlayerBlueprint: Partial<TournamentPlayer> = {
+      round: round,
+      user: user,
+      tournament: tournament
+    };
+
+    const id = await this._tournamentPlayerRepository.create(tournamentPlayerBlueprint);
+    if (id === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+    const tournamentPlayer = await this._tournamentPlayerRepository.findById(id);
+    if (tournamentPlayer === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+
+    return tournamentPlayer;
   }
 
   async getLast10UserTournamentsInfo(originUser: User): Promise<TournamentInfo[]> {
