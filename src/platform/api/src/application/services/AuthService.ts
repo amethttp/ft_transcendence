@@ -99,7 +99,7 @@ export class AuthService {
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Reset your password",
-      text: `Click here to restore your password: http://localhost:5173/recover/${token}`,
+      text: `Click here to restore your password: ${process.env.CLIENT_HOST}/recover/${token}`,
     });
   }
 

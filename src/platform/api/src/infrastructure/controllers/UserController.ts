@@ -130,8 +130,8 @@ export default class UserController {
       if (!user.avatarUrl.endsWith("default-avatar.webp"))
         this._removeFile(user.avatarUrl);
       reply.header('set-cookie', [
-        `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
-        `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
+        `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
+        `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
       ]);
 
       reply.code(200).send({ success: true });
@@ -212,7 +212,7 @@ export default class UserController {
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Download your data",
-      html: `Click here to download your data: <a href="http://localhost:5173/user/download/${token} target="_blank">http://localhost:5173/user/download/${token}</a>`
+      html: `Click here to download your data: <a href="${process.env.CLIENT_HOST}/user/download/${token} target="_blank">${process.env.CLIENT_HOST}/user/download/${token}</a>`
     });
   }
 

@@ -57,7 +57,7 @@ export default class AuthController {
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
 
       reply.header('set-cookie', [
-        `AccessToken=${newAccessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
+        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * mins}`,
       ]);
 
       reply.status(200).send({ success: true });
@@ -82,8 +82,8 @@ export default class AuthController {
       JwtAuth.sign(reply, { sub: id } as JwtPayloadInfo, refreshTokenExpiry + 'd'),
     ]);
     const headers = [
-      `AccessToken=${accessToken}; Secure; SameSite=None; Path=/; max-age=${accessTokenExpiry * mins}`,
-      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=None; Path=/; max-age=${refreshTokenExpiry * days}`
+      `AccessToken=${accessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * mins}`,
+      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=${refreshTokenExpiry * days}`
     ];
 
     return headers;
@@ -191,8 +191,8 @@ export default class AuthController {
     await this._userStatusService.setUserStatus(user, Status.OFFLINE);
 
     reply.header('set-cookie', [
-      `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
-      `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
+      `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
+      `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
     ]);
 
     return reply.status(200).send({ "success": true });
