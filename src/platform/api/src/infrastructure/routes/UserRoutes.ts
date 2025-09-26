@@ -21,6 +21,8 @@ import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchP
 import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
 import { MatchService } from "../../application/services/MatchService";
 import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
+import { SQLiteTournamentRepository } from "../repositories/sqlite/SQLiteTournamentRepository";
+import { TournamentService } from "../../application/services/TournamentService";
 
 export default async function userRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
@@ -32,6 +34,7 @@ export default async function userRoutes(server: FastifyInstance) {
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
   const matchRepository = new SQLiteMatchRepository();
   const matchPlayerRepository = new SQLiteMatchPlayerRepository();
+  const tournamentRepository = new SQLiteTournamentRepository();
   const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
   const userVerificationService = new UserVerificationService(userVerificationRepository);
   const userRelationService = new UserRelationService(userRelationRepository);
@@ -42,8 +45,9 @@ export default async function userRoutes(server: FastifyInstance) {
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
+  const tournamentService = new TournamentService(tournamentRepository);
   const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
-  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, matchService, matchPlayerService, tournamentPlayerService);
+  const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, matchService, matchPlayerService, tournamentService, tournamentPlayerService);
 
   server.get('', async (request: FastifyRequest, reply) => {
     await userController.getLoggedUser(request, reply);

@@ -1,5 +1,4 @@
 import { Tournament } from "../../domain/entities/Tournament";
-import { User } from "../../domain/entities/User";
 import { ITournamentRepository } from "../../domain/repositories/ITournamentRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 

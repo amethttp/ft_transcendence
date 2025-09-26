@@ -14,7 +14,7 @@ import { TournamentPlayerService } from "../../application/services/TournamentPl
 import { createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
-import { Tournament } from "../../domain/entities/Tournament";
+import { TournamentService } from "../../application/services/TournamentService";
 
 export default class UserController {
   private _userService: UserService;
@@ -23,16 +23,18 @@ export default class UserController {
   private _recoverPasswordService: RecoverPasswordService;
   private _matchService: MatchService;
   private _matchPlayerService: MatchPlayerService;
+  private _tournamentService: TournamentService;
   private _tournamentPlayerService: TournamentPlayerService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, matchService: MatchService, matchPlayerService: MatchPlayerService, tournamentPlayerService: TournamentPlayerService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, matchService: MatchService, matchPlayerService: MatchPlayerService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
     this._recoverPasswordService = recoverPasswordService;
     this._matchService = matchService;
     this._matchPlayerService = matchPlayerService;
+    this._tournamentService = tournamentService;
     this._tournamentPlayerService = tournamentPlayerService;
   }
 
@@ -88,12 +90,12 @@ export default class UserController {
       await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
       await this._matchPlayerService.newMatchPlayer(originUser, game3);
       await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
-      // const tournament1 = ;
-      // const tournament2 = ;
-      // const tournament3 = ;
-      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament1, 1);
-      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament2, 4);
-      // await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament3, 8);
+      const tournament1 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
+      const tournament2 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
+      const tournament3 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
+      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament1, 1);
+      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament2, 4);
+      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament3, 8);
       // console.log(this._matchService);
       
       const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser); // TODO: refactor efficency
