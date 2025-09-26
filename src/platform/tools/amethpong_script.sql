@@ -66,6 +66,7 @@ CREATE TABLE
     email TEXT NOT NULL UNIQUE,
     username TEXT NOT NULL UNIQUE,
     avatar_url TEXT NOT NULL,
+	birth_date TEXT NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp,
     auth_id INTEGER NOT NULL UNIQUE,

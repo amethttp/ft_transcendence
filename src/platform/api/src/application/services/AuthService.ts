@@ -67,6 +67,9 @@ export class AuthService {
     if (!Validators.password(userCredentials.password)) {
       throw new ResponseError(ErrorParams.REGISTRATION_INVALID_PASSWORD);
     }
+    if (!Validators.birthDate(userCredentials.birthDate)) {
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_BIRTH_DATE);
+    }
   }
 
   async applyLoginMethod(user: User, loginCredentials: UserLoginRequest): Promise<boolean> {
@@ -96,7 +99,7 @@ export class AuthService {
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Reset your password",
-      text: `Click here to restore your password: http://localhost:5173/recover/${token}`,
+      text: `Click here to restore your password: ${process.env.CLIENT_HOST}/recover/${token}`,
     });
   }
 
