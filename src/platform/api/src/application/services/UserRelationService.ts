@@ -3,7 +3,7 @@ import { UserRelation } from "../../domain/entities/UserRelation";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
-import { UserProfileResponse } from "../models/UserProfileResponse";
+import { UserProfile } from "../models/UserProfileResponse";
 import { Status } from "../models/UserStatusDto";
 import { UserService } from "./UserService";
 import { UserStatusService } from "./UserStatusService";
@@ -34,26 +34,26 @@ export class UserRelationService {
     return UserRelationService.toRelationInfo(originUser, relation);
   }
 
-  async getAllUserFriendsRelationsProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserFriendsRelationsProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllFriendsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
 
-  async getAllUserFriendRequestsProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserFriendRequestsProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllFindRequestsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
 
-  async getAllUserBlockedProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserBlockedProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllBlockedBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
@@ -202,7 +202,7 @@ export class UserRelationService {
     return userProfile;
   }
 
-  private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfileResponse[]> {
+  private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfile[]> {
     const profiles = await Promise.all(
       relations.map(async relation => UserService.toUserProfileResponse(
         relation.ownerUser.id === originUser.id

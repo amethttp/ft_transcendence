@@ -110,6 +110,14 @@ export const routes: Route[] = [
         ]
       },
       {
+        path: "/search",
+        component: () => import("./PrivateLayout/SearchComponent/SearchComponent")
+      },
+      {
+        path: "/search/:query",
+        component: () => import("./PrivateLayout/SearchComponent/SearchComponent")
+      },
+      {
         path: "/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
       },

@@ -1,7 +1,7 @@
 import { RelationInfo } from "./RelationInfo";
 import { StatusType } from "./UserStatusDto";
 
-export interface UserProfileResponse {
+export interface UserProfile {
   username: string;
   avatarUrl: string;
   creationTime: string;

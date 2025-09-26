@@ -20,6 +20,10 @@ export default class FriendsListComponent<Component extends UserProfileComponent
     this.updateStatuses = this._updateStatuses.bind(this);
   }
 
+  get profiles(): Component[] {
+    return this.userProfiles;
+  }
+
   async afterInit() {
     this._container = this.outlet?.getElementsByClassName("friendsListContainer")[0]! as HTMLDivElement;
     this.listenData();
@@ -34,25 +38,27 @@ export default class FriendsListComponent<Component extends UserProfileComponent
     this._container.innerHTML = "Still no friends :(";
   }
 
+  private deleteProfiles(list: UserProfile[]) {
+    this.userProfiles = this.userProfiles.filter(component => {
+      if (!list.find(friend => friend.username === component.userProfile.username)) {
+        component.destroy();
+        component.outlet?.remove();
+        return false;
+      }
+      else
+        return true;
+    });
+  }
+
   protected deleteUnused(friends: UserProfile[]) {
+    this.deleteProfiles(friends);
     if (friends.length === 0)
       this.clearView();
     else if (this.userProfiles.length === 0)
       this._container.innerHTML = '';
-    else {
-      this.userProfiles = this.userProfiles.filter(component => {
-        if (!friends.find(friend => friend.username === component.userProfile.username)) {
-          component.destroy();
-          component.outlet?.remove();
-          return false;
-        }
-        else
-          return true;
-      });
-    }
   }
 
-  protected async _fillView(friends: UserProfile[]) {
+  async _fillView(friends: UserProfile[]) {
     this.deleteUnused(friends);
     for (const friend of friends) {
       let profile = this.userProfiles.find(profile => profile.userProfile.username === friend.username);

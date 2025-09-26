@@ -7,7 +7,7 @@ import Validators from "../helpers/Validators";
 import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
 import { RelationInfo } from "../models/RelationInfo";
-import { UserProfileResponse } from "../models/UserProfileResponse";
+import { UserProfile } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { StatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
@@ -72,6 +72,14 @@ export class UserService {
     return user;
   }
 
+  async getAllByUsername(username: string): Promise<User[]> {
+    const users = await this._userRepository.findAllByUsername(username);
+    if (users === null)
+      return [];
+    else
+      return users;
+  }
+
   async getByEmail(email: string): Promise<User> {
     const user = await this._userRepository.findByEmail(email);
     if (user === null) {
@@ -102,8 +110,8 @@ export class UserService {
 
   async updateUser(userId: number, updateInfo: EditUserRequest) {
     if (!Validators.email(updateInfo.email)
-        || !Validators.username(updateInfo.username)
-        || !Validators.birthDate(updateInfo.birthDate)) {
+      || !Validators.username(updateInfo.username)
+      || !Validators.birthDate(updateInfo.birthDate)) {
       throw new ResponseError(ErrorParams.BAD_REQUEST);
     }
     const userBlueprint: Partial<User> = {
@@ -160,8 +168,8 @@ export class UserService {
     return userProfile;
   }
 
-  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: StatusType): UserProfileResponse {
-    const userProfile: UserProfileResponse = {
+  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: StatusType): UserProfile {
+    const userProfile: UserProfile = {
       username: user.username,
       avatarUrl: user.avatarUrl,
       creationTime: user.creationTime,

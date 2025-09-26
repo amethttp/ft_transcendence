@@ -31,7 +31,7 @@ export default class PrivateLayout extends AmethComponent {
     await this._sidebar.init("sidebar", this.router);
     this._sidebar.afterInit();
     this._contextBar = new ContextBarComponent();
-    await this._contextBar.init("PrivateLayoutContextBarComponent");
+    await this._contextBar.init("PrivateLayoutContextBarComponent", this.router);
     this._contextBar.afterInit();
   }
 
