@@ -15,4 +15,8 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
   async findByUsername(username: string): Promise<User | null> {
     return this.findByCondition("username", username);
   }
+
+  async findAllByUsername(username: string): Promise<User[] | null> {
+    return this.baseFindAll("WHERE username LIKE ?", [`${username}%`]);
+  }
 }

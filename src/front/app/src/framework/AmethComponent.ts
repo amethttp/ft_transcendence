@@ -1,6 +1,11 @@
+import EventEmitter from "./EventEmitter/EventEmitter";
 import type { Router } from "./Router/Router";
 
-export default abstract class AmethComponent {
+export type AmethComponentEvents = {
+  change: any;
+};
+
+export default abstract class AmethComponent<Events extends Record<string, any> = AmethComponentEvents> extends EventEmitter<Events> {
   protected router?: Router;
   outlet?: HTMLElement;
   template?: () => Promise<typeof import("*.html?raw")>;
@@ -8,7 +13,9 @@ export default abstract class AmethComponent {
   afterInit() {}
   refresh() {}
 
-  async destroy() {}
+  async destroy() {
+    super.destroy();
+  }
 
   async init(selector: string, router?: Router) {
     this.router = router;

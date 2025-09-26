@@ -3,7 +3,7 @@ import { UserStatusService } from "../../application/services/UserStatusService"
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { UserService } from "../../application/services/UserService";
-import { Status } from "../../application/models/UserStatusDto";
+import { Status, StatusType } from "../../application/models/UserStatusDto";
 import { UserRelationService } from "../../application/services/UserRelationService";
 
 export default class UserStatusController {
@@ -40,12 +40,9 @@ export default class UserStatusController {
       const jwtUser = request.user as JwtPayloadInfo;
       const user = await this._userService.getById(jwtUser.sub);
       const friendsProfiles = await this._userRelationService.getAllUserFriendsRelationsProfiles(user);
-      const friendsStatus = friendsProfiles.map(profile => {
-          return {
-            username: profile.username,
-            online: profile.online
-          };
-      });
+      const friendsStatus: Record<string, StatusType> = {};
+      for (const friends of friendsProfiles)
+        friendsStatus[friends.username] = friends.status
 
       reply.code(200).send(friendsStatus);
     } catch (err) {
