@@ -105,17 +105,16 @@ export default class UserStatsComponent extends AmethComponent {
       playersSpan.classList.add("flex", "flex-wrap", "items-center", "gap-4", "w-full");
 
       const userLabel = document.createElement("span");
-      userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
+      userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-center", "gap-3");
 
-      const userName = document.createElement("a");
-      userName.href = `/${this.targetUser}`;
-      userName.textContent = `${this.targetUser}`;
-      userName.classList.add("text-xl", "hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
+      const tournamentSize = document.createElement("span");
+      tournamentSize.textContent = "/ " + tournament.playerAmount.toString();
+      tournamentSize.classList.add("font-semibold");
       const userScore = document.createElement("span");
       userScore.textContent = tournament.placement.toString();
-      userScore.classList.add("text-xl", "text-brand-900", "font-semibold");
+      userScore.classList.add("text-brand-900", "font-bold");
 
-      userLabel.append(userName, userScore);
+      userLabel.append(userScore, tournamentSize);
 
       playersSpan.append(
         userLabel,

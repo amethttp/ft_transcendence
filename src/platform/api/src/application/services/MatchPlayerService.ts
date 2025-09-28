@@ -19,7 +19,7 @@ export class MatchPlayerService {
   async newMatchPlayer(user: User, match: Match): Promise<MatchPlayer> {
     const matchPlayerBlueprint: Partial<MatchPlayer> = {
       score: randomInt(5), // TODO: Change placeholder
-      isWinner: randomInt(2)? true : false,
+      isWinner: randomInt(2) ? true : false,
       user: user,
       match: match,
     };
@@ -41,8 +41,8 @@ export class MatchPlayerService {
     if (matches === null)
       return [] as MatchInfo[];
 
-    const matchesWithPlayers = await Promise.all (
-        matches.map(async matchPlayer => { 
+    const matchesWithPlayers = await Promise.all(
+      matches.map(async matchPlayer => {
         matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match); // TODO: criminal query
         return matchPlayer;
       })
@@ -52,24 +52,18 @@ export class MatchPlayerService {
   }
 
   async getAllUserMatchesInfo(originUser: User): Promise<MatchInfo[]> {
-    const matches = await this._matchPlayerRepository.findAllByUser(originUser.id);
-    if (matches === null)
+    const test = await this._matchPlayerRepository.findAllUserMatchesInfo(originUser.id);
+
+    if (test === null)
       return [] as MatchInfo[];
 
-    const matchesWithPlayers = await Promise.all (
-        matches.map(async matchPlayer => { 
-        matchPlayer.match.players = await this.getAllSingleMatchPlayers(matchPlayer.match); // TODO: criminal query
-        return matchPlayer;
-      })
-    );
-
-    const matchesInfo = matchesWithPlayers.map(match => this.toMatchInfo(match));
-    return matchesInfo;
+    const testInfo = test.map(matchPlayer => this.toMatchInfo(matchPlayer));
+    return testInfo;
   }
 
   async getAllSingleMatchPlayers(match: Match): Promise<MatchPlayer[]> {
     const matches = await this._matchPlayerRepository.findAllByMatch(match.id);
-    if (matches === null) 
+    if (matches === null)
       return [] as MatchPlayer[];
 
     return matches;
@@ -91,12 +85,12 @@ export class MatchPlayerService {
       opponent: undefined as any as UserProfileResponse,
       isWinner: mPlayer.isWinner,
       finishTime: mPlayer.match.finishTime || "Aborted"
-    }   
+    }
 
     if (mPlayer.match.players && mPlayer.match.players.length > 1) {
       opponent = (mPlayer.match.players[0].user.id === mPlayer.user.id)
-      ? mPlayer.match.players[1]
-      : mPlayer.match.players[0];
+        ? mPlayer.match.players[1]
+        : mPlayer.match.players[0];
       const relation: RelationInfo = {
         type: Relation.NO_RELATION,
         owner: false,

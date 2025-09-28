@@ -76,7 +76,7 @@ export default class UserController {
     }
   }
 
-  async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+  async createMatch(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
@@ -90,21 +90,53 @@ export default class UserController {
       await this._matchPlayerService.newMatchPlayer(requestedUser, game2);
       await this._matchPlayerService.newMatchPlayer(originUser, game3);
       await this._matchPlayerService.newMatchPlayer(requestedUser, game3);
+
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async createTournament(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
       const tournament1 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
-      const tournament2 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
-      const tournament3 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
+      const tournament2 = await this._tournamentService.newPublicTournament("tournament2", "XXXXXXX", 16);
+      const tournament3 = await this._tournamentService.newPublicTournament("tournament3", "XXXXXXX", 16);
       await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament1, 1);
       await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament2, 4);
       await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament3, 8);
-      // console.log(this._matchService);
-      
-      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser); // TODO: refactor efficency
+
+      reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+    try {
+      const requestedUser = await this._userService.getByUsername(request.params.username);
+
+      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
       const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
       const victories = this._matchPlayerService.countWins(matches);
       const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
       const stats: UserStatsResponse = {
         last10Matches: matches.slice(-10).reverse(),
-        last10Torunaments: tournaments.slice(-10).reverse(),
+        last10Tournaments: tournaments.slice(-10).reverse(),
         totalMatches: matches.length,
         matchesWon: victories,
         totalTournaments: tournaments.length,
