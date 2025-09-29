@@ -1,7 +1,7 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
 import { UserStatus, type TUserStatus } from "../../models/UserStatus";
-import { Relation } from "../models/RelationInfo";
+import { Relation } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
 

@@ -5,22 +5,16 @@ import { SearchHelper } from "../SearchComponent/helpers/SearchHelper";
 
 export default class ContextBarComponent extends AmethComponent {
   template = () => import("./ContextBarComponent.html?raw");
-  private _form!: Form<{search: string}>;
+  private _form!: Form<{search_query: string}>;
   
   afterInit() {
     const query = SearchHelper.getQuery();
     this._form = new Form("ContextBarComponentSearchForm",
-      {search: new FormControl<string>(query || "")}
+      {search_query: new FormControl<string>(query || "")}
     );
 
-    this._form.submit = ({search}) => {
-      this.router?.navigateByPath(`/search?q=${encodeURIComponent(search)}`);
+    this._form.submit = ({search_query}) => {
+      this.router?.navigateByPath(`/search?q=${encodeURIComponent(search_query)}`);
     }
-  }
-
-  refresh(): void {
-    // const input = document.getElementById("ContextBarComponentSearchInput")! as HTMLInputElement;
-    // input.value = SearchHelper.getQuery() || "";
-    // input.dispatchEvent(new InputEvent("input"));
   }
 }

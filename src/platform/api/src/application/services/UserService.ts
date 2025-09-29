@@ -6,10 +6,10 @@ import StringTime from "../helpers/StringTime";
 import Validators from "../helpers/Validators";
 import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
-import { RelationInfo } from "../models/RelationInfo";
+import { Relation } from "../models/Relation";
 import { UserProfile } from "../models/UserProfileResponse";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
-import { StatusType } from "../models/UserStatusDto";
+import { TStatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
 import { GoogleAuthService } from "./googleAuthService";
@@ -168,7 +168,7 @@ export class UserService {
     return userProfile;
   }
 
-  public static toUserProfileResponse(user: User, relationStatus: RelationInfo, online: StatusType): UserProfile {
+  public static toUserProfileResponse(user: User, relationStatus: Relation, online: TStatusType): UserProfile {
     const userProfile: UserProfile = {
       username: user.username,
       avatarUrl: user.avatarUrl,

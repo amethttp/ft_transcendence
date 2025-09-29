@@ -1,11 +1,11 @@
-export const Status = {
+export const StatusType = {
   ONLINE: 1,
   OFFLINE: 2,
 } as const;
 
-export type StatusType = typeof Status[keyof typeof Status];
+export type TStatusType = typeof StatusType[keyof typeof StatusType];
 
 export type UserStatusDto = {
   userId: number,
-  value: StatusType,
+  value: TStatusType,
 }

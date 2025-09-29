@@ -11,6 +11,6 @@ export class SearchHelper {
       query = param as string;
     else
       query = null;
-    return query;
+    return query?.trim() || null;
   }
 }

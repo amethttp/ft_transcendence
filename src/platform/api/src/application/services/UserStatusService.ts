@@ -2,7 +2,7 @@ import { User } from "../../domain/entities/User";
 import { UserStatus } from "../../domain/entities/UserStatus";
 import { IUserStatusRepository } from "../../domain/repositories/IUserStatusRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
-import { Status, UserStatusDto, StatusType } from "../models/UserStatusDto";
+import { StatusType, TStatusType, UserStatusDto } from "../models/UserStatusDto";
 
 export class UserStatusService {
   private _userStatusRepository: IUserStatusRepository;
@@ -10,7 +10,7 @@ export class UserStatusService {
   private static toUserStatusDto(userStatus: UserStatus): UserStatusDto {
     const userStatusDto: UserStatusDto = {
       userId: userStatus.user.id,
-      value: userStatus.type as StatusType
+      value: userStatus.type as TStatusType
     };
 
     return userStatusDto;
@@ -21,7 +21,7 @@ export class UserStatusService {
   }
 
   async getUserConnectionStatus(userId: number): Promise<UserStatusDto> {
-    const result: UserStatusDto = { userId: userId, value: Status.OFFLINE }
+    const result: UserStatusDto = { userId: userId, value: StatusType.OFFLINE }
     const userStatus = await this._userStatusRepository.findByUserId(userId);
 
     if (userStatus === null)
@@ -32,7 +32,7 @@ export class UserStatusService {
 
   async createUserConnectionStatus(user: User): Promise<UserStatus> {
     const userStatusBlueprint: Partial<UserStatus> = {
-      type: Status.OFFLINE,
+      type: StatusType.OFFLINE,
       user: user
     }
 
@@ -48,7 +48,7 @@ export class UserStatusService {
     return createdUserStatus;
   }
 
-  async setUserStatus(user: User, newStatus: StatusType) {
+  async setUserStatus(user: User, newStatus: TStatusType) {
     const userStatusBlueprint: Partial<UserStatus> = {
       type: newStatus,
       user: user,

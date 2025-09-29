@@ -7,7 +7,7 @@ export const Relation = {
 
 export type RelationType = typeof Relation[keyof typeof Relation];
 
-export type RelationInfo = {
+export type Relation = {
   type: RelationType;
   owner: boolean;
 };
