@@ -15,6 +15,9 @@ import { createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
 import { TournamentService } from "../../application/services/TournamentService";
+import { UserStatusService } from "../../application/services/UserStatusService";
+import { DownloadDataService } from "../../application/services/DownloadDataService";
+import { Transporter } from "nodemailer";
 
 export default class UserController {
   private _userService: UserService;
@@ -25,9 +28,11 @@ export default class UserController {
   private _matchPlayerService: MatchPlayerService;
   private _tournamentService: TournamentService;
   private _tournamentPlayerService: TournamentPlayerService;
+  private _userStatusService: UserStatusService;
+  private _downloadDataService: DownloadDataService;
 
 
-  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, matchService: MatchService, matchPlayerService: MatchPlayerService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService) {
+  constructor(userService: UserService, userVerificationService: UserVerificationService, userRelationService: UserRelationService, recoverPasswordService: RecoverPasswordService, userStatusService: UserStatusService, downloadDataService: DownloadDataService, matchService: MatchService, matchPlayerService: MatchPlayerService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService) {
     this._userService = userService;
     this._userVerificationService = userVerificationService;
     this._userRelationService = userRelationService;
@@ -35,7 +40,8 @@ export default class UserController {
     this._matchService = matchService;
     this._matchPlayerService = matchPlayerService;
     this._tournamentService = tournamentService;
-    this._tournamentPlayerService = tournamentPlayerService;
+    this._tournamentPlayerService = tournamentPlayerService;    this._userStatusService = userStatusService;
+    this._downloadDataService = downloadDataService;
   }
 
   async getLoggedUser(request: FastifyRequest, reply: FastifyReply) {
@@ -62,7 +68,8 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
       const relationInfo = await this._userRelationService.getRelationInfo(originUser, requestedUser);
-      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, true);
+      const status = await this._userStatusService.getUserConnectionStatus(requestedUser.id);
+      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, status.value);
 
       reply.code(200).send(userProfile);
     } catch (err) {
@@ -211,9 +218,11 @@ export default class UserController {
       await this._userVerificationService.eraseAllUserVerifications(user);
       await this._recoverPasswordService.eraseAllUserRecoverPasswords(user); // TODO: Move inside user service inisde begin commit block
       await this._userRelationService.eraseAllUserRelations(user);
+      if (!user.avatarUrl.endsWith("default-avatar.webp"))
+        this._removeFile(user.avatarUrl);
       reply.header('set-cookie', [
-        `AccessToken=; Secure; SameSite=None; Path=/; max-age=0`,
-        `RefreshToken=; HttpOnly; Secure; SameSite=None; Path=/; max-age=0`
+        `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
+        `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
       ]);
 
       reply.code(200).send({ success: true });
@@ -261,7 +270,8 @@ export default class UserController {
       await this._storeFile(data.file, filePath);
 
       const oldAvatarUrl = (await this._userService.getById(requestedUser.sub)).avatarUrl;
-      this._removeFile(oldAvatarUrl);
+      if (!oldAvatarUrl.endsWith("default-avatar.webp"))
+        this._removeFile(oldAvatarUrl);
 
       await this._userService.updateAvatar(requestedUser.sub, filePath);
 
@@ -269,6 +279,46 @@ export default class UserController {
     } catch (error) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
+
+  async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const token = request.params.token;
+      const userData = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
+      delete userData.auth.password;
+      delete userData.auth.googleAuth;
+      const data = { ...userData }; // TODO: Add games, tournaments, etc...
+
+      reply.header("Content-Type", "application/json")
+        .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)
+        .send(JSON.stringify(data, null, 2));
+    } catch (err) {
+        reply.code(404).send();
+    }
+  }
+
+  private _sendDownloadDataEmail(mailer: Transporter, email: string, token: string) {
+    mailer.sendMail({
+      from: '"AmethPong" <info@amethpong.fun>',
+      to: email,
+      subject: "Download your data",
+      html: `Click here to download your data: <a href="${process.env.CLIENT_HOST}/user/download/${token} target="_blank">${process.env.CLIENT_HOST}/user/download/${token}</a>`
+    });
+  }
+
+  async requestDownloadData(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const user = await this._userService.getById(requestedUser.sub);
+      const token = randomBytes(32).toString("base64url");
+      await this._downloadDataService.newDownloadData(user, token);
+
+      this._sendDownloadDataEmail(request.server.mailer, user.email, token);
+      reply.status(200).send({ success: true });
+    } catch (err) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
 }

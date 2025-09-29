@@ -5,6 +5,7 @@ const userSchema: Record<string, string> = {
   id: "id",
   email: "email",
   username: "username",
+  birthDate: "birth_date",
   avatarUrl: "avatar_url",
   auth: "auth_id",
   creationTime: "creation_time",
@@ -18,6 +19,7 @@ export class User extends AEntity {
   id!: number;
   email!: string;
   username!: string;
+  birthDate!: string;
   avatarUrl!: string;
   auth!: Auth;
   creationTime!: string;
@@ -28,6 +30,7 @@ export class User extends AEntity {
     this.id = -1;
     this.email = "";
     this.username = "";
+    this.birthDate = "";
     this.avatarUrl = "";
     this.auth = new Auth();
     this.creationTime = "";

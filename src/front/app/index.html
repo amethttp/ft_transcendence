@@ -9,12 +9,11 @@
   <title>%VITE_APP_TITLE%</title>
   <link href="./src/style.css" rel="stylesheet" />
 </head>
-
-<body class="flex flex-grow bg-gray-50 antialiased"> 
-  <div id="app" class="flex flex-grow flex-col">
+<body class="flex flex-grow bg-gray-50 relative antialiased">
+  <div id="app" class="flex flex-grow flex-col min-h-screen">
     <p>Loading...</p>
   </div>
+  <section id="alert-container" class="flex flex-col justify-start items-end gap-6 fixed top-0 right-0 mt-16 pr-4 sm:pr-16 max-w-lg max-h-96 overflow-y-auto overflow-x-hidden scrollbar-none z-[1000]"></section>
 </body>
 <script type="module" src="./src/main.ts"></script>
-
 </html>

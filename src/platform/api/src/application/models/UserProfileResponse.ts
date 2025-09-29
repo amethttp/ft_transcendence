@@ -5,5 +5,5 @@ export interface UserProfileResponse {
   avatarUrl: string;
   creationTime: string;
   relation: RelationInfo;
-  online: boolean;
+  online: number;
 }

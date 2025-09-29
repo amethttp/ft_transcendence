@@ -12,6 +12,7 @@ import type { VerifyRequest } from "../models/VerifyRequest";
 export class AuthService {
   private static readonly BASE = "/auth";
   private static readonly LOGIN_ENDPOINT = this.BASE + "/login";
+  private static readonly LOGOUT_ENDPOINT = this.BASE + "/logout";
   private static readonly VERIFY_ENDPOINT = this.LOGIN_ENDPOINT + "/verify";
   private static readonly RECOVER_ENDPOINT = this.BASE + "/recover";
   private static readonly REGISTER_ENDPOINT = this.BASE + "/register";
@@ -43,7 +44,7 @@ export class AuthService {
   }
 
   logout(): Promise<BasicResponse> {
-    return this.http.delete<null, BasicResponse>(AuthService.LOGIN_ENDPOINT, null, { credentials: "include" });
+    return this.http.post<null, BasicResponse>(AuthService.LOGOUT_ENDPOINT, null, { credentials: "include" });
   }
 
   register(request: RegisterRequest): Promise<BasicResponse> {

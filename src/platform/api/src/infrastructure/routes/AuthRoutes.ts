@@ -13,21 +13,25 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import fastifyRateLimit from "@fastify/rate-limit";
 import { GoogleAuthService } from "../../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleAuthRepository";
+import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
+import { UserStatusService } from "../../application/services/UserStatusService";
 
 export default async function authRoutes(server: FastifyInstance) {
+  const userStatusRepository = new SQLiteUserStatusRepository();
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
   const passwordRepository = new SQLitePasswordRepository();
   const authRepository = new SQLiteAuthRepository();
   const userVerificationRepository = new SQLiteUserVerificationRepository();
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
   const userRepository = new SQLiteUserRepository();
+  const userStatusService = new UserStatusService(userStatusRepository);
   const passwordService = new PasswordService(passwordRepository);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const authService = new AuthService(authRepository, passwordService);
   const userVerificationService = new UserVerificationService(userVerificationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
-  const authController = new AuthController(authService, passwordService, recoverPasswordService, userService, userVerificationService);
+  const authController = new AuthController(authService, passwordService, recoverPasswordService, userService, userVerificationService, userStatusService);
 
   await server.register(fastifyRateLimit, {
     max: 25,
@@ -63,7 +67,7 @@ export default async function authRoutes(server: FastifyInstance) {
     await authController.register(request, reply);
   });
 
-  server.delete("/login", async (_request, reply) => {
-    await authController.logout(reply);
+  server.post("/logout", async (request, reply) => {
+    await authController.logout(request, reply);
   });
 }

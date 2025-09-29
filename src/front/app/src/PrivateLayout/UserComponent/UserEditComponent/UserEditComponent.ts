@@ -1,10 +1,12 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
+import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import DateUtils from "../../../utils/DateUtils";
 import type { UserEditRequest } from "./models/UserEditRequest";
 import { UserEditService } from "./services/UserEditService";
 import { UserEditValidators } from "./validators/UserEditValidators";
@@ -24,25 +26,28 @@ export default class UserEditComponent extends AmethComponent {
     this._user = (await LoggedUser.get(true))!;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
+    this._form.controls.birthDate.validators = [Validators.isValidBirthDate];
     this._form.validate();
   }
 
   async afterInit() {
+    DateUtils.setMaxDate('dateInput');
     this._user = (await LoggedUser.get(true))!;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
       username: new FormControl<string>(this._user.username, [Validators.username, UserEditValidators.usernameUnique(this._user.username)]),
       email: new FormControl<string>(this._user.email, [Validators.email, UserEditValidators.emailUnique(this._user.email)]),
+      birthDate: new FormControl<string>(this._user.birthDate, [Validators.isValidBirthDate])
     });
     this._form.submit = (val) => {
       this._userEditService.editUser(val)
-        .then(async res => {
+        .then(async () => {
           const user = await LoggedUser.get(true)!;
           this.router?.redirectByPath("/" + user?.username + "/edit");
-          alert("response: " + JSON.stringify(res));
+          Alert.success("Profile updated successfully");
         })
-        .catch(e => {
-          alert("error: " + JSON.stringify(e));
+        .catch(() => {
+          Alert.error("Could not update profile");
         });
     }
 
@@ -62,10 +67,10 @@ export default class UserEditComponent extends AmethComponent {
         formData.append('file', file);
         this._userEditService.uploadAvatar(formData)
           .then(() => {
-            alert("Avatar uploaded succesfully");
+            Alert.success("Avatar uploaded succesfully");
           })
           .catch(() => {
-            alert("Something went wrong, avatar could not be uploaded :(");
+            Alert.error("Could not upload avatar");
           })
           .finally(() => {
             URL.revokeObjectURL(url);
@@ -74,36 +79,37 @@ export default class UserEditComponent extends AmethComponent {
       }
       else {
         avatarInput.value = '';
-        alert("Not a valid file. Only images up to 10MB are allowed.");
+        Alert.error("Invalid file", "Only images up to 10MB are allowed.");
       }
     };
 
     document.getElementById("UserEditChangePassword")!.onclick = () => {
       const authService = new AuthService();
       authService.recover({ email: this._user.email })
-        .then(() => alert("Check your inbox!"))
-        .catch(err => alert("Error: " + JSON.stringify(err)));
+        .then(() => Alert.info("Check your inbox", "Follow email instructions to change your password."))
+        .catch(() => Alert.error("Could not send change password instructions email"));
     }
 
-    // TODO: Do it in the right way!
-    const blob = new Blob([JSON.stringify(this._user)], { type: 'application/json' });
     const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);
-    downloadBtn.href = URL.createObjectURL(blob);
-    downloadBtn.onclick = () => alert("Downloading amethpong-user.json");
+    downloadBtn.onclick = () => {
+      this._userEditService.requestDownloadData()
+        .then(() => Alert.info("Check your inbox", "Follow email instructions to download your data."))
+        .catch(() => Alert.error("Could not send data download email"));
+    }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
       const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
       if (challenge === "sure") {
         this._userEditService.deleteUser()
           .then(async () => {
-            alert("Successfully deleted user");
+            Alert.success("Successfully deleted your account");
             this.router?.navigateByPath("/");
           })
-          .catch(error => {
-            alert("error: " + JSON.stringify(error));
+          .catch(() => {
+            Alert.error("Could not delete your account");
           });
       }
       else if (challenge !== null)
-        alert("Failed challenge \"" + challenge + "\" is not \"sure\".");
+        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"sure\".");
     }
   }
 }

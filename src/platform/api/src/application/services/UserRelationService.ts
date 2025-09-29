@@ -5,11 +5,14 @@ import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserService } from "./UserService";
+import { UserStatusService } from "./UserStatusService";
 
 export class UserRelationService {
+  private _userStatusService: UserStatusService;
   private _userRelationRepository: IUserRelationRepository;
 
-  constructor(userRelationRepository: IUserRelationRepository) {
+  constructor(userStatusService: UserStatusService, userRelationRepository: IUserRelationRepository) {
+    this._userStatusService = userStatusService;
     this._userRelationRepository = userRelationRepository;
   }
 
@@ -198,13 +201,17 @@ export class UserRelationService {
     return userProfile;
   }
 
-  private userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): UserProfileResponse[] {
-    const profiles = relations.map(relation => UserService.toUserProfileResponse(
-      relation.ownerUser.id === originUser.id
-        ? relation.receiverUser
-        : relation.ownerUser,
-      UserRelationService.toRelationInfo(originUser, relation),
-      true));
+  private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfileResponse[]> {
+    const profiles = await Promise.all(
+      relations.map(async relation => UserService.toUserProfileResponse(
+        relation.ownerUser.id === originUser.id
+          ? relation.receiverUser
+          : relation.ownerUser,
+        UserRelationService.toRelationInfo(originUser, relation),
+        relation.type === Relation.BLOCKED ?
+          2 :
+          (await this._userStatusService.getUserConnectionStatus(relation.receiverUser.id)).value)));
+
     return profiles;
   }
 }

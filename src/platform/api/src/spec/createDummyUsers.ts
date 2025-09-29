@@ -13,6 +13,8 @@ import { RecoverPasswordService } from "../application/services/RecoverPasswordS
 import { SQLiteRecoverPasswordRepository } from "../infrastructure/repositories/sqlite/SQLiteRecoverPasswordRepository";
 import { GoogleAuthService } from "../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../infrastructure/repositories/sqlite/SQLiteGoogleAuthRepository";
+import { UserStatusService } from "../application/services/UserStatusService";
+import { SQLiteUserStatusRepository } from "../infrastructure/repositories/sqlite/SQLiteUserStatusRepository";
 
 export const createDummyUsers = async () => {
   const authController = new AuthController(
@@ -21,23 +23,27 @@ export const createDummyUsers = async () => {
     new RecoverPasswordService(new SQLiteRecoverPasswordRepository()),
     new UserService(new SQLiteUserRepository(), new AuthService(new SQLiteAuthRepository(), new PasswordService(new SQLitePasswordRepository)), new PasswordService(new SQLitePasswordRepository), new GoogleAuthService(new SQLiteGoogleAuthRepository)),
     new UserVerificationService(new SQLiteUserVerificationRepository()),
+    new UserStatusService(new SQLiteUserStatusRepository())
   );
 
   const testUsers: UserRegistrationRequest[] = [
     {
       username: "vperez-f",
       email: "vperez-f@gmail.com",
-      password: "Pepito.1234"
+      password: "Pepito.1234",
+      birthDate: '1997-10-21'
     },
     {
       username: "arcanava",
       email: "arzelcanavate@gmail.com",
-      password: "Pepito.1234"
+      password: "Pepito.1234",
+      birthDate: '1997-10-21'
     },
     {
       username: "cfidalgo",
       email: "cfidalgo@gmail.com",
-      password: "12dummud21"
+      password: "12dummud21",
+      birthDate: '1997-10-21'
     }
   ]
 
@@ -46,7 +52,7 @@ export const createDummyUsers = async () => {
       await authController.register({ body: user } as FastifyRequest, {} as FastifyReply);
     }
     catch (e) {
-      // Do nothing
+      console.log(e);
     }
   }
 }

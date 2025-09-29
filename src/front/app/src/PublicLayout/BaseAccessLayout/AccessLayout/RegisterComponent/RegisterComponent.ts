@@ -5,10 +5,9 @@ import AmethComponent from "../../../../framework/AmethComponent";
 import { Form } from "../../../../framework/Form/Form";
 import { FormControl } from "../../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import DateUtils from "../../../../utils/DateUtils";
 import { RegisterValidators } from "./RegisterValidators/RegisterValidators";
 import type { RegisterForm } from "./models/RegisterForm";
-
-
 
 export default class RegisterComponent extends AmethComponent {
   template = () => import("./RegisterComponent.html?raw");
@@ -20,6 +19,8 @@ export default class RegisterComponent extends AmethComponent {
     this.authService = new AuthService();
     this.errorView = document.getElementById("registerError")!;
 
+    DateUtils.setMaxDate('dateInput');
+
     const passwdControl = new FormControl<string>("", [Validators.password]);
 
     this.form = new Form("registerForm", {
@@ -27,6 +28,7 @@ export default class RegisterComponent extends AmethComponent {
       email: new FormControl<string>("", [Validators.email, RegisterValidators.emailUnique]),
       password: passwdControl,
       repeatPassword: new FormControl<string>("", [Validators.passwordRepeat(passwdControl)]),
+      birthDate: new FormControl<string>("", [Validators.isValidBirthDate]),
       terms: new FormControl<boolean>(false, [Validators.requiredTrue])
     });
 
@@ -35,12 +37,13 @@ export default class RegisterComponent extends AmethComponent {
       const registerRequest: RegisterRequest = {
         username: val.username,
         email: val.email,
-        password: val.password
+        password: val.password,
+        birthDate: val.birthDate
       }
       this.authService.register(registerRequest)
         .then(async () => {
           await LoggedUser.get(true);
-          this.router?.navigateByPath("/home");
+          this.router?.navigateByPath("/login");
         })
         .catch(this.registrationError.bind(this));
     }

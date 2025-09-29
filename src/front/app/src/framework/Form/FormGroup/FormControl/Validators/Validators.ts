@@ -42,4 +42,32 @@ export class Validators {
     }
   };
 
+  private static isOverSixteenYears(formDate: Date, currentDate: Date) {
+    const formDateJson = { y: formDate.getUTCFullYear(), m: formDate.getUTCMonth(), d: formDate.getUTCDate() };
+    const currentDateJson = { y: currentDate.getUTCFullYear(), m: currentDate.getUTCMonth(), d: currentDate.getUTCDate() };
+
+    let years = currentDateJson.y - formDateJson.y;
+    if (currentDateJson.m < formDateJson.m
+      || (currentDateJson.m === formDateJson.m && currentDateJson.d < formDateJson.d)) {
+      years -= 1;
+    }
+
+    return years >= 16;
+  }
+
+  static isValidBirthDate: ValidatorFn<string> = (dateString: string) => {
+    const formDate: Date = new Date(dateString);
+    const currentDate: Date = new Date();
+
+    if (isNaN(formDate.getTime()))
+      return 'Invalid date format (MM-DD-YYYY)';
+
+    if (formDate.getTime() > currentDate.getTime())
+      return 'Are you a time traveler?'
+
+    if (!Validators.isOverSixteenYears(formDate, currentDate))
+      return 'Only users older than 16 years old are allowed to play in our platform'
+
+    return null;
+  }
 }

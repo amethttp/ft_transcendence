@@ -5,6 +5,7 @@ import type { UserEditRequest } from "../models/UserEditRequest";
 export class UserEditService {
   static readonly USER_ENDPOINT = "/user";
   static readonly AVATAR_ENDPOINT = this.USER_ENDPOINT + "/avatar";
+  static readonly DOWNLOAD_ENDPOINT = this.USER_ENDPOINT + "/download";
   private _apiClient: ApiClient;
 
   constructor() {
@@ -21,5 +22,9 @@ export class UserEditService {
 
   uploadAvatar(formData: FormData): Promise<BasicResponse> {
     return this._apiClient.post(UserEditService.AVATAR_ENDPOINT, formData);
+  }
+
+  requestDownloadData(): Promise<BasicResponse> {
+    return this._apiClient.get(UserEditService.DOWNLOAD_ENDPOINT);
   }
 }

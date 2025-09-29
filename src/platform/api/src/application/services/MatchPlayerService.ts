@@ -8,6 +8,7 @@ import { MatchInfo } from "../models/MatchInfo";
 import { UserProfileResponse } from "../models/UserProfileResponse";
 import { UserService } from "./UserService";
 import { Relation, RelationInfo } from "../models/RelationInfo";
+import { Status } from "../models/UserStatusDto";
 
 export class MatchPlayerService {
   private _matchPlayerRepository: IMatchPlayerRepository;
@@ -97,7 +98,7 @@ export class MatchPlayerService {
       };
 
       matchInfo.opponentScore = opponent.score;
-      matchInfo.opponent = UserService.toUserProfileResponse(opponent.user, relation, false);
+      matchInfo.opponent = UserService.toUserProfileResponse(opponent.user, relation, Status.OFFLINE);
     }
 
     return matchInfo;
