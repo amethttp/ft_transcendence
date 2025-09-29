@@ -187,7 +187,12 @@ export default class UserComponent extends AmethComponent {
   }
 
   private async initStatsComponent() {
-    const userStats = new UserStatsComponent(this.userProfile?.username || "");
+    let userProfile;
+    if (this.userProfile?.relation.type === Relation.BLOCKED)
+      userProfile = null;
+    else
+      userProfile = this.userProfile;
+    const userStats = new UserStatsComponent(userProfile || undefined);
     await userStats.init("UserComponentStats", this.router);
     userStats.afterInit();
   }

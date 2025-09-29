@@ -1,4 +1,5 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
 import type { UserStats } from "./models/UserStats";
 import { PieChart, type AnimationDefinition, easings } from 'chartist';
@@ -7,10 +8,10 @@ import 'chartist/dist/index.css';
 export default class UserStatsComponent extends AmethComponent {
   template = () => import("./UserStatsComponent.html?raw");
   protected userProfileService: UserProfileService;
-  protected targetUser: string;
+  protected targetUser?: UserProfile;
   private mode: "match" | "tournament" | "none";
 
-  constructor(targetUser: string) {
+  constructor(targetUser?: UserProfile) {
     super();
     this.userProfileService = new UserProfileService();
     this.targetUser = targetUser;
@@ -221,8 +222,21 @@ export default class UserStatsComponent extends AmethComponent {
     }
   }
 
+  clearView() {
+    document.getElementById("UserStatsComponentEmpty")?.classList.add('hidden');
+    document.getElementById("chart-container")?.classList.remove('hidden');
+  }
+
+  showEmpty() {
+    document.getElementById("UserStatsComponentEmpty")?.classList.remove('hidden');
+    document.getElementById("chart-container")?.classList.add('hidden');
+  }
+
   async afterInit() {
-    const stats = await this.userProfileService.getUserStats(this.targetUser) as UserStats;
+    this.clearView();
+    if (!this.targetUser)
+      return this.showEmpty();
+    const stats = await this.userProfileService.getUserStats(this.targetUser?.username) as UserStats;
     const winRate = Math.round((stats.victories / stats.totalMatches) * 100) || 0;
     const losses = stats.totalMatches - stats.victories || 0;
     const testTournamentAvg = stats.tournamentAvg || 0;
@@ -346,7 +360,8 @@ export default class UserStatsComponent extends AmethComponent {
     });
   }
 
-  refresh() { // TODO: reset more stuff here?
+  refresh(user?: UserProfile) {
+    this.targetUser = user;
     document.querySelector('#matchChart')!.innerHTML = '';
     this.afterInit();
   }
