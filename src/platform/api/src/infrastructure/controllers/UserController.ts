@@ -13,6 +13,10 @@ import { BusboyFileStream } from "@fastify/busboy";
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { Transporter } from "nodemailer";
+import { User } from "../../domain/entities/User";
+import { UserProfile } from "../../application/models/UserProfileResponse";
+import { RelationType } from "../../application/models/Relation";
+import { StatusType, UserStatusDto } from "../../application/models/UserStatusDto";
 
 export default class UserController {
   private _userService: UserService;
@@ -50,14 +54,22 @@ export default class UserController {
     }
   }
 
+  async toUserProfile(originUser: User, user: User): Promise<UserProfile> {
+    const relation = await this._userRelationService.getRelation(originUser, user);
+    let status: UserStatusDto;
+    if (relation.type === RelationType.FRIENDSHIP_ACCEPTED)
+      status = await this._userStatusService.getUserConnectionStatus(user.id);
+    else 
+      status = {userId: user.id, value: StatusType.OFFLINE};
+    return UserService.toUserProfileResponse(user, relation, status.value);
+  }
+
   async getUserProfile(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
-      const relationInfo = await this._userRelationService.getRelationInfo(originUser, requestedUser);
-      const status = await this._userStatusService.getUserConnectionStatus(requestedUser.id);
-      const userProfile = UserService.toUserProfileResponse(requestedUser, relationInfo, status.value);
+      const userProfile = await this.toUserProfile(originUser, requestedUser);
 
       reply.code(200).send(userProfile);
     } catch (err) {
@@ -203,7 +215,7 @@ export default class UserController {
         .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)
         .send(JSON.stringify(data, null, 2));
     } catch (err) {
-        reply.code(404).send();
+      reply.code(404).send();
     }
   }
 

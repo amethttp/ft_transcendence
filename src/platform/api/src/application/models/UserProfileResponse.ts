@@ -1,9 +1,10 @@
-import { RelationInfo } from "./RelationInfo";
+import { Relation } from "./Relation";
+import { TStatusType } from "./UserStatusDto";
 
-export interface UserProfileResponse {
+export interface UserProfile {
   username: string;
   avatarUrl: string;
   creationTime: string;
-  relation: RelationInfo;
-  online: number;
+  relation: Relation;
+  status: TStatusType;
 }

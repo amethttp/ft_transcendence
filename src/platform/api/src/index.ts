@@ -11,6 +11,7 @@ import mailerPlugin from "./infrastructure/plugins/mailerPlugin";
 import fastifyRateLimit from "@fastify/rate-limit";
 import UserRelationRoutes from "./infrastructure/routes/UserRelationRoutes";
 import UserStatusRoutes from "./infrastructure/routes/UserStatusRoutes";
+import SearchRoutes from "./infrastructure/routes/SearchRoutes";
 
 
 const main = async () => {
@@ -42,6 +43,7 @@ const main = async () => {
   await server.register(authRoutes, { prefix: '/auth' });
   await server.register(UserRelationRoutes, { prefix: '/relation' });
   await server.register(UserStatusRoutes, { prefix: '/status' });
+  await server.register(SearchRoutes, { prefix: '/search' });
 
   server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     // TODO: Do it in a more secure way!!!

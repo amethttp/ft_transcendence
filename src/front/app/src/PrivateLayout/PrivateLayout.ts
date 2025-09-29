@@ -1,45 +1,49 @@
-import { ApiClient } from "../ApiClient/ApiClient";
 import AmethComponent from "../framework/AmethComponent";
-import type { IHttpClient } from "../framework/HttpClient/IHttpClient";
+import { Context } from "../framework/Context/Context";
+import ContextBarComponent from "./ContextBarComponent/ContextBarComponent";
+import { UserFriends } from "./FriendsComponent/UserFriends/UserFriends";
 import SidebarComponent from "./SidebarComponent/SidebarComponent";
+import { StatusService } from "./services/StatusService";
 
 export default class PrivateLayout extends AmethComponent {
   template = () => import("./PrivateLayout.html?raw");
-  private _sidebar!: SidebarComponent;
   private _statusIntervalId?: number;
-  private _apiClient: IHttpClient;
+  private _statusService: StatusService;
+  private _sidebar!: SidebarComponent;
+  private _contextBar!: ContextBarComponent;
 
   constructor() {
     super();
-
-    this._apiClient = new ApiClient();
+    Context.friends = new UserFriends();
+    this._statusService = new StatusService();
     this._startStatusPooling();
   }
 
   private _startStatusPooling() {
-    this._refreshStatus();
+    this._statusService.refreshStatus();
     this._statusIntervalId = setInterval(() => {
-      this._refreshStatus();
+      this._statusService.refreshStatus();
     }, 20000)
-  }
-
-  private _refreshStatus() {
-    this._apiClient.post('/status/refresh')
-      .catch(err => console.warn(err));
   }
 
   async afterInit() {
     this._sidebar = new SidebarComponent();
     await this._sidebar.init("sidebar", this.router);
     this._sidebar.afterInit();
+    this._contextBar = new ContextBarComponent();
+    await this._contextBar.init("PrivateLayoutContextBarComponent", this.router);
+    this._contextBar.afterInit();
   }
 
   refresh(): void {
     this._sidebar.refresh();
+    this._contextBar.refresh();
   }
 
   async destroy() {
     super.destroy();
     clearInterval(this._statusIntervalId);
+    await this._sidebar.destroy();
+    await this._contextBar.destroy();
   }
 }
