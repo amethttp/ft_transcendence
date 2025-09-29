@@ -223,8 +223,8 @@ export default class UserStatsComponent extends AmethComponent {
 
   async afterInit() {
     const stats = await this.userProfileService.getUserStats(this.targetUser) as UserStats;
-    const winRate = Math.round((stats.matchesWon / stats.totalMatches) * 100) || 0;
-    const losses = stats.totalMatches - stats.matchesWon || 0;
+    const winRate = Math.round((stats.victories / stats.totalMatches) * 100) || 0;
+    const losses = stats.totalMatches - stats.victories || 0;
     const testTournamentAvg = stats.tournamentAvg || 0;
     const testTournamentAmount = stats.totalTournaments || 0;
 
@@ -276,30 +276,39 @@ export default class UserStatsComponent extends AmethComponent {
       };
     }
 
+    let chartSettings;
     let checkSliceData: boolean = false;
-    if (stats.matchesWon || losses) {
+    if (stats.victories || losses) {
       checkSliceData = true;
+      chartSettings = {
+        series: [{
+          value: stats.victories,
+          name: "wins",
+          className: "stroke-green-400",
+        }, {
+          value: losses,
+          name: "losses",
+          className: "stroke-red-400",
+        }],
+        labels: [winRate + '%', 100 - winRate + '%']
+      };
+    } else {
+      chartSettings = {
+        series: [{
+          value: 1,
+          name: "empty",
+          className: "stroke-gray-200",
+        }]
+      };
     }
-    const matchChart = new PieChart('#matchChart', {
-      series: [{
-        value: stats.matchesWon,
-        name: "wins",
-        className: "stroke-green-400",
-      }, {
-        value: losses,
-        name: "losses",
-        className: "stroke-red-400",
-      }],
-      labels: [winRate + '%', 100 - winRate + '%']
-    },
-      {
-        donut: true,
-        showLabel: checkSliceData,
-      }
+    const matchChart = new PieChart(
+      '#matchChart',
+      chartSettings,
+      { donut: true, showLabel: checkSliceData }
     );
 
     matchChart.on('draw', data => {
-      if (!stats.matchesWon && !losses) { return; }
+      if (!stats.victories && !losses) { return; }
       document.querySelectorAll('.ct-label').forEach(label => {
         (label as SVGElement).classList.add('opacity-0', 'transition-opacity', 'duration-700');
         setTimeout(() => (label as SVGElement).classList.add('opacity-100'), 1500);

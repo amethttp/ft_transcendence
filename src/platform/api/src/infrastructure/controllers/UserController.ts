@@ -138,7 +138,7 @@ export default class UserController {
         last10Matches: matches.slice(-10).reverse(),
         last10Tournaments: tournaments.slice(-10).reverse(),
         totalMatches: matches.length,
-        matchesWon: victories,
+        victories: victories,
         totalTournaments: tournaments.length,
         tournamentAvg: tournamentAvg,
       }
