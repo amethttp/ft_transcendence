@@ -7,12 +7,12 @@ import Validators from "../helpers/Validators";
 import { EditUserRequest } from "../models/EditUserRequest";
 import { LoggedUserResponse } from "../models/LoggedUserResponse";
 import { Relation } from "../models/Relation";
-import { UserProfile } from "../models/UserProfileResponse";
+import { UserProfile } from "../models/UserProfile";
 import { UserRegistrationRequest } from "../models/UserRegistrationRequest";
 import { TStatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
-import { GoogleAuthService } from "./googleAuthService";
+import { GoogleAuthService } from "./GoogleAuthService";
 
 export class UserService {
   private _userRepository: IUserRepository;
@@ -168,7 +168,7 @@ export class UserService {
     return userProfile;
   }
 
-  public static toUserProfileResponse(user: User, relationStatus: Relation, online: TStatusType): UserProfile {
+  public static toUserProfile(user: User, relationStatus: Relation, online: TStatusType): UserProfile {
     const userProfile: UserProfile = {
       username: user.username,
       avatarUrl: user.avatarUrl,

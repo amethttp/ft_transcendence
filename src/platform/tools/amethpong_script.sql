@@ -149,6 +149,16 @@ CREATE TABLE
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
 
+  CREATE TABLE
+  IF NOT EXISTS tournament_player (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    round INT NOT NULL,
+    user_id INTEGER NOT NULL,
+    tournament_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (tournament_id) REFERENCES tournament (id)
+  );
+
 CREATE TABLE
   IF NOT EXISTS match (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -174,16 +184,6 @@ CREATE TABLE
     match_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (match_id) REFERENCES match (id)
-  );
-
-CREATE TABLE
-  IF NOT EXISTS tournament_player (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    round INT NOT NULL,
-    user_id INTEGER NOT NULL,
-    tournament_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
 
 INSERT INTO e_user_status_type (name) VALUES ('ONLINE');

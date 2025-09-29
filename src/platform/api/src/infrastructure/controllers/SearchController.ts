@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { UserService } from "../../application/services/UserService";
-import { UserProfile } from "../../application/models/UserProfileResponse";
+import { UserProfile } from "../../application/models/UserProfile";
 import { User } from "../../domain/entities/User";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import UserController from "./UserController";

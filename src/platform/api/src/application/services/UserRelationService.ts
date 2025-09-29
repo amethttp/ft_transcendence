@@ -3,7 +3,7 @@ import { UserRelation } from "../../domain/entities/UserRelation";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { RelationType, Relation, TRelationType } from "../models/Relation";
-import { UserProfile } from "../models/UserProfileResponse";
+import { UserProfile } from "../models/UserProfile";
 import { StatusType } from "../models/UserStatusDto";
 import { UserService } from "./UserService";
 import { UserStatusService } from "./UserStatusService";
@@ -12,9 +12,9 @@ export class UserRelationService {
   private _userStatusService: UserStatusService;
   private _userRelationRepository: IUserRelationRepository;
 
-  constructor(userStatusService: UserStatusService, UserRelationRepository: IUserRelationRepository) {
+  constructor(userStatusService: UserStatusService, userRelationRepository: IUserRelationRepository) {
     this._userStatusService = userStatusService;
-    this._userRelationRepository = UserRelationRepository;
+    this._userRelationRepository = userRelationRepository;
   }
 
   async getFriendshipStatus(originUser: User, requestedUser: User): Promise<boolean> {
@@ -204,7 +204,7 @@ export class UserRelationService {
 
   private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfile[]> {
     const profiles = await Promise.all(
-      relations.map(async relation => UserService.toUserProfileResponse(
+      relations.map(async relation => UserService.toUserProfile(
         relation.ownerUser.id === originUser.id
           ? relation.receiverUser
           : relation.ownerUser,

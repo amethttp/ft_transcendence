@@ -1,13 +1,13 @@
-export const Relation = {
+export const RelationType = {
   FRIENDSHIP_REQUESTED: 1,
   FRIENDSHIP_ACCEPTED: 2,
   BLOCKED: 3,
   NO_RELATION: 4,
 } as const;
 
-export type RelationType = typeof Relation[keyof typeof Relation];
+export type TRelationType = typeof RelationType[keyof typeof RelationType];
 
 export type Relation = {
-  type: RelationType;
+  type: TRelationType;
   owner: boolean;
 };

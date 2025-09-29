@@ -7,6 +7,8 @@ import UserStatsComponent from "./UserStatsComponent/UserStatsComponent";
 import RelationService from "./services/RelationService";
 import UserProfileComponent from "./UserProfileComponent/UserProfileComponent";
 import UserProfileActionsComponent from "./UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
+import { RelationType } from "./models/Relation";
+import { Context } from "../../framework/Context/Context";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -48,16 +50,37 @@ export default class UserComponent extends AmethComponent {
     this.userProfileComponent = new UserProfileActionsComponent(this.userProfile);
     await this.userProfileComponent.init('UserComponentProfile', this.router);
     this.userProfileComponent.afterInit();
-    this.userStats = new UserStatsComponent();
+    this.userProfileComponent.on("change", async () => {
+      await this.setUserProfile();
+      this.userProfileComponent?.refresh(this.userProfile);
+      if (this.userProfile.relation && (this.userProfile.relation.type === RelationType.BLOCKED || this.userProfile.relation.type === RelationType.NO_RELATION))
+        this.refresh();
+      Context.friends.get(true);
+    });
+    this.initStatsComponent();
+  }
+
+  private async initStatsComponent() {
+    console.debug(this.userProfile);
+    let userProfile;
+    if (this.userName !== this.userProfile.username && this.userProfile?.relation.type === RelationType.BLOCKED)
+      userProfile = null;
+    else
+      userProfile = this.userProfile;
+    this.userStats = new UserStatsComponent(userProfile || undefined);
     await this.userStats.init("UserComponentStats", this.router);
-    this.userStats.afterInit();
-    this.userProfileComponent.on("change", () => this.router?.refresh());
+    await this.userStats.afterInit();
   }
 
   async refresh() {
     await this.setUserProfile();
     this.userProfileComponent?.refresh(this.userProfile);
-    this.userStats?.refresh();
+    let userProfile;
+    if (this.userName !== this.userProfile.username && this.userProfile?.relation.type === RelationType.BLOCKED)
+      userProfile = null;
+    else
+      userProfile = this.userProfile;
+    this.userStats?.refresh(userProfile || undefined);
   }
 
   private updateTitle() {

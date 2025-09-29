@@ -8,7 +8,7 @@ import { SQLiteGoogleAuthRepository } from "../repositories/sqlite/SQLiteGoogleA
 import { SQLitePasswordRepository } from "../repositories/sqlite/SQLitePasswordRepository";
 import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepository";
 import { PasswordService } from "../../application/services/PasswordService";
-import { GoogleAuthService } from "../../application/services/googleAuthService";
+import { GoogleAuthService } from "../../application/services/GoogleAuthService";
 import { AuthService } from "../../application/services/AuthService";
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { SQLiteUserRelationRepository } from "../repositories/sqlite/SQLiteUserRelationRepository";
