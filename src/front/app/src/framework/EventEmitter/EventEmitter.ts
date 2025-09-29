@@ -30,4 +30,8 @@ export default class EventEmitter<Events extends Record<string, any> = AmethEven
       listener(payload);
     });
   }
+
+  destroy() {
+    this.listeners = {};
+  }
 }

@@ -4,7 +4,7 @@
   }
 
   .tabs > * {
-    @apply flex justify-center items-center gap-1 bg-transparent shadow-none rounded-full px-5 py-1 cursor-pointer transition-[background-color,box-shadow] duration-300;
+    @apply flex justify-center items-center text-center gap-1 bg-transparent shadow-none rounded-full px-5 py-1 cursor-pointer transition-[background-color,box-shadow] duration-300;
   }
 
   .tabs > .active,

@@ -1,11 +1,11 @@
-import { UserProfileResponse } from "./UserProfileResponse";
+import { UserProfile } from "./UserProfile";
 
 export interface MatchInfo {
   name: string,
   state: number,
   score: number,
   opponentScore: number,
-  opponent: UserProfileResponse,
+  opponent: UserProfile,
   isWinner: boolean,
   finishTime: string,
 }

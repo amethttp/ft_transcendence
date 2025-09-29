@@ -5,10 +5,10 @@ import { User } from "../../domain/entities/User";
 import { IMatchPlayerRepository } from "../../domain/repositories/IMatchPlayerRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { MatchInfo } from "../models/MatchInfo";
-import { UserProfileResponse } from "../models/UserProfileResponse";
+import { UserProfile } from "../models/UserProfile";
 import { UserService } from "./UserService";
-import { Relation, RelationInfo } from "../models/RelationInfo";
-import { Status } from "../models/UserStatusDto";
+import { Relation, RelationType } from "../models/Relation";
+import { StatusType } from "../models/UserStatusDto";
 
 export class MatchPlayerService {
   private _matchPlayerRepository: IMatchPlayerRepository;
@@ -83,7 +83,7 @@ export class MatchPlayerService {
       state: mPlayer.match.state,
       score: mPlayer.score,
       opponentScore: 0,
-      opponent: undefined as any as UserProfileResponse,
+      opponent: undefined as any as UserProfile,
       isWinner: mPlayer.isWinner,
       finishTime: mPlayer.match.finishTime || "Aborted"
     }
@@ -92,13 +92,13 @@ export class MatchPlayerService {
       opponent = (mPlayer.match.players[0].user.id === mPlayer.user.id)
         ? mPlayer.match.players[1]
         : mPlayer.match.players[0];
-      const relation: RelationInfo = {
-        type: Relation.NO_RELATION,
+      const relation: Relation = {
+        type: RelationType.NO_RELATION,
         owner: false,
       };
 
       matchInfo.opponentScore = opponent.score;
-      matchInfo.opponent = UserService.toUserProfileResponse(opponent.user, relation, Status.OFFLINE);
+      matchInfo.opponent = UserService.toUserProfile(opponent.user, relation, StatusType.OFFLINE);
     }
 
     return matchInfo;

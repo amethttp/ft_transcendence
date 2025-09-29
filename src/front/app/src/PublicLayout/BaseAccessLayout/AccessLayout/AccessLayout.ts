@@ -1,5 +1,6 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
+import { TabsHelper } from "../../../framework/Tabs/TabsHelper";
 
 
 
@@ -17,17 +18,6 @@ export default class AccessLayout extends AmethComponent {
     if (loggedUser !== null)
       this.router?.redirectByPath('/home');
     else
-      this.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
-  }
-
-  checkTabs(container: HTMLElement, path: string = "") {
-    const tabs = container.children;
-    const url = new URL(path, location.origin);
-    for (const tab of ([...tabs] as HTMLAnchorElement[])) {
-      if (url.toString() == tab.href)
-        tab.classList.add("active");
-      else
-        tab.classList.remove("active");
-    }
+      TabsHelper.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
   }
 }

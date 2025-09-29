@@ -2,8 +2,9 @@ import { User } from "../../domain/entities/User";
 import { UserRelation } from "../../domain/entities/UserRelation";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
-import { Relation, RelationInfo, RelationType } from "../models/RelationInfo";
-import { UserProfileResponse } from "../models/UserProfileResponse";
+import { RelationType, Relation, TRelationType } from "../models/Relation";
+import { UserProfile } from "../models/UserProfile";
+import { StatusType } from "../models/UserStatusDto";
 import { UserService } from "./UserService";
 import { UserStatusService } from "./UserStatusService";
 
@@ -18,41 +19,41 @@ export class UserRelationService {
 
   async getFriendshipStatus(originUser: User, requestedUser: User): Promise<boolean> {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    if (relation && relation.type === Relation.FRIENDSHIP_ACCEPTED)
+    if (relation && relation.type === RelationType.FRIENDSHIP_ACCEPTED)
       return true;
 
     return false;
   }
 
-  async getRelationInfo(originUser: User, requestedUser: User): Promise<RelationInfo> {
-    const res: RelationInfo = { type: Relation.NO_RELATION, owner: false };
+  async getRelation(originUser: User, requestedUser: User): Promise<Relation> {
+    const res: Relation = { type: RelationType.NO_RELATION, owner: false };
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     if (relation === null)
       return res;
 
-    return UserRelationService.toRelationInfo(originUser, relation);
+    return UserRelationService.toRelation(originUser, relation);
   }
 
-  async getAllUserFriendsRelationsProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserFriendsRelationsProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllFriendsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
 
-  async getAllUserFriendRequestsProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserFriendRequestsProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllFindRequestsBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
 
-  async getAllUserBlockedProfiles(originUser: User): Promise<UserProfileResponse[]> {
+  async getAllUserBlockedProfiles(originUser: User): Promise<UserProfile[]> {
     const relations = await this._userRelationRepository.findAllBlockedBySingleUser(originUser.id);
     if (relations === null)
-      return [] as UserProfileResponse[];
+      return [] as UserProfile[];
 
     return this.userRelationsToUserProfiles(originUser, relations);
   }
@@ -62,23 +63,23 @@ export class UserRelationService {
 
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
-      case Relation.FRIENDSHIP_ACCEPTED:
+      case RelationType.FRIENDSHIP_ACCEPTED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
-      case Relation.FRIENDSHIP_REQUESTED:
+      case RelationType.FRIENDSHIP_REQUESTED:
         if (originUser.id === relation.ownerUser.id) { throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION); };
-        relationBlueprint.type = Relation.FRIENDSHIP_ACCEPTED;
+        relationBlueprint.type = RelationType.FRIENDSHIP_ACCEPTED;
         if (!(await this._userRelationRepository.update(relation.id, relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
-      case Relation.BLOCKED:
+      case RelationType.BLOCKED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
         relationBlueprint.ownerUser = originUser;
         relationBlueprint.receiverUser = requestedUser;
-        relationBlueprint.type = Relation.FRIENDSHIP_REQUESTED;
+        relationBlueprint.type = RelationType.FRIENDSHIP_REQUESTED;
         if (!(await this._userRelationRepository.create(relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
     }
@@ -87,15 +88,15 @@ export class UserRelationService {
   async removeFriend(originUser: User, requestedUser: User) {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
-      case Relation.FRIENDSHIP_ACCEPTED:
+      case RelationType.FRIENDSHIP_ACCEPTED:
         if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
-      case Relation.FRIENDSHIP_REQUESTED:
+      case RelationType.FRIENDSHIP_REQUESTED:
         if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
-      case Relation.BLOCKED:
+      case RelationType.BLOCKED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
@@ -109,17 +110,17 @@ export class UserRelationService {
 
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
-      case Relation.FRIENDSHIP_ACCEPTED:
+      case RelationType.FRIENDSHIP_ACCEPTED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
-      case Relation.FRIENDSHIP_REQUESTED:
+      case RelationType.FRIENDSHIP_REQUESTED:
         if (originUser.id === relation.ownerUser.id) { throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION); };
-        relationBlueprint.type = Relation.FRIENDSHIP_ACCEPTED;
+        relationBlueprint.type = RelationType.FRIENDSHIP_ACCEPTED;
         if (!(await this._userRelationRepository.update(relation.id, relationBlueprint))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
-      case Relation.BLOCKED:
+      case RelationType.BLOCKED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
@@ -131,15 +132,15 @@ export class UserRelationService {
   async declineFriendRequest(originUser: User, requestedUser: User) {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     switch (relation?.type) {
-      case Relation.FRIENDSHIP_ACCEPTED:
+      case RelationType.FRIENDSHIP_ACCEPTED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
         break;
 
-      case Relation.FRIENDSHIP_REQUESTED:
+      case RelationType.FRIENDSHIP_REQUESTED:
         if (!(await this._userRelationRepository.delete(relation.id))) { new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR); };
         break;
 
-      case Relation.BLOCKED:
+      case RelationType.BLOCKED:
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
 
       default:
@@ -152,12 +153,12 @@ export class UserRelationService {
     const relationBlueprint: Partial<UserRelation> = {
       ownerUser: originUser,
       receiverUser: requestedUser,
-      type: Relation.BLOCKED,
+      type: RelationType.BLOCKED,
     };
 
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     if (relation) {
-      if (relation.type === Relation.BLOCKED) {
+      if (relation.type === RelationType.BLOCKED) {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
       }
       if (!(await this._userRelationRepository.delete(relation.id))) {
@@ -172,7 +173,7 @@ export class UserRelationService {
 
   async unblockUser(originUser: User, requestedUser: User) {
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
-    if (relation && relation.type === Relation.BLOCKED) {
+    if (relation && relation.type === RelationType.BLOCKED) {
       if (originUser.id === relation.receiverUser.id) {
         throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
       };
@@ -192,25 +193,29 @@ export class UserRelationService {
     }
   }
 
-  public static toRelationInfo(originUser: User, relation: UserRelation): RelationInfo {
-    const userProfile: RelationInfo = {
-      type: relation.type as RelationType,
+  public static toRelation(originUser: User, relation: UserRelation): Relation {
+    const userProfile: Relation = {
+      type: relation.type as TRelationType,
       owner: (relation.ownerUser.id === originUser.id)
     };
 
     return userProfile;
   }
 
-  private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfileResponse[]> {
+  private async userRelationsToUserProfiles(originUser: User, relations: UserRelation[]): Promise<UserProfile[]> {
     const profiles = await Promise.all(
-      relations.map(async relation => UserService.toUserProfileResponse(
+      relations.map(async relation => UserService.toUserProfile(
         relation.ownerUser.id === originUser.id
           ? relation.receiverUser
           : relation.ownerUser,
-        UserRelationService.toRelationInfo(originUser, relation),
-        relation.type === Relation.BLOCKED ?
-          2 :
-          (await this._userStatusService.getUserConnectionStatus(relation.receiverUser.id)).value)));
+        UserRelationService.toRelation(originUser, relation),
+        relation.type === RelationType.BLOCKED
+          ? StatusType.OFFLINE
+          : (await this._userStatusService.getUserConnectionStatus(
+            relation.ownerUser.id === originUser.id
+              ? relation.receiverUser.id
+              : relation.ownerUser.id
+          )).value)));
 
     return profiles;
   }

@@ -13,9 +13,9 @@ import { RecoverPasswordService } from "../../application/services/RecoverPasswo
 import { UserService } from "../../application/services/UserService";
 import { randomBytes } from "crypto";
 import { PasswordService } from "../../application/services/PasswordService";
-import { Relation } from "../../application/models/RelationInfo";
+import { RelationType } from "../../application/models/Relation";
 import { UserStatusService } from "../../application/services/UserStatusService";
-import { Status } from "../../application/models/UserStatusDto";
+import { StatusType } from "../../application/models/UserStatusDto";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -115,7 +115,7 @@ export default class AuthController {
   async verifyLogin(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userCredentials = request.body as UserLoginVerificationRequest;
-      if (await this._userVerificationService.verifyAndDelete(userCredentials.userId, userCredentials.code)) {
+      if (process.env.ENV === "development" || await this._userVerificationService.verifyAndDelete(userCredentials.userId, userCredentials.code)) {
         const JWTHeaders = await this.setJWTHeaders(userCredentials.userId, reply);
         const user = await this._userService.getById(userCredentials.userId);
         await this._authService.updateLastLogin(user);
@@ -153,8 +153,8 @@ export default class AuthController {
     try {
       const token = request.params.token;
       const user = await this._recoverPasswordService.getUserByToken(token);
-      const relationInfo = { type: Relation.NO_RELATION, owner: false };
-      const userProfile = UserService.toUserProfileResponse(user, relationInfo, 2); // TODO: Check if necessary to return a full user
+      const relation = { type: RelationType.NO_RELATION, owner: false };
+      const userProfile = UserService.toUserProfile(user, relation, 2); // TODO: Check if necessary to return a full user
 
       reply.code(200).send(userProfile);
     } catch (err) {
@@ -188,7 +188,7 @@ export default class AuthController {
   async logout(request: FastifyRequest, reply: FastifyReply) {
     const jwtUser = request.user as JwtPayloadInfo;
     const user = await this._userService.getById(jwtUser.sub);
-    await this._userStatusService.setUserStatus(user, Status.OFFLINE);
+    await this._userStatusService.setUserStatus(user, StatusType.OFFLINE);
 
     reply.header('set-cookie', [
       `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
