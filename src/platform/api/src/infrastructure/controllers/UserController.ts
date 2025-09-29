@@ -18,6 +18,7 @@ import { TournamentService } from "../../application/services/TournamentService"
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { Transporter } from "nodemailer";
+import { Relation } from "../../application/models/RelationInfo";
 
 export default class UserController {
   private _userService: UserService;
@@ -135,19 +136,34 @@ export default class UserController {
 
   async getUserStats(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
     try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
 
-      const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
-      const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
-      const victories = this._matchPlayerService.countWins(matches);
-      const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
-      const stats: UserStatsResponse = {
-        last10Matches: matches.slice(-10).reverse(),
-        last10Tournaments: tournaments.slice(-10).reverse(),
-        totalMatches: matches.length,
-        victories: victories,
-        totalTournaments: tournaments.length,
-        tournamentAvg: tournamentAvg,
+      let stats: UserStatsResponse;
+      const relation = await this._userRelationService.getRelationInfo(originUser, requestedUser);
+      if (relation.type === Relation.BLOCKED) {
+        stats = {
+          last10Matches: [],
+          last10Tournaments: [],
+          totalMatches: 0,
+          victories: 0,
+          totalTournaments: 0,
+          tournamentAvg: 0,
+        }
+      } else {
+        const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
+        const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
+        const victories = this._matchPlayerService.countWins(matches);
+        const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
+        stats = {
+          last10Matches: matches.slice(-10).reverse(),
+          last10Tournaments: tournaments.slice(-10).reverse(),
+          totalMatches: matches.length,
+          victories: victories,
+          totalTournaments: tournaments.length,
+          tournamentAvg: tournamentAvg,
+        }
       }
 
       reply.code(200).send(stats);
