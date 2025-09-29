@@ -1,7 +1,7 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import AmethComponent from "../../../framework/AmethComponent";
 import { UserStatus, type TUserStatus } from "../../models/UserStatus";
-import { Relation } from "../models/Relation";
+import { RelationType } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
 
@@ -72,16 +72,16 @@ export default class UserProfileComponent extends AmethComponent {
 
   private setRelationStatus() {
     switch (this._userProfile?.relation?.type) {
-      case Relation.NO_RELATION:
+      case RelationType.NO_RELATION:
         this.showNoRelation(this._userProfile);
         break;
-      case Relation.FRIENDSHIP_ACCEPTED:
+      case RelationType.FRIENDSHIP_ACCEPTED:
         this.showFriend(this._userProfile);
         break;
-      case Relation.FRIENDSHIP_REQUESTED:
+      case RelationType.FRIENDSHIP_REQUESTED:
         this.showRequestedFriend(this._userProfile);
         break;
-      case Relation.BLOCKED:
+      case RelationType.BLOCKED:
         this.showBlockedUser(this._userProfile);
         break;
 

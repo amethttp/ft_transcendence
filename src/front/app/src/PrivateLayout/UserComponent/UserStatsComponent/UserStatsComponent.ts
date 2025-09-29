@@ -162,8 +162,8 @@ export default class UserStatsComponent extends AmethComponent {
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
-      userName.href = `/${this.targetUser}`;
-      userName.textContent = `${this.targetUser}`;
+      userName.href = `/${this.targetUser?.username}`;
+      userName.textContent = `${this.targetUser?.username}`;
       userName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const userScore = document.createElement("span");
       userScore.textContent = match.score.toString();
@@ -276,6 +276,8 @@ export default class UserStatsComponent extends AmethComponent {
     const matchHistoryList = document.getElementById("match-history-list") as HTMLUListElement;
     const matchHistoryBtn = document.getElementById("matchHistory-btn") as HTMLButtonElement;
     const tournamentHistoryBtn = document.getElementById("tournamentHistory-btn") as HTMLButtonElement;
+    tournamentHistoryBtn.classList.remove("active");
+    matchHistoryBtn.classList.add("active");
     if (matchHistoryList) {
       this.displayMatchHistory(matchHistoryList, stats);
       matchHistoryBtn.onclick = () => {
@@ -361,8 +363,10 @@ export default class UserStatsComponent extends AmethComponent {
   }
 
   refresh(user?: UserProfile) {
+    super.refresh();
     this.targetUser = user;
     document.querySelector('#matchChart')!.innerHTML = '';
+    this.mode = "none";
     this.afterInit();
   }
 }
