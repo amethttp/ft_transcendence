@@ -86,7 +86,7 @@ export default class UserStatsComponent extends AmethComponent {
     if (this.mode === "tournament") { return; }
     this.mode = "tournament";
     matchHistoryList.innerHTML = "";
-    if (!userStats.last10Tournaments) {
+    if (!userStats.last10Tournaments || !userStats.last10Tournaments.length) {
       const fallback = document.createElement("span");
       fallback.innerHTML = "No tournaments yet...";
       fallback.classList.add("subtitle-3", "text-center");
@@ -140,7 +140,7 @@ export default class UserStatsComponent extends AmethComponent {
     if (this.mode === "match") { return; }
     this.mode = "match";
     matchHistoryList.innerHTML = "";
-    if (!userStats.last10Matches) {
+    if (!userStats.last10Matches || !userStats.last10Matches.length) {
       const fallback = document.createElement("span");
       fallback.innerHTML = "No matches yet...";
       fallback.classList.add("subtitle-3", "text-center");
@@ -259,6 +259,27 @@ export default class UserStatsComponent extends AmethComponent {
       this.animatePathDraw(path as SVGPathElement, 2500);
     });
 
+    const matchHistoryList = document.getElementById("match-history-list") as HTMLUListElement;
+    const matchHistoryBtn = document.getElementById("matchHistory-btn") as HTMLButtonElement;
+    const tournamentHistoryBtn = document.getElementById("tournamentHistory-btn") as HTMLButtonElement;
+    if (matchHistoryList) {
+      this.displayMatchHistory(matchHistoryList, stats);
+      matchHistoryBtn.onclick = () => {
+        tournamentHistoryBtn.classList.remove("active");
+        matchHistoryBtn.classList.add("active");
+        this.displayMatchHistory(matchHistoryList, stats);
+      };
+      tournamentHistoryBtn.onclick = () => {
+        matchHistoryBtn.classList.remove("active");
+        tournamentHistoryBtn.classList.add("active");
+        this.displayTournamentHistory(matchHistoryList, stats);
+      };
+    }
+
+    let checkSliceData: boolean = false;
+    if (stats.matchesWon || losses) {
+      checkSliceData = true;
+    }
     const matchChart = new PieChart('#matchChart', {
       series: [{
         value: stats.matchesWon,
@@ -273,11 +294,12 @@ export default class UserStatsComponent extends AmethComponent {
     },
       {
         donut: true,
-        showLabel: true
+        showLabel: checkSliceData,
       }
     );
 
     matchChart.on('draw', data => {
+      if (!stats.matchesWon && !losses) { return; }
       document.querySelectorAll('.ct-label').forEach(label => {
         (label as SVGElement).classList.add('opacity-0', 'transition-opacity', 'duration-700');
         setTimeout(() => (label as SVGElement).classList.add('opacity-100'), 1500);
@@ -313,24 +335,8 @@ export default class UserStatsComponent extends AmethComponent {
         data.element.animate(animationDefinition, false);
       }
     });
-
-    const matchHistoryList = document.getElementById("match-history-list") as HTMLUListElement;
-    const matchHistoryBtn = document.getElementById("matchHistory-btn") as HTMLButtonElement;
-    const tournamentHistoryBtn = document.getElementById("tournamentHistory-btn") as HTMLButtonElement;
-    if (matchHistoryList) {
-      this.displayMatchHistory(matchHistoryList, stats);
-      matchHistoryBtn.onclick = () => {
-        tournamentHistoryBtn.classList.remove("active");
-        matchHistoryBtn.classList.add("active");
-        this.displayMatchHistory(matchHistoryList, stats);
-      };
-      tournamentHistoryBtn.onclick = () => {
-        matchHistoryBtn.classList.remove("active");
-        tournamentHistoryBtn.classList.add("active");
-        this.displayTournamentHistory(matchHistoryList, stats);
-      };
-    }
   }
+
   refresh() { // TODO: reset more stuff here?
     document.querySelector('#matchChart')!.innerHTML = '';
     this.afterInit();
