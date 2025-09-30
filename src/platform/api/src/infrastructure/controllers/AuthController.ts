@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
-import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
+import { JwtPayloadInfo, JwtPayloadType } from "../../application/models/JwtPayloadInfo";
 import { JwtAuth } from "../auth/JwtAuth";
 import { UserLoginRequest } from "../../application/models/UserLoginRequest";
 import { UserRegistrationRequest } from "../../application/models/UserRegistrationRequest";
@@ -51,13 +51,13 @@ export default class AuthController {
       } catch (verifyErr) {
         throw new ResponseError(ErrorParams.AUTH_INVALID_ACCESS);
       }
-      const tokenPayload = decodedToken as JwtPayloadInfo;
+      const tokenPayload = { sub: decodedToken.sub as number, type: 'access' as JwtPayloadType };
       const accessTokenExpiry = 5;
-      const mins = 60;
+      const secondsInAMinute = 60;
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
 
       reply.header('set-cookie', [
-        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * mins}`,
+        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
       ]);
 
       reply.status(200).send({ success: true });
@@ -75,15 +75,15 @@ export default class AuthController {
   private async setJWTHeaders(id: number, reply: FastifyReply): Promise<string[]> {
     const accessTokenExpiry = 5;
     const refreshTokenExpiry = 30;
-    const mins = 60;
-    const days = 86400;
+    const secondsInAMinute = 60;
+    const secondsInADay = 86400;
     const [accessToken, refreshToken] = await Promise.all([
-      JwtAuth.sign(reply, { sub: id } as JwtPayloadInfo, accessTokenExpiry + 'm'),
-      JwtAuth.sign(reply, { sub: id } as JwtPayloadInfo, refreshTokenExpiry + 'd'),
+      JwtAuth.sign(reply, { sub: id, type: 'access' }, accessTokenExpiry + 'm'),
+      JwtAuth.sign(reply, { sub: id, type: 'refresh' }, refreshTokenExpiry + 'd'),
     ]);
     const headers = [
-      `AccessToken=${accessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * mins}`,
-      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=${refreshTokenExpiry * days}`
+      `AccessToken=${accessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
+      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=${refreshTokenExpiry * secondsInADay}`
     ];
 
     return headers;
