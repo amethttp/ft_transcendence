@@ -1,8 +1,8 @@
 import { LoggedUser } from "../../auth/LoggedUser";
 import AmethComponent from "../../framework/AmethComponent";
 
-export default class GameComponent extends AmethComponent {
-  template = () => import("./GameComponent.html?raw");
+export default class PlayComponent extends AmethComponent {
+  template = () => import("./PlayComponent.html?raw");
 
   constructor() {
     super();
