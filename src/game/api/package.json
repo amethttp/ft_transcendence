@@ -13,7 +13,7 @@
   "keywords": [],
   "author": "amethttp",
   "license": "MIT",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "fastify": "4.29",
     "fastify-plugin": "^5.1.0",
