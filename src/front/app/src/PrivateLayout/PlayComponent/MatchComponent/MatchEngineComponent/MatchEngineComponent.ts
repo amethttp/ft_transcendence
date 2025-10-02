@@ -16,7 +16,7 @@ export default class MatchEngineComponent extends AmethComponent {
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socket = io("https://localhost:8081")
+    this._socket = io("https://localhost:8081");  
   }
   
   afterInit() {
@@ -35,7 +35,7 @@ export default class MatchEngineComponent extends AmethComponent {
       console.log("Disconnected:", reason);
     });
     document.getElementById("test-btn")!.onclick = () => {
-      this._socket?.emit("helloWorld", this._token);
+      this._socket?.emit("ready", this._token);
     };
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
   }
