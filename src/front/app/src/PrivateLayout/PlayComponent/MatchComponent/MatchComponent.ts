@@ -12,7 +12,9 @@ export default class MatchComponent extends AmethComponent {
 
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
-    this._matchEngineComponent = new MatchEngineComponent(this.router?.currentPath.params["token"] as string);
+
+    const token = this.router?.currentPath.params["token"] as string;
+    this._matchEngineComponent = new MatchEngineComponent(token);
   }
 
   async afterInit() {
@@ -21,7 +23,8 @@ export default class MatchComponent extends AmethComponent {
   }
 
   async refresh() {
-    this._matchEngineComponent?.refresh(this.router?.currentPath.params["token"] as string);
+    const token = this.router?.currentPath.params["token"] as string;
+    this._matchEngineComponent?.refresh(token);
   }
 
   async destroy(): Promise<void> {
