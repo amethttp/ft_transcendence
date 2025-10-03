@@ -1,12 +1,6 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE
-  IF NOT EXISTS e_match_type (
-    value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    name TEXT NOT NULL
-  );
-
-CREATE TABLE
   IF NOT EXISTS e_match_state (
     value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL
@@ -86,7 +80,7 @@ CREATE TABLE
   IF NOT EXISTS recover_password (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
@@ -106,7 +100,7 @@ CREATE TABLE
   IF NOT EXISTS download_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
@@ -129,7 +123,7 @@ CREATE TABLE
   IF NOT EXISTS tournament (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
     round INT NOT NULL,
     is_visible BOOLEAN NOT NULL,
     players_amount INT NOT NULL,
@@ -143,7 +137,7 @@ CREATE TABLE
   IF NOT EXISTS tournament_round (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     top TEXT NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     tournament_id INTEGER NOT NULL,
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
@@ -163,15 +157,14 @@ CREATE TABLE
   IF NOT EXISTS match (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    points INTEGER NOT NULL,
     is_visible BOOLEAN NOT NULL,
     tournament_round_id INTEGER,
     state INTEGER NOT NULL,
-    type INTEGER NOT NULL,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     finish_time TEXT,
     FOREIGN KEY (state) REFERENCES e_match_state (value),
-    FOREIGN KEY (type) REFERENCES e_match_type (value),
     FOREIGN KEY (tournament_round_id) REFERENCES tournament_round (id)
   );
 
@@ -192,10 +185,6 @@ INSERT INTO e_user_status_type (name) VALUES ('OFFLINE');
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_REQUESTED');
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_ACCEPTED');
 INSERT INTO e_user_relation_type (name) VALUES ('BLOCKED');
-
-INSERT INTO e_match_type (name) VALUES ('LOCAL');
-INSERT INTO e_match_type (name) VALUES ('REMOTE');
-INSERT INTO e_match_type (name) VALUES ('TOURNAMENT');
 
 INSERT INTO e_match_state (name) VALUES ('WAITING');
 INSERT INTO e_match_state (name) VALUES ('IN_PROGRESS');

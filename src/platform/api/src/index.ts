@@ -12,6 +12,7 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import UserRelationRoutes from "./infrastructure/routes/UserRelationRoutes";
 import UserStatusRoutes from "./infrastructure/routes/UserStatusRoutes";
 import SearchRoutes from "./infrastructure/routes/SearchRoutes";
+import matchRoutes from "./infrastructure/routes/matchRoutes";
 
 
 const main = async () => {
@@ -31,7 +32,7 @@ const main = async () => {
   })
 
   await server.register(fastifyRateLimit, {
-    max: 1000,
+    max: 100000,
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });
@@ -44,6 +45,7 @@ const main = async () => {
   await server.register(UserRelationRoutes, { prefix: '/relation' });
   await server.register(UserStatusRoutes, { prefix: '/status' });
   await server.register(SearchRoutes, { prefix: '/search' });
+  await server.register(matchRoutes, { prefix: '/match' });
 
   server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     // TODO: Do it in a more secure way!!!

@@ -4,6 +4,7 @@ import { IMatchRepository } from "../../domain/repositories/IMatchRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
 import StringTime from "../helpers/StringTime";
+import { NewMatchRequest } from "../models/NewMatchRequest";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
@@ -12,11 +13,30 @@ export class MatchService {
     this._matchRepository = matchRepository;
   }
 
+  async newMatch(request: NewMatchRequest): Promise<Match> {
+    const matchBlueprint: Partial<Match> = {
+      ...request,
+      token: randomBytes(8).toString("base64url"),
+      state: 1
+    };
+
+    const id = await this._matchRepository.create(matchBlueprint);
+    if (id === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+
+    const match = await this._matchRepository.findById(id);
+    if (match === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+
+    return match;
+  }
+
   async newLocalMatch(name: string): Promise<Match> {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"), // TODO: here or on controller??
-      type: 1,
       isVisible: false,
       state: 1,
       finishTime: StringTime.now() // TODO: erase
@@ -38,7 +58,6 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
-      type: 2,
       isVisible: false,
       state: 1
     };
@@ -59,7 +78,6 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
-      type: 2,
       isVisible: true,
       state: 1
     };
@@ -80,7 +98,6 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
-      type: 3,
       isVisible: false,
       state: 1,
       tournamentRound: round
