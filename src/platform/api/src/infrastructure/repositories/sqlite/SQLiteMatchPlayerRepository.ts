@@ -36,7 +36,6 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
             'id', match2.id,
             'name', match2.name,
             'token', match2.token,
-            'type', match2.type,
             'isVisible', match2.is_visible,
             'state', match2.state,
             'tournamentRound', json_object(

@@ -20,8 +20,18 @@ export default class MatchController {
 
   async newMatch(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const match = await this._matchService.newMatch(request.body as NewMatchRequest);
-      reply.send({ token: match.token });
+      const body: NewMatchRequest = request.body as NewMatchRequest;
+      if (body.points < 2 || body.points > 100) {
+        const error = new ResponseError(ErrorParams.BAD_REQUEST);
+        return reply.code(error.code).send(error.toDto());
+      }
+      else {
+        const jwtUser = request.user as JwtPayloadInfo;
+        const originUser = await this._userService.getById(jwtUser.sub);
+        const match = await this._matchService.newMatch(body);
+        await this._matchPlayerService.newMatchPlayer(originUser, match);
+        reply.send({ token: match.token });
+      }
     }
     catch (err: any) {
       console.log(err);
