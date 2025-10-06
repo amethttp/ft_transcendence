@@ -2,7 +2,16 @@ import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import { io, Socket } from "socket.io-client";
 
-export default class MatchEngineComponent extends AmethComponent {
+export type MatchEngineEvents = {
+  opponentConnected: number;
+};
+
+export const PlayerType = {
+  CPU: 0,
+  LOCAL: 1
+} as const;
+
+export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
   template = () => import("./MatchEngineComponent.html?raw");
   private _token?: string;
   private _socket: Socket | null;
@@ -18,7 +27,7 @@ export default class MatchEngineComponent extends AmethComponent {
 
     this._socket = io("https://localhost:8081")
   }
-  
+
   afterInit() {
     // this.outlet!.innerHTML = this._token as string;
     this._socket?.on("connect", () => {
@@ -27,6 +36,7 @@ export default class MatchEngineComponent extends AmethComponent {
     });
     this._socket?.on("handshake", (data) => {
       console.log("Handshake:", data);
+      this.emit("opponentConnected", data);
     });
     this._socket?.on("message", (data) => {
       console.log("Message:", data);
@@ -44,6 +54,10 @@ export default class MatchEngineComponent extends AmethComponent {
     this._token = token;
     // this.outlet!.innerHTML = this._token as string;
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
+  }
+
+  setPlayer(type: keyof typeof PlayerType) {
+    console.log("new player", type);
   }
 
   async destroy(): Promise<void> {

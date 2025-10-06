@@ -1,3 +1,4 @@
+import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
@@ -36,10 +37,15 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
+  opponentConnected = (playerId: number) => {
+    Alert.info(playerId + "");
+  }
+
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
     this._matchEngineComponent?.afterInit();
+    this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
   }
 
   async refresh() {
@@ -47,7 +53,8 @@ export default class MatchComponent extends AmethComponent {
     this._matchEngineComponent?.refresh(token);
   }
 
-  async destroy(): Promise<void> {
+  async destroy() {
+    this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
     this._matchEngineComponent?.destroy();
     super.destroy();
   }
