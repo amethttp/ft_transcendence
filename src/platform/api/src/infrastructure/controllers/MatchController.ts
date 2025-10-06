@@ -5,7 +5,6 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { NewMatchRequest } from "../../application/models/NewMatchRequest";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
-import { Match } from "../../domain/entities/Match";
 
 export default class MatchController {
   private _matchService: MatchService;
@@ -35,14 +34,24 @@ export default class MatchController {
     }
     catch (err: any) {
       console.log(err);
-      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
 
-  async joinMatch(request: FastifyRequest, reply: FastifyReply) {
-    const jwtUser = request.user as JwtPayloadInfo;
-    const originUser = await this._userService.getById(jwtUser.sub);
-    await this._matchPlayerService.newMatchPlayer(originUser, new Match());
-    reply.send(new Match());
+  async joinMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const match = await this._matchService.getByToken(request.params.token);
+      if (match.players.length < 2 && !match.players.find(player => player.user.id === originUser.id)) {
+        const newPlayer: any = await this._matchPlayerService.newMatchPlayer(originUser, match);
+        delete newPlayer.user.auth;
+        match.players.push(newPlayer);
+      }
+      reply.send(match);
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
   }
 }

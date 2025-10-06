@@ -33,6 +33,15 @@ export class MatchService {
     return match;
   }
 
+  async getByToken(token: string): Promise<Match> {
+    const _match = await this._matchRepository.findByToken(token);
+    const match = {..._match, players: JSON.parse((_match?.players || "") as string)} as Match;
+    if (match === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+    return match;
+  }
+
   async newLocalMatch(name: string): Promise<Match> {
     const matchBlueprint: Partial<Match> = {
       name: name,

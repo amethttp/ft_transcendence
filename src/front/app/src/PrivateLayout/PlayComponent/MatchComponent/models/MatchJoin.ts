@@ -1,13 +1,13 @@
-import type UserProfile from "../../../UserComponent/models/UserProfile";
+import type { MatchPlayer } from "./MatchPlayer";
 
-export interface MatchJoinResponse {
+export interface MatchJoin {
   id: number;
   name: string;
   token: string;
   type: number;
   isVisible: boolean;
   state: number;
-  players: UserProfile[];
+  players: MatchPlayer[];
   creationTime: string;
   finishTime?: string;
 }

@@ -1,12 +1,14 @@
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
+import type { MatchJoin } from "./models/MatchJoin";
 import { MatchService } from "./services/MatchService";
 
 export default class MatchComponent extends AmethComponent {
   template = () => import("./MatchComponent.html?raw");
   private _matchEngineComponent?: MatchEngineComponent;
   private _matchService: MatchService;
+  private _match?: MatchJoin;
 
   constructor() {
     super();
@@ -24,8 +26,8 @@ export default class MatchComponent extends AmethComponent {
 
   async setMatch(token: string) {
     try {
-      const match = await this._matchService.getJoinMatch(token);
-      console.log(match);
+      this._match = await this._matchService.getJoinMatch(token);
+      console.log(this._match);
     }
     catch (e: any) {
       console.warn(e);

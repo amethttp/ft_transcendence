@@ -1,4 +1,3 @@
-import { randomInt } from "crypto";
 import { Match } from "../../domain/entities/Match";
 import { MatchPlayer } from "../../domain/entities/MatchPlayer";
 import { User } from "../../domain/entities/User";
@@ -19,8 +18,8 @@ export class MatchPlayerService {
 
   async newMatchPlayer(user: User, match: Match): Promise<MatchPlayer> {
     const matchPlayerBlueprint: Partial<MatchPlayer> = {
-      score: randomInt(5), // TODO: Change placeholder
-      isWinner: randomInt(2) ? true : false,
+      score: 0,
+      isWinner: false,
       user: user,
       match: match,
     };
@@ -33,7 +32,7 @@ export class MatchPlayerService {
     if (matchPlayer === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-
+  
     return matchPlayer;
   }
 
