@@ -43,12 +43,14 @@ export default class MatchController {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const match = await this._matchService.getByToken(request.params.token);
-      if (match.players.length < 2 && !match.players.find(player => player.user.id === originUser.id)) {
+      if (match && match.players.length < 2 && !match.players.find(player => player.user.id === originUser.id)) {
         const newPlayer: any = await this._matchPlayerService.newMatchPlayer(originUser, match);
         delete newPlayer.user.auth;
         match.players.push(newPlayer);
-      }
-      reply.send(match);
+      } else if (!match)
+        reply.code(404).send("");
+      else
+        reply.send(match);
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());

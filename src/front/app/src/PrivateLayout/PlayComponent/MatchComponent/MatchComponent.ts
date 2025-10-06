@@ -9,6 +9,7 @@ export default class MatchComponent extends AmethComponent {
   private _matchEngineComponent?: MatchEngineComponent;
   private _matchService: MatchService;
   private _match?: MatchJoin;
+  private _token?: string;
 
   constructor() {
     super();
@@ -18,10 +19,9 @@ export default class MatchComponent extends AmethComponent {
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    const token = this.router?.currentPath.params["token"] as string;
-    this._matchEngineComponent = new MatchEngineComponent(token);
+    this._token = this.router?.currentPath.params["token"] as string;
+    this._matchEngineComponent = new MatchEngineComponent(this._token);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
-    await this.setMatch(token);
   }
 
   async setMatch(token: string) {
@@ -30,11 +30,15 @@ export default class MatchComponent extends AmethComponent {
       console.log(this._match);
     }
     catch (e: any) {
+      if (e.status === 404)
+        this.router?.redirectByPath('/404');
       console.warn(e);
     }
   }
 
   async afterInit() {
+    if (this._token)
+      await this.setMatch(this._token);
     this._matchEngineComponent?.afterInit();
   }
 

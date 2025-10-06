@@ -33,13 +33,13 @@ export class MatchService {
     return match;
   }
 
-  async getByToken(token: string): Promise<Match> {
-    const _match = await this._matchRepository.findByToken(token);
-    const match = {..._match, players: JSON.parse((_match?.players || "") as string)} as Match;
-    if (match === null) {
-      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+  async getByToken(token: string): Promise<Match | null> {
+    const _match: any = await this._matchRepository.findByToken(token);
+    if (_match) {
+      return { ..._match, players: JSON.parse((_match?.players || "") as string) } as Match;
     }
-    return match;
+    else
+      return null;
   }
 
   async newLocalMatch(name: string): Promise<Match> {
