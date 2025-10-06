@@ -11,6 +11,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _token?: string;
   private _socket: Socket | null;
   private _canvas!: HTMLCanvasElement;
+  private _canvasContext!: CanvasRenderingContext2D;
 
   constructor(token?: string) {
     super();
@@ -46,6 +47,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     };
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
+    this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
+
+    this.prepareCanvas();
   }
 
   async refresh(token?: string) {
@@ -60,5 +64,47 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._socket = null;
     }
     super.destroy();
+  }
+
+  private prepareCanvas() {
+    let paddleWidth = 10;
+    let paddleHeight = 50;
+
+    let paddle1 = {
+        x : 10,
+        y : this._canvas.height/2,
+        width: paddleWidth,
+        height: paddleHeight,
+        velocityY : 0
+    }
+
+    let paddle2 = {
+        x : this._canvas.width - paddleWidth - 10,
+        y : this._canvas.height/2,
+        width: paddleWidth,
+        height: paddleHeight,
+        velocityY : 0
+    }
+
+    //ball
+    let ballDimension = 5;
+    let ball = {
+        x : this._canvas.width/2,
+        y : this._canvas.height/2,
+        width: ballDimension,
+        height: ballDimension,
+        velocityX : 1,
+        velocityY : 2
+    }
+
+    requestAnimationFrame(this.update);
+  }
+
+  private update() {
+    requestAnimationFrame(this.update);
+
+    this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this._canvasContext.fillStyle = "white";
+    this._canvasContext.fillRect(0, 0, this._canvas.width, this._canvas.height);
   }
 }
