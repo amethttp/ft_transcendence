@@ -1,6 +1,7 @@
 import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 import { Match } from "../../../domain/entities/Match";
 import { IMatchRepository } from "../../../domain/repositories/IMatchRepository";
+import { DatabaseMapper } from "../../database/databaseMapper";
 
 export class SQLiteMatchRepository extends SQLiteBaseRepository<Match> implements IMatchRepository {
 
@@ -9,10 +10,12 @@ export class SQLiteMatchRepository extends SQLiteBaseRepository<Match> implement
   }
 
   findByToken(token: string): Promise<Match | null> {
+    const matchCols = DatabaseMapper.getEntityColumns(this._entity);
+    const matchJoins = DatabaseMapper.getEntityJoins(this._entity);
     const query = `
-      SELECT 
-        match.*,
-        (
+      SELECT json_object(
+        ${matchCols},
+        'players', (
           SELECT COALESCE(json_group_array(
             json_object(
               'id', mp.id,
@@ -31,12 +34,14 @@ export class SQLiteMatchRepository extends SQLiteBaseRepository<Match> implement
           FROM match_player mp
           LEFT JOIN user u ON mp.user_id = u.id
           WHERE mp.match_id = match.id
-        ) as players
+        )
+      ) AS result
       FROM
         match
+      ${matchJoins}
       WHERE
             match.token =?;
     `;
-    return this.dbRawGet(query, [token]);
+    return this.dbGet(query, [token]);
   }
 }

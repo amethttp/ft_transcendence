@@ -46,6 +46,31 @@ export default class MatchComponent extends AmethComponent {
       await this.setMatch(this._token);
     this._matchEngineComponent?.afterInit();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
+    this._fillView();
+  }
+
+  private _clearView() {
+
+  }
+
+  private _fillView() {
+    this._clearView();
+    if (!this._match)
+      return;
+    document.getElementById("MatchComponentMatchName")!.innerText = this._match.name;
+    document.getElementById("MatchComponentVisibility")!.innerText = this._match.isVisible ? "Public" : "Private";
+    document.getElementById("MatchComponentToken")!.innerText = this._match.token;
+    document.getElementById("MatchComponentMaxPoints")!.innerText = this._match.points + "";
+    document.getElementById("MatchComponentCopyTokenBtn")!.onclick = () => {
+      navigator.clipboard.writeText(`${location.origin}/play/${this._match?.token}`)
+        .then(() => Alert.success("Link copied to clipboard!"))
+        .catch(() => Alert.error("Could not copy link to clipboard"));
+    };
+
+    document.getElementById("MatchComponentLeaveBtn")!.onclick = () => {
+      this.router?.navigateByPath("/play");
+      // TODO: If tournament go to tournament!
+    }
   }
 
   async refresh() {

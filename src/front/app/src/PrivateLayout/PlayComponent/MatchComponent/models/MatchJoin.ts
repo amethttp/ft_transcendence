@@ -4,7 +4,7 @@ export interface MatchJoin {
   id: number;
   name: string;
   token: string;
-  type: number;
+  points: number;
   isVisible: boolean;
   state: number;
   players: MatchPlayer[];

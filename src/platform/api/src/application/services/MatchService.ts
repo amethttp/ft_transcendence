@@ -35,11 +35,7 @@ export class MatchService {
 
   async getByToken(token: string): Promise<Match | null> {
     const _match: any = await this._matchRepository.findByToken(token);
-    if (_match) {
-      return { ..._match, players: JSON.parse((_match?.players || "") as string) } as Match;
-    }
-    else
-      return null;
+    return _match;
   }
 
   async newLocalMatch(name: string): Promise<Match> {

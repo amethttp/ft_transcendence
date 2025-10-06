@@ -9,7 +9,7 @@ import StringTime from "../../../application/helpers/StringTime";
 
 export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<T> {
   private _db!: Database;
-  private _entity: AEntity;
+  protected _entity: AEntity;
 
   constructor(entity: AEntity) {
     this._db = DatabaseManager.getInstance("/home/db/amethpong.db");

@@ -25,7 +25,9 @@ export default class NewMatchComponent extends AmethComponent {
     });
 
     this._form.submit = (val) => {
-      this._service.newMatch(val).then(({token}) => this.router?.navigateByPath(`/play/${token}`)).catch(err => Alert.error("error", JSON.stringify(err)));
-    }
+      this._service.newMatch(val)
+        .then(({token}) => this.router?.redirectByPath(`/play/${token}`))
+        .catch(err => Alert.error("error", JSON.stringify(err)));
+    } 
   }
 }
