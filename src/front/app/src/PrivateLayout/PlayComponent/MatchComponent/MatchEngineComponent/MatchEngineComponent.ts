@@ -1,6 +1,6 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
-import { io, Socket } from "socket.io-client";
+import SocketClient from "../../../../framework/SocketClient/SocketClient";
 
 export type MatchEngineEvents = {
   newPlayer: number;
@@ -9,60 +9,53 @@ export type MatchEngineEvents = {
 export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
   template = () => import("./MatchEngineComponent.html?raw");
   private _token?: string;
-  private _socket: Socket | null;
+  private _socketClient!: SocketClient;
   private _canvas!: HTMLCanvasElement;
   private _canvasContext!: CanvasRenderingContext2D;
 
   constructor(token?: string) {
     super();
     this._token = token;
-    this._socket = null;
   }
 
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socket = io("https://localhost:8081")
+    this._socketClient = new SocketClient('https://localhost:8081');
+    this._socketClient.setEvent('connect', () => {
+      console.log("Connected:", this._socketClient.id, this._socketClient.connected);
+      this._socketClient.emitEvent("joinMatch", this._token);
+    });
+    this._socketClient.setEvent('handshake', (data) => {
+      console.log('Handshake:', data);
+      this.emit('newPlayer', data);
+    });
+    this._socketClient.setEvent('message', (data) => {
+      console.log("Message:", data);
+    });
+    this._socketClient.setEvent('disconnect', (reason) => {
+      console.log("Disconnected:", reason);
+    });
   }
 
   afterInit() {
-    // Stone-200 oklch(92.3% 0.003 48.717)
+    // Stone-100 oklch(97% 0.001 106.424)
     // this.outlet!.innerHTML = this._token as string;
-    this._socket?.on("connect", () => {
-      console.log("Connected:", this._socket?.id, this._socket?.connected);
-      this._socket?.emit("joinMatch", this._token);
-    });
-    this._socket?.on("handshake", (data) => {
-      console.log("Handshake:", data);
-      this.emit('newPlayer', data);
-    });
-    this._socket?.on("message", (data) => {
-      console.log("Message:", data);
-    });
-    this._socket?.on("disconnect", (reason) => {
-      console.log("Disconnected:", reason);
-    });
-    document.getElementById("test-btn")!.onclick = () => {
-      this._socket?.emit("helloWorld", this._token);
-    };
-    document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
+
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
     this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
 
     this.prepareCanvas();
+    this.update();
   }
 
   async refresh(token?: string) {
     this._token = token;
     // this.outlet!.innerHTML = this._token as string;
-    document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
   }
 
   async destroy(): Promise<void> {
-    if (this._socket) {
-      this._socket.disconnect();
-      this._socket = null;
-    }
+    this._socketClient.disconnect();
     super.destroy();
   }
 
@@ -97,14 +90,12 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
         velocityY : 2
     }
 
-    requestAnimationFrame(this.update);
+    // BUG WITH REQUEST PREPARE ANIMATION DOESNT WORK WITH "this"
   }
 
   private update() {
-    requestAnimationFrame(this.update);
-
     this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
-    this._canvasContext.fillStyle = "white";
+    this._canvasContext.fillStyle = "oklch(97% 0.001 106.424)";
     this._canvasContext.fillRect(0, 0, this._canvas.width, this._canvas.height);
   }
 }
