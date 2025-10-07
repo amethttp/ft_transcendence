@@ -46,7 +46,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
 
     this.prepareCanvas();
-    this.update();
   }
 
   async refresh(token?: string) {
@@ -60,12 +59,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private prepareCanvas() {
-    let paddleWidth = 10;
-    let paddleHeight = 50;
+    let color = 'oklch(97% 0.001 106.424)';
+    let paddleWidth = 2;
+    let paddleHeight = 20;
 
     let paddle1 = {
         x : 10,
-        y : this._canvas.height/2,
+        y : this._canvas.height/2 - paddleHeight / 2,
         width: paddleWidth,
         height: paddleHeight,
         velocityY : 0
@@ -73,24 +73,29 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
     let paddle2 = {
         x : this._canvas.width - paddleWidth - 10,
-        y : this._canvas.height/2,
+        y : this._canvas.height/2 - paddleHeight / 2,
         width: paddleWidth,
         height: paddleHeight,
         velocityY : 0
     }
 
     //ball
-    let ballDimension = 5;
+    let ballDimension = 2;
     let ball = {
-        x : this._canvas.width/2,
-        y : this._canvas.height/2,
+        x : this._canvas.width/2 - ballDimension / 2,
+        y : this._canvas.height/2 - ballDimension / 2,
         width: ballDimension,
         height: ballDimension,
         velocityX : 1,
         velocityY : 2
     }
 
-    // BUG WITH REQUEST PREPARE ANIMATION DOESNT WORK WITH "this"
+    this._canvasContext.fillStyle = color;
+    this._canvasContext.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
+    this._canvasContext.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
+    this._canvasContext.fillRect(ball.x, ball.y, ball.width, ball.height);
+
+    // BUG WITH requestPrepareAnimation(this.update) DOESNT WORK WITH "this", this is undefined
   }
 
   private update() {
