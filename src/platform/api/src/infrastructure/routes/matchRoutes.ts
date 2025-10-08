@@ -1,5 +1,5 @@
 
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 import { UserService } from "../../application/services/UserService";
 import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepository";
@@ -29,8 +29,13 @@ export default async function matchRoutes(server: FastifyInstance) {
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
   const matchController = new MatchController(matchService, matchPlayerService, userService);
 
-  server.post('', async (request: FastifyRequest, reply) => {
+  server.post('', async (request: FastifyRequest, reply: FastifyReply) => {
     await matchController.newMatch(request, reply);
+  });
+
+
+  server.get('/list', async (request: FastifyRequest, reply: FastifyReply) => {
+    await matchController.getList(request, reply);
   });
 
 }
