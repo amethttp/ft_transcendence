@@ -19,12 +19,12 @@ export default class MatchComponent extends AmethComponent {
   private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
     {
       name: "AI",
-      avatar: "/default-avatar.webp",
+      avatar: "/ai-player.webp",
       local: true
     },
     {
       name: "Player 2",
-      avatar: "/default-avatar.webp",
+      avatar: "/player2.webp",
       local: true
     }
   ];
