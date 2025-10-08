@@ -62,7 +62,12 @@ export default class MatchComponent extends AmethComponent {
   }
 
   opponentConnected = (playerId: number) => {
-    Alert.info(playerId + "");
+    this._matchService.getPlayer(playerId).then(
+      val => {
+        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
+        this._showOpponentPlayer();
+      })
+      .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
   async afterInit() {

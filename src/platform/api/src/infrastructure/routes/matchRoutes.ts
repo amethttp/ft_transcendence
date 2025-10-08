@@ -33,6 +33,10 @@ export default async function matchRoutes(server: FastifyInstance) {
     await matchController.newMatch(request, reply);
   });
 
+  server.get('/player/:playerId', async (request: FastifyRequest<{ Params: { playerId: number } }>, reply) => {
+    await matchController.getPlayer(request, reply);
+  });
+
   server.get('/:token/join', async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
     await matchController.joinMatch(request, reply);
   });

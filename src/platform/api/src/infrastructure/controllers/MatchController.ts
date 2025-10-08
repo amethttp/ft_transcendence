@@ -57,4 +57,20 @@ export default class MatchController {
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
+
+  async getPlayer(request: FastifyRequest<{ Params: { playerId: number } }>, reply: FastifyReply) {
+    try {
+      if (!request.params.playerId || request.params.playerId < 0)
+        throw new ResponseError(ErrorParams.BAD_REQUEST);
+      const player = await this._matchPlayerService.getById(request.params.playerId);
+      return reply.send(player);
+    } catch (error: any) {
+      if (error instanceof ResponseError)
+        reply.code(error.code).send(error.toDto());
+      else {
+        console.log(error);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+      }
+    }
+  }
 }

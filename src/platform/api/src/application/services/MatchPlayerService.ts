@@ -32,7 +32,7 @@ export class MatchPlayerService {
     if (matchPlayer === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-  
+
     return matchPlayer;
   }
 
@@ -111,5 +111,12 @@ export class MatchPlayerService {
     }
 
     return wins;
+  }
+
+  async getById(playerId: number): Promise<MatchPlayer> {
+    const player = await this._matchPlayerRepository.findById(playerId);
+    if (!player)
+      throw new ResponseError(ErrorParams.USER_NOT_FOUND);
+    return player;
   }
 }
