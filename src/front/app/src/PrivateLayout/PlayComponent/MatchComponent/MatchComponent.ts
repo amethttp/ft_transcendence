@@ -25,7 +25,8 @@ export default class MatchComponent extends AmethComponent {
     {
       name: "Player 2",
       avatar: "/player2.webp",
-      local: true
+      local: true,
+      controls: true
     }
   ];
   private _matchEngineComponent?: MatchEngineComponent;
@@ -67,10 +68,10 @@ export default class MatchComponent extends AmethComponent {
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
+    await this._initPlayers();
     this._fillView();
     this._matchEngineComponent?.afterInit();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
-    await this._initPlayers();
   }
 
   private _getPlayerOpts(player?: MatchPlayer): PlayerOptions | undefined {
@@ -100,14 +101,11 @@ export default class MatchComponent extends AmethComponent {
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
     document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
-    document.getElementById("opponentPlayerControls")?.classList.add("hidden");
   }
 
   private _showOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.remove("hidden");
     document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
-    if (this._opponentPlayerComponent?.player === MatchComponent.PLAYERS_OPTS[PlayerType.LOCAL])
-      document.getElementById("opponentPlayerControls")?.classList.remove("hidden");
   }
 
   private _fillView() {
@@ -145,10 +143,10 @@ export default class MatchComponent extends AmethComponent {
   async refresh() {
     const token = this.router?.currentPath.params["token"] as string;
     await this.setMatch(token);
-    this._fillView();
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
+    this._fillView();
   }
 
   async destroy() {

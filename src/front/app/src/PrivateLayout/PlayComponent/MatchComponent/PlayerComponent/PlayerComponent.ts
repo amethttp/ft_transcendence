@@ -5,6 +5,7 @@ export interface PlayerOptions {
   name: string;
   avatar: string;
   local?: boolean;
+  controls?: boolean;
 }
 
 export default class PlayerComponent extends AmethComponent {
@@ -33,16 +34,25 @@ export default class PlayerComponent extends AmethComponent {
     (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).removeAttribute("href");
     (this.outlet?.getElementsByClassName("PlayerComponentImage")[0] as HTMLImageElement).src = "/default-avatar.webp";
     (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = "Player";
+    this.outlet?.getElementsByClassName("PlayerComponentControls")[0].classList.add("hidden");
+    this.outlet?.getElementsByClassName("PlayerComponentOtherControls")[0].classList.add("hidden");
   }
 
   async fillView() {
     this.clearView();
     if (this._player) {
-      if (!this.player?.local) {
-        (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/${this._player.name}`;
-      }
       (this.outlet?.getElementsByClassName("PlayerComponentImage")[0] as HTMLImageElement).src = `${this._player.avatar}`;
-      (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = this._player.name === (await LoggedUser.get())?.username ? "You" : this._player.name;
+      let name = this._player.name;
+      let isLogged = name === (await LoggedUser.get())?.username;
+      if (isLogged) {
+        name = "You";
+        this.outlet?.getElementsByClassName("PlayerComponentControls")[0].classList.remove("hidden");
+      }
+      (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = name;
+      if (!this.player?.local && !isLogged)
+        (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/${this._player.name}`;
+      if (this.player?.controls)
+        this.outlet?.getElementsByClassName("PlayerComponentOtherControls")[0].classList.remove("hidden");
     }
   }
 }
