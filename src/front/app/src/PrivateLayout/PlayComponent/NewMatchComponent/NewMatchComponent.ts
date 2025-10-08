@@ -22,7 +22,7 @@ export default class NewMatchComponent extends AmethComponent {
     this._form = new Form("newMatchForm", {
       name: new FormControl<string>(NameGenerator.generatePongName(), [Validators.length(3, 100)]),
       points: new FormControl<number>(10, [Validators.minMax(2, 100)]),
-      isVisible: new FormControl<boolean>(false)
+      isVisible: new FormControl<boolean>(true)
     });
 
     this._form.submit = (val) => {
