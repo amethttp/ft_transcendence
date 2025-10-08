@@ -116,7 +116,7 @@ export class MatchPlayerService {
   async getById(playerId: number): Promise<MatchPlayer> {
     const player = await this._matchPlayerRepository.findById(playerId);
     if (!player)
-      throw new ResponseError(ErrorParams.USER_NOT_FOUND);
+      throw new ResponseError(ErrorParams.PLAYER_NOT_FOUND);
     return player;
   }
 }

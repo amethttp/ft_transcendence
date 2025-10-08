@@ -34,7 +34,7 @@ export class MatchService {
   }
 
   async getByToken(token: string): Promise<Match | null> {
-    const _match: any = await this._matchRepository.findByToken(token);
+    const _match = await this._matchRepository.findByToken(token);
     return _match;
   }
 
