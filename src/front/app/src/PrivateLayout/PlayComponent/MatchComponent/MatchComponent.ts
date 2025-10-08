@@ -53,7 +53,6 @@ export default class MatchComponent extends AmethComponent {
   async setMatch(token: string) {
     try {
       this._match = await this._matchService.getJoinMatch(token);
-      console.log(this._match);
     }
     catch (e: any) {
       if (e.status === 404)
