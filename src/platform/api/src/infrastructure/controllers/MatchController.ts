@@ -47,10 +47,11 @@ export default class MatchController {
         const newPlayer: any = await this._matchPlayerService.newMatchPlayer(originUser, match);
         delete newPlayer.user.auth;
         match.players.push(newPlayer);
-      } else if (!match)
-        reply.code(404).send("");
-      else
-        reply.send(match);
+      }
+      else if (!match) {
+        return reply.code(404).send("");
+      }
+      reply.send(match);
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
