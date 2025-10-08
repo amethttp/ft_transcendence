@@ -1,5 +1,5 @@
-<div class="flex flex-1 flex-col sm:p-8 gap-8">
-  <div class="flex flex-wrap justify-evenly gap-8 items-center">
+<div class="flex flex-1 flex-col py-8 sm:px-8 gap-8">
+  <div class="flex flex-wrap justify-between gap-8 items-center">
     <div class="flex gap-2 items-center justify-center">
       <div id="MatchComponentMatchName"></div>
       <div id="MatchComponentVisibility" class="text-xs text-gray-600"></div>
@@ -24,15 +24,11 @@
     </div>
   </div>
   <div id="matchEngineContainer" class="bg-gray-900 rounded flex-1"></div>
-  <div class="flex justify-evenly">
-    <div>
-      Player 1
-    </div>
+  <div class="flex justify-evenly items-center gap-8">
+    <div id="ownerPlayerComponent"></div>
     <div>
       Best of <span id="MatchComponentMaxPoints"></span>pts
     </div>
-    <div>
-      Player 2
-    </div>
+     <div id="opponentPlayerComponent"></div>
   </div>
 </div>

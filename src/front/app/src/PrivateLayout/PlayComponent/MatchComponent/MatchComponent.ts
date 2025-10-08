@@ -3,6 +3,7 @@ import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
 import type { MatchJoin } from "./models/MatchJoin";
+import PlayerComponent from "./PlayerComponent/PlayerComponent";
 import { MatchService } from "./services/MatchService";
 
 export default class MatchComponent extends AmethComponent {
@@ -11,6 +12,8 @@ export default class MatchComponent extends AmethComponent {
   private _matchService: MatchService;
   private _match?: MatchJoin;
   private _token?: string;
+  private _ownerPlayerComponent?: PlayerComponent;
+  private _opponentPlayerComponent?: PlayerComponent;
 
   constructor() {
     super();
@@ -44,13 +47,26 @@ export default class MatchComponent extends AmethComponent {
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
+    this._fillView();
     this._matchEngineComponent?.afterInit();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
-    this._fillView();
+    await this._initPlayers();
+  }
+
+  private async _initPlayers() {
+    this._ownerPlayerComponent = new PlayerComponent(this._match?.players[0]);
+    await this._ownerPlayerComponent.init("ownerPlayerComponent");
+    this._ownerPlayerComponent.afterInit();
+    this._opponentPlayerComponent = new PlayerComponent(this._match?.players[1]);
+    await this._opponentPlayerComponent.init("opponentPlayerComponent");
+    this._opponentPlayerComponent.afterInit();
   }
 
   private _clearView() {
-
+    document.getElementById("MatchComponentMatchName")!.innerText = "";
+    document.getElementById("MatchComponentVisibility")!.innerText = "";
+    document.getElementById("MatchComponentToken")!.innerText = "";
+    document.getElementById("MatchComponentMaxPoints")!.innerText = "";
   }
 
   private _fillView() {
@@ -75,12 +91,18 @@ export default class MatchComponent extends AmethComponent {
 
   async refresh() {
     const token = this.router?.currentPath.params["token"] as string;
+    await this.setMatch(token);
+    this._fillView();
     this._matchEngineComponent?.refresh(token);
+    this._ownerPlayerComponent?.refresh(this._match?.players[0]);
+    this._opponentPlayerComponent?.refresh(this._match?.players[1]);
   }
 
   async destroy() {
     this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
     this._matchEngineComponent?.destroy();
+    this._ownerPlayerComponent?.destroy();
+    this._opponentPlayerComponent?.destroy();
     super.destroy();
   }
 }
