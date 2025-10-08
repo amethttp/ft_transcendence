@@ -16,7 +16,9 @@ export default class MatchEngineComponent extends AmethComponent {
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socket = io("https://localhost:8081");  
+    this._socket = io("https://localhost:8081", {
+      withCredentials: true,
+    });  
   }
   
   afterInit() {

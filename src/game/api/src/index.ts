@@ -1,9 +1,9 @@
 import fastify from 'fastify';
 import fs from 'fs';
-import type { Socket } from 'socket.io';
 import fastifySocketIO from 'fastify-socket.io';
 import { Room } from './match/models/Room';
 import { Player } from './match/models/Player';
+import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
 
 const server = fastify({
   https: {
@@ -23,13 +23,23 @@ const main = async () => {
     pingTimeout: 5000,
   });
 
+  server.io.use((socket: AuthenticatedSocket, next) => {
+    try {
+      console.log(socket.handshake.headers.cookie || "NONE");
+      socket.username = "verifiedUser";
+      next();      
+    } catch (error) {
+      next(new Error("Invalid JWT"));
+    }
+  });
+
   let matchRooms: Record<string, Room> = {};
   server.ready((err) => { // TODO: Handle same user multiple tabs...
     if (err) throw err;
-    server.io.on("connection", (socket: Socket) => {
+    server.io.on("connection", (socket: AuthenticatedSocket) => {
       console.log(`\nClient: ${socket.id} connected`);
       socket.on("joinMatch", (token) => {
-        const player: Player = { name: "username", state: "IDLE" };
+        const player: Player = { name: socket.username || "NONE", state: "IDLE" };
         console.log("Trying to join match:", token);
         const room = matchRooms[token];
         if (room) {
@@ -57,7 +67,9 @@ const main = async () => {
             server.io.to(`${token}`).emit("message", "Players are ready! || Starting Match in 3...");
             matchRooms[token].interval = setInterval(() => {
               const room = matchRooms[token];
-              if (!room) return;
+              if (!room) {
+                return;
+              }
           
               server.io.to(token).emit("message", "TOKEN: " + token + " || " + + performance.now());
             }, (1000/60));
