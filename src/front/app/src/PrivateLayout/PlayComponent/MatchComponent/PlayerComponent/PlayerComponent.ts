@@ -1,21 +1,30 @@
 import { LoggedUser } from "../../../../auth/LoggedUser";
 import AmethComponent from "../../../../framework/AmethComponent"
-import type { MatchPlayer } from "../models/MatchPlayer";
+
+export interface PlayerOptions {
+  name: string;
+  avatar: string;
+  local?: boolean;
+}
 
 export default class PlayerComponent extends AmethComponent {
   template = () => import("./PlayerComponent.html?raw");
-  private _player?: MatchPlayer;
+  private _player?: PlayerOptions;
 
-  constructor(player?: MatchPlayer) {
+  constructor(player?: PlayerOptions) {
     super();
     this._player = player;
+  }
+
+  get player(): PlayerOptions | undefined {
+    return this._player;
   }
 
   async afterInit() {
     await this.fillView();
   }
 
-  async refresh(player?: MatchPlayer) {
+  async refresh(player?: PlayerOptions) {
     this._player = player;
     await this.fillView();
   }
@@ -28,10 +37,12 @@ export default class PlayerComponent extends AmethComponent {
 
   async fillView() {
     this.clearView();
-    if (!this._player)
-      return;
-    (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/${this._player.user.username}`;
-    (this.outlet?.getElementsByClassName("PlayerComponentImage")[0] as HTMLImageElement).src = `${this._player.user.avatarUrl}`;
-    (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = this._player.user.username === (await LoggedUser.get())?.username ? "You" : this._player.user.username;
+    if (this._player) {
+      if (!this.player?.local) {
+        (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/${this._player.name}`;
+      }
+      (this.outlet?.getElementsByClassName("PlayerComponentImage")[0] as HTMLImageElement).src = `${this._player.avatar}`;
+      (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = this._player.name === (await LoggedUser.get())?.username ? "You" : this._player.name;
+    }
   }
 }

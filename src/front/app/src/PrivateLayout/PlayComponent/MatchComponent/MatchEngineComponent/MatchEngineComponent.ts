@@ -1,15 +1,11 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import { io, Socket } from "socket.io-client";
+import type { PlayerTypeValue } from "../MatchComponent";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
 };
-
-export const PlayerType = {
-  CPU: 0,
-  LOCAL: 1
-} as const;
 
 export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
   template = () => import("./MatchEngineComponent.html?raw");
@@ -56,7 +52,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
   }
 
-  setPlayer(type: keyof typeof PlayerType) {
+  setPlayer(type: PlayerTypeValue) {
     console.log("new player", type);
   }
 
