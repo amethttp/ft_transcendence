@@ -3,6 +3,7 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { NameGenerator } from "../helpers/NameGenerator";
 import type { NewMatchRequest } from "./models/NewMatchRequest";
 import { NewMatchService } from "./services/NewMatchService";
 
@@ -19,7 +20,7 @@ export default class NewMatchComponent extends AmethComponent {
 
   afterInit(): void {
     this._form = new Form("newMatchForm", {
-      name: new FormControl<string>("", [Validators.length(3, 100)]),
+      name: new FormControl<string>(NameGenerator.generatePongName(), [Validators.length(3, 100)]),
       points: new FormControl<number>(10, [Validators.minMax(2, 100)]),
       isVisible: new FormControl<boolean>(false)
     });
