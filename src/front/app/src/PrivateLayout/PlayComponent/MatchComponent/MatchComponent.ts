@@ -1,6 +1,7 @@
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
+import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
 import type { MatchJoin } from "./models/MatchJoin";
 import type { MatchPlayer } from "./models/MatchPlayer";
@@ -68,6 +69,7 @@ export default class MatchComponent extends AmethComponent {
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
+    this._setTitle();
     await this._initPlayers();
     this._fillView();
     this._matchEngineComponent?.afterInit();
@@ -140,9 +142,15 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
+  private _setTitle() {
+    if (this._match)
+      document.title = TitleHelper.addTitlePart(this._match.name);
+  }
+
   async refresh() {
     const token = this.router?.currentPath.params["token"] as string;
     await this.setMatch(token);
+    this._setTitle();
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
