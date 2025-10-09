@@ -3,4 +3,6 @@ export interface TournamentMinified {
   token: string;
   creationTime: string;
   points: number;
+  players: number;
+  playersAmount: number;
 }
