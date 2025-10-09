@@ -21,12 +21,12 @@ export default class NewTournamentComponent extends AmethComponent {
       // TODO: Generated name
       name: new FormControl<string>("", [Validators.length(3, 100)]),
       points: new FormControl<number>(10, [Validators.minMax(2, 100)]),
-      maxPlayers: new FormControl<number>(4, [Validators.minMax(4, 32)]),
+      playersAmount: new FormControl<number>(4, [Validators.minMax(4, 32)]),
       isVisible: new FormControl<boolean>(true)
     });
 
     this._form.submit = (val) => {
-      this._service.newTournament(val).then(({token}) => this.router?.navigateByPath(`/play/${token}`)).catch(err => Alert.error("error", JSON.stringify(err)));
+      this._service.newTournament(val).then(({token}) => this.router?.navigateByPath(`/play/tournament/${token}`)).catch(err => Alert.error("error", JSON.stringify(err)));
     }
   }
 }

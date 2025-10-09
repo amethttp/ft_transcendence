@@ -9,6 +9,7 @@ const tournamentSchema: Record<string, string> = {
   isVisible: "is_visible",
   playersAmount: "players_amount",
   state: "state",
+  points: "points",
   creationTime: "creation_time",
   finishTime: "finish_time",
 };
@@ -17,15 +18,16 @@ export class Tournament extends AEntity {
   static readonly tableName = "tournament";
   static readonly entitySchema = tournamentSchema;
 
-  id!: number;
-  name!: string;
-  token!: string;
-  round!: number;
-  isVisible!: boolean;
+  id: number;
+  name: string;
+  token: string;
+  round: number;
+  isVisible: boolean;
   playersAmount!: number;
-  state!: number;
-  tournamentRounds!: TournamentRound[];
-  creationTime!: string;
+  state: number;
+  points: number;
+  tournamentRounds: TournamentRound[];
+  creationTime: string;
   finishTime?: string;
 
   constructor() {
@@ -37,6 +39,7 @@ export class Tournament extends AEntity {
     this.isVisible = false;
     this.playersAmount = 0;
     this.state = 0;
+    this.points = 10;
     this.tournamentRounds = undefined as unknown as TournamentRound[];// [new TournamentRound()]
     this.creationTime = "";
     this.finishTime = "";

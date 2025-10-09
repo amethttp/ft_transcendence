@@ -13,5 +13,4 @@ export class NewTournamentService {
   newTournament(request: NewTournamentRequest): Promise<{token: string}> {
     return this._apiClient.post(NewTournamentService.ENDPOINT, request);
   }
-
 }

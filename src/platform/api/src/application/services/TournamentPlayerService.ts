@@ -13,7 +13,7 @@ export class TournamentPlayerService {
     this._tournamentPlayerRepository = tournamentPlayerRepository;
   }
 
-  async newtournamentPlayer(user: User, tournament: Tournament, round: number): Promise<TournamentPlayer> {
+  async newTournamentPlayer(user: User, tournament: Tournament, round: number = 0): Promise<TournamentPlayer> {
     const tournamentPlayerBlueprint: Partial<TournamentPlayer> = {
       round: round,
       user: user,

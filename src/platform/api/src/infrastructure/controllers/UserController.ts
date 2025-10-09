@@ -129,9 +129,9 @@ export default class UserController {
       const tournament1 = await this._tournamentService.newPublicTournament("tournament1", "XXXXXXX", 16);
       const tournament2 = await this._tournamentService.newPublicTournament("tournament2", "XXXXXXX", 16);
       const tournament3 = await this._tournamentService.newPublicTournament("tournament3", "XXXXXXX", 16);
-      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament1, 1);
-      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament2, 4);
-      await this._tournamentPlayerService.newtournamentPlayer(originUser, tournament3, 8);
+      await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament1, 1);
+      await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament2, 4);
+      await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament3, 8);
 
       reply.code(200).send({ success: true });
     } catch (err) {
