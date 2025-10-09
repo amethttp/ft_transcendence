@@ -119,4 +119,11 @@ export class MatchPlayerService {
       throw new ResponseError(ErrorParams.PLAYER_NOT_FOUND);
     return player;
   }
+
+  async getByUserAndMatch(userId: number, matchId: number): Promise<MatchPlayer> {
+    const player = await this._matchPlayerRepository.findByUserAndMatch(userId, matchId);
+    if (!player)
+      throw new ResponseError(ErrorParams.PLAYER_NOT_FOUND);
+    return player;
+  }
 }

@@ -58,11 +58,11 @@ export default class MatchController {
     }
   }
 
-  async getPlayer(request: FastifyRequest<{ Params: { playerId: number } }>, reply: FastifyReply) {
+  async getPlayer(request: FastifyRequest<{ Querystring: { userId: number, matchId: number } }>, reply: FastifyReply) {
     try {
-      if (!request.params.playerId || request.params.playerId < 0)
+      if (!request.query.userId || request.query.userId < 0)
         throw new ResponseError(ErrorParams.BAD_REQUEST);
-      const player = await this._matchPlayerService.getById(request.params.playerId);
+      const player = await this._matchPlayerService.getByUserAndMatch(request.query.userId, request.query.matchId);
       return reply.send(player);
     } catch (error: any) {
       if (error instanceof ResponseError)

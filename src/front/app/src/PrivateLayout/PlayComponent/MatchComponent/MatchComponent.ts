@@ -61,8 +61,8 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  opponentConnected = (playerId: number) => {
-    this._matchService.getPlayer(playerId).then(
+  opponentConnected = (userId: number) => {
+    this._matchService.getPlayer(userId, this._match?.id || -1).then(
       val => {
         this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
         this._showOpponentPlayer();

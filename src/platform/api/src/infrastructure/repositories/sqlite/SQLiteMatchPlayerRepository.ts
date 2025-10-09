@@ -8,6 +8,12 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
     super(new MatchPlayer());
   }
 
+
+  findByUserAndMatch(userId: number, matchId: number): Promise<MatchPlayer | null> {
+    const query = `WHERE user_id =? AND match_id=?`;
+    return this.baseFind(query, [userId, matchId]);
+  }
+
   findAllUserMatchesInfo(id: number): Promise<MatchPlayer[] | null> {
     const query = `
       SELECT

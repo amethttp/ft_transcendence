@@ -6,7 +6,6 @@ import type { MatchPlayer } from "../models/MatchPlayer";
 export class MatchService {
   private static readonly BASE_ENDPOINT = "/match";
   private static readonly JOIN_ENDPOINT = "/join";
-  private static readonly PLAYER_ENDPOINT = this.BASE_ENDPOINT + "/player";
 
   private _apiClient: IHttpClient;
 
@@ -18,7 +17,7 @@ export class MatchService {
     return this._apiClient.get(`${MatchService.BASE_ENDPOINT}/${token}${MatchService.JOIN_ENDPOINT}`);
   }
 
-  getPlayer(id: number): Promise<MatchPlayer> {
-    return this._apiClient.get(`${MatchService.PLAYER_ENDPOINT}/${id}`);
+  getPlayer(userId: number, matchId: number): Promise<MatchPlayer> {
+    return this._apiClient.get(`${MatchService.BASE_ENDPOINT}?userId=${userId}&matchId=${matchId}`);
   }
 }
