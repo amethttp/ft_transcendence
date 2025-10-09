@@ -33,4 +33,8 @@ export default async function tournamentRoutes(server: FastifyInstance) {
     await tournamentController.newTournament(request, reply);
   });
 
+  server.get('/list', async (request: FastifyRequest, reply) => {
+    await tournamentController.getList(request, reply);
+  });
+
 }

@@ -42,4 +42,15 @@ export default class TournamentController {
       }
     }
   }
+
+  async getList(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const tournaments = await this._tournamentService.getList();
+      reply.send(tournaments);
+    }
+    catch (err: any) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
 }

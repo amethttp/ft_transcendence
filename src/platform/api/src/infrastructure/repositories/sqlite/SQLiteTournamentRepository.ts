@@ -18,15 +18,17 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
     return this.baseDelete(query, [id]);
   }
 
-  findPublic(_attributes: (keyof typeof tournamentSchema)[] = Object.keys(tournamentSchema)): Promise<Tournament[] | null> {
+  findPublic(attributes: (keyof typeof tournamentSchema)[] = Object.keys(tournamentSchema)): Promise<Tournament[] | null> {
+    const columns = attributes.map(attr => `'${attr}', ${this._entity.schema[attr]}`);
     const query = `
       SELECT
-        *
+        json_object(${columns}) AS result
       FROM
-        tournament
+        ${this._entity.tableName}
       WHERE
-        1=1
-    `;
+        is_visible = 1
+        AND state = 1
+    ;`;
     return this.dbAll(query, []);
   }
 }

@@ -17,7 +17,7 @@ export default class TournamentsComponent extends AmethComponent {
 
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
-    this._listComponent.init("tournamentsList", router);
+    await this._listComponent.init("tournamentsList", router);
   }
 
   afterInit(): void {

@@ -19,7 +19,7 @@ export default class TournamentsListComponent extends AmethComponent {
   }
 
   async afterInit() {
-    this._container = this.outlet?.getElementsByClassName("MatchesListContainer")[0] as HTMLDivElement;
+    this._container = this.outlet?.getElementsByClassName("TournamentsListContainer")[0] as HTMLDivElement;
     await this._setTournaments();
     this._fillView();
     this._interval = setInterval(() => {

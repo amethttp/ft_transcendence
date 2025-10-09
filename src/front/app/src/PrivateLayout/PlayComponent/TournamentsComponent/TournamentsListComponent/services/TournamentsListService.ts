@@ -3,7 +3,7 @@ import type { IHttpClient } from "../../../../../framework/HttpClient/IHttpClien
 import type { TournamentMinified } from "../models/TournamentMinified";
 
 export class TournamentsListService {
-  private static readonly ENDPOINT = "/tournaments";
+  private static readonly ENDPOINT = "/tournament/list";
   private _apiClient: IHttpClient;
 
   constructor() {
