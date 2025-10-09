@@ -1,6 +1,7 @@
 import { Tournament } from "../../domain/entities/Tournament";
 import { ITournamentRepository } from "../../domain/repositories/ITournamentRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { TournamentMinified } from "../models/TournamentMinified";
 
 
 export class TournamentService {
@@ -58,5 +59,12 @@ export class TournamentService {
     if (!(await this._tournamentRepository.delete(tournament.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+  }
+
+  async getList(): Promise<TournamentMinified[]> {
+    const tournaments = await this._tournamentRepository.findPublic(Object.keys(new TournamentMinified()));
+    if (!tournaments)
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    return tournaments;
   }
 }

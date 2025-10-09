@@ -1,7 +1,7 @@
 import { AEntity } from "./AEntity";
 import { TournamentRound } from "./TournamentRound";
 
-const tournamentSchema: Record<string, string> = {
+export const tournamentSchema: Record<string, string> = {
   id: "id",
   name: "name",
   token: "token",

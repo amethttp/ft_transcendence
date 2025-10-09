@@ -1,5 +1,5 @@
 import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
-import { Tournament } from "../../../domain/entities/Tournament";
+import { Tournament, tournamentSchema } from "../../../domain/entities/Tournament";
 import { ITournamentRepository } from "../../../domain/repositories/ITournamentRepository";
 
 export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament> implements ITournamentRepository {
@@ -16,5 +16,17 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
   deleteAllByUser(id: number): Promise<boolean | null> {
     const query = `WHERE user_id=?`;
     return this.baseDelete(query, [id]);
+  }
+
+  findPublic(_attributes: (keyof typeof tournamentSchema)[] = Object.keys(tournamentSchema)): Promise<Tournament[] | null> {
+    const query = `
+      SELECT
+        *
+      FROM
+        tournament
+      WHERE
+        1=1
+    `;
+    return this.dbAll(query, []);
   }
 }
