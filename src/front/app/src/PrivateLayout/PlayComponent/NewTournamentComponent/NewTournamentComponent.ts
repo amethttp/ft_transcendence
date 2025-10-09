@@ -18,7 +18,6 @@ export default class NewTournamentComponent extends AmethComponent {
     super();
     this._service = new NewTournamentService();
     this._roundsSlider = new RoundsSliderComponent("Max. Players");
-
   }
 
   async init(selector: string, router?: Router): Promise<void> {
@@ -37,7 +36,9 @@ export default class NewTournamentComponent extends AmethComponent {
     });
 
     this._form.submit = (val) => {
-      this._service.newTournament(val).then(({ token }) => this.router?.navigateByPath(`/play/tournament/${token}`)).catch(err => Alert.error("error", JSON.stringify(err)));
+      this._service.newTournament(val)
+        .then(({ token }) => this.router?.redirectByPath(`/play/tournament/${token}`))
+        .catch(err => Alert.error("error", JSON.stringify(err)));
     }
   }
 }

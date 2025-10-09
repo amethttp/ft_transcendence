@@ -23,10 +23,10 @@ export default async function tournamentRoutes(server: FastifyInstance) {
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
-  const tournamentRepository = new SQLiteTournamentRepository()
-  const tournamentService = new TournamentService(tournamentRepository)
-  const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository()
-  const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository)
+  const tournamentRepository = new SQLiteTournamentRepository();
+  const tournamentService = new TournamentService(tournamentRepository);
+  const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
+  const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
   const tournamentController = new TournamentController(userService, tournamentService, tournamentPlayerService);
 
   server.post('', async (request: FastifyRequest, reply) => {
