@@ -1,0 +1,43 @@
+<div class="flex flex-col items-center gap-4 relative">
+  <nav
+    class="flex w-full gap-4 items-center p-2 sm:p-4 bg-gray-50/70 backdrop-blur-md will-change-transform transition-all sticky top-0 z-100">
+    <a href="./" class="btn btn-secondary" aria-label="Go back" title="Go back">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+        class="size-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+    </a>
+    <h2 class="title-2 text-xl text-shadow-gray-700">New tournament</h2>
+  </nav>
+  <div class="flex flex-col w-full items-center gap-16 px-4 pb-4 sm:px-8 sm:pb-8">
+    <div class="flex flex-col items-center w-full max-w-sm gap-8">
+      <form id="newTournamentForm" class="gap-6">
+        <div class="field">
+          <label for="nameInput" class="label">Name</label>
+          <input id="nameInput" name="name" type="text" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="pointsInput" class="label">Points to win</label>
+          <input id="pointsInput" name="points" type="number" min="2" max="100">
+        </div>
+        <div class="field">
+          <label for="maxPlayersInput" class="label">Max. players</label>
+          <input id="maxPlayersInput" name="maxPlayers" type="number" min="2" max="100">
+        </div>
+        <label class="field flex-row justify-center gap-4 select-none">
+          <label for="visibilityToggle" class="label">Private</label>
+          <label class="switch">
+            <input type="checkbox" id="visibilityToggle" name="isVisible">
+            <span class="slider round"></span>
+          </label>
+          <label for="visibilityToggle" class="label">Public</label>
+        </label>
+        <div class="field items-center">
+          <p class="control w-full">
+            <button class="btn btn-primary w-full" type="submit">Create</button>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
