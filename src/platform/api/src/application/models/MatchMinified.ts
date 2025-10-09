@@ -1,4 +1,6 @@
-export interface MatchMinified {
-  name: string;
-  token: string;
+export class MatchMinified {
+  name: string = "";
+  token: string = "";
+  points: number = 10;
+  creationTime: string = "";
 }

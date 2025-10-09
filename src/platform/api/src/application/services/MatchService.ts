@@ -123,11 +123,12 @@ export class MatchService {
   }
 
   async getPublic(): Promise<MatchMinified[]> {
-    const matches = await this._matchRepository.getPublic();
+    const matches = await this._matchRepository.getPublic(Object.keys(new MatchMinified()));
     if (!matches) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-    else
+    else {
       return matches;
+    }
   }
 }

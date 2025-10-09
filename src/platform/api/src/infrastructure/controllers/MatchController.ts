@@ -53,7 +53,7 @@ export default class MatchController {
     }
     catch (err: any) {
       console.log(err);
-      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
 }

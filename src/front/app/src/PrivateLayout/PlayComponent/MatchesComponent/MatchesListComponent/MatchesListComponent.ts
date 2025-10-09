@@ -57,7 +57,7 @@ export default class MatchesListComponent extends AmethComponent {
 
   private _fillMatches() {
     if (this._container) {
-      for (const match of this._matches.reverse()) {
+      for (const match of [...this._matches].reverse()) {
         const html = `
           <a href="/play/${match.token}" class="flex flex-wrap w-full text-center sm:text-left sm:justify-center text-center items-center gap-8 rounded shadow p-2 sm:p-4 outline-2 outline-brand-800 hover:shadow-md transition-all hover:bg-gray-50">
             <div class="flex-1">${DOMHelper.sanitizeHTML(match.name)}</div>
