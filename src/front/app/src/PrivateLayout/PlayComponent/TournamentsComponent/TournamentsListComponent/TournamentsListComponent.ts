@@ -59,7 +59,7 @@ export default class TournamentsListComponent extends AmethComponent {
     if (this._container) {
       for (const tournament of [...this._tournaments].reverse()) {
         const html = `
-          <a href="/play/tournament/${tournament.token}" class="flex flex-wrap w-full text-center sm:text-left sm:justify-center text-center items-center gap-8 rounded shadow p-2 sm:p-4 outline-2 outline-brand-800 hover:shadow-md transition-all hover:bg-gray-50">
+          <a title="Join ${tournament.name} tournament" href="/play/tournament/${tournament.token}" class="flex flex-wrap w-full text-center sm:text-left sm:justify-center text-center items-center gap-8 rounded shadow p-2 sm:p-4 outline-2 outline-brand-800 hover:shadow-md transition-all hover:bg-gray-50">
             <div class="flex-1">${DOMHelper.sanitizeHTML(tournament.name)}</div>
             <div class="flex flex-1 sm:flex-none gap-5 justify-center items-center">
             <span>${tournament.players} / ${tournament.playersAmount}</span>
@@ -67,8 +67,8 @@ export default class TournamentsListComponent extends AmethComponent {
               <span>${DateUtils.timeAgo(tournament.creationTime)}</span>
               <div class="btn btn-secondary">
                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-               </svg>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
               </div>
             </div>
           </a>

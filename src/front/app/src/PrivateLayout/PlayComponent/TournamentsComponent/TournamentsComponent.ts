@@ -22,10 +22,11 @@ export default class TournamentsComponent extends AmethComponent {
 
   afterInit(): void {
     this._form = new Form("tournamentCodeListForm", {
-      token: new FormControl<string>("", [Validators.length(1, 30)])
+      token: new FormControl<string>("")
     });
 
     this._form.submit = ({ token }) => {
+      // TODO: Join if url as well
       this.router?.navigateByPath(`/play/tournament/${token}`);
     };
 
