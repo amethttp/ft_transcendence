@@ -23,19 +23,11 @@ export default class MatchesComponent extends AmethComponent {
 
   afterInit(): void {
     this._form = new Form("matchCodeListForm", {
-      token: new FormControl<string>("", [Validators.length(1, 30)])
+      token: new FormControl<string>("")
     });
     this._form.submit = ({ token }) => {
-      if (!token || token === "")
-        Alert.error("Invalid match");
-      else {
-        try {
-          const url = new URL(token);
-          this.router?.navigateByUrl(url);
-        } catch (error) {
-          this.router?.navigateByPath(`/play/${token}`);
-        }
-      }
+      if (token)
+        this.router?.navigateByPath(`/play/${encodeURIComponent(token)}`);
     };
 
     this._matchesListComponent.afterInit();

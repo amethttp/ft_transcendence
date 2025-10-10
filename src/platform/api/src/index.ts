@@ -13,6 +13,7 @@ import UserRelationRoutes from "./infrastructure/routes/UserRelationRoutes";
 import UserStatusRoutes from "./infrastructure/routes/UserStatusRoutes";
 import SearchRoutes from "./infrastructure/routes/SearchRoutes";
 import matchRoutes from "./infrastructure/routes/matchRoutes";
+import tournamentRoutes from "./infrastructure/routes/tournamentRoutes";
 
 
 const main = async () => {
@@ -36,6 +37,7 @@ const main = async () => {
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });
+  
   await server.register(jwt, { secret: process.env.JWT_SECRET || "", prefix: "" });
   await server.register(cookie);
   await server.register(mailerPlugin);
@@ -46,6 +48,7 @@ const main = async () => {
   await server.register(UserStatusRoutes, { prefix: '/status' });
   await server.register(SearchRoutes, { prefix: '/search' });
   await server.register(matchRoutes, { prefix: '/match' });
+  await server.register(tournamentRoutes, { prefix: '/tournament' });
 
   server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     // TODO: Do it in a more secure way!!!

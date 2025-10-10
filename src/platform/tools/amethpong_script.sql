@@ -130,6 +130,7 @@ CREATE TABLE
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     finish_time TEXT,
     state INTEGER NOT NULL,
+    points INTEGER NOT NULL,
     FOREIGN KEY (state) REFERENCES e_tournament_state (value)
   );
 
