@@ -73,4 +73,15 @@ export default class MatchController {
       }
     }
   }
+
+  async getList(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const matches = await this._matchService.getPublic();
+      reply.send(matches);
+    }
+    catch (err: any) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
 }
