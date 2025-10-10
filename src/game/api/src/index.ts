@@ -38,6 +38,7 @@ const main = async () => {
       socket.username = user.username;
       next();
     } catch (error) {
+      console.log(error);
       next(new Error("Invalid JWT"));
     }
   });
@@ -58,7 +59,7 @@ const main = async () => {
           room.players[socket.id] = player;
           console.log("Players connected successfully:", room.players);
           server.io.to(opponent.id).emit("message", `New Opponent: ${player.name}(${socket.id}) found!`);
-          server.io.to(opponent.id).emit("handshake", socket.userId);
+          server.io.to(opponent.id).emit("handshake", socket.userId); // TODO: opponent bug on inverted order reconnect
         } else {
           const newRoom = new Room();
           newRoom.players[socket.id] = player;
