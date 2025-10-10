@@ -5,6 +5,7 @@ import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
 import StringTime from "../helpers/StringTime";
 import { NewMatchRequest } from "../models/NewMatchRequest";
+import { MatchMinified } from "../models/MatchMinified";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
@@ -31,6 +32,11 @@ export class MatchService {
     }
 
     return match;
+  }
+
+  async getByToken(token: string): Promise<Match | null> {
+    const _match = await this._matchRepository.findByToken(token);
+    return _match;
   }
 
   async newLocalMatch(name: string): Promise<Match> {
@@ -118,6 +124,16 @@ export class MatchService {
   async delete(match: Match) {
     if (!(await this._matchRepository.delete(match.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
+
+  async getPublic(): Promise<MatchMinified[]> {
+    const matches = await this._matchRepository.getPublic(Object.keys(new MatchMinified()));
+    if (!matches) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+    else {
+      return matches;
     }
   }
 }

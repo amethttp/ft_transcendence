@@ -1,4 +1,4 @@
-<div class="flex flex-1 flex-col gap-9 justify-center">
+<div class="flex flex-1 flex-col gap-12 justify-center">
   <div class="flex gap-8 flex-wrap justify-center items-center">
     <a href="/play/new" class="btn btn-tertiary gap-2 h-fit">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -13,7 +13,7 @@
           autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div class="control">
-        <button type="submit" class="btn btn-tertiary">
+        <button type="submit" class="btn btn-tertiary" title="Join match" aria-label="Join match">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
             stroke="currentColor" class="size-5">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -24,6 +24,6 @@
     </form>
   </div>
   <div class="flex justify-center">
-    Match page: <a href="/play/token" class="decorated">/play/token</a>
+    <div id="MatchesComponentList"></div>
   </div>
 </div>

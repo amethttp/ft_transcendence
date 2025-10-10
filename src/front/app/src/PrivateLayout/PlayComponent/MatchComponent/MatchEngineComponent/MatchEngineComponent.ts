@@ -1,9 +1,10 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import SocketClient from "../../../../framework/SocketClient/SocketClient";
+import type { PlayerTypeValue } from "../MatchComponent";
 
 export type MatchEngineEvents = {
-  newPlayer: number;
+  opponentConnected: number;
 };
 
 export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
@@ -28,7 +29,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
-      this.emit('newPlayer', data);
+      this.emit('opponentConnected', data);
     });
     this._socketClient.setEvent('message', (data) => {
       console.log("Message:", data);
@@ -51,6 +52,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   async refresh(token?: string) {
     this._token = token;
     // this.outlet!.innerHTML = this._token as string;
+  }
+
+  setPlayer(type: PlayerTypeValue) {
+    console.log("new player", type);
   }
 
   async destroy(): Promise<void> {

@@ -56,7 +56,7 @@ export class ApiClient extends HttpClient {
             return this.request<T>(url, options);
         } catch (error) {
           if (this._redirect)
-            Context.router.redirectByPath("/");
+            Context.router.navigateByPath("/");
         }
       }
       throw error;
