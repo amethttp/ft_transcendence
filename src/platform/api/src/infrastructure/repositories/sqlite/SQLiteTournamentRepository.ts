@@ -33,6 +33,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
         is_visible = 1
         AND state = 1
         AND round = 0
+        AND (SELECT COUNT(id) FROM tournament_player tp WHERE tp.tournament_id = tournament.id) < players_amount
     ;`;
     return this.dbAll(query, []) as Promise<TournamentMinified[] | null>;
   }

@@ -4,6 +4,7 @@ import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 import type { Router } from "../../../framework/Router/Router";
+import { NameGenerator } from "../helpers/NameGenerator";
 import type { NewTournamentRequest } from "./models/NewTournamentRequest";
 import RoundsSliderComponent from "./RoundsSliderComponent/RoundsSliderComponent";
 import { NewTournamentService } from "./services/NewTournamentService";
@@ -28,8 +29,7 @@ export default class NewTournamentComponent extends AmethComponent {
   afterInit(): void {
     this._roundsSlider.afterInit();
     this._form = new Form("newTournamentForm", {
-      // TODO: Generated name
-      name: new FormControl<string>("", [Validators.length(3, 100)]),
+      name: new FormControl<string>(NameGenerator.generatePongName(), [Validators.length(3, 100)]),
       points: new FormControl<number>(10, [Validators.minMax(2, 100)]),
       playersAmount: this._roundsSlider.control,
       isVisible: new FormControl<boolean>(true)

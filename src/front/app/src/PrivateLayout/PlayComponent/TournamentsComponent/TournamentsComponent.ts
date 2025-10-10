@@ -1,7 +1,6 @@
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
-import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
 import type { Router } from "../../../framework/Router/Router";
 import TournamentsListComponent from "./TournamentsListComponent/TournamentsListComponent";
 
@@ -26,8 +25,8 @@ export default class TournamentsComponent extends AmethComponent {
     });
 
     this._form.submit = ({ token }) => {
-      // TODO: Join if url as well
-      this.router?.navigateByPath(`/play/tournament/${token}`);
+      if (token)
+        this.router?.navigateByPath(`/play/tournament/${encodeURIComponent(token)}`);
     };
 
     this._listComponent.afterInit();
