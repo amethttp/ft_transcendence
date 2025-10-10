@@ -1,3 +1,4 @@
+import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
@@ -25,7 +26,16 @@ export default class MatchesComponent extends AmethComponent {
       token: new FormControl<string>("", [Validators.length(1, 30)])
     });
     this._form.submit = ({ token }) => {
-      this.router?.navigateByPath(`/play/${token}`);
+      if (!token || token === "")
+        Alert.error("Invalid match");
+      else {
+        try {
+          const url = new URL(token);
+          this.router?.navigateByUrl(url);
+        } catch (error) {
+          this.router?.navigateByPath(`/play/${token}`);
+        }
+      }
     };
 
     this._matchesListComponent.afterInit();
