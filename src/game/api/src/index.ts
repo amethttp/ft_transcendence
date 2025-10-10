@@ -4,6 +4,7 @@ import fastifySocketIO from 'fastify-socket.io';
 import { Room } from './match/models/Room';
 import { Player } from './match/models/Player';
 import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
+import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 
 const server = fastify({
   https: {
@@ -23,18 +24,26 @@ const main = async () => {
     pingTimeout: 5000,
   });
 
-  server.io.use((socket: AuthenticatedSocket, next) => {
+  const apiClient = new ApiClient();
+
+  server.io.use(async (socket: AuthenticatedSocket, next) => {
     try {
-      console.log(socket.handshake.headers.cookie || "NONE");
-      socket.username = "verifiedUser";
-      next();      
+      if (!socket.handshake.headers.cookie) {
+        throw "Invalid JWT";
+      }
+      const opts: RequestInit = {};
+      opts.headers = { cookie: socket.handshake.headers.cookie };
+      const user = (await apiClient.get("/user", undefined, opts)) as any;
+      socket.userId = user.id;
+      socket.username = user.username;
+      next();
     } catch (error) {
       next(new Error("Invalid JWT"));
     }
   });
 
   let matchRooms: Record<string, Room> = {};
-  server.ready((err) => { // TODO: Handle same user multiple tabs...
+  server.ready((err) => {
     if (err) throw err;
     server.io.on("connection", (socket: AuthenticatedSocket) => {
       console.log(`\nClient: ${socket.id} connected`);
@@ -43,11 +52,13 @@ const main = async () => {
         console.log("Trying to join match:", token);
         const room = matchRooms[token];
         if (room) {
+          const opponent = room.getOpponent(socket.id);
+          if (socket.username === opponent.player.name) { return socket.disconnect(); }
           socket.join(token);
           room.players[socket.id] = player;
           console.log("Players connected successfully:", room.players);
-          const opponent = room.getOpponent(socket.id);
           server.io.to(opponent.id).emit("message", `New Opponent: ${player.name}(${socket.id}) found!`);
+          server.io.to(opponent.id).emit("handshake", socket.userId);
         } else {
           const newRoom = new Room();
           newRoom.players[socket.id] = player;
@@ -70,9 +81,9 @@ const main = async () => {
               if (!room) {
                 return;
               }
-          
+
               server.io.to(token).emit("message", "TOKEN: " + token + " || " + + performance.now());
-            }, (1000/60));
+            }, (1000 / 20));
             // startMatch();
           }
         }
