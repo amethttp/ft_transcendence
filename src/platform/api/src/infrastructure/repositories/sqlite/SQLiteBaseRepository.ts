@@ -51,27 +51,6 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
     });
   }
 
-  public async dbRawGet(query: string, params: any[]): Promise<T | null> {
-    return new Promise<T | null>((resolve, reject) => {
-      this._db.get(query, params, (err, row) => {
-        if (err) {
-          return reject(err);
-        }
-        if (row) { 
-          try {
-            const result = row;
-            return resolve(result as T);
-          } catch (error) {
-            console.log(error);
-            return reject(new ResponseError(ErrorParams.DATABASE_ERROR));
-          }
-        } else {
-          return resolve(null);
-        } 
-      });
-    });
-  }
-
   public async dbAll(query: string, params: any): Promise<T[] | null> {
     return new Promise<T[] | null>((resolve, reject) => {
       this._db.all(query, params, (err, rows) => {
