@@ -41,6 +41,7 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
             const result = JSON.parse((row as DatabaseRowResult).result); // TODO: refactor this
             return resolve(result as T);
           } catch (error) {
+            console.log(error);
             return reject(new ResponseError(ErrorParams.DATABASE_ERROR));
           }
         } else {
@@ -49,6 +50,7 @@ export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<
       });
     });
   }
+
   public async dbAll(query: string, params: any): Promise<T[] | null> {
     return new Promise<T[] | null>((resolve, reject) => {
       this._db.all(query, params, (err, rows) => {
