@@ -26,7 +26,7 @@ export default class TournamentsComponent extends AmethComponent {
 
     this._form.submit = ({ token }) => {
       if (token)
-        this.router?.navigateByPath(`/tournament/${encodeURIComponent(token)}`);
+        this.router?.navigateByPath(`/play/tournament/${encodeURIComponent(token)}`);
     };
 
     this._listComponent.afterInit();
