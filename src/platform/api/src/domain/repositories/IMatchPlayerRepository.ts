@@ -2,6 +2,7 @@ import { MatchPlayer } from "../entities/MatchPlayer";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IMatchPlayerRepository extends IBaseRepository<MatchPlayer> {
+  findByUserAndMatch(userId: number, matchId: number): Promise<MatchPlayer | null>;
   findLastAmountByUser(id: number, amount: number): Promise<MatchPlayer[] | null>;
   findAllUserMatchesInfo(id: number): Promise<MatchPlayer[] | null>;
   findAllByUser(id: number): Promise<MatchPlayer[] | null>;

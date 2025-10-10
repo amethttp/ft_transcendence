@@ -78,7 +78,7 @@ export const routes: Route[] = [
         children: [
           {
             path: "",
-            component: ()=> import("./PrivateLayout/PlayComponent/MatchesListComponent/MatchesListComponent"),
+            component: ()=> import("./PrivateLayout/PlayComponent/MatchesComponent/MatchesComponent"),
             title: "Matches"
           },
           {

@@ -6,4 +6,8 @@
   .tooltip.tooltip-sm {
     @apply gap-0.5 outline-1 px-1 py-0.5 text-xs before:w-1 before:h-1;
   }
+
+  .key {
+    @apply flex w-5 h-5 items-center justify-center bg-gray-100 outline-1 outline-gray-300 rounded;
+  }
 }

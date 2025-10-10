@@ -2,7 +2,7 @@ import { AEntity } from "./AEntity";
 import { MatchPlayer } from "./MatchPlayer";
 import { TournamentRound } from "./TournamentRound";
 
-const matchSchema: Record<string, string> = {
+export const matchSchema: Record<string, string> = {
   id: "id",
   name: "name",
   token: "token",

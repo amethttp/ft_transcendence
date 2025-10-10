@@ -61,7 +61,6 @@ export default class UserComponent extends AmethComponent {
   }
 
   private async initStatsComponent() {
-    console.debug(this.userProfile);
     let userProfile;
     if (this.userName !== this.userProfile.username && this.userProfile?.relation.type === RelationType.BLOCKED)
       userProfile = null;
