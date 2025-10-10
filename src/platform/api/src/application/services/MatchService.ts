@@ -33,6 +33,11 @@ export class MatchService {
     return match;
   }
 
+  async getByToken(token: string): Promise<Match | null> {
+    const _match = await this._matchRepository.findByToken(token);
+    return _match;
+  }
+
   async newLocalMatch(name: string): Promise<Match> {
     const matchBlueprint: Partial<Match> = {
       name: name,

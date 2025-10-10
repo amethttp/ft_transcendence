@@ -16,14 +16,14 @@ export class User extends AEntity {
   static readonly tableName = "user";
   static readonly entitySchema = userSchema;
 
-  id!: number;
-  email!: string;
-  username!: string;
-  birthDate!: string;
-  avatarUrl!: string;
-  auth!: Auth;
-  creationTime!: string;
-  updateTime!: string;
+  id: number;
+  email: string;
+  username: string;
+  birthDate: string;
+  avatarUrl: string;
+  auth: Auth;
+  creationTime: string;
+  updateTime: string;
 
   constructor() {
     super();
