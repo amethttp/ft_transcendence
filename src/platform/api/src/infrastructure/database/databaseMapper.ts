@@ -80,4 +80,14 @@ export class DatabaseMapper {
 
     return sqlRes;
   }
+
+  static getEntityColumns(entity: AEntity): string {
+    const entries = Object.entries(entity);
+    return this.mapObjectSelect(entries, entity.tableName, entity.schema, 0);
+  }
+
+  static getEntityJoins(entity: AEntity): string {
+    const entries = Object.entries(entity);
+    return this.mapObjectJoins(entries, entity.tableName, entity.schema, 0);
+  }
 }

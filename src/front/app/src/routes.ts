@@ -78,15 +78,25 @@ export const routes: Route[] = [
         children: [
           {
             path: "",
-            component: ()=> import("./PrivateLayout/PlayComponent/MatchesListComponent/MatchesListComponent"),
+            component: ()=> import("./PrivateLayout/PlayComponent/MatchesComponent/MatchesComponent"),
             title: "Matches"
           },
           {
             path: "/tournaments",
-            component: ()=> import("./PrivateLayout/PlayComponent/TournamentsListComponent/TournamentsListComponent"),
+            component: ()=> import("./PrivateLayout/PlayComponent/TournamentsComponent/TournamentsComponent"),
             title: "Tournaments"
-          }
+          },
         ]
+      },
+      {
+        path: "/play/new",
+        component: () => import("./PrivateLayout/PlayComponent/NewMatchComponent/NewMatchComponent"),
+        title: "New match",
+      },
+      {
+        path: "/play/tournament/new",
+        component: () => import("./PrivateLayout/PlayComponent/NewTournamentComponent/NewTournamentComponent"),
+        title: "New tournament",
       },
       {
         path: "/play/:token",

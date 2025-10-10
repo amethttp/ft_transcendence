@@ -8,6 +8,12 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
     super(new MatchPlayer());
   }
 
+
+  findByUserAndMatch(userId: number, matchId: number): Promise<MatchPlayer | null> {
+    const query = `WHERE user_id =? AND match_id=?`;
+    return this.baseFind(query, [userId, matchId]);
+  }
+
   findAllUserMatchesInfo(id: number): Promise<MatchPlayer[] | null> {
     const query = `
       SELECT
@@ -36,7 +42,6 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
             'id', match2.id,
             'name', match2.name,
             'token', match2.token,
-            'type', match2.type,
             'isVisible', match2.is_visible,
             'state', match2.state,
             'tournamentRound', json_object(

@@ -177,8 +177,9 @@ export default class UserStatsComponent extends AmethComponent {
       opponentLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-start", "gap-3");
 
       const opponentName = document.createElement("a");
-      opponentName.href = `/${match.opponent.username}`
-      opponentName.textContent = `${match.opponent.username}`;
+      if (match.opponent?.username)
+        opponentName.href = `/${this.targetUser?.username}`;
+      opponentName.textContent = `${match.opponent?.username || "no one"}`;
       opponentName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const opponentScore = document.createElement("span");
       opponentScore.textContent = match.opponentScore.toString();

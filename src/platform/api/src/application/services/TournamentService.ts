@@ -1,6 +1,9 @@
+import { randomBytes } from "crypto";
 import { Tournament } from "../../domain/entities/Tournament";
 import { ITournamentRepository } from "../../domain/repositories/ITournamentRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { NewTournamentRequest } from "../models/NewTournamentRequest";
+import { TournamentMinified } from "../models/TournamentMinified";
 
 
 export class TournamentService {
@@ -17,7 +20,7 @@ export class TournamentService {
       round: 0,
       isVisible: false,
       playersAmount: playersAmount,
-      state: 1,      
+      state: 1,
     };
 
     const id = await this._tournamentRepository.create(tournamentBlueprint);
@@ -58,5 +61,36 @@ export class TournamentService {
     if (!(await this._tournamentRepository.delete(tournament.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+  }
+
+  async newTournament(request: NewTournamentRequest): Promise<Tournament> {
+    const tournamentBlueprint: Partial<Tournament> = {
+      name: request.name,
+      token: randomBytes(8).toString("base64url"),
+      round: 0,
+      isVisible: request.isVisible,
+      playersAmount: request.playersAmount,
+      state: 1,
+      points: request.points
+    };
+
+    const id = await this._tournamentRepository.create(tournamentBlueprint);
+    if (id === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+
+    const tournament = await this._tournamentRepository.findById(id);
+    if (tournament === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+
+    return tournament;
+  }
+
+  async getList(): Promise<TournamentMinified[]> {
+    const tournaments = await this._tournamentRepository.findPublic(Object.keys(new TournamentMinified()));
+    if (!tournaments)
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    return tournaments;
   }
 }

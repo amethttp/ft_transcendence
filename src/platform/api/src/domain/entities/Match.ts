@@ -2,13 +2,13 @@ import { AEntity } from "./AEntity";
 import { MatchPlayer } from "./MatchPlayer";
 import { TournamentRound } from "./TournamentRound";
 
-const matchSchema: Record<string, string> = {
+export const matchSchema: Record<string, string> = {
   id: "id",
   name: "name",
   token: "token",
-  type: "type",
   isVisible: "is_visible",
   state: "state",
+  points: "points",
   tournamentRound: "tournament_round_id",
   creationTime: "creation_time",
   finishTime: "finish_time",
@@ -18,15 +18,15 @@ export class Match extends AEntity {
   static readonly tableName = "match";
   static readonly entitySchema = matchSchema;
 
-  id!: number;
-  name!: string;
-  token!: string;
-  type!: number;
-  isVisible!: boolean;
-  state!: number;
-  players!: MatchPlayer[]; 
+  id: number;
+  name: string;
+  token: string;
+  points: number;
+  isVisible: boolean;
+  state: number;
+  players: MatchPlayer[]; 
   tournamentRound?: TournamentRound;
-  creationTime!: string;
+  creationTime: string;
   finishTime?: string;
 
   constructor() {
@@ -34,10 +34,10 @@ export class Match extends AEntity {
     this.id = -1;
     this.name = "";
     this.token = "";
-    this.type = -1;
+    this.points = 10;
     this.isVisible = false;
     this.state = 0;
-    this.players = undefined as unknown as MatchPlayer[]; // [MatchPlayer]
+    this.players = []; // [MatchPlayer]
     this.tournamentRound = new TournamentRound();
     this.creationTime = "";
     this.finishTime = "";

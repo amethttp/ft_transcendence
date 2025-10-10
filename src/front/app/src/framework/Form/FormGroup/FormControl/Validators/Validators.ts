@@ -70,4 +70,12 @@ export class Validators {
 
     return null;
   }
+
+  static minMax(min: number, max: number): ValidatorFn<number> {
+    return (value: number) => {
+      if (value < min) return "Minimum " + min;
+      else if (value > max) return "Maximum " + max;
+      else return null;
+    }
+  }
 }

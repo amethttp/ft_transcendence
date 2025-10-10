@@ -1,19 +1,19 @@
-<div class="flex flex-1 flex-col gap-9 justify-center">
-  <div class="flex gap-8 flex-wrap justify-evenly items-center">
-    <a href="/play/createMatch" class="btn btn-tertiary gap-2 h-fit">
+<div class="flex flex-1 flex-col gap-12 justify-center">
+  <div class="flex gap-8 flex-wrap justify-center items-center">
+    <a href="/play/new" class="btn btn-tertiary gap-2 h-fit">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
         class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
-      New tournament
+      New match
     </a>
-    <form id="tournamentCodeListForm" class="flex w-fit flex-row gap-2 items-center justify-center">
+    <form id="matchCodeListForm" class="flex w-fit flex-row gap-2 items-center justify-center">
       <div class="control">
         <input name="token" type="text" placeholder="Enter code to join"
           autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div class="control">
-        <button type="submit" class="btn btn-tertiary">
+        <button type="submit" class="btn btn-tertiary" title="Join match" aria-label="Join match">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
             stroke="currentColor" class="size-5">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -24,6 +24,6 @@
     </form>
   </div>
   <div class="flex justify-center">
-    Tournament page: <a href="/play/tournament/token" class="decorated">/play/tournament/token</a>
+    <div id="MatchesComponentList"></div>
   </div>
 </div>
