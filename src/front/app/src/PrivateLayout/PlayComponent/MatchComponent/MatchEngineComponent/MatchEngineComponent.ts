@@ -64,31 +64,36 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private prepareCanvas() {
+    // TODO: Do it on window resize
+    this._canvas.width = this._canvas.parentElement!.clientWidth * window.devicePixelRatio;
+    this._canvas.height = this._canvas.width / (16/9);
+    this._canvasContext.scale(window.devicePixelRatio, window.devicePixelRatio);
+
     let color = 'oklch(97% 0.001 106.424)';
-    let paddleWidth = 2;
-    let paddleHeight = 20;
+    let paddleWidth = this._canvas.width * (1/100);
+    let paddleHeight = this._canvas.height * (10/100);
 
     let paddle1 = {
         x : 10,
-        y : this._canvas.height/2 - paddleHeight / 2,
+        y : this._canvas.height/4 - paddleHeight / 2,
         width: paddleWidth,
         height: paddleHeight,
         velocityY : 0
     }
 
     let paddle2 = {
-        x : this._canvas.width - paddleWidth - 10,
-        y : this._canvas.height/2 - paddleHeight / 2,
+        x : this._canvas.width/2 - paddleWidth - 10,
+        y : this._canvas.height/4 - paddleHeight / 2,
         width: paddleWidth,
         height: paddleHeight,
         velocityY : 0
     }
 
     //ball
-    let ballDimension = 2;
+    let ballDimension = 50;
     let ball = {
-        x : this._canvas.width/2 - ballDimension / 2,
-        y : this._canvas.height/2 - ballDimension / 2,
+        x : this._canvas.width/4 - ballDimension / 2,
+        y : this._canvas.height/4 - ballDimension / 2,
         width: ballDimension,
         height: ballDimension,
         velocityX : 1,
