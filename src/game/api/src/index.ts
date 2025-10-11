@@ -50,7 +50,7 @@ const main = async () => {
     server.io.on("connection", (socket: AuthenticatedSocket) => {
       console.log(`\nClient: ${socket.username} connected`);
 
-      socket.on("joinMatch", (token) => {
+      socket.on("joinMatch", (token) => { // TODO: fix user rejoining on inverted order visual bug
         try {
           const existingRoom = roomService.getRoom(token);
           if (existingRoom) {
@@ -76,7 +76,6 @@ const main = async () => {
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.playersAmount() > 1 && room.allPlayersReady()) {
           console.log("Starting match...");
-          console.log(room.players);
           roomService.startMatch(room, TARGET_FPS);
         }
       });
