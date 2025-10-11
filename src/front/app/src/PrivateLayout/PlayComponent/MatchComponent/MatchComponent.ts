@@ -42,6 +42,15 @@ export default class MatchComponent extends AmethComponent {
     this._matchService = new MatchService();
   }
 
+  opponentConnected = (userId: number) => {
+    this._matchService.getPlayer(userId, this._match?.id || -1).then(
+      val => {
+        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
+        this._showOpponentPlayer();
+      })
+      .catch(() => Alert.error("Some error occurred with opponent"));
+  }
+
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
@@ -61,23 +70,14 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  opponentConnected = (userId: number) => {
-    this._matchService.getPlayer(userId, this._match?.id || -1).then(
-      val => {
-        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
-        this._showOpponentPlayer();
-      })
-      .catch(() => Alert.error("Some error occurred with opponent"));
-  }
-
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
     this._setTitle();
     await this._initPlayers();
     this._fillView();
-    this._matchEngineComponent?.afterInit();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
+    this._matchEngineComponent?.afterInit();
   }
 
   private _getPlayerOpts(player?: MatchPlayer): PlayerOptions | undefined {
