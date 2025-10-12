@@ -37,9 +37,8 @@ export class RoomService {
   public startMatch(room: Room, targetFPS: number) {
     room.emit("message", "Players are ready! || Starting Match in 3...");
     room.interval = setInterval(() => {
-      // room.calc state
-      // room.send state
-      room.emit("message", "TOKEN: " + room.token + " || " + + performance.now());
+      room.nextSnapshot();
+      room.sendSnapshot();
     }, targetFPS);    
   }
 }

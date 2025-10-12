@@ -1,9 +1,21 @@
+import { randomInt } from "crypto";
 import { BallChange } from "./BallChange";
 import { PaddleChange } from "./PaddleChange";
 
-export interface Snapshot {
-  id: number;
-  ball: BallChange;
-  paddles: PaddleChange[];
-  score: number[];
+export class Snapshot {
+  public id: number;
+  public ball: BallChange;
+  public paddles: PaddleChange[];
+  public score: number[];
+
+  constructor() {
+    this.id = 0;
+    this.ball = {
+      position: { x: 200, y: 50 },
+      direction: { x: ((randomInt(5) / 10) * 2) - 1, y: ((randomInt(5) / 10) * 2) - 1 }, // TODO: Normalize vectors to get an actual correct random dir
+      velocity: 10,
+    };
+    this.paddles = [{ position: 0 }, { position: 0 }];
+    this.score = [0, 0];
+  }
 }

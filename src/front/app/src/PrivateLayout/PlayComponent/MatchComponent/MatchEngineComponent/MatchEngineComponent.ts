@@ -2,6 +2,7 @@ import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import { io, Socket } from "socket.io-client";
 import type { PlayerTypeValue } from "../MatchComponent";
+import type { Snapshot } from "./models/Snapshot";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -34,16 +35,56 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socket?.on("message", (data) => {
       console.log("Message:", data);
     });
+    this._socket?.on("ready", () => {
+      this.setPlayerReady();
+    });
+    this._socket?.on("snapshot", (data) => {
+      // console.log("Snapshot:", performance.now(), data);
+      this.updateButtonPosition(data[0]);
+    });
+    this._socket?.on("end", (data) => {
+      console.log("End:", performance.now(), data);
+      this.setEndState(data[0]);
+    });
     this._socket?.on("disconnect", (reason) => {
       console.log("Disconnected:", reason);
     });
   }
 
   afterInit() {
-    document.getElementById("test-btn")!.onclick = () => {
-      this._socket?.emit("ready", this._token);
-    };
+    const btn = document.getElementById("test-btn");
+    if (btn) {
+      btn.style.position = "absolute";
+      btn.onclick = () => {
+        this._socket?.emit("ready", this._token);
+      };
+    }
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
+  }
+
+  private setPlayerReady() {
+    const btn = document.getElementById("test-btn");
+    if (!btn) return;
+
+    btn.classList.remove("bg-red-400");
+    btn.classList.add("bg-green-400");
+    btn.innerText = "Ready!";
+  }
+
+  private updateButtonPosition(data: Snapshot) {
+    const btn = document.getElementById("test-btn");
+    const title = document.getElementById("title");
+    if (!btn || !title) return;
+
+    btn.style.transform = `translate(${data.ball.position.x}px, ${data.ball.position.y}px)`;
+    title.innerText = `${data.score[0]} / ${data.score[1]}`;
+  }
+
+  private setEndState(data: Snapshot) {
+    const title = document.getElementById("title");
+    if (!title) return;
+
+    title.innerText = `GAME FINISHED || ${data.score[0]} / ${data.score[1]}`;
   }
 
   async refresh(token?: string) {

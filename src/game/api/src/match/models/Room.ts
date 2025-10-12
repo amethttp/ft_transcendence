@@ -2,12 +2,15 @@ import { Server } from "socket.io";
 import { Player } from "./Player";
 import { AuthenticatedSocket } from "./AuthenticatedSocket";
 import { MatchState } from "./States";
+import { Snapshot } from "./Snapshot";
+import { MatchService } from "../services/MatchService";
 
 export class Room {
   private _io: Server;
   private _token: string;
   private _players: Record<string, Player>;
   private _matchState: MatchState;
+  private _snapshot: Snapshot;
   public interval: any;
 
   constructor(server: Server, token: string) {
@@ -15,6 +18,7 @@ export class Room {
     this._token = token;
     this._players = {};
     this._matchState = "WAITING";
+    this._snapshot = new Snapshot();
   }
   
   public get token() : string {
@@ -86,5 +90,20 @@ export class Room {
     }
 
     return true;
+  }
+
+  public nextSnapshot() {
+    MatchService.updateBall(this._snapshot);
+    MatchService.checkGoal(this._snapshot);
+    this._snapshot.id++;
+  }
+
+  public sendSnapshot() {
+    if (MatchService.checkEndState(this._snapshot, 10)) {
+      this.emit("end", this._snapshot);
+      clearInterval(this.interval);
+    } else {
+      this.emit("snapshot", this._snapshot);
+    }
   }
 } 
