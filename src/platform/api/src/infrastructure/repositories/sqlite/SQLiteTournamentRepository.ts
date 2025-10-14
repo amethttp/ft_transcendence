@@ -37,4 +37,9 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
     ;`;
     return this.dbAll(query, []) as Promise<TournamentMinified[] | null>;
   }
+
+  findByToken(token: string): Promise<Tournament | null> {
+    const query = `WHERE token =?`;
+    return this.baseFind(query, [token]);
+  }
 }

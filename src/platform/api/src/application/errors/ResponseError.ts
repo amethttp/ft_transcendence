@@ -1,5 +1,6 @@
 export const ErrorParams = {
   USER_NOT_FOUND: { code: 404, message: "USER_NOT_FOUND" },
+  NOT_FOUND: { code: 404, message: "USER_NOT_FOUND" },
   PLAYER_NOT_FOUND: { code: 404, message: "PLAYER_NOT_FOUND" },
   UNAUTHORIZED_USER_ACTION: { code: 403, message: "UNAUTHORIZED_USER_ACTION" },
   AUTH_EXPIRED_ACCESS: { code: 401, message: "AUTH_EXPIRED_ACCESS" },

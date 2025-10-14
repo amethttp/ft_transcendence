@@ -93,4 +93,11 @@ export class TournamentService {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     return tournaments;
   }
+
+  async getByToken(token: string): Promise<Tournament> {
+    const tournament = await this._tournamentRepository.findByToken(token);
+    if (!tournament)
+      throw new ResponseError(ErrorParams.NOT_FOUND);
+    return tournament;
+  }
 }

@@ -53,4 +53,20 @@ export default class TournamentController {
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
     }
   }
+
+  async getByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      if (!request.params.token)
+      {
+        const err = new ResponseError(ErrorParams.BAD_REQUEST);
+        return reply.code(err.code).send(err.toDto());
+      }
+      const tournament = await this._tournamentService.getByToken(request.params.token);
+      reply.send(tournament);
+    }
+    catch (err: any) {
+      console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+    }
+  }
 }
