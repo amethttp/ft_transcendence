@@ -1,9 +1,11 @@
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
+import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import type { Tournament } from "./models/Tournament";
 import { TournamentService } from "./services/TournamentService";
 
 export default class TournamentComponent extends AmethComponent {
+  // TODO: Controls max width 1/4 and update title with tournament name!
   template = () => import("./TournamentComponent.html?raw");
   private _tournamentService: TournamentService;
   private _tournament?: Tournament;
@@ -14,13 +16,15 @@ export default class TournamentComponent extends AmethComponent {
   }
 
   async afterInit() {
-    await this.setTournament();
+    await this._setTournament();
     this._fillView();
+    this._setTitle();
   }
 
   async refresh() {
-    await this.setTournament();
+    await this._setTournament();
     this._fillView();
+    this._setTitle();
   }
 
   private _clearView() {
@@ -40,7 +44,7 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentPlayersAmount")!.innerText = this._tournament.playersAmount + "";
   }
 
-  async setTournament() {
+  private async _setTournament() {
     try {
       const token = this.router?.currentPath.params.token;
       if (token)
@@ -48,6 +52,12 @@ export default class TournamentComponent extends AmethComponent {
     } catch (error) {
       Alert.error("Couldn't retrieve Tournament");
       console.warn(error);
+    }
+  }
+
+  private _setTitle() {
+    if (this._tournament) {
+      document.title = TitleHelper.addTitlePart(this._tournament.name);
     }
   }
 }
