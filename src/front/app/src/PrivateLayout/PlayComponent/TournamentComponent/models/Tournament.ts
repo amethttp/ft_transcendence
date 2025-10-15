@@ -1,3 +1,6 @@
+import type { TournamentPlayer } from "./TournamentPlayer";
+import type { TournamentRound } from "./TournamentRound";
+
 export interface Tournament {
   id: number;
   name: string;
@@ -7,7 +10,8 @@ export interface Tournament {
   playersAmount: number;
   state: number;
   points: number;
-  // tournamentRounds: TournamentRound[];
+  tournamentRounds: TournamentRound[];
+  players: TournamentPlayer[];
   creationTime: string;
   finishTime?: string;
 }
