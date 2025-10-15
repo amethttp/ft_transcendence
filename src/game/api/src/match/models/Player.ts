@@ -1,12 +1,19 @@
+import { AuthenticatedSocket } from "./AuthenticatedSocket";
 import { PlayerState } from "./States";
 
 export class Player {
+  private _id: string;
   private _username: string;
   private _state: PlayerState;
 
-  constructor(username: string) {
-    this._username = username;
+  constructor(socket: AuthenticatedSocket) {
+    this._id = socket.id;
+    this._username = socket.username || "";
     this._state = "IDLE";
+  }
+
+  public get id() : string {
+    return this._id
   }
   
   public get username() : string {

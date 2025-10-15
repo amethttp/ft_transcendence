@@ -5,7 +5,7 @@ import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
 import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 
-const TARGET_FPS = 1000 / 30;
+const TARGET_FPS = 1000 / 60;
 
 const server = fastify({
   https: {
@@ -70,7 +70,6 @@ const main = async () => {
       socket.on("ready", (token) => {
         const room = roomService.getRoom(token);
         if (room.playersAmount() === 1) { return; }
-
         const player = room.getPlayer(socket.id);
         if (player.state === "READY") { return; }
 
@@ -94,7 +93,6 @@ const main = async () => {
             socket.leave(token);
           }
         }
-        socket._cleanup();
       });
 
       socket.on("disconnect", (reason: string) => {

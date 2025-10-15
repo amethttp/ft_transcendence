@@ -38,7 +38,7 @@ export class Room {
   }  
 
   public emit(ev: string, ...args: any[]): boolean {
-    return this._io.to(this._token).emit(ev, args);
+    return this._io.to(this._token).emit(ev, ...args);
   }
 
   public playersAmount(): number {
@@ -65,7 +65,7 @@ export class Room {
   }
 
   public addPlayer(socket: AuthenticatedSocket) {
-    const newPlayer = new Player(socket.username || "PLAYER_ERR");
+    const newPlayer = new Player(socket);
     this._players[socket.id] = newPlayer;
     socket.join(this.token);
   }
