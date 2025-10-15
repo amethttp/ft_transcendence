@@ -36,6 +36,9 @@ export class RoomService {
 
   public startMatch(room: Room, targetFPS: number) {
     room.emit("message", "Players are ready! || Starting Match in 3...");
+    for (const player of room.players) {
+      player.state = "PLAYING";
+    }
     room.interval = setInterval(() => {
       room.nextSnapshot();
       room.sendSnapshot();

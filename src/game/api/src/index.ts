@@ -5,7 +5,7 @@ import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
 import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 
-const TARGET_FPS = 1000 / 60;
+const TARGET_FPS = 1000 / 20;
 
 const server = fastify({
   https: {
@@ -80,6 +80,11 @@ const main = async () => {
           console.log("Starting match...");
           roomService.startMatch(room, TARGET_FPS);
         }
+      });
+
+      socket.on("paddleChange", (data) => {
+        const room = roomService.getRoom(data.token);
+        room.updatePaddle(socket, data.key);
       });
 
       socket.on("disconnecting", (reason: string) => {

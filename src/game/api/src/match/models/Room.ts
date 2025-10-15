@@ -4,6 +4,7 @@ import { AuthenticatedSocket } from "./AuthenticatedSocket";
 import { MatchState } from "./States";
 import { Snapshot } from "./Snapshot";
 import { MatchService } from "../services/MatchService";
+import { PaddleChange } from "./PaddleChange";
 
 export class Room {
   private _io: Server;
@@ -20,22 +21,22 @@ export class Room {
     this._matchState = "WAITING";
     this._snapshot = new Snapshot();
   }
-  
-  public get token() : string {
+
+  public get token(): string {
     return this._token;
   }
 
-  public get players() : Player[] {
+  public get players(): Player[] {
     return Object.values(this._players);
   }
 
-  public get matchState() : MatchState {
+  public get matchState(): MatchState {
     return this._matchState;
   }
 
-  public set matchState(v : MatchState) {
+  public set matchState(v: MatchState) {
     this._matchState = v;
-  }  
+  }
 
   public emit(ev: string, ...args: any[]): boolean {
     return this._io.to(this._token).emit(ev, ...args);
@@ -65,12 +66,15 @@ export class Room {
   }
 
   public addPlayer(socket: AuthenticatedSocket) {
+    if (this.players.length >= 2) { throw "Room already full!" }
     const newPlayer = new Player(socket);
     this._players[socket.id] = newPlayer;
+    this._snapshot.paddles.push({ playerId: newPlayer.id, position: 250 } as PaddleChange);
     socket.join(this.token);
   }
 
   public joinPlayer(socket: AuthenticatedSocket) {
+    if (this.players.length >= 2) { throw "Room already full!" }
     const opponent = this.getOpponent(socket.id);
     if (opponent && socket.username === opponent.player.username) {
       throw "User already connected";
@@ -90,6 +94,13 @@ export class Room {
     }
 
     return true;
+  }
+
+  public updatePaddle(socket: AuthenticatedSocket, key: string) {
+    const paddle = this._snapshot.paddles.findIndex((paddle) => (paddle.playerId === socket.id));
+    if (paddle === -1) { return; }
+
+    MatchService.updatePaddle(this._snapshot, paddle, key);
   }
 
   public nextSnapshot() {

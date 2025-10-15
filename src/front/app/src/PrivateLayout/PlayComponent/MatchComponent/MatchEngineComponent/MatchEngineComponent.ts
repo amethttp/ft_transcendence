@@ -39,12 +39,12 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this.setPlayerReady();
     });
     this._socket?.on("snapshot", (data) => {
-      // console.log("Snapshot:", performance.now(), data);
-      this.updateButtonPosition(data[0]);
+      console.log("Snapshot:", performance.now(), data);
+      this.updateGame(data);
     });
     this._socket?.on("end", (data) => {
-      console.log("End:", performance.now(), data);
-      this.setEndState(data[0]);
+      // console.log("End:", performance.now(), data);
+      this.setEndState(data);
     });
     this._socket?.on("disconnect", (reason) => {
       console.log("Disconnected:", reason);
@@ -60,7 +60,24 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       };
     }
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
+    window.addEventListener("keydown", this.handleKeyDown);
   }
+
+  private handleKeyDown = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case "w":
+        console.log("w");
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+      case "s":
+        console.log("s");
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+
+      default:
+        break;
+    }
+  };
 
   private setPlayerReady() {
     const btn = document.getElementById("test-btn");
@@ -71,11 +88,17 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     btn.innerText = "Ready!";
   }
 
-  private updateButtonPosition(data: Snapshot) {
+  private updateGame(data: Snapshot) {
     const btn = document.getElementById("test-btn");
     const title = document.getElementById("title");
-    if (!btn || !title) return;
+    const paddle1 = document.getElementById("test-paddle");
+    const paddle2 = document.getElementById("test-paddle2");
 
+    if (!btn || !title) return;
+    if (!paddle1 || !paddle2) return;
+
+    paddle1.style.top = `${data.paddles[0].position}px`;
+    paddle2.style.top = `${data.paddles[1].position}px`;
     btn.style.transform = `translate(${data.ball.position.x}px, ${data.ball.position.y}px)`;
     title.innerText = `${data.score[0]} / ${data.score[1]}`;
   }
@@ -101,6 +124,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._socket.disconnect();
       this._socket = null;
     }
+    window.removeEventListener("keydown", this.handleKeyDown);
     await super.destroy();
   }
 }

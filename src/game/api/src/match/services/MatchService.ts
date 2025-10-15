@@ -3,9 +3,18 @@ import { Snapshot } from "../models/Snapshot";
 import { BallChange } from "../models/BallChange";
 import { PaddleChange } from "../models/PaddleChange";
 
-const MAX_VEL = 30;
+const MAX_VEL = 5;
 
 export class MatchService {
+  public static updatePaddle(snapshot: Snapshot, paddle: number, key: string) {
+    let change = 1;
+    if (key === "w") {
+      change = -1;
+    } else if (key !== "s") { return; }
+
+    snapshot.paddles[paddle].position += (change * 10);
+  }
+
   private static isWithinPaddle(ball: BallChange, paddle: PaddleChange): boolean {
     const paddleSize = 100;
     
@@ -17,6 +26,7 @@ export class MatchService {
     
     return true;
   }
+
   public static updateBall(snapshot: Snapshot) {
     if (snapshot.ball.position.x < 10 && this.isWithinPaddle(snapshot.ball, snapshot.paddles[0])) {
       snapshot.ball.position.x = 10;
