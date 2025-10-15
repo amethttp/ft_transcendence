@@ -2,6 +2,7 @@ import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 import { Tournament, tournamentSchema } from "../../../domain/entities/Tournament";
 import { ITournamentRepository } from "../../../domain/repositories/ITournamentRepository";
 import { TournamentMinified } from "../../../application/models/TournamentMinified";
+import { DatabaseMapper } from "../../database/DatabaseMapper";
 
 export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament> implements ITournamentRepository {
 
@@ -39,7 +40,49 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
   }
 
   findByToken(token: string): Promise<Tournament | null> {
-    const query = `WHERE token =?`;
-    return this.baseFind(query, [token]);
+    const entity = this._entity as Tournament;
+    const columns = DatabaseMapper.getEntityColumns(this._entity);
+    const joins = DatabaseMapper.getEntityJoins(this._entity);
+    const roundsColumns = DatabaseMapper.getEntityColumns(entity.rounds[0]);
+    const query = `
+      SELECT
+        json_object(
+          ${columns},
+          'rounds', (
+            SELECT COALESCE(json_group_array(
+              json_object(${roundsColumns})
+            ), '[]')
+            FROM ${entity.rounds[0].tableName}
+            ${DatabaseMapper.getEntityJoins(entity.rounds[0])}
+            WHERE
+              ${entity.rounds[0].tableName}.tournament_id = tournament.id
+          ),
+          'players', (
+            SELECT COALESCE(json_group_array(
+              json_object(
+                'round', ${entity.players[0].tableName}.round,
+                'id', ${entity.players[0].tableName}.id,
+                'user', json_object(
+                  'username', user1.username,
+                  'avatarUrl', user1.avatar_url
+                )
+              )
+            ), '[]')
+            FROM ${entity.players[0].tableName}
+            ${DatabaseMapper.getEntityJoins(entity.players[0])}
+            WHERE
+              ${entity.players[0].tableName}.tournament_id = tournament.id
+          )
+        ) AS result
+      FROM
+        ${this._entity.tableName}
+      ${joins}
+      WHERE
+        tournament.token = ?
+    ;`;
+    console.log("columns", columns);
+    console.log("joins", joins);
+    console.log(query);
+    return this.dbGet(query, [token]);
   }
 }

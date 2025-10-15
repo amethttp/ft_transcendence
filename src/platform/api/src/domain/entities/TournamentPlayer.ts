@@ -18,12 +18,15 @@ export class TournamentPlayer extends AEntity {
   user!: User;
   tournament!: Tournament;
 
-  constructor() {
+  constructor(tournament?: Tournament) {
     super();
     this.id = -1;
     this.round = 0;
     this.user = new User();
-    this.tournament = new Tournament();
+    if (tournament)
+      this.tournament = tournament;
+    else
+      this.tournament = new Tournament();
   }
 
   public get tableName(): string {

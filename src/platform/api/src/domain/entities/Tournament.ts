@@ -1,4 +1,5 @@
 import { AEntity } from "./AEntity";
+import { TournamentPlayer } from "./TournamentPlayer";
 import { TournamentRound } from "./TournamentRound";
 
 export const tournamentSchema: Record<string, string> = {
@@ -26,7 +27,8 @@ export class Tournament extends AEntity {
   playersAmount!: number;
   state: number;
   points: number;
-  tournamentRounds: TournamentRound[];
+  rounds: TournamentRound[];
+  players: TournamentPlayer[];
   creationTime: string;
   finishTime?: string;
 
@@ -40,7 +42,8 @@ export class Tournament extends AEntity {
     this.playersAmount = 0;
     this.state = 0;
     this.points = 10;
-    this.tournamentRounds = undefined as unknown as TournamentRound[];// [new TournamentRound()]
+    this.rounds = [new TournamentRound(this)];
+    this.players = [new TournamentPlayer(this)];
     this.creationTime = "";
     this.finishTime = "";
   }

@@ -34,8 +34,8 @@ export class DatabaseMapper {
       if (key in schema) {
         if (typeof value === "object" && this.isValidObj(value)) {
           counter++;
-          const adjustedTableName = schema[key].slice(0,-3);
-          queryJoin += "LEFT JOIN " + value.tableName + ` ${adjustedTableName}${counter}` + " ON " + tableName + "." + adjustedTableName + "_id = " + adjustedTableName + counter + ".id\n";
+          const adjustedTableName = schema[key].slice(0, -3);
+          queryJoin += `LEFT JOIN ${value.tableName} ${adjustedTableName}${counter} ON ${tableName}.${adjustedTableName}_id = ${adjustedTableName}${counter}.id\n`;
           queryJoin += this.mapObjectJoins(Object.entries(value), adjustedTableName + counter, value.schema, counter);
         }
       }
@@ -50,7 +50,7 @@ export class DatabaseMapper {
         querySelect += "\'" + key.toString() + "\',"; // DO NOT replace the single quotes
         if (typeof value === "object" && this.isValidObj(value)) {
           counter++;
-          const adjustedTableName = schema[key].slice(0,-3);
+          const adjustedTableName = schema[key].slice(0, -3);
           querySelect += "json_object(" + this.mapObjectSelect(Object.entries(value), adjustedTableName + counter, value.schema, counter) + "),";
         } else {
           querySelect += tableName + "." + schema[key] + ",";
