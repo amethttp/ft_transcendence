@@ -1,8 +1,9 @@
+import { LoggedUser } from "../../../auth/LoggedUser";
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { DOMHelper } from "../../../utils/DOMHelper";
-import type { Tournament } from "./models/Tournament";
+import { TournamentState, type Tournament } from "./models/Tournament";
 import { TournamentService } from "./services/TournamentService";
 
 export default class TournamentComponent extends AmethComponent {
@@ -33,6 +34,11 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentPoints")!.innerHTML = "";
     document.getElementById("tournamentPlayersAmount")!.innerHTML = "";
     document.getElementById("tournamentPlayers")!.innerHTML = "";
+    document.getElementById("tournamentToken")!.innerHTML = "";
+    document.getElementById("startTournamentBtn")?.classList.add("hidden");
+    document.getElementById("joinBtn")?.classList.add("hidden");
+    document.getElementById("playGameBtn")?.classList.add("hidden");
+    document.getElementById("leaveBtn")?.classList.add("hidden");
   }
 
   private _fillView() {
@@ -43,7 +49,49 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentVisibility")!.innerText = this._tournament.isVisible ? "Public" : "Private";
     document.getElementById("tournamentPoints")!.innerText = this._tournament.points + "";
     document.getElementById("tournamentPlayersAmount")!.innerText = this._tournament.playersAmount + "";
+    this._fillActions(this._tournament);
     this._fillPlayers();
+  }
+
+  private async _fillActions(tournament: Tournament) {
+    document.getElementById("tournamentToken")!.innerText = tournament.token;
+    document.getElementById("copyLinkBtn")!.onclick = () => {
+      navigator.clipboard.writeText(`${location.origin}/play/tournament/${tournament.token}`)
+        .then(() => Alert.success("Link copied to clipboard!"))
+        .catch(() => Alert.error("Could not copy link to clipboard"));
+    };
+    const loggedUsername = (await LoggedUser.get())?.username;
+    const userJoined = tournament.players.find(player => player.user.username === loggedUsername);
+    if (userJoined) {
+      document.getElementById("leaveBtn")?.classList.remove("hidden");
+        document.getElementById("leaveBtn")!.onclick = () => {
+          // TODO: Start tournament
+          Alert.info("Leaving tournament...");
+        }
+    }
+    if (tournament.state === TournamentState.WAITING) {
+      if (tournament.players[0].user.username === loggedUsername) {
+        document.getElementById("startTournamentBtn")?.classList.remove("hidden");
+        document.getElementById("startTournamentBtn")!.onclick = () => {
+          // TODO: Start tournament
+          Alert.info("Starting tournament...");
+        }
+      }
+      else if (!userJoined) {
+        document.getElementById("joinBtn")?.classList.remove("hidden");
+        document.getElementById("joinBtn")!.onclick = () => {
+          // TODO: Start tournament
+          Alert.info("Joining tournament...");
+        }
+      }
+    }
+    else if (tournament.state == TournamentState.IN_PROGRESS) {
+      document.getElementById("playGameBtn")?.classList.remove("hidden");
+        document.getElementById("playGameBtn")!.onclick = () => {
+          // TODO: Play your next game
+          Alert.info("Playing game...");
+        }
+    }
   }
 
   private _fillPlayers() {

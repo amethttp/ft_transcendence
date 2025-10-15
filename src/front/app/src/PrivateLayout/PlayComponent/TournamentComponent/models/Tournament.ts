@@ -1,6 +1,15 @@
 import type { TournamentPlayer } from "./TournamentPlayer";
 import type { TournamentRound } from "./TournamentRound";
 
+export const TournamentState = {
+  WAITING: 1,
+  CLOSED: 2,
+  IN_PROGRESS: 3,
+  FINISHED: 4
+} as const;
+
+export type TournamentStateValue = typeof TournamentState[keyof typeof TournamentState];
+
 export interface Tournament {
   id: number;
   name: string;
@@ -8,7 +17,7 @@ export interface Tournament {
   round: number;
   isVisible: boolean;
   playersAmount: number;
-  state: number;
+  state: TournamentStateValue;
   points: number;
   tournamentRounds: TournamentRound[];
   players: TournamentPlayer[];
