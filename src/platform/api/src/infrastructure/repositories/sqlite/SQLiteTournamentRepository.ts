@@ -80,9 +80,6 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
       WHERE
         tournament.token = ?
     ;`;
-    console.log("columns", columns);
-    console.log("joins", joins);
-    console.log(query);
     return this.dbGet(query, [token]);
   }
 }

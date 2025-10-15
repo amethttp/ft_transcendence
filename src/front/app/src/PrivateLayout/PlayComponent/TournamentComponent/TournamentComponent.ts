@@ -80,8 +80,9 @@ export default class TournamentComponent extends AmethComponent {
       else if (!userJoined) {
         document.getElementById("joinBtn")?.classList.remove("hidden");
         document.getElementById("joinBtn")!.onclick = () => {
-          // TODO: Start tournament
-          Alert.info("Joining tournament...");
+          this._tournamentService.join(tournament.token)
+            .then(() => this.refresh())
+            .catch(() => Alert.error("Could not join the tournament"));
         }
       }
     }
@@ -123,8 +124,7 @@ export default class TournamentComponent extends AmethComponent {
       if (token)
         this._tournament = await this._tournamentService.getByToken(token as string);
     } catch (error) {
-      Alert.error("Couldn't retrieve Tournament");
-      console.warn(error);
+      this.router?.redirectByPath("/404")
     }
   }
 

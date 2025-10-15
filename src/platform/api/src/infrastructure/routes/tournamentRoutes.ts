@@ -1,5 +1,5 @@
 
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
 import { UserService } from "../../application/services/UserService";
 import { SQLiteAuthRepository } from "../repositories/sqlite/SQLiteAuthRepository";
@@ -29,15 +29,19 @@ export default async function tournamentRoutes(server: FastifyInstance) {
   const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
   const tournamentController = new TournamentController(userService, tournamentService, tournamentPlayerService);
 
-  server.post('', async (request: FastifyRequest, reply) => {
+  server.post('', async (request: FastifyRequest, reply: FastifyReply) => {
     await tournamentController.newTournament(request, reply);
   });
 
-  server.get('/list', async (request: FastifyRequest, reply) => {
+  server.get('/list', async (request: FastifyRequest, reply: FastifyReply) => {
     await tournamentController.getList(request, reply);
   });
 
-  server.get('/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
+  server.get('/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
+    await tournamentController.getByToken(request, reply);
+  });
+
+  server.post('/:token/join', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
     await tournamentController.getByToken(request, reply);
   });
 }
