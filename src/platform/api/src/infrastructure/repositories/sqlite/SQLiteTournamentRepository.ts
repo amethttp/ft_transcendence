@@ -63,6 +63,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
                 'round', ${entity.players[0].tableName}.round,
                 'id', ${entity.players[0].tableName}.id,
                 'user', json_object(
+                  'id', user1.id,
                   'username', user1.username,
                   'avatarUrl', user1.avatar_url
                 )

@@ -62,22 +62,23 @@ export default class TournamentComponent extends AmethComponent {
     };
     const loggedUsername = (await LoggedUser.get())?.username;
     const userJoined = tournament.players.find(player => player.user.username === loggedUsername);
-    if (userJoined) {
-      document.getElementById("leaveBtn")?.classList.remove("hidden");
-        document.getElementById("leaveBtn")!.onclick = () => {
-          // TODO: Start tournament
-          Alert.info("Leaving tournament...");
-        }
-    }
     if (tournament.state === TournamentState.WAITING) {
-      if (tournament.players[0].user.username === loggedUsername) {
-        document.getElementById("startTournamentBtn")?.classList.remove("hidden");
-        document.getElementById("startTournamentBtn")!.onclick = () => {
-          // TODO: Start tournament
-          Alert.info("Starting tournament...");
+      if (userJoined) {
+        document.getElementById("leaveBtn")?.classList.remove("hidden");
+        document.getElementById("leaveBtn")!.onclick = () => {
+          this._tournamentService.leave(tournament.token)
+            .then(() => this.refresh())
+            .catch(() => Alert.error("Could not leave the tournament"));
+        }
+        if (tournament.players[0].user.username === loggedUsername) {
+          document.getElementById("startTournamentBtn")?.classList.remove("hidden");
+          document.getElementById("startTournamentBtn")!.onclick = () => {
+            // TODO: Start tournament
+            Alert.info("Starting tournament...");
+          }
         }
       }
-      else if (!userJoined && tournament.players.length < tournament.playersAmount) {
+      else if (tournament.players.length < tournament.playersAmount) {
         document.getElementById("joinBtn")?.classList.remove("hidden");
         document.getElementById("joinBtn")!.onclick = () => {
           this._tournamentService.join(tournament.token)
@@ -88,10 +89,10 @@ export default class TournamentComponent extends AmethComponent {
     }
     else if (tournament.state == TournamentState.IN_PROGRESS) {
       document.getElementById("playGameBtn")?.classList.remove("hidden");
-        document.getElementById("playGameBtn")!.onclick = () => {
-          // TODO: Play your next game
-          Alert.info("Playing game...");
-        }
+      document.getElementById("playGameBtn")!.onclick = () => {
+        // TODO: Play your next game
+        Alert.info("Playing game...");
+      }
     }
   }
 

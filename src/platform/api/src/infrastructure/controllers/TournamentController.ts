@@ -94,4 +94,31 @@ export default class TournamentController {
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
+
+  async leave(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      if (!request.params.token) {
+        const err = new ResponseError(ErrorParams.BAD_REQUEST);
+        return reply.code(err.code).send(err.toDto());
+      }
+      const tournament = await this._tournamentService.getByToken(request.params.token);
+      if (tournament.state === TournamentState.WAITING) {
+        const jwtUser = request.user as JwtPayloadInfo;
+        const player = tournament.players.find(player => player.user.id === jwtUser.sub);
+        if (player)
+          await this._tournamentPlayerService.delete(player);
+        return reply.send({ success: true });
+      }
+      else {
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+      }
+    }
+    catch (err: any) {
+      console.log(err);
+      if (err instanceof ResponseError)
+        reply.code(err.code).send(err.toDto());
+      else
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
 }
