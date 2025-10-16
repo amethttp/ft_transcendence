@@ -73,7 +73,7 @@ export default class TournamentsListComponent extends AmethComponent {
             </div>
           </a>
         `;
-        this._container.prepend(DOMHelper.createElementFromHTML(html))
+        this._container.append(DOMHelper.createElementFromHTML(html));
       }
     }
   }

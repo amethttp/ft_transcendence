@@ -5,6 +5,8 @@ import { NewTournamentRequest } from "../../application/models/NewTournamentRequ
 import { TournamentService } from "../../application/services/TournamentService";
 import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
 import { UserService } from "../../application/services/UserService";
+import { TournamentState } from "../../domain/entities/Tournament";
+import { TournamentMinified } from "../../application/models/TournamentMinified";
 
 export default class TournamentController {
   private _userService: UserService;
@@ -43,10 +45,24 @@ export default class TournamentController {
     }
   }
 
-  async getList(_request: FastifyRequest, reply: FastifyReply) {
+  async getList(request: FastifyRequest, reply: FastifyReply) {
     try {
       const tournaments = await this._tournamentService.getList();
-      reply.send(tournaments);
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const myTournaments = await this._tournamentPlayerService.getAllUserTournaments(originUser);
+      const myTournamentsFiltered = myTournaments.filter(tournament => tournament.state === TournamentState.IN_PROGRESS)
+      .map((tournament): TournamentMinified => {
+        return {
+          name: tournament.name,
+          token: tournament.token,
+          creationTime: tournament.creationTime,
+          points: tournament.points,
+          players: tournament.playersAmount,
+          playersAmount: tournament.playersAmount,
+        }
+      })
+      reply.send([...myTournamentsFiltered, ...tournaments]);
     }
     catch (err: any) {
       console.log(err);
@@ -75,10 +91,10 @@ export default class TournamentController {
         const err = new ResponseError(ErrorParams.BAD_REQUEST);
         return reply.code(err.code).send(err.toDto());
       }
-      const jwtUser = request.user as JwtPayloadInfo;
-      const originUser = await this._userService.getById(jwtUser.sub);
       const tournament = await this._tournamentService.getByToken(request.params.token);
       if (tournament.players.length < tournament.playersAmount) {
+        const jwtUser = request.user as JwtPayloadInfo;
+        const originUser = await this._userService.getById(jwtUser.sub);
         await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament);
         return reply.send({ success: true });
       }

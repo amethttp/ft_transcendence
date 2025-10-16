@@ -7,16 +7,18 @@ const tournamentPlayerSchema: Record<string, string> = {
   round: "round",
   user: "user_id",
   tournament: "tournament_id",
+  creationTime: "creation_time",
 };
 
 export class TournamentPlayer extends AEntity {
   static readonly tableName = "tournament_player";
   static readonly entitySchema = tournamentPlayerSchema;
 
-  id!: number;
-  round!: number;
-  user!: User;
-  tournament!: Tournament;
+  id: number;
+  round: number;
+  user: User;
+  tournament: Tournament;
+  creationTime: string;
 
   constructor(tournament?: Tournament) {
     super();
@@ -26,7 +28,8 @@ export class TournamentPlayer extends AEntity {
     if (tournament)
       this.tournament = tournament;
     else
-      this.tournament = new Tournament();
+    this.tournament = new Tournament();
+    this.creationTime = (new Date()).toString();
   }
 
   public get tableName(): string {

@@ -50,6 +50,15 @@ export class TournamentPlayerService {
     return tournamentsInfo;
   }
 
+  async getAllUserTournaments(originUser: User): Promise<Tournament[]> {
+    const players = await this._tournamentPlayerRepository.findAllByUser(originUser.id);
+    if (players === null)
+      return [];
+    const tournaments = players.map(player => player.tournament);
+  
+    return tournaments;
+  }
+
   async delete(tournamentPlayer: TournamentPlayer) {
     if (!(await this._tournamentPlayerRepository.delete(tournamentPlayer.id))) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);

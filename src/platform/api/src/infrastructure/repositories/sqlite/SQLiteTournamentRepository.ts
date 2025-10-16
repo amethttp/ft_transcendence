@@ -35,6 +35,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
         AND state = 1
         AND round = 0
         AND (SELECT COUNT(id) FROM tournament_player tp WHERE tp.tournament_id = tournament.id) < players_amount
+      ORDER BY ${this._entity.tableName}.creation_time DESC
     ;`;
     return this.dbAll(query, []) as Promise<TournamentMinified[] | null>;
   }
@@ -73,6 +74,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
             ${DatabaseMapper.getEntityJoins(entity.players[0])}
             WHERE
               ${entity.players[0].tableName}.tournament_id = tournament.id
+            ORDER BY ${entity.players[0].tableName}.creation_time DESC
           )
         ) AS result
       FROM
