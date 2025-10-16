@@ -51,18 +51,20 @@ export default class TournamentController {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const myTournaments = await this._tournamentPlayerService.getAllUserTournaments(originUser);
-      const myTournamentsFiltered = myTournaments.filter(tournament => tournament.state === TournamentState.IN_PROGRESS)
-      .map((tournament): TournamentMinified => {
-        return {
-          name: tournament.name,
-          token: tournament.token,
-          creationTime: tournament.creationTime,
-          points: tournament.points,
-          players: tournament.playersAmount,
-          playersAmount: tournament.playersAmount,
-        }
-      })
-      reply.send([...myTournamentsFiltered, ...tournaments]);
+      const myTournamentsFiltered = myTournaments
+        .filter(tournament => tournament.state === TournamentState.IN_PROGRESS
+          || tournament.state === TournamentState.WAITING)
+        .map((tournament): TournamentMinified => {
+          return {
+            name: tournament.name,
+            token: tournament.token,
+            creationTime: tournament.creationTime,
+            points: tournament.points,
+            players: -1,
+            playersAmount: tournament.playersAmount,
+          }
+        })
+      reply.send([...myTournamentsFiltered, ...tournaments.filter(t => !myTournamentsFiltered.find(tt => t.token === tt.token))]);
     }
     catch (err: any) {
       console.log(err);

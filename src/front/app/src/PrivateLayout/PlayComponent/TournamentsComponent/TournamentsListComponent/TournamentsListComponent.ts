@@ -58,11 +58,20 @@ export default class TournamentsListComponent extends AmethComponent {
   private _fillList() {
     if (this._container) {
       for (const tournament of this._tournaments) {
+        let players = '';
+        let cssOutlineColor = "outline-brand-800";
+        if (tournament.players === -1) {
+          players = `<span class="whitespace-nowrap">enrolled</span>`;
+          cssOutlineColor = "outline-green-700 shadow-lg";
+        }
+        else {
+          players = `<span class="whitespace-nowrap">${tournament.players}/${tournament.playersAmount}</span>`;
+        }
         const html = `
-          <a title="Join ${tournament.name} tournament" href="/play/tournament/${tournament.token}" class="flex flex-wrap w-full text-center sm:text-left sm:justify-center text-center items-center gap-8 rounded shadow p-2 sm:p-4 outline-2 outline-brand-800 hover:shadow-md transition-all hover:bg-gray-50">
+          <a title="Join ${tournament.name} tournament" href="/play/tournament/${tournament.token}" class="flex flex-wrap w-full sm:text-left sm:justify-center text-center items-center gap-8 rounded shadow p-2 sm:p-4 outline-2 hover:shadow-md transition-all hover:bg-gray-50 ${cssOutlineColor}">
             <div class="flex-1">${DOMHelper.sanitizeHTML(tournament.name)}</div>
             <div class="flex flex-1 sm:flex-none gap-5 justify-center items-center">
-            <span class="whitespace-nowrap">${tournament.players}/${tournament.playersAmount}</span>
+            ${players}
             <span class="whitespace-nowrap">${tournament.points}pts</span>
             <span class="whitespace-nowrap">${DateUtils.timeAgo(tournament.creationTime)}</span>
             <div class="btn btn-secondary">
