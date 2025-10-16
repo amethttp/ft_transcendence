@@ -56,8 +56,7 @@ export default class TournamentController {
 
   async getByToken(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      if (!request.params.token)
-      {
+      if (!request.params.token) {
         const err = new ResponseError(ErrorParams.BAD_REQUEST);
         return reply.code(err.code).send(err.toDto());
       }
@@ -72,20 +71,27 @@ export default class TournamentController {
 
   async join(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      if (!request.params.token)
-      {
+      if (!request.params.token) {
         const err = new ResponseError(ErrorParams.BAD_REQUEST);
         return reply.code(err.code).send(err.toDto());
       }
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const tournament = await this._tournamentService.getByToken(request.params.token);
-      await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament);
-      reply.send({success: true});
+      if (tournament.players.length < tournament.playersAmount) {
+        await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament);
+        return reply.send({ success: true });
+      }
+      else {
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+      }
     }
     catch (err: any) {
       console.log(err);
-      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      if (err instanceof ResponseError)
+        reply.code(err.code).send(err.toDto());
+      else
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
 }

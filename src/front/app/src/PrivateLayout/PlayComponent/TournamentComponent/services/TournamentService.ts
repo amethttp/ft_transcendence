@@ -16,6 +16,6 @@ export class TournamentService {
   }
 
   join(token: string): Promise<BasicResponse> {
-    return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}/${TournamentService.JOIN_ENDPOINT}`);
+    return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}${TournamentService.JOIN_ENDPOINT}`);
   }
 }

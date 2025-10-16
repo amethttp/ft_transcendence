@@ -77,7 +77,7 @@ export default class TournamentComponent extends AmethComponent {
           Alert.info("Starting tournament...");
         }
       }
-      else if (!userJoined) {
+      else if (!userJoined && tournament.players.length < tournament.playersAmount) {
         document.getElementById("joinBtn")?.classList.remove("hidden");
         document.getElementById("joinBtn")!.onclick = () => {
           this._tournamentService.join(tournament.token)

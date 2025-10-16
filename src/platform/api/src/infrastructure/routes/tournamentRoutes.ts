@@ -42,6 +42,6 @@ export default async function tournamentRoutes(server: FastifyInstance) {
   });
 
   server.post('/:token/join', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
-    await tournamentController.getByToken(request, reply);
+    await tournamentController.join(request, reply);
   });
 }
