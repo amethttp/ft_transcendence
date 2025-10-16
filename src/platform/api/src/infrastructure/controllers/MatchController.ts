@@ -5,6 +5,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { NewMatchRequest } from "../../application/models/NewMatchRequest";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
+import { MatchResult } from "../../application/models/MatchResult";
 
 export default class MatchController {
   private _matchService: MatchService;
@@ -34,6 +35,34 @@ export default class MatchController {
     }
     catch (err: any) {
       console.log(err);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async deleteMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const match = await this._matchService.getByToken(request.params.token);
+      if (match)
+        await this._matchService.delete(match);
+
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async updateMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const matchResult = request.body as MatchResult;
+      const match = await this._matchService.getByToken(request.params.token);
+      if (!match)
+        throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
+
+      await this._matchService.setMatchFinished(match);
+      await this._matchPlayerService.updateResult(match.id, matchResult);
+      
+    } catch (error: any) {
+      console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }

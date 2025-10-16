@@ -6,6 +6,7 @@ import { TournamentRound } from "../../domain/entities/TournamentRound";
 import StringTime from "../helpers/StringTime";
 import { NewMatchRequest } from "../models/NewMatchRequest";
 import { MatchMinified } from "../models/MatchMinified";
+import { MatchResult } from "../models/MatchResult";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
@@ -32,6 +33,16 @@ export class MatchService {
     }
 
     return match;
+  }
+
+  async setMatchFinished(match: Match) {
+    const matchUpdate: Partial<Match> = {
+      state: 3,
+    };
+
+    const update = await this._matchRepository.update(match.id, matchUpdate);
+    if (!update)
+      throw new ResponseError(ErrorParams.USER_NOT_FOUND);
   }
 
   async getByToken(token: string): Promise<Match | null> {

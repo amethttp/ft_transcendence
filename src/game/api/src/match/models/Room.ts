@@ -1,24 +1,37 @@
 import { Server } from "socket.io";
 import { Player } from "./Player";
 import { AuthenticatedSocket } from "./AuthenticatedSocket";
-import { MatchState } from "./States";
 import { Snapshot } from "./Snapshot";
 import { MatchService } from "../services/MatchService";
 import { PaddleChange } from "./PaddleChange";
+import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
+import { MatchState, TMatchState } from "./MatchState";
+import { PlayerState } from "./PlayerState";
+import EventEmitter from "../../EventEmitter/EventEmitter";
+import { BallChange } from "./BallChange";
 
-export class Room {
+const MAX_POINTS = 10;
+
+export type RoomEvents = {
+  ballChange: BallChange,
+  paddleChange: PaddleChange,
+  snapshot: Snapshot
+};
+
+export class Room extends EventEmitter<RoomEvents> {
   private _io: Server;
   private _token: string;
   private _players: Record<string, Player>;
-  private _matchState: MatchState;
+  private _matchState: TMatchState;
   private _snapshot: Snapshot;
   public interval: any;
 
   constructor(server: Server, token: string) {
+    super();
     this._io = server;
     this._token = token;
     this._players = {};
-    this._matchState = "WAITING";
+    this._matchState = MatchState.WAITING;
     this._snapshot = new Snapshot();
   }
 
@@ -30,12 +43,12 @@ export class Room {
     return Object.values(this._players);
   }
 
-  public get matchState(): MatchState {
+  public get matchState(): TMatchState {
     return this._matchState;
   }
 
-  public set matchState(v: MatchState) {
-    this._matchState = v;
+  public set matchState(ms: TMatchState) {
+    this._matchState = ms;
   }
 
   public emit(ev: string, ...args: any[]): boolean {
@@ -88,7 +101,7 @@ export class Room {
   public allPlayersReady(): boolean {
     const roomPlayers = Object.values(this._players);
     for (const player of roomPlayers) {
-      if (player.state !== "READY") {
+      if (player.state !== PlayerState.READY) {
         return false;
       }
     }
@@ -107,14 +120,26 @@ export class Room {
     MatchService.updateBall(this._snapshot);
     MatchService.checkGoal(this._snapshot);
     this._snapshot.id++;
+    this.emit("snapshot", this._snapshot);
   }
 
-  public sendSnapshot() {
-    if (MatchService.checkEndState(this._snapshot, 10)) {
+  public sendSnapshot(apiClient: ApiClient) {
+    if (MatchService.checkEndState(this._snapshot, MAX_POINTS)) {
       this.emit("end", this._snapshot);
       clearInterval(this.interval);
+      this._matchState = MatchState.FINISHED;
+      const result = {
+        ...this._snapshot.score,
+        ...this.players,
+        state: this._matchState
+      };
+      apiClient.post(`/${this.token}`, result);
     } else {
       this.emit("snapshot", this._snapshot);
     }
+  }
+
+  destroy(): void {
+    super.destroy();
   }
 } 

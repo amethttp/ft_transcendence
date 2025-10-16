@@ -4,8 +4,9 @@ import fastifySocketIO from 'fastify-socket.io';
 import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
 import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
+import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 20;
+const TARGET_FPS = 1000 / 30;
 
 const server = fastify({
   https: {
@@ -71,14 +72,14 @@ const main = async () => {
         const room = roomService.getRoom(token);
         if (room.playersAmount() === 1) { return; }
         const player = room.getPlayer(socket.id);
-        if (player.state === "READY") { return; }
+        if (player.state === PlayerState.READY) { return; }
 
-        player.state = "READY";
+        player.state = PlayerState.READY;
         server.io.to(socket.id).emit("ready");
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.allPlayersReady()) {
           console.log("Starting match...");
-          roomService.startMatch(room, TARGET_FPS);
+          roomService.startMatch(room, TARGET_FPS, apiClient);
         }
       });
 
