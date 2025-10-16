@@ -4,7 +4,7 @@ import type { Tournament } from "../models/Tournament";
 
 export class TournamentService {
   private static readonly BASE_ENDPOINT = "/tournament";
-  private static readonly JOIN_ENDPOINT = "/tournament";
+  private static readonly JOIN_ENDPOINT = "/join";
   private _apiClient: ApiClient;
 
   constructor() {
