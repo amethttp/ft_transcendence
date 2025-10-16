@@ -14,19 +14,19 @@ export class TournamentRound extends AEntity {
   static readonly tableName = "tournament_round";
   static readonly entitySchema = tournamentRoundSchema;
 
-  id!: number;
-  top!: string;
-  token!: string;
-  matches!: Match[];
-  tournament!: Tournament;
-  creationTime!: string;
+  id: number;
+  top: string;
+  token: string;
+  matches: Match[];
+  tournament: Tournament;
+  creationTime: string;
 
   constructor(tournament?: Tournament) {
     super();
     this.id = -1;
     this.top = "";
     this.token = "";
-    this.matches = undefined as unknown as Match[]; // [new Match()]
+    this.matches = []; // [new Match()]
     if (tournament)
       this.tournament = tournament;
     else

@@ -36,6 +36,8 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentPlayers")!.innerHTML = "";
     document.getElementById("tournamentToken")!.innerHTML = "";
     document.getElementById("startTournamentBtn")?.classList.add("hidden");
+    document.getElementById("startTournamentBtn")?.removeAttribute("disabled");
+    document.getElementById("startTournamentBtn")?.removeAttribute("title");
     document.getElementById("joinBtn")?.classList.add("hidden");
     document.getElementById("playGameBtn")?.classList.add("hidden");
     document.getElementById("leaveBtn")?.classList.add("hidden");
@@ -68,13 +70,18 @@ export default class TournamentComponent extends AmethComponent {
         document.getElementById("leaveBtn")!.onclick = () => {
           this._tournamentService.leave(tournament.token)
             .then(() => this.refresh())
-            .catch(() => Alert.error("Could not leave the tournament"));
+            .catch(() => Alert.error("Could not leave tournament"));
         }
         if (tournament.players[0].user.username === loggedUsername) {
           document.getElementById("startTournamentBtn")?.classList.remove("hidden");
           document.getElementById("startTournamentBtn")!.onclick = () => {
-            // TODO: Start tournament
-            Alert.info("Starting tournament...");
+            this._tournamentService.start(tournament.token)
+              .then(() => this.refresh())
+              .catch(() => Alert.error("Could not start tournament"));
+          }
+          if (tournament.players.length !== tournament.playersAmount) {
+            document.getElementById("startTournamentBtn")?.setAttribute("title", "Wait for opponents to start tournament");
+            document.getElementById("startTournamentBtn")?.setAttribute("disabled", "true");
           }
         }
       }
@@ -83,7 +90,7 @@ export default class TournamentComponent extends AmethComponent {
         document.getElementById("joinBtn")!.onclick = () => {
           this._tournamentService.join(tournament.token)
             .then(() => this.refresh())
-            .catch(() => Alert.error("Could not join the tournament"));
+            .catch(() => Alert.error("Could not join tournament"));
         }
       }
     }

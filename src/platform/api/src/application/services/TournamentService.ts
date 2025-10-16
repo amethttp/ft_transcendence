@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { Tournament } from "../../domain/entities/Tournament";
+import { Tournament, TournamentState } from "../../domain/entities/Tournament";
 import { ITournamentRepository } from "../../domain/repositories/ITournamentRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { NewTournamentRequest } from "../models/NewTournamentRequest";
@@ -99,5 +99,17 @@ export class TournamentService {
     if (!tournament)
       throw new ResponseError(ErrorParams.NOT_FOUND);
     return tournament;
+  }
+
+  async start(tournament: Tournament): Promise<number> {
+    tournament.state = TournamentState.IN_PROGRESS;
+    const blueprint: Partial<Tournament> = {
+      state: TournamentState.IN_PROGRESS,
+    };
+    Object.assign(tournament, blueprint);
+    const res = await this._tournamentRepository.update(tournament.id, blueprint);
+    if (res === null)
+      throw new ResponseError(ErrorParams.UPDATE_ERROR);
+    return res;
   }
 }

@@ -5,18 +5,28 @@ import { NewTournamentRequest } from "../../application/models/NewTournamentRequ
 import { TournamentService } from "../../application/services/TournamentService";
 import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
 import { UserService } from "../../application/services/UserService";
-import { TournamentState } from "../../domain/entities/Tournament";
+import { Tournament, TournamentState } from "../../domain/entities/Tournament";
 import { TournamentMinified } from "../../application/models/TournamentMinified";
+import { TournamentRoundService } from "../../application/services/TournamentRoundService";
+import { MatchService } from "../../application/services/MatchService";
+import { MatchPlayerService } from "../../application/services/MatchPlayerService";
+import { NewMatchRequest } from "../../application/models/NewMatchRequest";
 
 export default class TournamentController {
   private _userService: UserService;
   private _tournamentService: TournamentService;
   private _tournamentPlayerService: TournamentPlayerService;
+  private _tournamentRoundService: TournamentRoundService;
+  private _matchService: MatchService;
+  private _matchPlayerService: MatchPlayerService;
 
-  constructor(userService: UserService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService) {
+  constructor(userService: UserService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService, tournamentRoundService: TournamentRoundService, matchService: MatchService, matchPlayerService: MatchPlayerService) {
     this._userService = userService;
     this._tournamentService = tournamentService;
     this._tournamentPlayerService = tournamentPlayerService;
+    this._tournamentRoundService = tournamentRoundService;
+    this._matchService = matchService;
+    this._matchPlayerService = matchPlayerService;
   }
 
   async newTournament(request: FastifyRequest, reply: FastifyReply) {
@@ -137,6 +147,55 @@ export default class TournamentController {
         reply.code(err.code).send(err.toDto());
       else
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async start(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      if (!request.params.token) {
+        const err = new ResponseError(ErrorParams.BAD_REQUEST);
+        return reply.code(err.code).send(err.toDto());
+      }
+      const tournament = await this._tournamentService.getByToken(request.params.token);
+      if (tournament.state === TournamentState.WAITING && tournament.players.length === tournament.playersAmount) {
+        const jwtUser = request.user as JwtPayloadInfo;
+        const player = tournament.players.find(player => player.user.id === jwtUser.sub);
+        if (player && tournament.players[0] === player) {
+          await this._tournamentService.start(tournament);
+          await this._createRound(tournament);
+          return reply.send({ success: true });
+        }
+        else {
+          throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+        }
+      }
+      else {
+        throw new ResponseError(ErrorParams.UNAUTHORIZED_USER_ACTION);
+      }
+    }
+    catch (err: any) {
+      console.log(err);
+      if (err instanceof ResponseError)
+        reply.code(err.code).send(err.toDto());
+      else
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  private async _createRound(tournament: Tournament) {
+    const activePlayers = tournament.players.filter(player => player.round === tournament.round);
+    const round = await this._tournamentRoundService.create(activePlayers.length.toString(), tournament);
+    for (let i = 0; i < activePlayers.length; i += 2) {
+      const matchRequest: NewMatchRequest = {
+        name: `${tournament.name} - round of ${round.top}`,
+        points: tournament.points,
+        tournamentRound: round,
+        isVisible: false
+      }
+      const match = await this._matchService.newMatch(matchRequest);
+      await this._matchPlayerService.newMatchPlayer(activePlayers[i].user, match);
+      if (activePlayers[i + 1])
+        await this._matchPlayerService.newMatchPlayer(activePlayers[i + 1].user, match);
     }
   }
 }

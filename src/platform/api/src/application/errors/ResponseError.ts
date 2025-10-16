@@ -14,6 +14,7 @@ export const ErrorParams = {
   PASSWORD_RECOVER_FAILED: { code: 400, message: "PASSWORD_RECOVER_FAILED" },
   DATABASE_ERROR: { code: 555, message: "DATABASE_ERROR" },
   UNKNOWN_SERVER_ERROR: { code: 500, message: "UNKNOWN_SERVER_ERROR" },
+  UPDATE_ERROR: { code: 422, message: "UPDATE_ERROR" },
   BAD_REQUEST: { code: 400, message: "BAD_REQUEST" },
 } as const;
 

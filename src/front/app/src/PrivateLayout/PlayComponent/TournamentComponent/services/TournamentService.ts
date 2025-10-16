@@ -6,6 +6,7 @@ export class TournamentService {
   private static readonly BASE_ENDPOINT = "/tournament";
   private static readonly JOIN_ENDPOINT = "/join";
   private static readonly LEAVE_ENDPOINT = "/leave";
+  private static readonly START_ENDPOINT = "/start";
   private _apiClient: ApiClient;
 
   constructor() {
@@ -22,5 +23,9 @@ export class TournamentService {
 
   leave(token: string): Promise<BasicResponse> {
     return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}${TournamentService.LEAVE_ENDPOINT}`);
+  }
+
+  start(token: string): Promise<BasicResponse> {
+    return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}${TournamentService.START_ENDPOINT}`);
   }
 }
