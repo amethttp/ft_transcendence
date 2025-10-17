@@ -5,6 +5,7 @@ import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { DOMHelper } from "../../../utils/DOMHelper";
 import { TournamentState, type Tournament } from "./models/Tournament";
+import type { TournamentPlayer } from "./models/TournamentPlayer";
 import { TournamentService } from "./services/TournamentService";
 import TournamentBracketsComponent from "./TournamentBracketsComponent/TournamentBracketsComponent";
 
@@ -13,6 +14,8 @@ export default class TournamentComponent extends AmethComponent {
   private _tournamentService: TournamentService;
   private _tournament?: Tournament;
   private _bracketsComponent?: TournamentBracketsComponent;
+  private _loggedUser?: User;
+  private _loggedPlayer?: TournamentPlayer;
 
   constructor() {
     super();
@@ -26,6 +29,7 @@ export default class TournamentComponent extends AmethComponent {
   }
 
   async afterInit() {
+    this._loggedUser = (await LoggedUser.get())!;
     await this._setTournament();
     this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
@@ -50,7 +54,7 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("startTournamentBtn")?.removeAttribute("disabled");
     document.getElementById("startTournamentBtn")?.removeAttribute("title");
     document.getElementById("joinBtn")?.classList.add("hidden");
-    document.getElementById("playGameBtn")?.classList.add("hidden");
+    document.getElementById("playMatchBtn")?.classList.add("hidden");
     document.getElementById("leaveBtn")?.classList.add("hidden");
   }
 
@@ -106,11 +110,13 @@ export default class TournamentComponent extends AmethComponent {
       }
     }
     else if (tournament.state == TournamentState.IN_PROGRESS) {
-      document.getElementById("playGameBtn")?.classList.remove("hidden");
-      document.getElementById("playGameBtn")!.onclick = () => {
-        // TODO: Play your next game
-        this.refresh();
-        Alert.info("Playing game...");
+      if (tournament.rounds.length > 0 && this._loggedPlayer?.round === tournament.round) {
+        const nextMatch = tournament.rounds[tournament.rounds.length - 1].matches
+          .find(match => match.players.find(pl => pl.userId === this._loggedUser?.id));
+        if (nextMatch) {
+          (document.getElementById("playMatchBtn") as HTMLAnchorElement).href = `/play/${nextMatch.token}`;
+          document.getElementById("playMatchBtn")?.classList.remove("hidden");
+        }
       }
     }
   }
@@ -141,8 +147,10 @@ export default class TournamentComponent extends AmethComponent {
   private async _setTournament() {
     try {
       const token = this.router?.currentPath.params.token;
-      if (token)
+      if (token) {
         this._tournament = await this._tournamentService.getByToken(token as string);
+        this._loggedPlayer = this._tournament.players.find(pl => pl.user.id === this._loggedUser?.id);
+      }
     } catch (error) {
       this.router?.redirectByPath("/404")
     }
