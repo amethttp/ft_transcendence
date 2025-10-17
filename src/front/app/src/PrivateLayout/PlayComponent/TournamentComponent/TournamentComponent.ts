@@ -1,29 +1,40 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
+import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { DOMHelper } from "../../../utils/DOMHelper";
 import { TournamentState, type Tournament } from "./models/Tournament";
 import { TournamentService } from "./services/TournamentService";
+import TournamentBracketsComponent from "./TournamentBracketsComponent/TournamentBracketsComponent";
 
 export default class TournamentComponent extends AmethComponent {
   template = () => import("./TournamentComponent.html?raw");
   private _tournamentService: TournamentService;
   private _tournament?: Tournament;
+  private _bracketsComponent?: TournamentBracketsComponent;
 
   constructor() {
     super();
     this._tournamentService = new TournamentService();
+    this._bracketsComponent = new TournamentBracketsComponent();
+  }
+
+  async init(selector: string, router?: Router) {
+    await super.init(selector, router);
+    await this._bracketsComponent?.init("bracketsContainer", router);
   }
 
   async afterInit() {
     await this._setTournament();
+    this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
     this._setTitle();
   }
 
   async refresh() {
     await this._setTournament();
+    this._bracketsComponent?.refresh(this._tournament);
     this._fillView();
     this._setTitle();
   }
@@ -98,6 +109,7 @@ export default class TournamentComponent extends AmethComponent {
       document.getElementById("playGameBtn")?.classList.remove("hidden");
       document.getElementById("playGameBtn")!.onclick = () => {
         // TODO: Play your next game
+        this.refresh();
         Alert.info("Playing game...");
       }
     }
@@ -116,7 +128,7 @@ export default class TournamentComponent extends AmethComponent {
         }
         const htmlElem = `
           <a href="${player.user.username}" class="flex items-center gap-2">
-            <img src="${player.user.avatarUrl}" width="40" height="40" class="aspect-square w-10 h-10 rounded-full overflow-hidden object-cover"></img>
+            <img src="${player.user.avatarUrl}" width="40" height="40" class="aspect-square w-10 h-10 rounded-full overflow-hidden object-cover" />
             <span>${DOMHelper.sanitizeHTML(player.user.username)}</span>
             ${status}
           </a>

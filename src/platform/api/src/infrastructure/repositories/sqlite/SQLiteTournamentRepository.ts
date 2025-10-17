@@ -44,19 +44,43 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
     const entity = this._entity as Tournament;
     const columns = DatabaseMapper.getEntityColumns(this._entity);
     const joins = DatabaseMapper.getEntityJoins(this._entity);
-    const roundsColumns = DatabaseMapper.getEntityColumns(entity.rounds[0]);
     const query = `
       SELECT
         json_object(
           ${columns},
           'rounds', (
             SELECT COALESCE(json_group_array(
-              json_object(${roundsColumns})
+              json_object(
+                  'top', ${entity.rounds[0].tableName}.top,
+                  'matches', (
+                    SELECT COALESCE(json_group_array(
+                      json_object(
+                        'name', match.name,
+                        'token', match.token,
+                        'state', match.state,
+                        'players', (
+                          SELECT COALESCE(json_group_array(
+                            json_object(
+                                'id', match_player.id,
+                                'score', match_player.score,
+                                'isWinner', match_player.is_winner,
+                                'userId', match_player.user_id
+                            )
+                          ), '[]')
+                          FROM match_player
+                          WHERE match_player.match_id = match.id
+                        )
+                      )
+                    ), '[]') 
+                    FROM match
+                    WHERE match.tournament_round_id = ${entity.rounds[0].tableName}.id
+                  )
+                )
             ), '[]')
             FROM ${entity.rounds[0].tableName}
-            ${DatabaseMapper.getEntityJoins(entity.rounds[0])}
             WHERE
               ${entity.rounds[0].tableName}.tournament_id = tournament.id
+            ORDER BY ${entity.rounds[0].tableName}.creation_time
           ),
           'players', (
             SELECT COALESCE(json_group_array(

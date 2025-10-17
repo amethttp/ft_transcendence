@@ -2,6 +2,14 @@ import { AEntity } from "./AEntity";
 import { MatchPlayer } from "./MatchPlayer";
 import { TournamentRound } from "./TournamentRound";
 
+export const MatchState = {
+  WAITING: 1,
+  IN_PROGRESS: 2,
+  FINISHED: 3
+} as const;
+
+export type MatchStateValue = typeof MatchState[keyof typeof MatchState];
+
 export const matchSchema: Record<string, string> = {
   id: "id",
   name: "name",

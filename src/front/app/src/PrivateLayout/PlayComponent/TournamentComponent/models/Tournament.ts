@@ -19,7 +19,7 @@ export interface Tournament {
   playersAmount: number;
   state: TournamentStateValue;
   points: number;
-  tournamentRounds: TournamentRound[];
+  rounds: TournamentRound[];
   players: TournamentPlayer[];
   creationTime: string;
   finishTime?: string;
