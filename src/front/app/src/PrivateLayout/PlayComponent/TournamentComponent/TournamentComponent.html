@@ -21,9 +21,17 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-row-reverse flex-wrap">
-    <div class="card w-1/5 items-stretch gap-9 min-w-fit max-w-1/6">
+  <div class="flex flex-row-reverse justify-around gap-12 items-stretch">
+    <div class="card items-stretch flex-1 gap-12 justify-start min-w-fit max-w-1/6">
       <div class="flex flex-col items-stretch gap-4">
+        <button class="btn btn-secondary whitespace-nowrap min-w-fit" id="fillTournamentBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+          </svg>
+          Fill Tournament
+        </button>
         <button class="hidden btn btn-primary whitespace-nowrap min-w-fit" id="startTournamentBtn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
             stroke="currentColor" class="size-5">
@@ -67,6 +75,6 @@
       </div>
       <div class="flex flex-col" id="tournamentPlayers"></div>
     </div>
-    <div class="card flex-1" id="bracketsContainer"></div>
+    <div class="card overflow-auto flex-1 min-w-sm max-w-full justify-start items-start" id="bracketsContainer"></div>
   </div>
 </div>

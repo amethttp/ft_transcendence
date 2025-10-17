@@ -85,4 +85,16 @@ export class TournamentPlayerService {
 
     return (placement / tournaments.length);
   }
+
+  public async updateMultiple(players: TournamentPlayer[], blueprint: Partial<TournamentPlayer>) {
+    // await Promise.all(players.map(player => this.update(player, blueprint)));
+    for (const player of players) {
+      await this.update(player, blueprint);
+    }
+  }
+
+  public async update(player: TournamentPlayer, blueprint: Partial<TournamentPlayer>) {
+    Object.assign(player, blueprint);
+    await this._tournamentPlayerRepository.update(player.id, blueprint);
+  }
 }

@@ -28,4 +28,9 @@ export class TournamentService {
   start(token: string): Promise<BasicResponse> {
     return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}${TournamentService.START_ENDPOINT}`);
   }
+
+  // TODO: Remove, only for testing purposes
+  fill(token: string): Promise<BasicResponse> {
+    return this._apiClient.post(`${TournamentService.BASE_ENDPOINT}/${token}/fill`);
+  }
 }

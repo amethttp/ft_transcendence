@@ -1,4 +1,5 @@
 import { LoggedUser } from "../../../auth/LoggedUser";
+import type User from "../../../auth/models/User";
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
@@ -68,6 +69,11 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentPlayersAmount")!.innerText = this._tournament.playersAmount + "";
     this._fillActions(this._tournament);
     this._fillPlayers();
+    document.getElementById("fillTournamentBtn")!.onclick = () => {
+      this._tournamentService.fill(this._tournament!.token)
+        .then(() => this.refresh())
+        .catch(err => Alert.error("Error", JSON.stringify(err)));
+    }
   }
 
   private async _fillActions(tournament: Tournament) {

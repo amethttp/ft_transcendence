@@ -11,6 +11,7 @@ import { TournamentRoundService } from "../../application/services/TournamentRou
 import { MatchService } from "../../application/services/MatchService";
 import { MatchPlayerService } from "../../application/services/MatchPlayerService";
 import { NewMatchRequest } from "../../application/models/NewMatchRequest";
+import { User } from "../../domain/entities/User";
 
 export default class TournamentController {
   private _userService: UserService;
@@ -184,6 +185,8 @@ export default class TournamentController {
 
   private async _createRound(tournament: Tournament) {
     const activePlayers = tournament.players.filter(player => player.round === tournament.round);
+    console.log(activePlayers);
+    console.log(tournament);
     const round = await this._tournamentRoundService.create(activePlayers.length.toString(), tournament);
     for (let i = 0; i < activePlayers.length; i += 2) {
       const matchRequest: NewMatchRequest = {
@@ -196,6 +199,48 @@ export default class TournamentController {
       await this._matchPlayerService.newMatchPlayer(activePlayers[i].user, match);
       if (activePlayers[i + 1])
         await this._matchPlayerService.newMatchPlayer(activePlayers[i + 1].user, match);
+    }
+  }
+
+  async fill(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      if (!request.params.token) {
+        const err = new ResponseError(ErrorParams.BAD_REQUEST);
+        return reply.code(err.code).send(err.toDto());
+      }
+      const tournament = await this._tournamentService.getByToken(request.params.token);
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      if (tournament.players.length < tournament.playersAmount) {
+        await this.fillAllPlayers(tournament, originUser);
+      }
+      await this._tournamentService.start(tournament);
+      await this.createRounds(tournament);
+      return reply.send({ success: true });
+    }
+    catch (err: any) {
+      console.log(err);
+      if (err instanceof ResponseError)
+        reply.code(err.code).send(err.toDto());
+      else
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async fillAllPlayers(tournament: Tournament, originUser: User) {
+    const players = [];
+    for (let i = tournament.players.length; i < tournament.playersAmount; i++) {
+      players.push(await this._tournamentPlayerService.newTournamentPlayer(originUser, tournament));
+    }
+    tournament.players = [...tournament.players, ...players];
+  }
+
+  async createRounds(tournament: Tournament) {
+    const maxRounds = Math.log2(tournament.players.length);
+    while (tournament.round < maxRounds) {
+      tournament.round++;
+      await this._tournamentPlayerService.updateMultiple(tournament.players, {round: tournament.round});
+      await this._createRound(tournament);
     }
   }
 }
