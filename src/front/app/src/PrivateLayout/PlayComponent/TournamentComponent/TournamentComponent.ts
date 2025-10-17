@@ -127,7 +127,7 @@ export default class TournamentComponent extends AmethComponent {
           status = `<span class="text-xs top-0.5 relative bg-red-50 outline-1 outline-red-100 p-0.5 rounded">dead</span>`;
         }
         const htmlElem = `
-          <a href="${player.user.username}" class="flex items-center gap-2">
+          <a href="/${player.user.username}" class="flex items-center p-2 gap-2 rounded hover:bg-brand-100 transition-colors">
             <img src="${player.user.avatarUrl}" width="40" height="40" class="aspect-square w-10 h-10 rounded-full overflow-hidden object-cover" />
             <span>${DOMHelper.sanitizeHTML(player.user.username)}</span>
             ${status}
