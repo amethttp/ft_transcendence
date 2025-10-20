@@ -97,11 +97,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvas.width = Math.round(cssCanvasWidth * devicePixelRatio);
     this._canvas.height = Math.round(cssCanvasHeight * devicePixelRatio);
 
-    this._canvas.style.left = `${(containerWidth - this._canvas.width) / 2}px`;
-    this._canvas.style.top = `${(containerHeight - this._canvas.height) / 2}px`;
-
-    this._canvasContext.setTransform(1, 0, 0, 1, 0 ,0);
-    this._canvasContext.scale(devicePixelRatio, devicePixelRatio);
+    this._canvas.style.left = `${(containerWidth - cssCanvasWidth) / 2}px`;
+    this._canvas.style.top = `${(containerHeight - cssCanvasHeight) / 2}px`;
   }
   
   private prepareCanvas() {
