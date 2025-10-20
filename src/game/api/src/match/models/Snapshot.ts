@@ -11,9 +11,9 @@ export class Snapshot {
   constructor() {
     this.id = 0;
     this.ball = {
-      position: { x: 250, y: 250 },
-      direction: { x: ((randomInt(5) / 10) * 2) - 1, y: ((randomInt(5) / 10) * 2) - 1 }, // TODO: Normalize vectors to get an actual correct random dir
-      velocity: 1,
+      position: { x: 500, y: 500 },
+      direction: { x: ((randomInt(10) / 10) * 2) - 1, y: ((randomInt(10) / 10) * 2) - 1 }, // TODO: Normalize vectors to get an actual correct random dir
+      velocity: 50,
     };
     this.paddles = [];
     this.score = [0, 0];

@@ -39,11 +39,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this.setPlayerReady();
     });
     this._socket?.on("snapshot", (data) => {
-      console.log("Snapshot:", performance.now(), data);
+      // console.log("Snapshot:", performance.now(), data);
       this.updateGame(data);
     });
     this._socket?.on("end", (data) => {
-      // console.log("End:", performance.now(), data);
+      console.log("End:", performance.now(), data);
       this.setEndState(data);
     });
     this._socket?.on("disconnect", (reason) => {
@@ -103,11 +103,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     title.innerText = `${data.score[0]} / ${data.score[1]}`;
   }
 
-  private setEndState(data: Snapshot) {
+  private setEndState(score: number[]) {
     const title = document.getElementById("title");
     if (!title) return;
 
-    title.innerText = `GAME FINISHED || ${data.score[0]} / ${data.score[1]}`;
+    title.innerText = `GAME FINISHED || ${score[0]} / ${score[1]}`;
   }
 
   async refresh(token?: string) {

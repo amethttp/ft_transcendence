@@ -7,9 +7,13 @@ import { PlayerState } from "../models/PlayerState";
 
 export class RoomService {
   private _gameRooms: Record<string, Room>;
+  private _apiClient: ApiClient;
+  private io: Server;
 
-  constructor() {
+  constructor(server: Server, apiClient: ApiClient) {
     this._gameRooms = {};
+    this._apiClient = apiClient;
+    this.io = server;
   }
 
   public getRoom(token: string): Room {
@@ -20,14 +24,14 @@ export class RoomService {
     this._gameRooms[room.token] = room;
   }
 
-  public newRoom(io: Server, token: string): Room {
-    this._gameRooms[token] = new Room(io, token);
+  public newRoom(token: string): Room {
+    this._gameRooms[token] = new Room(token);
     return this._gameRooms[token];
   }
 
   public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
     socket.leave(room.token);
-    room.emit("message", `${socket.username} left`);
+    this.io.to(room.token).emit("message", `${socket.username} left`);
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
@@ -41,26 +45,29 @@ export class RoomService {
     }
   }
 
-  public startMatch(room: Room, targetFPS: number, apiClient: ApiClient) {
-    room.emit("message", "Players are ready! || Starting Match in 3...");
+  public startMatch(room: Room, targetFPS: number) {
+    if (room.gameEnded()) { return; }
+    this.io.to(room.token).emit("message", "Players are ready! || Starting Match in 3...");
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
     room.interval = setInterval(() => {
       room.nextSnapshot();
-      room.sendSnapshot(apiClient);
     }, targetFPS);
 
     room.on("snapshot", (snapshot) => {
-
+      this.io.to(room.token).emit("snapshot", snapshot);
     });
 
     room.on("ballChange", (ballChange) => {
-
+      console.log(ballChange);
     });
 
-    room.on("snapshot", (snapshot) => {
-      
+    room.on("end", (result) => {
+      this.io.to(room.token).emit("end", result.score);
+      clearInterval(room.interval);
+      // this._apiClient.post(`/${room.token}`, result);
+      console.log(this._apiClient);
     });
   }
 }

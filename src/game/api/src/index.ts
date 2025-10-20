@@ -45,7 +45,7 @@ const main = async () => {
     }
   });
 
-  const roomService = new RoomService();
+  const roomService = new RoomService(server.io, apiClient);
   server.ready((err) => {
     if (err) throw err;
     server.io.on("connection", (socket: AuthenticatedSocket) => {
@@ -58,7 +58,7 @@ const main = async () => {
             existingRoom.joinPlayer(socket);
             console.log("Players connected successfully:", existingRoom.players);
           } else {
-            const newRoom = roomService.newRoom(server.io, token);
+            const newRoom = roomService.newRoom(token);
             newRoom.addPlayer(socket);
             console.log(`Player ${socket.username} is waiting for a match.`);
           }
@@ -79,7 +79,7 @@ const main = async () => {
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.allPlayersReady()) {
           console.log("Starting match...");
-          roomService.startMatch(room, TARGET_FPS, apiClient);
+          roomService.startMatch(room, TARGET_FPS);
         }
       });
 

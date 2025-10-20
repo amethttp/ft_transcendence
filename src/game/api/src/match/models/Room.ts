@@ -1,38 +1,38 @@
-import { Server } from "socket.io";
 import { Player } from "./Player";
 import { AuthenticatedSocket } from "./AuthenticatedSocket";
 import { Snapshot } from "./Snapshot";
 import { MatchService } from "../services/MatchService";
 import { PaddleChange } from "./PaddleChange";
-import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState, TMatchState } from "./MatchState";
 import { PlayerState } from "./PlayerState";
 import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
+import { MatchResult } from "./MatchResult";
 
 const MAX_POINTS = 10;
 
 export type RoomEvents = {
   ballChange: BallChange,
   paddleChange: PaddleChange,
-  snapshot: Snapshot
+  snapshot: Snapshot,
+  end: MatchResult
 };
 
 export class Room extends EventEmitter<RoomEvents> {
-  private _io: Server;
   private _token: string;
   private _players: Record<string, Player>;
   private _matchState: TMatchState;
-  private _snapshot: Snapshot;
+  private _matchService: MatchService;
   public interval: any;
 
-  constructor(server: Server, token: string) {
+  constructor(token: string) {
     super();
-    this._io = server;
+
     this._token = token;
     this._players = {};
     this._matchState = MatchState.WAITING;
-    this._snapshot = new Snapshot();
+
+    this._matchService = new MatchService();
   }
 
   public get token(): string {
@@ -49,10 +49,6 @@ export class Room extends EventEmitter<RoomEvents> {
 
   public set matchState(ms: TMatchState) {
     this._matchState = ms;
-  }
-
-  public emit(ev: string, ...args: any[]): boolean {
-    return this._io.to(this._token).emit(ev, ...args);
   }
 
   public playersAmount(): number {
@@ -82,7 +78,7 @@ export class Room extends EventEmitter<RoomEvents> {
     if (this.players.length >= 2) { throw "Room already full!" }
     const newPlayer = new Player(socket);
     this._players[socket.id] = newPlayer;
-    this._snapshot.paddles.push({ playerId: newPlayer.id, position: 250 } as PaddleChange);
+    this._matchService.addPlayer(newPlayer.id);
     socket.join(this.token);
   }
 
@@ -110,33 +106,27 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public updatePaddle(socket: AuthenticatedSocket, key: string) {
-    const paddle = this._snapshot.paddles.findIndex((paddle) => (paddle.playerId === socket.id));
-    if (paddle === -1) { return; }
+    this._matchService.updatePaddle(socket.id, key);
+  }
 
-    MatchService.updatePaddle(this._snapshot, paddle, key);
+  public gameEnded() {
+    return this._matchService.checkEndState(MAX_POINTS);
   }
 
   public nextSnapshot() {
-    MatchService.updateBall(this._snapshot);
-    MatchService.checkGoal(this._snapshot);
-    this._snapshot.id++;
-    this.emit("snapshot", this._snapshot);
-  }
-
-  public sendSnapshot(apiClient: ApiClient) {
-    if (MatchService.checkEndState(this._snapshot, MAX_POINTS)) {
-      this.emit("end", this._snapshot);
-      clearInterval(this.interval);
+    this._matchService.updateBall();
+    this._matchService.checkGoal();
+    if (this._matchService.checkEndState(MAX_POINTS)) {
       this._matchState = MatchState.FINISHED;
       const result = {
-        ...this._snapshot.score,
-        ...this.players,
+        score: this._matchService.snapshot.score,
+        players: this.players,
         state: this._matchState
-      };
-      apiClient.post(`/${this.token}`, result);
-    } else {
-      this.emit("snapshot", this._snapshot);
+      } as MatchResult;
+
+      this.emit("end", result);
     }
+    this.emit("snapshot", this._matchService.snapshot);
   }
 
   destroy(): void {

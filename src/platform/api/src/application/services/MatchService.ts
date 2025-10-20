@@ -6,7 +6,6 @@ import { TournamentRound } from "../../domain/entities/TournamentRound";
 import StringTime from "../helpers/StringTime";
 import { NewMatchRequest } from "../models/NewMatchRequest";
 import { MatchMinified } from "../models/MatchMinified";
-import { MatchResult } from "../models/MatchResult";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
