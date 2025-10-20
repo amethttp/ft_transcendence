@@ -13,6 +13,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _socketClient!: SocketClient;
   private _canvas!: HTMLCanvasElement;
   private _canvasContext!: CanvasRenderingContext2D;
+  private _canvasContainer!: HTMLDivElement;
 
   constructor(token?: string) {
     super();
@@ -45,7 +46,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
     this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
+    this._canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
 
+    this.resizeCanvas();
+    this.observeResize();
     this.prepareCanvas();
   }
 
@@ -63,19 +67,51 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     super.destroy();
   }
 
-  private prepareCanvas() {
-    // TODO: Do it on window resize
-    this._canvas.width = this._canvas.parentElement!.clientWidth * window.devicePixelRatio;
-    this._canvas.height = this._canvas.width / (16/9);
-    this._canvasContext.scale(window.devicePixelRatio, window.devicePixelRatio);
+  private observeResize() {
+    const observer = new ResizeObserver(() => this.resizeCanvas());
+    observer.observe(this._canvasContainer);
+  }
 
+  private resizeCanvas() {
+    const gameAspectRatio = 16 / 9;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+
+    const containerWidth = this._canvasContainer.clientWidth;
+    const containerHeight = this._canvasContainer.clientHeight;
+    const containerRatio = containerWidth / containerHeight;
+
+    let cssCanvasWidth: number;
+    let cssCanvasHeight: number;
+
+    if (containerRatio > gameAspectRatio) {
+      cssCanvasHeight = containerHeight;
+      cssCanvasWidth = containerHeight * gameAspectRatio;
+    } else {
+      cssCanvasWidth = containerWidth;
+      cssCanvasHeight = containerWidth / gameAspectRatio;
+    }
+
+    this._canvas.style.width = `${cssCanvasWidth}px`;
+    this._canvas.style.height = `${cssCanvasHeight}px`;
+
+    this._canvas.width = Math.round(cssCanvasWidth * devicePixelRatio);
+    this._canvas.height = Math.round(cssCanvasHeight * devicePixelRatio);
+
+    this._canvas.style.left = `${(containerWidth - this._canvas.width) / 2}px`;
+    this._canvas.style.top = `${(containerHeight - this._canvas.height) / 2}px`;
+
+    this._canvasContext.setTransform(1, 0, 0, 1, 0 ,0);
+    this._canvasContext.scale(devicePixelRatio, devicePixelRatio);
+  }
+  
+  private prepareCanvas() {
     let color = 'oklch(97% 0.001 106.424)';
-    let paddleWidth = this._canvas.width * (1/100);
-    let paddleHeight = this._canvas.height * (10/100);
+    let paddleWidth = 10;
+    let paddleHeight = 20;
 
     let paddle1 = {
         x : 10,
-        y : this._canvas.height/4 - paddleHeight / 2,
+        y : this._canvas.height/2 - paddleHeight / 2,
         width: paddleWidth,
         height: paddleHeight,
         velocityY : 0
@@ -106,11 +142,5 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasContext.fillRect(ball.x, ball.y, ball.width, ball.height);
 
     // BUG WITH requestPrepareAnimation(this.update) DOESNT WORK WITH "this", this is undefined
-  }
-
-  private update() {
-    this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
-    this._canvasContext.fillStyle = "oklch(97% 0.001 106.424)";
-    this._canvasContext.fillRect(0, 0, this._canvas.width, this._canvas.height);
   }
 }
