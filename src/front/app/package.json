@@ -26,7 +26,7 @@
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
-    "vite": "^7.1.5"
+    "vite": "^7.1.11"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
