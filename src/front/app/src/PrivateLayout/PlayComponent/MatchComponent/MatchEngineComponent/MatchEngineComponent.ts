@@ -49,9 +49,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   afterInit() {
     this._canvas = new Canvas();
-
-    this._canvas.resize();
-    this._canvas.paintGameState(this._paddles, this._ball);
     this.observeResize();
   }
 
