@@ -7,9 +7,9 @@ export default class Canvas {
   private _canvasContainer!: HTMLDivElement;
   private _viewportWidth!: number;
   private _viewportHeight!: number;
-  private _scale!: number;
-  private _offsetX!: number;
-  private _offsetY!: number;
+  // private _scale!: number;     TODO: Revisar si es útil al final
+  // private _offsetX!: number;
+  // private _offsetY!: number;
 
   constructor(width: number, height: number) {
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
@@ -21,13 +21,10 @@ export default class Canvas {
     this.resize();
   }
 
-  resize() {
-    this._devicePixelRatio = window.devicePixelRatio || 1;
-
+  private getCanvasCssDimensions() {
     const containerWidth = this._canvasContainer.clientWidth;
     const containerHeight = this._canvasContainer.clientHeight;
     const containerRatio = containerWidth / containerHeight;
-
     let cssCanvasWidth: number;
     let cssCanvasHeight: number;
 
@@ -39,15 +36,21 @@ export default class Canvas {
       cssCanvasHeight = containerWidth / GAME_ASPECT_RATIO;
     }
 
+    return [ cssCanvasWidth, cssCanvasHeight ];
+  }
+
+  private setCanvasDimensions(cssCanvasWidth: number, cssCanvasHeight: number) {
     this._canvas.style.width = `${cssCanvasWidth}px`;
     this._canvas.style.height = `${cssCanvasHeight}px`;
 
     this._canvas.width = Math.round(cssCanvasWidth * this._devicePixelRatio);
     this._canvas.height = Math.round(cssCanvasHeight * this._devicePixelRatio);
 
-    this._canvas.style.left = `${(containerWidth - cssCanvasWidth) / 2}px`;
-    this._canvas.style.top = `${(containerHeight - cssCanvasHeight) / 2}px`;
+    this._canvas.style.left = `${(this._canvasContainer.clientWidth - cssCanvasWidth) / 2}px`;
+    this._canvas.style.top = `${(this._canvasContainer.clientHeight - cssCanvasHeight) / 2}px`;
+  }
 
+  private applyCanvasTransformations(cssCanvasWidth: number, cssCanvasHeight: number) {
     const logicalScaleCSS = Math.min(cssCanvasWidth / this._viewportWidth, cssCanvasHeight / this._viewportHeight);
     const finalScale = logicalScaleCSS * this._devicePixelRatio;
 
@@ -57,11 +60,19 @@ export default class Canvas {
     const offsetXPhysical = offsetXCSS * this._devicePixelRatio;
     const offsetYPhysical = offsetYCSS * this._devicePixelRatio;
 
-    this._canvasContext.setTransform(finalScale, 0, 0, finalScale, offsetXPhysical, offsetYPhysical);
+    // this._scale = logicalScaleCSS;
+    // this._offsetX = offsetXCSS;
+    // this._offsetY = offsetYCSS;
 
-    this._scale = logicalScaleCSS;
-    this._offsetX = offsetXCSS;
-    this._offsetY = offsetYCSS;
+    this._canvasContext.setTransform(finalScale, 0, 0, finalScale, offsetXPhysical, offsetYPhysical);
+  }
+
+  resize() {
+    this._devicePixelRatio = window.devicePixelRatio || 1;
+    const [ cssCanvasWidth, cssCanvasHeight ] = this.getCanvasCssDimensions();
+
+    this.setCanvasDimensions(cssCanvasWidth, cssCanvasHeight);
+    this.applyCanvasTransformations(cssCanvasWidth, cssCanvasHeight);
   }
 
   showInitialState() {
