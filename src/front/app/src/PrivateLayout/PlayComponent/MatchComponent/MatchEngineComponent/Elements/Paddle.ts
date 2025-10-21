@@ -1,8 +1,8 @@
 import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Viewport";
 
 export default class Paddle {
-  private static _width: number = VIEWPORT_WIDTH * 0.01;
-  private static _height: number = VIEWPORT_HEIGHT * 0.15;
+  private static readonly _width: number = VIEWPORT_WIDTH * 0.01;
+  private static readonly _height: number = VIEWPORT_HEIGHT * 0.15;
   private _xPos: number;
   private _yPos: number;
   private _verticalIncrement: number;

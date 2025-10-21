@@ -1,3 +1,4 @@
+import Ball from "./Ball";
 import Paddle from "./Paddle";
 import { VIEWPORT_WIDTH, VIEWPORT_HEIGHT } from "./Viewport";
 
@@ -75,25 +76,15 @@ export default class Canvas {
   }
 
   showInitialState() {
-    const ballSize = VIEWPORT_WIDTH * 0.0075;
-
     const paddle1 = new Paddle(100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
     const paddle2 = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
-
-    const ball = {
-      x: VIEWPORT_WIDTH / 2 - ballSize / 2,
-      y: VIEWPORT_HEIGHT / 2 - ballSize / 2,
-      width: ballSize,
-      height: ballSize,
-      velocityX: 1,
-      velocityY: 2
-    };
+    const ball = new Ball(VIEWPORT_WIDTH / 2 - Ball.size / 2, VIEWPORT_HEIGHT / 2 - Ball.size / 2);
 
     this._canvasContext.fillStyle = 'oklch(21.6% 0.006 56.043)';
     this._canvasContext.fillRect(0, 0, 1600, 900);
     this._canvasContext.fillStyle = "oklch(97% 0.001 106.424)";
     this._canvasContext.fillRect(paddle1.x, paddle1.y, Paddle.width, Paddle.height);
     this._canvasContext.fillRect(paddle2.x, paddle2.y, Paddle.width, Paddle.height);
-    this._canvasContext.fillRect(ball.x, ball.y, ball.width, ball.height);
+    this._canvasContext.fillRect(ball.x, ball.y, Ball.size, Ball.size);
   }
 }
