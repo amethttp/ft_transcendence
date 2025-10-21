@@ -2,6 +2,8 @@ import Ball from "./Ball";
 import Paddle from "./Paddle";
 import { VIEWPORT_WIDTH, VIEWPORT_HEIGHT } from "./Viewport";
 
+const BACKGROUND_COLOR = 'oklch(21.6% 0.006 56.043)';
+const OBJECT_COLOR = 'oklch(97% 0.001 106.424)';
 const GAME_ASPECT_RATIO = 16 / 9;
 
 export default class Canvas {
@@ -19,6 +21,22 @@ export default class Canvas {
     this._canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
 
     this.resize();
+  }
+
+  private changePaintColor(color: string) {
+    this._canvasContext.fillStyle = color;
+  }
+
+  private paintBackground() {
+    this._canvasContext.fillRect(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+  }
+
+  private paintPaddle(paddle: Paddle) {
+    this._canvasContext.fillRect(paddle.x, paddle.y, Paddle.width, Paddle.height);
+  }
+
+  private paintBall(ball: Ball) {
+    this._canvasContext.fillRect(ball.x, ball.y, Ball.size, Ball.size);
   }
 
   private getCanvasCssDimensions() {
@@ -80,11 +98,11 @@ export default class Canvas {
     const paddle2 = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
     const ball = new Ball(VIEWPORT_WIDTH / 2 - Ball.size / 2, VIEWPORT_HEIGHT / 2 - Ball.size / 2);
 
-    this._canvasContext.fillStyle = 'oklch(21.6% 0.006 56.043)';
-    this._canvasContext.fillRect(0, 0, 1600, 900);
-    this._canvasContext.fillStyle = "oklch(97% 0.001 106.424)";
-    this._canvasContext.fillRect(paddle1.x, paddle1.y, Paddle.width, Paddle.height);
-    this._canvasContext.fillRect(paddle2.x, paddle2.y, Paddle.width, Paddle.height);
-    this._canvasContext.fillRect(ball.x, ball.y, Ball.size, Ball.size);
+    this.changePaintColor(BACKGROUND_COLOR);
+    this.paintBackground();
+    this.changePaintColor(OBJECT_COLOR);
+    this.paintPaddle(paddle1);
+    this.paintPaddle(paddle2);
+    this.paintBall(ball);
   }
 }
