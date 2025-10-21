@@ -93,16 +93,12 @@ export default class Canvas {
     this.applyCanvasTransformations(cssCanvasWidth, cssCanvasHeight);
   }
 
-  showInitialState() {
-    const paddle1 = new Paddle(100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
-    const paddle2 = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
-    const ball = new Ball(VIEWPORT_WIDTH / 2 - Ball.size / 2, VIEWPORT_HEIGHT / 2 - Ball.size / 2);
-
+  paintGameState(paddles: Paddle[], ball: Ball) {
     this.changePaintColor(BACKGROUND_COLOR);
     this.paintBackground();
     this.changePaintColor(OBJECT_COLOR);
-    this.paintPaddle(paddle1);
-    this.paintPaddle(paddle2);
+    this.paintPaddle(paddles[0]);
+    this.paintPaddle(paddles[1]);
     this.paintBall(ball);
   }
 }
