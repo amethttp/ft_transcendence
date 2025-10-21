@@ -1,22 +1,21 @@
+import Paddle from "./Paddle";
+import { VIEWPORT_WIDTH, VIEWPORT_HEIGHT } from "./Viewport";
+
 const GAME_ASPECT_RATIO = 16 / 9;
 
 export default class Canvas {
   private _devicePixelRatio!: number;
-  private _canvas!: HTMLCanvasElement;
-  private _canvasContext!: CanvasRenderingContext2D;
-  private _canvasContainer!: HTMLDivElement;
-  private _viewportWidth!: number;
-  private _viewportHeight!: number;
+  private _canvas: HTMLCanvasElement;
+  private _canvasContext: CanvasRenderingContext2D;
+  private _canvasContainer: HTMLDivElement;
   // private _scale!: number;     TODO: Revisar si es útil al final
   // private _offsetX!: number;
   // private _offsetY!: number;
 
-  constructor(width: number, height: number) {
+  constructor() {
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
     this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
     this._canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
-    this._viewportWidth = width;
-    this._viewportHeight = height;
 
     this.resize();
   }
@@ -51,11 +50,11 @@ export default class Canvas {
   }
 
   private applyCanvasTransformations(cssCanvasWidth: number, cssCanvasHeight: number) {
-    const logicalScaleCSS = Math.min(cssCanvasWidth / this._viewportWidth, cssCanvasHeight / this._viewportHeight);
+    const logicalScaleCSS = Math.min(cssCanvasWidth / VIEWPORT_WIDTH, cssCanvasHeight / VIEWPORT_HEIGHT);
     const finalScale = logicalScaleCSS * this._devicePixelRatio;
 
-    const offsetXCSS = (cssCanvasWidth - this._viewportWidth * logicalScaleCSS) / 2;
-    const offsetYCSS = (cssCanvasHeight - this._viewportHeight * logicalScaleCSS) / 2;
+    const offsetXCSS = (cssCanvasWidth - VIEWPORT_WIDTH * logicalScaleCSS) / 2;
+    const offsetYCSS = (cssCanvasHeight - VIEWPORT_HEIGHT * logicalScaleCSS) / 2;
 
     const offsetXPhysical = offsetXCSS * this._devicePixelRatio;
     const offsetYPhysical = offsetYCSS * this._devicePixelRatio;
@@ -76,29 +75,14 @@ export default class Canvas {
   }
 
   showInitialState() {
-    const paddleWidth = this._viewportWidth * 0.01;
-    const paddleHeight = this._viewportHeight * 0.15;
-    const ballSize = this._viewportWidth * 0.01;
+    const ballSize = VIEWPORT_WIDTH * 0.0075;
 
-    const paddle1 = {
-      x: 100,
-      y: this._viewportHeight / 2 - paddleHeight / 2,
-      width: paddleWidth,
-      height: paddleHeight,
-      velocityY: 0
-    };
-
-    const paddle2 = {
-      x: this._viewportWidth - paddleWidth - 100,
-      y: this._viewportHeight / 2 - paddleHeight / 2,
-      width: paddleWidth,
-      height: paddleHeight,
-      velocityY: 0
-    };
+    const paddle1 = new Paddle(100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
+    const paddle2 = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
 
     const ball = {
-      x: this._viewportWidth / 2 - ballSize / 2,
-      y: this._viewportHeight / 2 - ballSize / 2,
+      x: VIEWPORT_WIDTH / 2 - ballSize / 2,
+      y: VIEWPORT_HEIGHT / 2 - ballSize / 2,
       width: ballSize,
       height: ballSize,
       velocityX: 1,
@@ -108,8 +92,8 @@ export default class Canvas {
     this._canvasContext.fillStyle = 'oklch(21.6% 0.006 56.043)';
     this._canvasContext.fillRect(0, 0, 1600, 900);
     this._canvasContext.fillStyle = "oklch(97% 0.001 106.424)";
-    this._canvasContext.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-    this._canvasContext.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
+    this._canvasContext.fillRect(paddle1.x, paddle1.y, Paddle.width, Paddle.height);
+    this._canvasContext.fillRect(paddle2.x, paddle2.y, Paddle.width, Paddle.height);
     this._canvasContext.fillRect(ball.x, ball.y, ball.width, ball.height);
   }
 }
