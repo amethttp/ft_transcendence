@@ -1,5 +1,5 @@
 @layer components {
   .router-outlet {
-    @apply max-w-full overflow-auto;
+
   }
 }
