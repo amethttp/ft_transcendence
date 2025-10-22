@@ -185,8 +185,6 @@ export default class TournamentController {
 
   private async _createRound(tournament: Tournament) {
     const activePlayers = tournament.players.filter(player => player.round === tournament.round);
-    console.log(activePlayers);
-    console.log(tournament);
     const round = await this._tournamentRoundService.create(activePlayers.length.toString(), tournament);
     for (let i = 0; i < activePlayers.length; i += 2) {
       const matchRequest: NewMatchRequest = {
@@ -216,6 +214,7 @@ export default class TournamentController {
       }
       await this._tournamentService.start(tournament);
       await this.createRounds(tournament);
+      this._tournamentService.update(tournament.id, tournament);
       return reply.send({ success: true });
     }
     catch (err: any) {
@@ -237,10 +236,16 @@ export default class TournamentController {
 
   async createRounds(tournament: Tournament) {
     const maxRounds = Math.log2(tournament.players.length);
+    let alivePlayers = tournament.players;
     while (tournament.round < maxRounds) {
-      tournament.round++;
-      await this._tournamentPlayerService.updateMultiple(tournament.players, {round: tournament.round});
+      await this._tournamentPlayerService.updateMultiple(alivePlayers, {round: tournament.round});
       await this._createRound(tournament);
+      tournament.round++;
+      alivePlayers = alivePlayers.filter( player => {
+        const index = alivePlayers.indexOf(player);
+        return index % 2 === 0;
+      });
     }
+    tournament.round--;
   }
 }

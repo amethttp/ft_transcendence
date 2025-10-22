@@ -112,4 +112,12 @@ export class TournamentService {
       throw new ResponseError(ErrorParams.UPDATE_ERROR);
     return res;
   }
+
+  async update(id: number, blueprint: Partial<Tournament>): Promise<number> {
+    const res = await this._tournamentRepository.update(id, blueprint);
+    if (!res) {
+      throw new ResponseError(ErrorParams.UPDATE_ERROR);
+    }
+    return res;
+  }
 }
