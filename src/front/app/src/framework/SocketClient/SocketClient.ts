@@ -4,7 +4,9 @@ export default class SocketClient {
   private _socket: Socket;
 
   constructor(uri: string) {
-    this._socket = io(uri);
+    this._socket = io(uri, {
+      withCredentials: true,
+    });
   }
 
   get id(): string | undefined {
