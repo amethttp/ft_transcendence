@@ -39,11 +39,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this.setPlayerReady();
     });
     this._socket?.on("snapshot", (data) => {
-      // console.log("Snapshot:", performance.now(), data);
       this.updateGame(data);
     });
     this._socket?.on("end", (data) => {
-      console.log("End:", performance.now(), data);
       this.setEndState(data);
     });
     this._socket?.on("disconnect", (reason) => {
@@ -78,34 +76,12 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   };
 
   private setPlayerReady() {
-    const btn = document.getElementById("test-btn");
-    if (!btn) return;
-
-    btn.classList.remove("bg-red-400");
-    btn.classList.add("bg-green-400");
-    btn.innerText = "Ready!";
   }
 
   private updateGame(data: Snapshot) {
-    const btn = document.getElementById("test-btn");
-    const title = document.getElementById("title");
-    const paddle1 = document.getElementById("test-paddle");
-    const paddle2 = document.getElementById("test-paddle2");
-
-    if (!btn || !title) return;
-    if (!paddle1 || !paddle2) return;
-
-    paddle1.style.top = `${data.paddles[0].position}px`;
-    paddle2.style.top = `${data.paddles[1].position}px`;
-    btn.style.transform = `translate(${data.ball.position.x}px, ${data.ball.position.y}px)`;
-    title.innerText = `${data.score[0]} / ${data.score[1]}`;
   }
 
   private setEndState(score: number[]) {
-    const title = document.getElementById("title");
-    if (!title) return;
-
-    title.innerText = `GAME FINISHED || ${score[0]} / ${score[1]}`;
   }
 
   async refresh(token?: string) {

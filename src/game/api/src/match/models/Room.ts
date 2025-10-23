@@ -9,7 +9,7 @@ import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
 
-const MAX_POINTS = 1;
+const MAX_POINTS = 5;
 
 export type RoomEvents = {
   ballChange: BallChange,

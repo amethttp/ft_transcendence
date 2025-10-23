@@ -6,7 +6,7 @@ import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 10;
+const TARGET_FPS = 1000 / 60;
 
 const server = fastify({
   https: {
@@ -94,7 +94,7 @@ const main = async () => {
         for (const token of activeRooms.values()) {
           const room = roomService.getRoom(token);
           if (room) {
-            await roomService.playerDisconnect(socket, room)
+            roomService.playerDisconnect(socket, room)
           } else {
             socket.leave(token);
           }
