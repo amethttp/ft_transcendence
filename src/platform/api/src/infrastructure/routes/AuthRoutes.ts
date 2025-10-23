@@ -39,6 +39,10 @@ export default async function authRoutes(server: FastifyInstance) {
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });
 
+  server.get('/access/refresh', async (request, reply) => {
+    await authController.accessRefresh(request, reply, server.jwt);
+  });
+
   server.get('/refresh', async (request, reply) => {
     await authController.refresh(request, reply, server.jwt);
   });
