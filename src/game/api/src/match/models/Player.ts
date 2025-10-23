@@ -1,12 +1,19 @@
-import { PlayerState } from "./States";
+import { AuthenticatedSocket } from "./AuthenticatedSocket";
+import { PlayerState, TPlayerState } from "./PlayerState";
 
 export class Player {
+  private _id: string;
   private _username: string;
-  private _state: PlayerState;
+  private _state: TPlayerState;
 
-  constructor(username: string) {
-    this._username = username;
-    this._state = "IDLE";
+  constructor(socket: AuthenticatedSocket) {
+    this._id = socket.id;
+    this._username = socket.username || "";
+    this._state = PlayerState.WAITING;
+  }
+
+  public get id() : string {
+    return this._id
   }
   
   public get username() : string {
@@ -17,7 +24,7 @@ export class Player {
     return this._state
   }
   
-  public set state(newState : PlayerState) {
+  public set state(newState : TPlayerState) {
     this._state = newState;
   }  
 }

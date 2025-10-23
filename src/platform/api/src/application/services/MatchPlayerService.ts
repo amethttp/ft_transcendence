@@ -8,6 +8,7 @@ import { UserProfile } from "../models/UserProfile";
 import { UserService } from "./UserService";
 import { Relation, RelationType } from "../models/Relation";
 import { StatusType } from "../models/UserStatusDto";
+import { MatchResult } from "../models/MatchResult";
 
 export class MatchPlayerService {
   private _matchPlayerRepository: IMatchPlayerRepository;
@@ -34,6 +35,31 @@ export class MatchPlayerService {
     }
 
     return matchPlayer;
+  }
+
+  async updateResult(matchId: number, matchResult: MatchResult) {
+    let winnerIndex = 0; // winnerIndex = matchResult.score[1] > matchResult.score[0];
+    if (matchResult.score[1] > matchResult.score[0]) {
+      winnerIndex = 1;
+    }
+
+    const winner: Partial<MatchPlayer> = {
+      score: matchResult.score[winnerIndex],
+      isWinner: true,
+    };
+    const loser: Partial<MatchPlayer> = {
+      score: matchResult.score[1 - winnerIndex],
+      isWinner: false,
+    };
+
+    const winnerUpdate = await this._matchPlayerRepository.update(matchId, winner);
+    if (winnerUpdate === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+    const loserUpdate = await this._matchPlayerRepository.update(matchId, loser);
+    if (loserUpdate === null) {
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
   }
 
   async getLast10UserMatches(originUser: User): Promise<MatchInfo[]> {

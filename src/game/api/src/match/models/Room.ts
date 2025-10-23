@@ -1,40 +1,54 @@
-import { Server } from "socket.io";
 import { Player } from "./Player";
 import { AuthenticatedSocket } from "./AuthenticatedSocket";
-import { MatchState } from "./States";
+import { Snapshot } from "./Snapshot";
+import { MatchService } from "../services/MatchService";
+import { PaddleChange } from "./PaddleChange";
+import { MatchState, TMatchState } from "./MatchState";
+import { PlayerState } from "./PlayerState";
+import EventEmitter from "../../EventEmitter/EventEmitter";
+import { BallChange } from "./BallChange";
+import { MatchResult } from "./MatchResult";
 
-export class Room {
-  private _io: Server;
+const MAX_POINTS = 5;
+
+export type RoomEvents = {
+  ballChange: BallChange,
+  paddleChange: PaddleChange,
+  snapshot: Snapshot,
+  end: MatchResult
+};
+
+export class Room extends EventEmitter<RoomEvents> {
   private _token: string;
   private _players: Record<string, Player>;
-  private _matchState: MatchState;
+  private _matchState: TMatchState;
+  private _matchService: MatchService;
   public interval: any;
 
-  constructor(server: Server, token: string) {
-    this._io = server;
+  constructor(token: string) {
+    super();
+
     this._token = token;
     this._players = {};
-    this._matchState = "WAITING";
+    this._matchState = MatchState.WAITING;
+
+    this._matchService = new MatchService();
   }
-  
-  public get token() : string {
+
+  public get token(): string {
     return this._token;
   }
 
-  public get players() : Player[] {
+  public get players(): Player[] {
     return Object.values(this._players);
   }
 
-  public get matchState() : MatchState {
+  public get matchState(): TMatchState {
     return this._matchState;
   }
 
-  public set matchState(v : MatchState) {
-    this._matchState = v;
-  }  
-
-  public emit(ev: string, ...args: any[]): boolean {
-    return this._io.to(this._token).emit(ev, args);
+  public set matchState(ms: TMatchState) {
+    this._matchState = ms;
   }
 
   public playersAmount(): number {
@@ -46,6 +60,7 @@ export class Room {
   }
 
   public deletePlayer(id: string) {
+    this._matchService.deletePlayer(id);
     delete this._players[id];
   }
 
@@ -61,12 +76,15 @@ export class Room {
   }
 
   public addPlayer(socket: AuthenticatedSocket) {
-    const newPlayer = new Player(socket.username || "PLAYER_ERR");
+    if (this.players.length >= 2) { throw "Room already full!" }
+    const newPlayer = new Player(socket);
     this._players[socket.id] = newPlayer;
+    this._matchService.addPlayer(newPlayer.id);
     socket.join(this.token);
   }
 
   public joinPlayer(socket: AuthenticatedSocket) {
+    if (this.players.length >= 2) { throw "Room already full!" }
     const opponent = this.getOpponent(socket.id);
     if (opponent && socket.username === opponent.player.username) {
       throw "User already connected";
@@ -80,11 +98,39 @@ export class Room {
   public allPlayersReady(): boolean {
     const roomPlayers = Object.values(this._players);
     for (const player of roomPlayers) {
-      if (player.state !== "READY") {
+      if (player.state !== PlayerState.READY) {
         return false;
       }
     }
 
     return true;
+  }
+
+  public updatePaddle(socket: AuthenticatedSocket, key: string) {
+    this._matchService.updatePaddle(socket.id, key);
+  }
+
+  public gameEnded() {
+    return this._matchService.checkEndState(MAX_POINTS);
+  }
+
+  public nextSnapshot() {
+    this._matchService.updateBall();
+    this._matchService.checkGoal();
+    if (this._matchService.checkEndState(MAX_POINTS)) {
+      this._matchState = MatchState.FINISHED;
+      const result = {
+        score: this._matchService.score,
+        players: this.players,
+        state: this._matchState
+      } as MatchResult;
+
+      this.emit("end", result);
+    }
+    this.emit("snapshot", this._matchService.snapshot);
+  }
+
+  destroy(): void {
+    super.destroy();
   }
 } 

@@ -2,6 +2,7 @@ import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import { io, Socket } from "socket.io-client";
 import type { PlayerTypeValue } from "../MatchComponent";
+import type { Snapshot } from "./models/Snapshot";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -34,16 +35,55 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socket?.on("message", (data) => {
       console.log("Message:", data);
     });
+    this._socket?.on("ready", () => {
+      this.setPlayerReady();
+    });
+    this._socket?.on("snapshot", (data) => {
+      this.updateGame(data);
+    });
+    this._socket?.on("end", (data) => {
+      this.setEndState(data);
+    });
     this._socket?.on("disconnect", (reason) => {
       console.log("Disconnected:", reason);
     });
   }
 
   afterInit() {
-    document.getElementById("test-btn")!.onclick = () => {
-      this._socket?.emit("ready", this._token);
-    };
+    const btn = document.getElementById("test-btn");
+    if (btn) {
+      btn.style.position = "absolute";
+      btn.onclick = () => {
+        this._socket?.emit("ready", this._token);
+      };
+    }
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
+    window.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  private handleKeyDown = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case "w":
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+      case "s":
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  private setPlayerReady() {
+  }
+
+  private updateGame(data: Snapshot) {
+    console.log(data);
+  }
+
+  private setEndState(score: number[]) {
+    console.log(score);
   }
 
   async refresh(token?: string) {
@@ -60,6 +100,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._socket.disconnect();
       this._socket = null;
     }
+    window.removeEventListener("keydown", this.handleKeyDown);
     await super.destroy();
   }
 }

@@ -4,8 +4,9 @@ import fastifySocketIO from 'fastify-socket.io';
 import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
 import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
+import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 20;
+const TARGET_FPS = 1000 / 60;
 
 const server = fastify({
   https: {
@@ -44,7 +45,7 @@ const main = async () => {
     }
   });
 
-  const roomService = new RoomService();
+  const roomService = new RoomService(server.io, apiClient);
   server.ready((err) => {
     if (err) throw err;
     server.io.on("connection", (socket: AuthenticatedSocket) => {
@@ -57,7 +58,7 @@ const main = async () => {
             existingRoom.joinPlayer(socket);
             console.log("Players connected successfully:", existingRoom.players);
           } else {
-            const newRoom = roomService.newRoom(server.io, token);
+            const newRoom = roomService.newRoom(token);
             newRoom.addPlayer(socket);
             console.log(`Player ${socket.username} is waiting for a match.`);
           }
@@ -69,18 +70,25 @@ const main = async () => {
 
       socket.on("ready", (token) => {
         const room = roomService.getRoom(token);
+        if (room.playersAmount() === 1) { return; }
         const player = room.getPlayer(socket.id);
-        if (player.state === "READY") { return; }
+        if (player.state === PlayerState.READY) { return; }
 
-        player.state = "READY";
+        player.state = PlayerState.READY;
+        server.io.to(socket.id).emit("ready");
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
-        if (room.playersAmount() > 1 && room.allPlayersReady()) {
+        if (room.allPlayersReady()) {
           console.log("Starting match...");
           roomService.startMatch(room, TARGET_FPS);
         }
       });
 
-      socket.on("disconnecting", (reason: string) => {
+      socket.on("paddleChange", (data) => {
+        const room = roomService.getRoom(data.token);
+        room.updatePaddle(socket, data.key);
+      });
+
+      socket.on("disconnecting", async (reason: string) => {
         console.log(`Client: ${socket.id} is disconnecting | ${reason}`);
         const activeRooms = socket.rooms;
         for (const token of activeRooms.values()) {
@@ -91,7 +99,6 @@ const main = async () => {
             socket.leave(token);
           }
         }
-        socket._cleanup();
       });
 
       socket.on("disconnect", (reason: string) => {
