@@ -20,12 +20,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
-
-    this._socket = io("https://localhost:8081")
-  }
-
-  afterInit() {
-    // this.outlet!.innerHTML = this._token as string;
+    this._socket = io("https://localhost:8081", {
+      withCredentials: true,
+    });
     this._socket?.on("connect", () => {
       console.log("Connected:", this._socket?.id, this._socket?.connected);
       this._socket?.emit("joinMatch", this._token);
@@ -40,15 +37,17 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socket?.on("disconnect", (reason) => {
       console.log("Disconnected:", reason);
     });
+  }
+
+  afterInit() {
     document.getElementById("test-btn")!.onclick = () => {
-      this._socket?.emit("helloWorld", this._token);
+      this._socket?.emit("ready", this._token);
     };
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
   }
 
   async refresh(token?: string) {
     this._token = token;
-    // this.outlet!.innerHTML = this._token as string;
     document.getElementById("title")!.innerHTML = "ENGINE: " + (this._token as string);
   }
 
@@ -61,6 +60,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._socket.disconnect();
       this._socket = null;
     }
-    super.destroy();
+    await super.destroy();
   }
 }
