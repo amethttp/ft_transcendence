@@ -79,9 +79,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private updateGame(data: Snapshot) {
+    console.log(data);
   }
 
   private setEndState(score: number[]) {
+    console.log(score);
   }
 
   async refresh(token?: string) {
