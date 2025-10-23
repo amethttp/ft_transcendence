@@ -1,7 +1,12 @@
 import fastify from 'fastify';
 import fs from 'fs';
-import type { Socket } from 'socket.io';
 import fastifySocketIO from 'fastify-socket.io';
+import { AuthenticatedSocket } from './match/models/AuthenticatedSocket';
+import { ApiClient } from './HttpClient/ApiClient/ApiClient';
+import { RoomService } from './match/services/RoomService';
+import { PlayerState } from './match/models/PlayerState';
+
+const TARGET_FPS = 1000 / 60;
 
 const server = fastify({
   https: {
@@ -21,46 +26,90 @@ const main = async () => {
     pingTimeout: 5000,
   });
 
-  let waitingClient: Socket | null = null;
+  const apiClient = new ApiClient();
+
+  server.io.use(async (socket: AuthenticatedSocket, next) => {
+    try {
+      if (!socket.handshake.headers.cookie) {
+        throw "Invalid JWT";
+      }
+      const opts: RequestInit = {};
+      opts.headers = { cookie: socket.handshake.headers.cookie };
+      const user = (await apiClient.get("/user", undefined, opts)) as any;
+      socket.userId = user.id;
+      socket.username = user.username;
+      next();
+    } catch (error) {
+      console.log(error);
+      next(new Error("Invalid JWT"));
+    }
+  });
+
+  const roomService = new RoomService(server.io, apiClient);
   server.ready((err) => {
     if (err) throw err;
+    server.io.on("connection", (socket: AuthenticatedSocket) => {
+      console.log(`\nClient: ${socket.username} connected`);
 
-    server.io.on('connection', (socket: Socket) => {
-      console.log(`\nClient: ${socket.id} connected`);
-      socket.on('joinMatch', (token) => {
-        console.log("Trying to join match...", token);
-        if (waitingClient) {
-          const roomId = `match_${token}`;
-          waitingClient.join(roomId);
-          socket.join(roomId);
-
-          server.io.to(roomId).emit('handshake', { roomId, message: 'Success??' }); // TODO; emitwithAck??
-          console.log("Players connected successfully:", waitingClient.id, socket.id);
-          waitingClient = null;
-        } else {
-          waitingClient = socket;
-          console.log(`Player ${waitingClient.id} is waiting for a match.`);
+      socket.on("joinMatch", (token) => { // TODO: fix user rejoining on inverted order visual bug
+        try {
+          const existingRoom = roomService.getRoom(token);
+          if (existingRoom) {
+            existingRoom.joinPlayer(socket);
+            console.log("Players connected successfully:", existingRoom.players);
+          } else {
+            const newRoom = roomService.newRoom(token);
+            newRoom.addPlayer(socket);
+            console.log(`Player ${socket.username} is waiting for a match.`);
+          }
+        } catch (error) {
+          console.log(error);
+          socket.disconnect();
         }
       });
 
-      socket.on('helloWorld', (token) => {
-        socket.broadcast.emit("message", "Hello broadcast");
-        socket.emit("message", "Hello emit");
-        server.io.to(`match_${token}`).emit("message", "server emit");
+      socket.on("ready", (token) => {
+        const room = roomService.getRoom(token);
+        if (room.playersAmount() === 1) { return; }
+        const player = room.getPlayer(socket.id);
+        if (player.state === PlayerState.READY) { return; }
+
+        player.state = PlayerState.READY;
+        server.io.to(socket.id).emit("ready");
+        socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
+        if (room.allPlayersReady()) {
+          console.log("Starting match...");
+          roomService.startMatch(room, TARGET_FPS);
+        }
       });
 
-      socket.on('disconnect', (reason: string) => {
+      socket.on("paddleChange", (data) => {
+        const room = roomService.getRoom(data.token);
+        room.updatePaddle(socket, data.key);
+      });
+
+      socket.on("disconnecting", async (reason: string) => {
+        console.log(`Client: ${socket.id} is disconnecting | ${reason}`);
+        const activeRooms = socket.rooms;
+        for (const token of activeRooms.values()) {
+          const room = roomService.getRoom(token);
+          if (room) {
+            roomService.playerDisconnect(socket, room)
+          } else {
+            socket.leave(token);
+          }
+        }
+      });
+
+      socket.on("disconnect", (reason: string) => {
+        socket._cleanup();
+        socket.disconnect(true);
         console.log(`Client: ${socket.id} disconnected | ${reason}`);
-        if (waitingClient === socket) {
-          waitingClient = null;
-        } else {
-          server.io.emit(`${socket.id} left`);
-        }
       });
     });
   });
 
-  server.listen({ port: 443, host: '0.0.0.0' }, (err, address) => {
+  server.listen({ port: 443, host: "0.0.0.0" }, (err, address) => {
     if (err) {
       console.error(err);
       process.exit(1);

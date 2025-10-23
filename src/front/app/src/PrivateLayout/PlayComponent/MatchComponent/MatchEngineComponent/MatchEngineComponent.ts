@@ -6,6 +6,7 @@ import Ball from "./Elements/Ball";
 import Paddle from "./Elements/Paddle";
 import Canvas from "./Elements/Canvas";
 import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Elements/Viewport";
+import type { Snapshot } from "./models/Snapshot";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -42,14 +43,51 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socketClient.setEvent('message', (data) => {
       console.log("Message:", data);
     });
+    this._socketClient.setEvent("ready", () => {
+      this.setPlayerReady();
+    });
+    this._socketClient.setEvent("snapshot", (data) => {
+      this.updateGame(data);
+    });
+    this._socketClient.setEvent("end", (data) => {
+      this.setEndState(data);
+    });
     this._socketClient.setEvent('disconnect', (reason) => {
       console.log("Disconnected:", reason);
     });
   }
 
+  // CANVAS ON CLICK         this._socket?.emit("ready", this._token);
+  // window.addEventListener("keydown", this.handleKeyDown);
+
   afterInit() {
     this._canvas = new Canvas();
     this.observeResize();
+  }
+
+  private handleKeyDown = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case "w":
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+      case "s":
+        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  private setPlayerReady() {
+  }
+
+  private updateGame(data: Snapshot) {
+    console.log(data);
+  }
+
+  private setEndState(score: number[]) {
+    console.log(score);
   }
 
   async refresh(token?: string) {
@@ -71,6 +109,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   async destroy(): Promise<void> {
     this._socketClient.disconnect();
-    super.destroy();
+    await super.destroy();
   }
 }

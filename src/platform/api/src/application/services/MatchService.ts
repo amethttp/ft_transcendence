@@ -34,6 +34,16 @@ export class MatchService {
     return match;
   }
 
+  async setMatchFinished(match: Match) {
+    const matchUpdate: Partial<Match> = {
+      state: 3,
+    };
+
+    const update = await this._matchRepository.update(match.id, matchUpdate);
+    if (!update)
+      throw new ResponseError(ErrorParams.USER_NOT_FOUND);
+  }
+
   async getByToken(token: string): Promise<Match | null> {
     const _match = await this._matchRepository.findByToken(token);
     return _match;

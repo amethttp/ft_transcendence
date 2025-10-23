@@ -33,6 +33,14 @@ export default async function matchRoutes(server: FastifyInstance) {
     await matchController.newMatch(request, reply);
   });
 
+  server.put('/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
+    await matchController.updateMatch(request, reply);
+  });
+
+  server.delete('/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
+    await matchController.deleteMatch(request, reply);
+  });
+
   server.get('', async (request: FastifyRequest<{ Querystring: { userId: number, matchId: number } }>, reply) => {
     await matchController.getPlayer(request, reply);
   });
@@ -44,5 +52,4 @@ export default async function matchRoutes(server: FastifyInstance) {
   server.get('/list', async (request: FastifyRequest, reply: FastifyReply) => {
     await matchController.getList(request, reply);
   });
-
 }

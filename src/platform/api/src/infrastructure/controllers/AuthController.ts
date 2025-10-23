@@ -195,7 +195,7 @@ export default class AuthController {
       `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
     ]);
 
-    return reply.status(200).send({ "success": true });
+    return reply.status(200).send({ success: true });
   }
 
   async register(request: FastifyRequest, reply: FastifyReply) {
@@ -204,6 +204,10 @@ export default class AuthController {
       this._authService.validateRegistrationCredentials(registrationCredentials);
       const registeredUser = await this._userService.registerUser(registrationCredentials);
       await this._userStatusService.createUserConnectionStatus(registeredUser);
+      reply.header('set-cookie', [
+        `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
+        `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
+      ]);
 
       reply.status(200).send({ success: true });
     } catch (err) {
