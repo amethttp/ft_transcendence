@@ -53,6 +53,7 @@ export default class MatchController {
 
   async updateMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
+      console.log("holaaa", request.body);
       const matchResult = request.body as MatchResult;
       const match = await this._matchService.getByToken(request.params.token);
       if (!match)

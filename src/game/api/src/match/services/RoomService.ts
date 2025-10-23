@@ -40,7 +40,11 @@ export class RoomService {
     if (room.playersAmount() === 0) {
       delete this._gameRooms[room.token];
       if (room.matchState === MatchState.WAITING) {
-        // api delete
+        const opts: RequestInit = {};
+        opts.headers = {};
+        this._apiClient.delete(`/${room.token}`, undefined, opts)
+        .then(() => console.log("API MATCH DELETE DONE"))
+        .catch(() => console.log("API MATCH DELETE FAILED"));;
       }
     }
   }
@@ -66,8 +70,11 @@ export class RoomService {
     room.on("end", (result) => {
       this.io.to(room.token).emit("end", result.score);
       clearInterval(room.interval);
-      // this._apiClient.post(`/${room.token}`, result);
-      console.log(this._apiClient);
+      const opts: RequestInit = {};
+      opts.headers = {};
+      this._apiClient.put(`/${room.token}`, result, opts)
+      .then(() => console.log("API RESULT UPDATE DONE"))
+      .catch(() => console.log("API RESULT UPDATE FAILED"));
     });
   }
 }

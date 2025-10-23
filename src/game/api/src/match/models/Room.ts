@@ -9,7 +9,7 @@ import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
 
-const MAX_POINTS = 10;
+const MAX_POINTS = 1;
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -60,6 +60,7 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public deletePlayer(id: string) {
+    this._matchService.deletePlayer(id);
     delete this._players[id];
   }
 
@@ -119,7 +120,7 @@ export class Room extends EventEmitter<RoomEvents> {
     if (this._matchService.checkEndState(MAX_POINTS)) {
       this._matchState = MatchState.FINISHED;
       const result = {
-        score: this._matchService.snapshot.score,
+        score: this._matchService.score,
         players: this.players,
         state: this._matchState
       } as MatchResult;

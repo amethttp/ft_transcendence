@@ -6,7 +6,7 @@ import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 30;
+const TARGET_FPS = 1000 / 10;
 
 const server = fastify({
   https: {
@@ -88,13 +88,13 @@ const main = async () => {
         room.updatePaddle(socket, data.key);
       });
 
-      socket.on("disconnecting", (reason: string) => {
+      socket.on("disconnecting", async (reason: string) => {
         console.log(`Client: ${socket.id} is disconnecting | ${reason}`);
         const activeRooms = socket.rooms;
         for (const token of activeRooms.values()) {
           const room = roomService.getRoom(token);
           if (room) {
-            roomService.playerDisconnect(socket, room)
+            await roomService.playerDisconnect(socket, room)
           } else {
             socket.leave(token);
           }

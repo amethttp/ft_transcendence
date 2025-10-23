@@ -66,11 +66,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case "w":
-        console.log("w");
         this._socket?.emit("paddleChange", { token: this._token, key: event.key });
         break;
       case "s":
-        console.log("s");
         this._socket?.emit("paddleChange", { token: this._token, key: event.key });
         break;
 
