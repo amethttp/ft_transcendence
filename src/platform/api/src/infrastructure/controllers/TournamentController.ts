@@ -74,7 +74,7 @@ export default class TournamentController {
             players: -1,
             playersAmount: tournament.playersAmount,
           }
-        })
+        });
       reply.send([...myTournamentsFiltered, ...tournaments.filter(t => !myTournamentsFiltered.find(tt => t.token === tt.token))]);
     }
     catch (err: any) {
