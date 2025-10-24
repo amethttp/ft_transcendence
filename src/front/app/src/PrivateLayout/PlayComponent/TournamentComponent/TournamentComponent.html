@@ -73,7 +73,25 @@
           Leave
         </button>
       </div>
-      <div class="flex flex-col" id="tournamentPlayers"></div>
+      <div class="flex gap-2 flex-col w-full">
+        <div class="block md:hidden sticky top-2 z-10" id="togglePlayersContainer">
+          <div class="btn btn-tertiary" id="showPlayersBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+            Show Players
+          </div>
+          <div class="hidden btn btn-tertiary" id="hidePlayersBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+            </svg>
+            Hide Players
+          </div>
+        </div>
+        <div class="hidden md:flex! flex-col" id="tournamentPlayers"></div>
+      </div>
     </div>
     <div class="card-2 overflow-auto md:w-3/5 w-full flex-grow items-start justify-center" id="bracketsContainer"></div>
   </div>

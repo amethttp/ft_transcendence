@@ -74,6 +74,24 @@ export default class TournamentComponent extends AmethComponent {
         .then(() => this.refresh())
         .catch(err => Alert.error("Error", JSON.stringify(err)));
     }
+    this._togglePlayers();
+  }
+
+  private _togglePlayers() {
+    const showBtn = document.getElementById("showPlayersBtn")!;
+    const hideBtn = document.getElementById("hidePlayersBtn")!;
+    const playersContainer = document.getElementById("tournamentPlayers")!;
+    showBtn.onclick = () => {
+      showBtn.classList.add("hidden");
+      hideBtn.classList.remove("hidden");
+      playersContainer.classList.remove("hidden");
+    };
+    hideBtn.onclick = () => {
+      showBtn.classList.remove("hidden");
+      hideBtn.classList.add("hidden");
+      playersContainer.classList.add("hidden");
+      showBtn.scrollIntoView({block: "center"});
+    };
   }
 
   private async _fillActions(tournament: Tournament) {
