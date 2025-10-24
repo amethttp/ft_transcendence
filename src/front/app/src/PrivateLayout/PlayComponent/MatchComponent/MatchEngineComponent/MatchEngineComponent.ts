@@ -17,6 +17,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _token?: string;
   private _socketClient!: SocketClient;
   private _canvas!: Canvas;
+  private _canvasOverlay!: HTMLDivElement;
   private _paddles: Paddle[] = [];
   private _ball: Ball;
 
@@ -42,9 +43,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent('message', (data) => {
       console.log("Message:", data);
+
+      // TODO: Change for 'start' event
+      if (data === 'Players are ready! || Starting Match in 3...')
+        this.startMatch();
     });
     this._socketClient.setEvent("ready", () => {
-      this.setPlayerReady();
+      this.handleReady();
     });
     this._socketClient.setEvent("snapshot", (data) => {
       this.updateGame(data);
@@ -62,16 +67,29 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   afterInit() {
     this._canvas = new Canvas();
+    this._canvasOverlay = document.getElementById('matchCanvasOverlay') as HTMLDivElement;
+    this._canvasOverlay.onclick = () => this.setReadyToPlay();
     this.observeResize();
+  }
+
+  private startMatch() {
+    this._canvasOverlay.style.display = 'none';
+  }
+
+  private setReadyToPlay() {
+    console.log('ready!');
+    this._canvasOverlay.innerHTML = 'WAITING FOR OPPONENT...';
+    this._canvasOverlay.onclick = null;
+    this._socketClient.emitEvent('ready', this._token);
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case "w":
-        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        this._socketClient.emitEvent("paddleChange", { token: this._token, key: event.key });
         break;
       case "s":
-        this._socket?.emit("paddleChange", { token: this._token, key: event.key });
+        this._socketClient.emitEvent("paddleChange", { token: this._token, key: event.key });
         break;
 
       default:
@@ -79,7 +97,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     }
   };
 
-  private setPlayerReady() {
+  private handleReady() {
+    console.log('received ready from server');
   }
 
   private updateGame(data: Snapshot) {
