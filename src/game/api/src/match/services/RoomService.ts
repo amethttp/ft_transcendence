@@ -60,6 +60,8 @@ export class RoomService {
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
+
+    this.io.to(room.token).emit("startMatch");
     room.matchState = MatchState.IN_PROGRESS;
     room.interval = setInterval(() => {
       room.nextSnapshot();
