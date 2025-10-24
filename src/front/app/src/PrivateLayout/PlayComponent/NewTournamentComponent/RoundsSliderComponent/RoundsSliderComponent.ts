@@ -20,7 +20,7 @@ export default class RoundsSliderComponent extends AmethComponent {
   afterInit() {
     if (!this.outlet)
       return;
-  
+
     const id = Math.random().toString(36).slice(2);
     const label = this.outlet.getElementsByClassName("label")[0];
     label.innerHTML = this._label;
@@ -33,7 +33,7 @@ export default class RoundsSliderComponent extends AmethComponent {
 
     const updateSlider = (): boolean => {
       const index = Math.trunc(Number(slider.value));
-      const players = TournamentRound.powersOfTwo[index];
+      const players = TournamentRound.powersOfTwo[index + 1];
       if (this.control.value !== players) {
         this.control.setValue(players);
         const rounds = Math.log2(players);
@@ -42,7 +42,7 @@ export default class RoundsSliderComponent extends AmethComponent {
         playersDisplay.style.transform = "scale(1.1)";
         setTimeout(() => (playersDisplay.style.transform = "scale(1)"), 120);
 
-        roundsDisplay.textContent = `${rounds} rounds (${TournamentRound.roundsText[index] || ""})`;
+        roundsDisplay.textContent = `${rounds} rounds (${TournamentRound.roundsText[index + 1] || ""})`;
         return true;
       }
       else {

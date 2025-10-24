@@ -105,7 +105,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
     return `
       <a href="/${user?.username}" class="flex justify-between items-center gap-6 outline-1 outline-gray-300 p-2 rounded hover:bg-brand-100 transition-colors">
         <div class="flex items-center gap-2">
-          <img src="${user?.avatarUrl}"  width="30" height="30" class="aspect-square w-7 h-7 rounded-full overflow-hidden object-cover" />
+          <img src="${user?.avatarUrl}"  width="30" height="30" class="aspect-square min-w-7 rounded-full overflow-hidden object-cover" />
           <span>${user?.username}</span>
         </div>
         <span>${matchState === MatchState.FINISHED ? player.score : "-"}</span>
