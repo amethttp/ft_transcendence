@@ -22,7 +22,7 @@ export default class SocketClient {
   }
 
   public emitEvent(event: string, ...args: any[]) {
-    this._socket.emit(event, args);
+    this._socket.emit(event, ...args);
   }
 
   public disconnect() {
