@@ -7,6 +7,7 @@ import Paddle from "./Elements/Paddle";
 import Canvas from "./Elements/Canvas";
 import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Elements/Viewport";
 import type { Snapshot } from "./models/Snapshot";
+import CanvasOverlay from "./Elements/CanvasOverlay";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -17,7 +18,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _token?: string;
   private _socketClient!: SocketClient;
   private _canvas!: Canvas;
-  private _canvasOverlay!: HTMLDivElement;
+  private _canvasOverlay!: CanvasOverlay;
   private _paddles: Paddle[] = [];
   private _ball: Ball;
 
@@ -67,19 +68,19 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   afterInit() {
     this._canvas = new Canvas();
-    this._canvasOverlay = document.getElementById('matchCanvasOverlay') as HTMLDivElement;
-    this._canvasOverlay.onclick = () => this.setReadyToPlay();
+    this._canvasOverlay = new CanvasOverlay();
+    this._canvasOverlay.onclick(() => this.setReadyToPlay());
     this.observeResize();
   }
 
   private startMatch() {
-    this._canvasOverlay.style.display = 'none';
+    this._canvasOverlay.hide();
   }
 
   private setReadyToPlay() {
     console.log('ready!');
-    this._canvasOverlay.innerHTML = 'WAITING FOR OPPONENT...';
-    this._canvasOverlay.onclick = null;
+    this._canvasOverlay.setWaitingState();
+    this._canvasOverlay.onclick(() => null);
     this._socketClient.emitEvent('ready', this._token);
   }
 
@@ -122,6 +123,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     const observer = new ResizeObserver(() => {
       this._canvas.resize();
       this._canvas.paintGameState(this._paddles, this._ball);
+      this._canvasOverlay.resizeAdjustingTo(this._canvas);
     });
     observer.observe(canvasContainer);
   }

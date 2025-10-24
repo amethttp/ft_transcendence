@@ -11,7 +11,6 @@ export default class Canvas {
   private _canvas: HTMLCanvasElement;
   private _canvasContext: CanvasRenderingContext2D;
   private _canvasContainer: HTMLDivElement;
-  private _canvasOverlay: HTMLDivElement;
   // private _scale!: number;     TODO: Revisar si es útil al final
   // private _offsetX!: number;
   // private _offsetY!: number;
@@ -20,7 +19,6 @@ export default class Canvas {
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
     this._canvasContext = this._canvas.getContext('2d') as CanvasRenderingContext2D;
     this._canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
-    this._canvasOverlay = document.getElementById('matchCanvasOverlay') as HTMLDivElement;
 
     this.resize();
   }
@@ -62,16 +60,12 @@ export default class Canvas {
   private setCanvasDimensions(cssCanvasWidth: number, cssCanvasHeight: number) {
     this._canvas.style.width = `${cssCanvasWidth}px`;
     this._canvas.style.height = `${cssCanvasHeight}px`;
-    this._canvasOverlay.style.width = this._canvas.style.width;
-    this._canvasOverlay.style.height = this._canvas.style.height;
 
     this._canvas.width = Math.round(cssCanvasWidth * this._devicePixelRatio);
     this._canvas.height = Math.round(cssCanvasHeight * this._devicePixelRatio);
 
     this._canvas.style.left = `${(this._canvasContainer.clientWidth - cssCanvasWidth) / 2}px`;
     this._canvas.style.top = `${(this._canvasContainer.clientHeight - cssCanvasHeight) / 2}px`;
-    this._canvasOverlay.style.left = this._canvas.style.left;
-    this._canvasOverlay.style.top = this._canvas.style.top;
   }
 
   private applyCanvasTransformations(cssCanvasWidth: number, cssCanvasHeight: number) {
@@ -106,5 +100,21 @@ export default class Canvas {
     this.paintPaddle(paddles[0]);
     this.paintPaddle(paddles[1]);
     this.paintBall(ball);
+  }
+
+  get cssWidth(): string {
+    return this._canvas.style.width;
+  }
+
+  get cssHeight(): string {
+    return this._canvas.style.height;
+  }
+
+  get cssLeftPos(): string {
+    return this._canvas.style.left;
+  }
+
+  get cssTopPos(): string {
+    return this._canvas.style.top;
   }
 }
