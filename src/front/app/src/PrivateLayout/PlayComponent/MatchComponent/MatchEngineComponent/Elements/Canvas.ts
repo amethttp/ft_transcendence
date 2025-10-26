@@ -23,6 +23,10 @@ export default class Canvas {
     this.resize();
   }
 
+  private clearBackground() {
+    this._canvasContext.clearRect(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+  }
+
   private changePaintColor(color: string) {
     this._canvasContext.fillStyle = color;
   }
@@ -94,6 +98,7 @@ export default class Canvas {
   }
 
   paintGameState(paddles: Paddle[], ball: Ball) {
+    this.clearBackground();
     this.changePaintColor(BACKGROUND_COLOR);
     this.paintBackground();
     this.changePaintColor(OBJECT_COLOR);

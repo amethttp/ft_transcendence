@@ -9,9 +9,6 @@ export default class CanvasOverlay {
   }
 
   onclick(funct: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null) {
-    if (funct === null)
-      return ;
-
     this._overlay.onclick = funct;
   }
 

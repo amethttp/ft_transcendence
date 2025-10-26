@@ -5,12 +5,14 @@ export default class Paddle {
   private static readonly _height: number = VIEWPORT_HEIGHT * 0.15;
   private _xPos: number;
   private _yPos: number;
-  private _verticalIncrement: number;
   
   constructor(xPos: number, yPos: number) {
     this._xPos = xPos;
     this._yPos = yPos;
-    this._verticalIncrement = 0;
+  }
+
+  public set y(newY: number) {
+    this._yPos = newY;
   }
 
   public get x(): number {

@@ -63,18 +63,17 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
   }
 
-  // CANVAS ON CLICK         this._socket?.emit("ready", this._token);
-  // window.addEventListener("keydown", this.handleKeyDown);
-
   afterInit() {
     this._canvas = new Canvas();
     this._canvasOverlay = new CanvasOverlay();
     this._canvasOverlay.onclick(() => this.setReadyToPlay());
     this.observeResize();
+    requestAnimationFrame(() => this.gameLoop());
   }
 
   private startMatch() {
     this._canvasOverlay.hide();
+    window.addEventListener('keydown', this.handleKeyDown);
   }
 
   private setReadyToPlay() {
@@ -104,6 +103,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private updateGame(data: Snapshot) {
     console.log(data);
+    this._paddles[0].y = data.paddles[0].position;
+    this._paddles[1].y = data.paddles[1].position;
+    this._ball.x = data.ball.position.x;
+    this._ball.y = data.ball.position.y;
+    this._ball.dirX = data.ball.direction.x;
+    this._ball.dirY = data.ball.direction.y;
+    this._ball.velocity = data.ball.velocity;
   }
 
   private setEndState(score: number[]) {
@@ -128,8 +134,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     observer.observe(canvasContainer);
   }
 
+  private gameLoop() {
+    this._canvas.paintGameState(this._paddles, this._ball);
+    // this._ball.x = this._ball.dirX + this._ball.velocity;
+    // this._ball.y = this._ball.dirY + this._ball.velocity;
+    requestAnimationFrame(() => this.gameLoop());
+  }
+
   async destroy(): Promise<void> {
     this._socketClient.disconnect();
+    window.removeEventListener('keydown', this.handleKeyDown);
     await super.destroy();
   }
 }
