@@ -2,6 +2,7 @@ import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
+import { TournamentRound } from "../TournamentComponent/models/TournamentRound";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
 import type { MatchJoin } from "./models/MatchJoin";
 import type { MatchPlayer } from "./models/MatchPlayer";
@@ -73,7 +74,6 @@ export default class MatchComponent extends AmethComponent {
   async afterInit() {
     if (this._token)
       await this.setMatch(this._token);
-    this._setTitle();
     await this._initPlayers();
     this._fillView();
     this._matchEngineComponent?.afterInit();
@@ -118,10 +118,38 @@ export default class MatchComponent extends AmethComponent {
     this._clearView();
     if (!this._match)
       return;
-    document.getElementById("MatchComponentMatchName")!.innerText = this._match.name;
-    document.getElementById("MatchComponentVisibility")!.innerText = this._match.isVisible ? "Public" : "Private";
+    this._fillNameView(this._match);
     document.getElementById("MatchComponentToken")!.innerText = this._match.token;
     document.getElementById("MatchComponentMaxPoints")!.innerText = this._match.points + "";
+    this._fillOpponentView();
+    document.getElementById("MatchComponentCopyTokenBtn")!.onclick = () => {
+      navigator.clipboard.writeText(`${location.origin}/play/${this._match?.token}`)
+        .then(() => Alert.success("Link copied to clipboard!"))
+        .catch(() => Alert.error("Could not copy link to clipboard"));
+    };
+    document.getElementById("MatchComponentLeaveBtn")!.onclick = () => {
+      if (this._match?.tournamentRound?.tournament)
+        this.router?.navigateByPath(`/play/tournament/${this._match.tournamentRound.tournament.token}`);
+      else
+        this.router?.navigateByPath("/play");
+    }
+  }
+
+  private _fillNameView(match: MatchJoin) {
+    if (match.tournamentRound?.tournament) {
+      const roundName = TournamentRound.getRoundTextFromTop(match.tournamentRound.top);
+      const name = `${roundName} - ${match.tournamentRound.tournament.name}`;
+      document.getElementById("MatchComponentMatchName")!.innerText = name;
+      document.title = TitleHelper.addTitlePart(name);
+    }
+    else {
+      document.getElementById("MatchComponentMatchName")!.innerText = match.name;
+      document.title = TitleHelper.addTitlePart(match.name);
+      document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
+    }
+  }
+
+  private _fillOpponentView() {
     if (this._opponentPlayerComponent?.player)
       this._showOpponentPlayer();
     else {
@@ -134,27 +162,11 @@ export default class MatchComponent extends AmethComponent {
         }
       };
     }
-    document.getElementById("MatchComponentCopyTokenBtn")!.onclick = () => {
-      navigator.clipboard.writeText(`${location.origin}/play/${this._match?.token}`)
-        .then(() => Alert.success("Link copied to clipboard!"))
-        .catch(() => Alert.error("Could not copy link to clipboard"));
-    };
-
-    document.getElementById("MatchComponentLeaveBtn")!.onclick = () => {
-      this.router?.navigateByPath("/play");
-      // TODO: If tournament go to tournament!
-    }
-  }
-
-  private _setTitle() {
-    if (this._match)
-      document.title = TitleHelper.addTitlePart(this._match.name);
   }
 
   async refresh() {
     const token = this.router?.currentPath.params["token"] as string;
     await this.setMatch(token);
-    this._setTitle();
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
