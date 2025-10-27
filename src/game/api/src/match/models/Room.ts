@@ -114,8 +114,8 @@ export class Room extends EventEmitter<RoomEvents> {
     return this._matchService.checkEndState(MAX_POINTS);
   }
 
-  public nextSnapshot() {
-    this._matchService.updateBall();
+  public nextSnapshot(lastSnapshot: number): number {
+    let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();
     if (this._matchService.checkEndState(MAX_POINTS)) {
       this._matchState = MatchState.FINISHED;
@@ -127,7 +127,16 @@ export class Room extends EventEmitter<RoomEvents> {
 
       this.emit("end", result);
     }
-    this.emit("snapshot", this._matchService.snapshot);
+
+    if (ballChange)
+      this.emit("ballChange", this._matchService.snapshot.ball);
+
+    if ((performance.now() - lastSnapshot) > 0) {
+      this.emit("snapshot", this._matchService.snapshot);
+      return performance.now();
+    }
+
+    return lastSnapshot;
   }
 
   destroy(): void {

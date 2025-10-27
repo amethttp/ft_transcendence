@@ -6,8 +6,6 @@ import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 60;
-
 const server = fastify({
   https: {
     key: fs.readFileSync('/etc/ssl/private/transcendence.key'),
@@ -79,7 +77,7 @@ const main = async () => {
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.allPlayersReady()) {
           console.log("Starting match...");
-          roomService.startMatch(room, TARGET_FPS);
+          roomService.startMatch(room);
         }
       });
 
