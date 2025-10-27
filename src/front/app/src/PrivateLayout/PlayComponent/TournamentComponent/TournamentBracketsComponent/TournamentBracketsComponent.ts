@@ -36,11 +36,10 @@ export default class TournamentBracketsComponent extends AmethComponent {
   private _fillView() {
     this._clearView();
     const container = this.outlet?.getElementsByClassName("TournamentBracketsContainer")[0]! as HTMLDivElement;
-    console.log("tournament", this._tournament);
     if (!this._tournament)
       return;
     else if (this._tournament.rounds.length < 1) {
-      container.innerText = "Waiting for players to start...";
+      container.innerHTML = "<p class=\"text-center w-full\">Waiting for players to start...</p>";
     }
     else {
       this._fillRounds(container);
@@ -52,12 +51,12 @@ export default class TournamentBracketsComponent extends AmethComponent {
       return;
     for (const round of this._tournament.rounds) {
       const roundI = TournamentRound.powersOfTwo.indexOf(Number(round.top));
-      const htmlDiv = `
-        <div class="flex flex-col w-fit gap-4">
+      const roundDiv = `
+        <div class="flex flex-grow flex-col min-w-fit gap-4 items-center">
           <div class="py-2">${TournamentRound.roundsText[roundI]}</div>
         </div>
       `;
-      const div = DOMHelper.createElementFromHTML(htmlDiv) as HTMLDivElement;
+      const div = DOMHelper.createElementFromHTML(roundDiv) as HTMLDivElement;
       this._fillMatches(round, div);
       container.appendChild(div);
     }
@@ -70,7 +69,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
         this._tournament?.players.find(player => player.user.id == match.players[1].userId)?.user,
       ];
       const matchDiv = `
-        <div class="flex p-3 flex-col gap-3 items-stretch rounded outline-1 outline-gray-400">
+        <div class="flex p-3 max-w-80 w-full flex-col gap-3 items-stretch rounded outline-1 outline-gray-400 aspect-video justify-around">
           <div class="flex flex-col gap-2">
             ${this._getPlayerDiv(match.players[0], users[0], match.state)}
             ${this._getPlayerDiv(match.players[1], users[1], match.state)}
