@@ -7,3 +7,4 @@
 @import "./sidebar";
 @import "./tooltip";
 @import "./alert";
+@import "./router-outlet";

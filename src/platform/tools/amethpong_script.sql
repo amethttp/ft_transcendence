@@ -149,6 +149,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     round INT NOT NULL,
     user_id INTEGER NOT NULL,
+	creation_time TEXT NOT NULL DEFAULT current_timestamp,
     tournament_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
@@ -176,6 +177,7 @@ CREATE TABLE
     is_winner BOOLEAN NOT NULL,
     user_id INTEGER NOT NULL,
     match_id INTEGER NOT NULL,
+	creation_time TEXT NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (match_id) REFERENCES match (id)
   );

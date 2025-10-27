@@ -2,4 +2,8 @@
   .card {
     @apply flex flex-col rounded-2xl sm:shadow py-8 px-9 sm:outline-1 items-center justify-center gap-6 sm:m-2 sm:w-lg;
   }
+
+  .card-2 {
+    @apply flex flex-col rounded-2xl sm:shadow py-8 px-9 sm:outline-1 items-center justify-center gap-6;
+  }
 }

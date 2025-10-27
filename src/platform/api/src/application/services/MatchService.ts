@@ -46,6 +46,9 @@ export class MatchService {
 
   async getByToken(token: string): Promise<Match | null> {
     const _match = await this._matchRepository.findByToken(token);
+    if (_match && !_match?.tournamentRound?.id) {
+      _match.tournamentRound = undefined;
+    }
     return _match;
   }
 

@@ -1,1 +1,98 @@
-Tournament works
+<div class="flex flex-col flex-1 gap-6">
+  <div
+    class="card flex-col flex justify-evenly md:justify-between md:flex-row items-center gap-4 md:gap-12 p-4 sm:p-8 outline-1 outline-brand-200 rounded shadow w-full m-0">
+    <div class="flex gap-3 items-center justify-center flex-wrap text-center">
+      <h3 class="title-3" id="tournamentName"></h3>
+      <span class="text-xs p-1 rounded outline-1 outline-gray-200" id="tournamentVisibility"></span>
+    </div>
+    <div class="flex gap-2 items-center text-xs md:text-base flex-wrap justify-center">
+      <div class="flex justify-center gap-1 flex-wrap text-center">
+        <span id="tournamentPoints"></span>
+        pts
+      </div>
+      ·
+      <div class="flex justify-center gap-1 flex-wrap text-center">
+        <span id="tournamentPlayersAmount"></span>
+        players
+      </div>
+      ·
+      <div class="flex justify-center gap-1 flex-wrap text-center">
+        Single Elimination
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-1 flex-wrap flex-row-reverse max-w-full items-stretch justify-center gap-8">
+    <div class="card-2 items-stretch gap-12 justify-start min-w-fit md:w-fit w-full">
+      <div class="flex flex-col items-stretch gap-4">
+        <button class="btn btn-secondary whitespace-nowrap min-w-fit" id="fillTournamentBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+          </svg>
+          Fill Tournament
+        </button>
+        <button class="hidden btn btn-primary whitespace-nowrap min-w-fit" id="startTournamentBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+          </svg>
+          Start Tournament
+        </button>
+        <button class="hidden btn btn-primary whitespace-nowrap min-w-fit" id="joinBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+          </svg>
+          Join Tournament
+        </button>
+        <a class="hidden btn btn-primary" id="playMatchBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+          </svg>
+          Play Match
+        </a>
+        <button class="btn btn-tertiary" id="copyLinkBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+          </svg>
+          <span id="tournamentToken"></span>
+        </button>
+        <button class="hidden btn btn-danger" id="leaveBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+          </svg>
+          Leave
+        </button>
+      </div>
+      <div class="flex gap-4 flex-col w-full">
+        <div class="block md:hidden sticky top-2 z-10" id="togglePlayersContainer">
+          <div class="btn btn-tertiary" id="showPlayersBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+            Show Players
+          </div>
+          <div class="hidden btn btn-tertiary" id="hidePlayersBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+            </svg>
+            Hide Players
+          </div>
+        </div>
+        <div class="hidden md:flex! flex-col" id="tournamentPlayers"></div>
+      </div>
+    </div>
+    <div class="card-2 overflow-auto md:w-3/6 w-full flex-grow items-start justify-center" id="bracketsContainer"></div>
+  </div>
+</div>

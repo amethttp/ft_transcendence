@@ -3,6 +3,10 @@
     @apply flex px-4 py-2 text-center items-center justify-center gap-1 cursor-pointer;
   }
 
+  .btn:disabled {
+    @apply opacity-10 cursor-auto;
+  }
+
   .btn-secondary {
     @apply rounded hover:bg-brand-200 hover:text-brand-950 transition-colors;
   }

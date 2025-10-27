@@ -1,7 +1,7 @@
 import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 import { Match, matchSchema } from "../../../domain/entities/Match";
 import { IMatchRepository } from "../../../domain/repositories/IMatchRepository";
-import { DatabaseMapper } from "../../database/databaseMapper";
+import { DatabaseMapper } from "../../database/DatabaseMapper";
 
 export class SQLiteMatchRepository extends SQLiteBaseRepository<Match> implements IMatchRepository {
 
