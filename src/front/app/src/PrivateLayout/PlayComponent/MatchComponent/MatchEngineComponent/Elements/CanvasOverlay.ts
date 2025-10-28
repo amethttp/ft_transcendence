@@ -5,7 +5,7 @@ export default class CanvasOverlay {
 
   constructor() {
     this._overlay = document.getElementById('matchCanvasOverlay') as HTMLDivElement;
-    this._overlay.innerHTML = 'READY TO PLAY?';
+    this._overlay.innerHTML = 'READY TO PLAY?<span class="text-2xl">CLICK HERE TO START!</span>';
   }
 
   onclick(funct: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null) {
@@ -18,6 +18,8 @@ export default class CanvasOverlay {
 
   setWaitingState() {
     this._overlay.innerHTML = 'WAITING FOR OPPONENT...';
+    this._overlay.classList.toggle('text-7xl');
+    this._overlay.classList.toggle('text-6xl');
   }
 
   resizeAdjustingTo(canvas: Canvas) {
