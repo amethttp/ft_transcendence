@@ -20,6 +20,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _canvas!: Canvas;
   private _canvasOverlay!: CanvasOverlay;
   private _paddles: Paddle[] = [];
+  private _inputs: boolean[] = [false, false];
   private _ball: Ball;
 
   constructor(token?: string) {
@@ -74,6 +75,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private startMatch() {
     this._canvasOverlay.hide();
     window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('keyup', this.handleKeyUp);
   }
 
   private setReadyToPlay() {
@@ -86,16 +88,28 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case "w":
-        this._socketClient.emitEvent("paddleChange", { token: this._token, key: event.key });
+        this._inputs[0] = true;
         break;
       case "s":
-        this._socketClient.emitEvent("paddleChange", { token: this._token, key: event.key });
+        this._inputs[1] = true;
         break;
-
       default:
         break;
     }
   };
+
+  private handleKeyUp = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case "w":
+        this._inputs[0] = false;
+        break;
+      case "s":
+        this._inputs[1] = false;
+        break;
+      default:
+        break;
+    }
+  }
 
   private handleReady() {
     console.log('received ready from server');
@@ -136,6 +150,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private gameLoop() {
     this._canvas.paintGameState(this._paddles, this._ball);
+    if (this._inputs[0] && !this._inputs[1])
+      this._socketClient.emitEvent("paddleChange", { token: this._token, key: 'w' });
+    else if (this._inputs[1] && !this._inputs[0])
+      this._socketClient.emitEvent("paddleChange", { token: this._token, key: 's' });
+
     // this._ball.x = this._ball.dirX + this._ball.velocity;
     // this._ball.y = this._ball.dirY + this._ball.velocity;
     requestAnimationFrame(() => this.gameLoop());
@@ -144,6 +163,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   async destroy(): Promise<void> {
     this._socketClient.disconnect();
     window.removeEventListener('keydown', this.handleKeyDown);
+    window.removeEventListener('keyup', this.handleKeyUp);
     await super.destroy();
   }
 }
