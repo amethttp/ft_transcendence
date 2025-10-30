@@ -6,7 +6,7 @@ import { MatchData } from "../models/MatchData";
 const MAX_VEL = 20;
 const MAX_DIM = 900;
 const PADDLE_SIZE = 135;
-const PADDLE_VELOCITY = 10;
+const PADDLE_VELOCITY = 1;
 
 export class MatchService {
   private _matchData: MatchData;

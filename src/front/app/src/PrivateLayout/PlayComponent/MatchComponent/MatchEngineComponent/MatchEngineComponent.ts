@@ -23,7 +23,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _inputs: boolean[] = [false, false];
   private _ball: Ball;
   private _animationId: number = 0;
-  private _deltaTime: number = 500 / 60;
+  private _lastTime: number = 0;
+  private _deltaTime: number = 0;
 
   constructor(token?: string) {
     super();
@@ -59,12 +60,12 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this.updateGame(data);
     });
     this._socketClient.setEvent('paddleChange', (paddles) => {
-      console.log(paddles);
+      // console.log(paddles);
       this._paddles[0].y = paddles[0].position;
       this._paddles[1].y = paddles[1].position;
     });
     this._socketClient.setEvent("ballChange", (data) => {
-      console.log(data);
+      // console.log(data);
       this._ball.x = data.position.x;
       this._ball.y = data.position.y;
       this._ball.dirX = data.direction.x;
@@ -90,6 +91,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.hide();
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
+    this._lastTime = performance.now();
     this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
@@ -139,7 +141,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private updateGame(data: Snapshot) {
-    console.log(data);
+    // console.log(data);
     this._paddles[0].y = data.paddles[0].position;
     this._paddles[1].y = data.paddles[1].position;
     this._ball.x = data.ball.position.x;
@@ -172,8 +174,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private gameLoop() {
-    // this._deltaTime = lasttime - performance.now();
-
+    let now = performance.now();
+    this._deltaTime = (now - this._lastTime) / 2;
+    this._lastTime = now;
     this._canvas.paintGameState(this._paddles, this._ball);
     this._ball.x += this._ball.xDir * this._ball.velocity * this._deltaTime;
     this._ball.y += this._ball.yDir * this._ball.velocity * this._deltaTime;
