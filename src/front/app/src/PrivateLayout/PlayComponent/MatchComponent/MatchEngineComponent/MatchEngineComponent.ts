@@ -22,6 +22,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _paddles: Paddle[] = [];
   private _inputs: boolean[] = [false, false];
   private _ball: Ball;
+  private _animationId: number = 0;
 
   constructor(token?: string) {
     super();
@@ -56,6 +57,14 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socketClient.setEvent("snapshot", (data) => {
       this.updateGame(data);
     });
+    this._socketClient.setEvent("ballChange", (data) => {
+      console.log(data);
+      this._ball.x = data.position.x;
+      this._ball.y = data.position.y;
+      this._ball.dirX = data.direction.x;
+      this._ball.dirY = data.direction.y;
+      this._ball.velocity = data.velocity;
+    });
     this._socketClient.setEvent("end", (data) => {
       this.setEndState(data);
     });
@@ -69,13 +78,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay = new CanvasOverlay();
     this._canvasOverlay.onclick(() => this.setReadyToPlay());
     this.observeResize();
-    requestAnimationFrame(() => this.gameLoop());
   }
 
   private startMatch() {
     this._canvasOverlay.hide();
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
+    this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
   private setReadyToPlay() {
@@ -155,13 +164,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     else if (this._inputs[1] && !this._inputs[0])
       this._socketClient.emitEvent("paddleChange", { token: this._token, key: 's' });
 
-    // this._ball.x = this._ball.dirX + this._ball.velocity;
-    // this._ball.y = this._ball.dirY + this._ball.velocity;
-    requestAnimationFrame(() => this.gameLoop());
+    this._ball.x = this._ball.dirX + this._ball.velocity;
+    this._ball.y = this._ball.dirY + this._ball.velocity;
+    this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
   async destroy(): Promise<void> {
     this._socketClient.disconnect();
+    if (this._animationId)
+      cancelAnimationFrame(this._animationId);
+    this._animationId = 0;
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     await super.destroy();
