@@ -13,7 +13,7 @@ const MAX_POINTS = 5;
 
 export type RoomEvents = {
   ballChange: BallChange,
-  paddleChange: PaddleChange,
+  paddleChange: PaddleChange[],
   snapshot: Snapshot,
   end: MatchResult
 };
@@ -106,8 +106,8 @@ export class Room extends EventEmitter<RoomEvents> {
     return true;
   }
 
-  public updatePaddle(socket: AuthenticatedSocket, key: string) {
-    this._matchService.updatePaddle(socket.id, key);
+  public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
+    this._matchService.setPaddleChange(socket.id, key, isPressed);
   }
 
   public gameEnded() {
@@ -115,6 +115,7 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public nextSnapshot(lastSnapshot: number): number {
+    let paddleChange = this._matchService.updatePaddles();
     let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();
     if (this._matchService.checkEndState(MAX_POINTS)) {
@@ -131,7 +132,10 @@ export class Room extends EventEmitter<RoomEvents> {
     if (ballChange)
       this.emit("ballChange", this._matchService.snapshot.ball);
 
-    if ((performance.now() - lastSnapshot) > 0) {
+    if (paddleChange)
+      this.emit("paddleChange", this._matchService.snapshot.paddles)
+
+    if ((performance.now() - lastSnapshot) > 500) {
       this.emit("snapshot", this._matchService.snapshot);
       return performance.now();
     }
@@ -142,4 +146,4 @@ export class Room extends EventEmitter<RoomEvents> {
   destroy(): void {
     super.destroy();
   }
-} 
+}

@@ -23,6 +23,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _inputs: boolean[] = [false, false];
   private _ball: Ball;
   private _animationId: number = 0;
+  private _deltaTime: number = 500 / 60;
 
   constructor(token?: string) {
     super();
@@ -56,6 +57,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent("snapshot", (data) => {
       this.updateGame(data);
+    });
+    this._socketClient.setEvent('paddleChange', (paddles) => {
+      console.log(paddles);
+      this._paddles[0].y = paddles[0].position;
+      this._paddles[1].y = paddles[1].position;
     });
     this._socketClient.setEvent("ballChange", (data) => {
       console.log(data);
@@ -97,9 +103,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case "w":
+        if (!this._inputs[0])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
         this._inputs[0] = true;
         break;
       case "s":
+        if (!this._inputs[1])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
         this._inputs[1] = true;
         break;
       default:
@@ -110,9 +120,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private handleKeyUp = (event: KeyboardEvent) => {
     switch (event.key) {
       case "w":
+        if (this._inputs[0])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: false })
         this._inputs[0] = false;
         break;
       case "s":
+        if (this._inputs[1])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
         this._inputs[1] = false;
         break;
       default:
@@ -158,14 +172,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private gameLoop() {
-    this._canvas.paintGameState(this._paddles, this._ball);
-    if (this._inputs[0] && !this._inputs[1])
-      this._socketClient.emitEvent("paddleChange", { token: this._token, key: 'w' });
-    else if (this._inputs[1] && !this._inputs[0])
-      this._socketClient.emitEvent("paddleChange", { token: this._token, key: 's' });
+    // this._deltaTime = lasttime - performance.now();
 
-    this._ball.x = this._ball.dirX + this._ball.velocity;
-    this._ball.y = this._ball.dirY + this._ball.velocity;
+    this._canvas.paintGameState(this._paddles, this._ball);
+    this._ball.x += this._ball.xDir * this._ball.velocity * this._deltaTime;
+    this._ball.y += this._ball.yDir * this._ball.velocity * this._deltaTime;
     this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
 

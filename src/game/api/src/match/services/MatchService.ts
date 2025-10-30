@@ -6,6 +6,7 @@ import { MatchData } from "../models/MatchData";
 const MAX_VEL = 20;
 const MAX_DIM = 900;
 const PADDLE_SIZE = 135;
+const PADDLE_VELOCITY = 10;
 
 export class MatchService {
   private _matchData: MatchData;
@@ -42,21 +43,41 @@ export class MatchService {
     delete this._matchData.paddles[playerId];
   }
 
-  public updatePaddle(playerId: string, key: string) {
+  public setPaddleChange(playerId: string, key: string, isPressed: boolean) {
     const paddle = this._matchData.paddles[playerId];
     if (!paddle) { return; }
-    let change = 25;
-    if (key === "w") {
-      change = -25;
-    } else if (key !== "s") { return; }
+    if (!isPressed)
+      paddle.movementDirection = 0;
+    else {
+      paddle.movementDirection = 1;
+      if (key === "w") {
+        paddle.movementDirection = -1;
+      } else if (key !== "s") { return; }
+    }
+  }
 
-    paddle.position += (change);
+  private updatePaddle(paddle: PaddleChange): number {
+    if (!paddle) { return 0; }
+    if (!paddle.movementDirection) { return 0; }
+
+    paddle.position += paddle.movementDirection * PADDLE_VELOCITY;
     if ((paddle.position + PADDLE_SIZE) > (MAX_DIM)) {
       paddle.position = MAX_DIM - PADDLE_SIZE;
     }
     if ((paddle.position) < 0) {
       paddle.position = 0;
     }
+
+    return 1;
+  }
+
+  public updatePaddles(): boolean {
+    let res = 0;
+    for (const paddle of this._matchData.paddlesArray) {
+      res |= this.updatePaddle(paddle);
+    }
+
+    return res > 0;
   }
 
   private isWithinPaddle(ball: BallChange, paddle: PaddleChange): boolean {

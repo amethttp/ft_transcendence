@@ -83,7 +83,7 @@ const main = async () => {
 
       socket.on("paddleChange", (data) => {
         const room = roomService.getRoom(data.token);
-        room.updatePaddle(socket, data.key);
+        room.setPaddleChange(socket, data.key, data.isPressed);
       });
 
       socket.on("disconnecting", async (reason: string) => {

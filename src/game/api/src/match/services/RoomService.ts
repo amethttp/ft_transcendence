@@ -56,7 +56,7 @@ export class RoomService {
       player.state = PlayerState.IN_GAME;
     }
 
-    const targetFPS = 144;
+    const targetFPS = 500;
     const frameTime = 1000 / targetFPS;
     let lastTime = performance.now();
     let lastSnapshot = performance.now();
@@ -85,6 +85,11 @@ export class RoomService {
 
     room.on("ballChange", (ballChange) => {
       this.io.to(room.token).emit("ballChange", ballChange);
+    });
+
+    room.on("paddleChange", (paddleChange) => {
+      console.log("paddleChange BACKK");
+      this.io.to(room.token).emit("paddleChange", paddleChange);
     });
 
     room.on("end", (result) => {
