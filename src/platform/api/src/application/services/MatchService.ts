@@ -37,6 +37,7 @@ export class MatchService {
   async setMatchFinished(match: Match) {
     const matchUpdate: Partial<Match> = {
       state: 3,
+      finishTime: StringTime.now(),
     };
 
     const update = await this._matchRepository.update(match.id, matchUpdate);
