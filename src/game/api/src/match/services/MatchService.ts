@@ -3,11 +3,15 @@ import { BallChange } from "../models/BallChange";
 import { PaddleChange } from "../models/PaddleChange";
 import { MatchData } from "../models/MatchData";
 
-const MAX_VEL = 20;
 const MAX_WIDTH = 1600;
 const MAX_HEIGHT = 900;
-const WIDTH_OFFSET = 16;
-const PADDLE_SIZE = 200;
+const MAX_VEL = 20;
+const VEL_INCREMENT = 1;
+const BALL_SIZE = MAX_WIDTH * 0.0075;
+const PADDLE_WIDTH = MAX_WIDTH * 0.01;
+const PADDLE_SIZE = MAX_HEIGHT * 0.15;
+const PADDLE_OFFSET = 100;
+const PADDLE_VELOCITY = 1;
 
 export class MatchService {
   private _matchData: MatchData;
@@ -25,16 +29,18 @@ export class MatchService {
     } as Snapshot;
   }
 
+
   public get score(): number[] {
     return this._matchData.score;
   }
+
 
   public addPlayer(newPlayerId: string) {
     this._matchData.paddles[newPlayerId] = {
       timestamp: performance.now(),
       playerId: newPlayerId,
-      side: Object.entries(this._matchData.paddles) ? 1 : 0,
-      position: 500
+      side: (Object.entries(this._matchData.paddles).length > 0) ? 1 : 0,
+      position: 450 - PADDLE_SIZE / 2,
     } as PaddleChange;
   }
 
@@ -42,25 +48,46 @@ export class MatchService {
     delete this._matchData.paddles[playerId];
   }
 
-  public updatePaddle(playerId: string, key: string) {
+  public setPaddleChange(playerId: string, key: string, isPressed: boolean) {
     const paddle = this._matchData.paddles[playerId];
     if (!paddle) { return; }
-    let change = 1;
-    if (key === "w") {
-      change = -1;
-    } else if (key !== "s") { return; }
-
-    paddle.position += (change * 10);
-    if (paddle.position + PADDLE_SIZE > (MAX_HEIGHT)) {
-      paddle.position = MAX_HEIGHT - PADDLE_SIZE;
-    }
-    if (paddle.position - PADDLE_SIZE < 0) {
-      paddle.position = PADDLE_SIZE;
+    if (!isPressed)
+      paddle.movementDirection = 0;
+    else {
+      paddle.movementDirection = 1;
+      if (key === "w") {
+        paddle.movementDirection = -1;
+      } else if (key !== "s") { return; }
     }
   }
 
+  private updatePaddle(paddle: PaddleChange): number {
+    if (!paddle) { return 0; }
+    if (!paddle.movementDirection) { return 0; }
+
+    paddle.position += paddle.movementDirection * PADDLE_VELOCITY;
+    if ((paddle.position + PADDLE_SIZE) > (MAX_HEIGHT)) {
+      paddle.position = MAX_HEIGHT - PADDLE_SIZE;
+    }
+    if ((paddle.position) < 0) {
+      paddle.position = 0;
+    }
+
+    return 1;
+  }
+
+  public updatePaddles(): boolean {
+    let res = 0;
+    for (const paddle of this._matchData.paddlesArray) {
+      res |= this.updatePaddle(paddle);
+    }
+
+    return res > 0;
+  }
+
   private isWithinPaddle(ball: BallChange, paddle: PaddleChange): boolean {
-    const topRange = ball.position.y - paddle.position;
+    if (!paddle) { return false; }
+    const topRange = ball.position.y - (paddle.position);
     if (topRange < 0) { return false; }
 
     const bottomRange = (paddle.position + PADDLE_SIZE) - ball.position.y;
@@ -69,29 +96,42 @@ export class MatchService {
     return true;
   }
 
+  private updateBallPosition() {
+    this._matchData.ball.position.x += (this._matchData.ball.direction.x * this._matchData.ball.velocity);
+    this._matchData.ball.position.y += (this._matchData.ball.direction.y * this._matchData.ball.velocity);
+  }
+
   public updateBall() {
-    if (this._matchData.ball.position.x < WIDTH_OFFSET && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[0])) {
-      this._matchData.ball.position.x = WIDTH_OFFSET;
+    if (this._matchData.ball.position.x < (PADDLE_OFFSET + PADDLE_WIDTH) && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[0])) {
+      this._matchData.ball.position.x = (PADDLE_OFFSET + PADDLE_WIDTH);
       this._matchData.ball.direction.x = 1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
-    } else if (this._matchData.ball.position.x > MAX_WIDTH - WIDTH_OFFSET && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[1])) {
-      this._matchData.ball.position.x = MAX_WIDTH - WIDTH_OFFSET;
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
+      this.updateBallPosition();
+      return true;
+    } else if (this._matchData.ball.position.x + BALL_SIZE > MAX_WIDTH - (PADDLE_OFFSET + PADDLE_WIDTH) && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[1])) {
+      this._matchData.ball.position.x = MAX_WIDTH - (PADDLE_OFFSET + PADDLE_WIDTH) - BALL_SIZE;
       this._matchData.ball.direction.x = -1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
+      this.updateBallPosition();
+      return true;
     }
 
     if (this._matchData.ball.position.y < 0) {
       this._matchData.ball.position.y = 0;
       this._matchData.ball.direction.y = 1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
-    } else if (this._matchData.ball.position.y > MAX_HEIGHT) {
-      this._matchData.ball.position.y = MAX_HEIGHT;
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
+      this.updateBallPosition();
+      return true;
+    } else if (this._matchData.ball.position.y + BALL_SIZE > MAX_HEIGHT) {
+      this._matchData.ball.position.y = MAX_HEIGHT - BALL_SIZE;
       this._matchData.ball.direction.y = -1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
+      this.updateBallPosition();
+      return true;
     }
 
-    this._matchData.ball.position.x += (this._matchData.ball.direction.x * this._matchData.ball.velocity);
-    this._matchData.ball.position.y += (this._matchData.ball.direction.y * this._matchData.ball.velocity);
+    this.updateBallPosition();
+    return false;
   }
 
   public checkGoal() {
@@ -106,20 +146,11 @@ export class MatchService {
 
     this._matchData.ball.position.x = MAX_WIDTH / 2;
     this._matchData.ball.position.y = MAX_HEIGHT / 2;
-    let dx, dy, magnitude;
-    do {
-      dx = Math.random() * 2 - 1;
-      dy = Math.random() * 2 - 1;
-      magnitude = Math.sqrt(dx * dx + dy * dy);
-    } while (
-      magnitude === 0 ||
-      Math.abs(dx / magnitude) < 0.4 ||
-      Math.abs(dy / magnitude) < 0.4
-    );
 
-    this._matchData.ball.direction.x = dx / magnitude;
-    this._matchData.ball.direction.y = dy / magnitude;
-    this._matchData.ball.velocity = 10;
+    const angle = (Math.random() * Math.PI / 2) - Math.PI / 4;
+    this._matchData.ball.direction.x = Math.sign(Math.random() - 0.5) * Math.cos(angle);
+    this._matchData.ball.direction.y = Math.sin(angle);
+    this._matchData.ball.velocity = 1;
   }
 
   public checkEndState(maxScore: number): boolean {

@@ -54,28 +54,53 @@ export class RoomService {
     }
   }
 
-  public startMatch(socket: AuthenticatedSocket, room: Room, targetFPS: number) {
-    if (room.gameEnded()) { return; }
+  public startMatch(socket: AuthenticatedSocket, room: Room) {
+    if (room.gameEnded()) { return };
     this.io.to(room.token).emit("message", "Players are ready! || Starting Match in 3...");
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
-
     this.io.to(room.token).emit("startMatch");
     room.matchState = MatchState.IN_PROGRESS;
-    room.interval = setInterval(() => {
-      room.nextSnapshot();
-    }, targetFPS);
+
+    const targetFPS = 500;
+    const frameTime = 1000 / targetFPS;
+    let lastTime = performance.now();
+    let lastSnapshot = performance.now();
+    let accumulated = 0;
+    let running = true;
+    console.log(this._apiClient);
+
+    const loop = (now: number) => {
+      if (!running || room.gameEnded() || (room.matchState === MatchState.PAUSED) || (room.matchState === MatchState.FINISHED)) { return };
+
+      const delta = now - lastTime;
+      lastTime = now;
+      accumulated += delta;
+
+      while (accumulated > frameTime) {
+        lastSnapshot = room.nextSnapshot(lastSnapshot);
+        accumulated -= frameTime;
+      }
+
+      setImmediate(() => loop(performance.now()));
+    };
 
     room.on("snapshot", (snapshot) => {
       this.io.to(room.token).emit("snapshot", snapshot);
     });
 
     room.on("ballChange", (ballChange) => {
-      console.log(ballChange);
+      this.io.to(room.token).emit("ballChange", ballChange);
+    });
+
+    room.on("paddleChange", (paddleChange) => {
+      console.log("paddleChange BACKK");
+      this.io.to(room.token).emit("paddleChange", paddleChange);
     });
 
     room.on("end", (result) => {
+      running = false;
       this.io.to(room.token).emit("end", result.score);
       clearInterval(room.interval);
       const opts: RequestInit = {};
@@ -90,6 +115,7 @@ export class RoomService {
         .catch((error) => console.log("API RESULT UPDATE FAILED", error));
     });
 
+    loop(performance.now());
   }
 
   setCredentials(socket: AuthenticatedSocket, val: any) {
