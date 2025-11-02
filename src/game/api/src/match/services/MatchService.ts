@@ -3,9 +3,14 @@ import { BallChange } from "../models/BallChange";
 import { PaddleChange } from "../models/PaddleChange";
 import { MatchData } from "../models/MatchData";
 
+const MAX_WIDTH = 1600;
+const MAX_HEIGHT = 900;
 const MAX_VEL = 20;
-const MAX_DIM = 900;
-const PADDLE_SIZE = 135;
+const VEL_INCREMENT = 1;
+const BALL_SIZE = MAX_WIDTH * 0.0075;
+const PADDLE_WIDTH = MAX_WIDTH * 0.01;
+const PADDLE_SIZE = MAX_HEIGHT * 0.15;
+const PADDLE_OFFSET = 100;
 const PADDLE_VELOCITY = 1;
 
 export class MatchService {
@@ -61,8 +66,8 @@ export class MatchService {
     if (!paddle.movementDirection) { return 0; }
 
     paddle.position += paddle.movementDirection * PADDLE_VELOCITY;
-    if ((paddle.position + PADDLE_SIZE) > (MAX_DIM)) {
-      paddle.position = MAX_DIM - PADDLE_SIZE;
+    if ((paddle.position + PADDLE_SIZE) > (MAX_HEIGHT)) {
+      paddle.position = MAX_HEIGHT - PADDLE_SIZE;
     }
     if ((paddle.position) < 0) {
       paddle.position = 0;
@@ -97,16 +102,16 @@ export class MatchService {
   }
 
   public updateBall() {
-    if (this._matchData.ball.position.x < 116 && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[0])) {
-      this._matchData.ball.position.x = 116;
+    if (this._matchData.ball.position.x < (PADDLE_OFFSET + PADDLE_WIDTH) && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[0])) {
+      this._matchData.ball.position.x = (PADDLE_OFFSET + PADDLE_WIDTH);
       this._matchData.ball.direction.x = 1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
       this.updateBallPosition();
       return true;
-    } else if (this._matchData.ball.position.x > 1600 - 116 && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[1])) {
-      this._matchData.ball.position.x = 1600 - 116;
+    } else if (this._matchData.ball.position.x + BALL_SIZE > MAX_WIDTH - (PADDLE_OFFSET + PADDLE_WIDTH) && this.isWithinPaddle(this._matchData.ball, this._matchData.paddlesArray[1])) {
+      this._matchData.ball.position.x = MAX_WIDTH - (PADDLE_OFFSET + PADDLE_WIDTH) - BALL_SIZE;
       this._matchData.ball.direction.x = -1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
       this.updateBallPosition();
       return true;
     }
@@ -114,13 +119,13 @@ export class MatchService {
     if (this._matchData.ball.position.y < 0) {
       this._matchData.ball.position.y = 0;
       this._matchData.ball.direction.y = 1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
       this.updateBallPosition();
       return true;
-    } else if (this._matchData.ball.position.y > MAX_DIM) {
-      this._matchData.ball.position.y = MAX_DIM;
+    } else if (this._matchData.ball.position.y + BALL_SIZE > MAX_HEIGHT) {
+      this._matchData.ball.position.y = MAX_HEIGHT - BALL_SIZE;
       this._matchData.ball.direction.y = -1;
-      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + 1, MAX_VEL);
+      this._matchData.ball.velocity = Math.min(this._matchData.ball.velocity + VEL_INCREMENT, MAX_VEL);
       this.updateBallPosition();
       return true;
     }
@@ -131,7 +136,7 @@ export class MatchService {
 
   public checkGoal() {
     this._matchData.incrementId();
-    if (this._matchData.ball.position.x >= 1600) {
+    if (this._matchData.ball.position.x >= MAX_WIDTH) {
       this._matchData.score[0]++;
     } else if (this._matchData.ball.position.x <= 0) {
       this._matchData.score[1]++;
@@ -139,8 +144,8 @@ export class MatchService {
       return;
     }
 
-    this._matchData.ball.position.x = 1600 / 2;
-    this._matchData.ball.position.y = MAX_DIM / 2;
+    this._matchData.ball.position.x = MAX_WIDTH / 2;
+    this._matchData.ball.position.y = MAX_HEIGHT / 2;
 
     const angle = (Math.random() * Math.PI / 2) - Math.PI / 4;
     this._matchData.ball.direction.x = Math.sign(Math.random() - 0.5) * Math.cos(angle);

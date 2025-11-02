@@ -32,6 +32,7 @@ const main = async () => {
         throw "Invalid JWT";
       }
       const opts: RequestInit = {};
+      socket.cookie = socket.handshake.headers.cookie;
       opts.headers = { cookie: socket.handshake.headers.cookie };
       const user = (await apiClient.get("/user", undefined, opts)) as any;
       socket.userId = user.id;
@@ -77,7 +78,7 @@ const main = async () => {
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.allPlayersReady()) {
           console.log("Starting match...");
-          roomService.startMatch(room);
+          roomService.startMatch(socket, room);
         }
       });
 

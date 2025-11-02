@@ -5,6 +5,8 @@ import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
 
+const MATCH_BASE_ROUTE = "/match"
+
 export class RoomService {
   private _gameRooms: Record<string, Room>;
   private _apiClient: ApiClient;
@@ -35,26 +37,31 @@ export class RoomService {
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
-      room.matchState = MatchState.PAUSED;
+      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS)
+        room.matchState = MatchState.PAUSED;
     }
     if (room.playersAmount() === 0) {
-      delete this._gameRooms[room.token];
       if (room.matchState === MatchState.WAITING) {
-        // const opts: RequestInit = {};
-        // opts.headers = {};
-        // this._apiClient.delete(`/${room.token}`, undefined, opts)
-        // .then(() => console.log("API MATCH DELETE DONE"))
-        // .catch(() => console.log("API MATCH DELETE FAILED"));;
+        const opts: RequestInit = {};
+        if (!socket.cookie)
+          return; // TODO: Throw error
+        opts.headers = { cookie: socket.cookie };
+        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}`, undefined, opts)
+        .then(() => console.log("API MATCH DELETE DONE"))
+        .catch((error) => console.log("API MATCH DELETE FAILED", error));
       }
+      delete this._gameRooms[room.token];
     }
   }
 
-  public startMatch(room: Room) {
+  public startMatch(socket: AuthenticatedSocket, room: Room) {
     if (room.gameEnded()) { return };
     this.io.to(room.token).emit("message", "Players are ready! || Starting Match in 3...");
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
+    this.io.to(room.token).emit("startMatch");
+    room.matchState = MatchState.IN_PROGRESS;
 
     const targetFPS = 500;
     const frameTime = 1000 / targetFPS;
@@ -95,8 +102,24 @@ export class RoomService {
     room.on("end", (result) => {
       running = false;
       this.io.to(room.token).emit("end", result.score);
+      clearInterval(room.interval);
+      const opts: RequestInit = {};
+      if (!socket.cookie)
+        return; // TODO: Throw error
+      opts.headers = { cookie: socket.cookie };
+      this._apiClient.put(`${MATCH_BASE_ROUTE}/${room.token}`, result, opts)
+        .then((val) => {
+          console.log("API RESULT UPDATE DONE");
+          this.setCredentials(socket, val);
+        })
+        .catch((error) => console.log("API RESULT UPDATE FAILED", error));
     });
 
     loop(performance.now());
+  }
+
+  setCredentials(socket: AuthenticatedSocket, val: any) {
+    if (val.auth)
+      socket.cookie = val.auth;
   }
 }
