@@ -184,6 +184,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private setEndState(score: number[]) {
     console.log(score);
+    this._canvasOverlay.showMatchResult(score);
   }
 
   async refresh(token?: string) {
