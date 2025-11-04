@@ -25,38 +25,6 @@ export default class Ball {
     return this._yPos;
   }
 
-  public get xDir(): number {
-    return this._xDirection;
-  }
-
-  public get yDir(): number {
-    return this._yDirection;
-  }
-
-  public get velocity(): number {
-    return this._velocity;
-  }
-
-  public set x(newX: number) {
-    this._xPos = newX;
-  }
-
-  public set y(newY: number) {
-    this._yPos = newY;
-  }
-
-  public set dirX(newDirX: number) {
-    this._xDirection = newDirX;
-  }
-
-  public set dirY(newDirY: number) {
-    this._yDirection = newDirY;
-  }
-
-  public set velocity(newVelocity: number) {
-    this._velocity = newVelocity;
-  }
-
   public setFromBallChange(ballChange: BallChange) {
     this._xPos = ballChange.position.x;
     this._yPos = ballChange.position.y;
@@ -66,8 +34,8 @@ export default class Ball {
   }
 
   public updatePosition(deltaTime: number) {
-    this._xPos += this._xDirection * this.velocity * deltaTime;
-    this._yPos += this._yDirection * this.velocity * deltaTime;
+    this._xPos += this._xDirection * this._velocity * deltaTime;
+    this._yPos += this._yDirection * this._velocity * deltaTime;
   }
 
   public static get size(): number {
