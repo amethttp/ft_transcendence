@@ -95,7 +95,6 @@ export class RoomService {
     });
 
     room.on("paddleChange", (paddleChange) => {
-      console.log("paddleChange BACKK");
       this.io.to(room.token).emit("paddleChange", paddleChange);
     });
 

@@ -11,9 +11,8 @@ export default class Canvas {
   private _canvas: HTMLCanvasElement;
   private _canvasContext: CanvasRenderingContext2D;
   private _canvasContainer: HTMLDivElement;
-  // private _scale!: number;     TODO: Revisar si es útil al final
-  // private _offsetX!: number;
-  // private _offsetY!: number;
+  private _scale!: number;
+  private _offsetY!: number;
 
   constructor() {
     this._canvas = document.getElementById('matchCanvas') as HTMLCanvasElement;
@@ -82,9 +81,8 @@ export default class Canvas {
     const offsetXPhysical = offsetXCSS * this._devicePixelRatio;
     const offsetYPhysical = offsetYCSS * this._devicePixelRatio;
 
-    // this._scale = logicalScaleCSS;
-    // this._offsetX = offsetXCSS;
-    // this._offsetY = offsetYCSS;
+    this._scale = logicalScaleCSS;
+    this._offsetY = offsetYCSS;
 
     this._canvasContext.setTransform(finalScale, 0, 0, finalScale, offsetXPhysical, offsetYPhysical);
   }
@@ -107,6 +105,14 @@ export default class Canvas {
     this.paintBall(ball);
   }
 
+  setOnTouchDownCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
+    this._canvas.addEventListener('touchstart', func)
+  }
+  
+  setOnTouchLiftCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
+    this._canvas.addEventListener('touchend', func);
+  }
+
   get cssWidth(): string {
     return this._canvas.style.width;
   }
@@ -121,5 +127,17 @@ export default class Canvas {
 
   get cssTopPos(): string {
     return this._canvas.style.top;
+  }
+
+  get offsetY(): number {
+    return this._offsetY;
+  }
+
+  get scale(): number {
+    return this._scale;
+  }
+
+  get boundingClientRect(): DOMRect {
+    return this._canvas.getBoundingClientRect();
   }
 }

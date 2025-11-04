@@ -84,6 +84,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.hide();
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
+    this._canvas.setOnTouchDownCallback((event) => this.onTouchDown(event));
+    this._canvas.setOnTouchLiftCallback((event) => this.onTouchLift(event));
     this._lastTime = performance.now();
     this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
@@ -93,6 +95,47 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.setWaitingState();
     this._canvasOverlay.onclick(() => null);
     this._socketClient.emitEvent('ready', this._token);
+  }
+
+  private getTouchCoord(touch: Touch): number {
+    const canvasCssY = touch.clientY - this._canvas.boundingClientRect.top;
+
+    return (canvasCssY - this._canvas.offsetY) / this._canvas.scale;
+  }
+
+  private handleTouch(yPos: number) {
+    if (0 <= yPos && yPos <= VIEWPORT_HEIGHT / 2) {
+      if (!this._inputs[0])
+        this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
+      this._inputs[0] = true;
+    } else {
+      if (!this._inputs[1])
+        this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
+      this._inputs[1] = true;
+    }
+  }
+
+  private onTouchDown(event: TouchEvent) {
+    event.preventDefault();
+
+    const touch: Touch = event.touches[0];
+    
+    if (!touch) return ;
+
+    const yTouch = this.getTouchCoord(touch);
+    this.handleTouch(yTouch);
+  }
+
+  private onTouchLift(event: TouchEvent) {
+    event.preventDefault();
+
+    if (this._inputs[0])
+      this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: false })
+    this._inputs[0] = false;
+
+    if (this._inputs[1])
+      this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
+    this._inputs[1] = false;
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
