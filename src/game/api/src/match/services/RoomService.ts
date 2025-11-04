@@ -60,7 +60,7 @@ export class RoomService {
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
-    this.io.to(room.token).emit("startMatch");
+    this.io.to(room.token).emit("start");
     room.matchState = MatchState.IN_PROGRESS;
 
     const targetFPS = 500;

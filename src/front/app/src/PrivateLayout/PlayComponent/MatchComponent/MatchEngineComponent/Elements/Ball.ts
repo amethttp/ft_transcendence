@@ -1,3 +1,4 @@
+import type { BallChange } from "../models/BallChange";
 import { VIEWPORT_WIDTH } from "./Viewport";
 
 export default class Ball {
@@ -54,6 +55,19 @@ export default class Ball {
 
   public set velocity(newVelocity: number) {
     this._velocity = newVelocity;
+  }
+
+  public setFromBallChange(ballChange: BallChange) {
+    this._xPos = ballChange.position.x;
+    this._yPos = ballChange.position.y;
+    this._xDirection = ballChange.direction.x;
+    this._yDirection = ballChange.direction.y;
+    this._velocity = ballChange.velocity;
+  }
+
+  public updatePosition(deltaTime: number) {
+    this._xPos += this._xDirection * this.velocity * deltaTime;
+    this._yPos += this._yDirection * this.velocity * deltaTime;
   }
 
   public static get size(): number {

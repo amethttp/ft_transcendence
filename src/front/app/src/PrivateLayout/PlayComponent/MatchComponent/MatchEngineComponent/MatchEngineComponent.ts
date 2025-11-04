@@ -46,12 +46,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       console.log('Handshake:', data);
       this.emit('opponentConnected', data);
     });
+    this._socketClient.setEvent('start', () => {
+      this.startMatch();
+    })
     this._socketClient.setEvent('message', (data) => {
       console.log("Message:", data);
-
-      // TODO: Change for 'start' event
-      if (data === 'Players are ready! || Starting Match in 3...')
-        this.startMatch();
     });
     this._socketClient.setEvent("ready", () => {
       this.handleReady();
@@ -60,17 +59,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this.updateGame(data);
     });
     this._socketClient.setEvent('paddleChange', (paddles) => {
-      // console.log(paddles);
       this._paddles[0].y = paddles[0].position;
       this._paddles[1].y = paddles[1].position;
     });
     this._socketClient.setEvent("ballChange", (data) => {
-      // console.log(data);
-      this._ball.x = data.position.x;
-      this._ball.y = data.position.y;
-      this._ball.dirX = data.direction.x;
-      this._ball.dirY = data.direction.y;
-      this._ball.velocity = data.velocity;
+      this._ball.setFromBallChange(data);
     });
     this._socketClient.setEvent("end", (data) => {
       this.setEndState(data);
@@ -141,14 +134,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private updateGame(data: Snapshot) {
-    // console.log(data);
     this._paddles[0].y = data.paddles[0].position;
     this._paddles[1].y = data.paddles[1].position;
-    this._ball.x = data.ball.position.x;
-    this._ball.y = data.ball.position.y;
-    this._ball.dirX = data.ball.direction.x;
-    this._ball.dirY = data.ball.direction.y;
-    this._ball.velocity = data.ball.velocity;
+    this._ball.setFromBallChange(data.ball);
   }
 
   private setEndState(score: number[]) {
@@ -178,8 +166,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._deltaTime = (now - this._lastTime) / 2;
     this._lastTime = now;
     this._canvas.paintGameState(this._paddles, this._ball);
-    this._ball.x += this._ball.xDir * this._ball.velocity * this._deltaTime;
-    this._ball.y += this._ball.yDir * this._ball.velocity * this._deltaTime;
+    this._ball.updatePosition(this._deltaTime);
     this._animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
