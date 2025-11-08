@@ -87,7 +87,6 @@ export class TournamentPlayerService {
   }
 
   public async updateMultiple(players: TournamentPlayer[], blueprint: Partial<TournamentPlayer>) {
-    // await Promise.all(players.map(player => this.update(player, blueprint)));
     for (const player of players) {
       await this.update(player, blueprint);
     }
