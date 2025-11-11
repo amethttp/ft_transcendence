@@ -1,5 +1,6 @@
 export const ErrorParams = {
   USER_NOT_FOUND: { code: 404, message: "USER_NOT_FOUND" },
+  NOT_FOUND: { code: 404, message: "NOT_FOUND" },
   PLAYER_NOT_FOUND: { code: 404, message: "PLAYER_NOT_FOUND" },
   UNAUTHORIZED_USER_ACTION: { code: 403, message: "UNAUTHORIZED_USER_ACTION" },
   AUTH_EXPIRED_ACCESS: { code: 401, message: "AUTH_EXPIRED_ACCESS" },
@@ -13,6 +14,7 @@ export const ErrorParams = {
   PASSWORD_RECOVER_FAILED: { code: 400, message: "PASSWORD_RECOVER_FAILED" },
   DATABASE_ERROR: { code: 555, message: "DATABASE_ERROR" },
   UNKNOWN_SERVER_ERROR: { code: 500, message: "UNKNOWN_SERVER_ERROR" },
+  UPDATE_ERROR: { code: 422, message: "UPDATE_ERROR" },
   BAD_REQUEST: { code: 400, message: "BAD_REQUEST" },
 } as const;
 

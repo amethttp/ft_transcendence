@@ -1,11 +1,11 @@
 import { Database, Statement } from "sqlite3";
-import { DatabaseManager } from "../../database/databaseManager";
-import { DatabaseMapper } from "../../database/databaseMapper";
 import { IBaseRepository } from "../../../domain/repositories/IBaseRepository";
 import { DatabaseRowResult } from "../models/DatabaseRowResult";
 import { AEntity } from "../../../domain/entities/AEntity";
 import { ErrorParams, ResponseError } from "../../../application/errors/ResponseError";
 import StringTime from "../../../application/helpers/StringTime";
+import { DatabaseManager } from "../../database/DatabaseManager";
+import { DatabaseMapper } from "../../database/DatabaseMapper";
 
 export class SQLiteBaseRepository<T extends AEntity> implements IBaseRepository<T> {
   private _db!: Database;

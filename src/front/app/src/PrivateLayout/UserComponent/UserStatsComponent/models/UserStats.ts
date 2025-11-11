@@ -1,4 +1,3 @@
-
 import type { MatchInfo } from "./MatchInfo";
 import type { TournamentInfo } from "./TournamentInfo";
 
