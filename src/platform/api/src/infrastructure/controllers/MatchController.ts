@@ -39,29 +39,29 @@ export default class MatchController {
     }
   }
 
-  async deleteMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
-    try {
-      const match = await this._matchService.getByToken(request.params.token);
-      if (match)
-        await this._matchService.delete(match);
-
-    } catch (error: any) {
-      console.log(error);
-      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
-    }
-  }
-
   async updateMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
-      console.log("holaaa", request.body);
       const matchResult = request.body as MatchResult;
       const match = await this._matchService.getByToken(request.params.token);
       if (!match)
         throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
 
       await this._matchService.setMatchFinished(match);
-      await this._matchPlayerService.updateResult(match.id, matchResult);
-      
+      await this._matchPlayerService.updateResult(match, matchResult);
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async deleteMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const match = await this._matchService.getByToken(request.params.token);
+      if (match) {
+        await this._matchPlayerService.deleteAllFromMatch(match);
+        await this._matchService.delete(match);
+      }
+
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());

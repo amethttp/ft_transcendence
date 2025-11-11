@@ -41,6 +41,37 @@ export default class AuthController {
     this._userStatusService = userStatusService;
   }
 
+  public async accessRefresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
+    const refreshToken = request.cookies.RefreshToken;
+
+    try {
+      let decodedToken;
+      try {
+        decodedToken = jwt.verify(refreshToken);
+      } catch (verifyErr) {
+        throw new ResponseError(ErrorParams.AUTH_INVALID_ACCESS);
+      }
+      const tokenPayload = { sub: decodedToken.sub as number, type: 'access' as JwtPayloadType };
+      const accessTokenExpiry = 5;
+      const secondsInAMinute = 60;
+      const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
+
+      reply.header('set-cookie', [
+        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
+      ]);
+
+      reply.status(200).send({credentials: `AccessToken=${newAccessToken}; RefreshToken=${refreshToken};`});
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   public async refresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
     const refreshToken = request.cookies.RefreshToken;
 

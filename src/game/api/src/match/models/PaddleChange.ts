@@ -3,4 +3,5 @@ export interface PaddleChange {
   playerId: string;
   side: number;
   position: number;
+  movementDirection: number;
 }

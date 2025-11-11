@@ -37,7 +37,7 @@ export class MatchPlayerService {
     return matchPlayer;
   }
 
-  async updateResult(matchId: number, matchResult: MatchResult) {
+  async updateResult(match: Match, matchResult: MatchResult) {
     let winnerIndex = 0; // winnerIndex = matchResult.score[1] > matchResult.score[0];
     if (matchResult.score[1] > matchResult.score[0]) {
       winnerIndex = 1;
@@ -52,11 +52,13 @@ export class MatchPlayerService {
       isWinner: false,
     };
 
-    const winnerUpdate = await this._matchPlayerRepository.update(matchId, winner);
+    const winnerId = match.players[winnerIndex].id;
+    const loserId = match.players[1 - winnerIndex].id;
+    const winnerUpdate = await this._matchPlayerRepository.update(winnerId, winner);
     if (winnerUpdate === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-    const loserUpdate = await this._matchPlayerRepository.update(matchId, loser);
+    const loserUpdate = await this._matchPlayerRepository.update(loserId, loser);
     if (loserUpdate === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
@@ -93,6 +95,10 @@ export class MatchPlayerService {
       return [] as MatchPlayer[];
 
     return matches;
+  }
+
+  async deleteAllFromMatch(match: Match) {
+    await Promise.all(match.players.map(player => this.delete(player)));
   }
 
   async delete(matchPlayer: MatchPlayer) {

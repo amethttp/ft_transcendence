@@ -11,9 +11,9 @@ export class MatchData {
   constructor() {
     this._id = 0;
     this._ball = {
-      position: { x: 500, y: 500 },
+      position: { x: 800, y: 450 },
       direction: { x: ((randomInt(10) / 10) * 2) - 1, y: ((randomInt(10) / 10) * 2) - 1 }, // TODO: Normalize vectors to get an actual correct random dir
-      velocity: 50,
+      velocity: 1,
     };
     this._paddles = {};
     this._score = [0,0];

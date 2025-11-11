@@ -2,9 +2,7 @@ import type { IHttpClient, TGetParamValue } from "./IHttpClient";
 import https from 'https';
 import fetch from 'node-fetch';
 
-
 export default class HttpClient implements IHttpClient {
-
 
   constructor() { }
 
@@ -44,7 +42,7 @@ export default class HttpClient implements IHttpClient {
     return this._bodyRequest(url, body, options);
   }
 
-  protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
     if (options.body && !(options.body instanceof FormData) && !(options.body instanceof Blob)) {
       options.headers = {
         'Content-Type': 'application/json',
