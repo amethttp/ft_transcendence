@@ -9,11 +9,11 @@ import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
 
-const MAX_POINTS = 5;
+const MAX_POINTS = 1;
 
 export type RoomEvents = {
   ballChange: BallChange,
-  paddleChange: PaddleChange,
+  paddleChange: PaddleChange[],
   snapshot: Snapshot,
   end: MatchResult
 };
@@ -106,16 +106,17 @@ export class Room extends EventEmitter<RoomEvents> {
     return true;
   }
 
-  public updatePaddle(socket: AuthenticatedSocket, key: string) {
-    this._matchService.updatePaddle(socket.id, key);
+  public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
+    this._matchService.setPaddleChange(socket.id, key, isPressed);
   }
 
   public gameEnded() {
     return this._matchService.checkEndState(MAX_POINTS);
   }
 
-  public nextSnapshot() {
-    this._matchService.updateBall();
+  public nextSnapshot(lastSnapshot: number): number {
+    let paddleChange = this._matchService.updatePaddles();
+    let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();
     if (this._matchService.checkEndState(MAX_POINTS)) {
       this._matchState = MatchState.FINISHED;
@@ -127,10 +128,22 @@ export class Room extends EventEmitter<RoomEvents> {
 
       this.emit("end", result);
     }
-    this.emit("snapshot", this._matchService.snapshot);
+
+    if (ballChange)
+      this.emit("ballChange", this._matchService.snapshot.ball);
+
+    if (paddleChange)
+      this.emit("paddleChange", this._matchService.snapshot.paddles)
+
+    if ((performance.now() - lastSnapshot) > 500) {
+      this.emit("snapshot", this._matchService.snapshot);
+      return performance.now();
+    }
+
+    return lastSnapshot;
   }
 
   destroy(): void {
     super.destroy();
   }
-} 
+}

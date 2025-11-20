@@ -6,8 +6,6 @@ import { ApiClient } from './HttpClient/ApiClient/ApiClient';
 import { RoomService } from './match/services/RoomService';
 import { PlayerState } from './match/models/PlayerState';
 
-const TARGET_FPS = 1000 / 60;
-
 const server = fastify({
   https: {
     key: fs.readFileSync('/etc/ssl/private/transcendence.key'),
@@ -34,6 +32,7 @@ const main = async () => {
         throw "Invalid JWT";
       }
       const opts: RequestInit = {};
+      socket.cookie = socket.handshake.headers.cookie;
       opts.headers = { cookie: socket.handshake.headers.cookie };
       const user = (await apiClient.get("/user", undefined, opts)) as any;
       socket.userId = user.id;
@@ -79,13 +78,13 @@ const main = async () => {
         socket.broadcast.to(room.token).emit("message", `${socket.username} is ready to play!`);
         if (room.allPlayersReady()) {
           console.log("Starting match...");
-          roomService.startMatch(room, TARGET_FPS);
+          roomService.startMatch(socket, room);
         }
       });
 
       socket.on("paddleChange", (data) => {
         const room = roomService.getRoom(data.token);
-        room.updatePaddle(socket, data.key);
+        room.setPaddleChange(socket, data.key, data.isPressed);
       });
 
       socket.on("disconnecting", async (reason: string) => {

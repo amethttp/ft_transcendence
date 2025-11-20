@@ -1,6 +1,8 @@
 import { CookieHelper } from "../../CookieHelper/CookieHelper";
 import HttpClient from "../HttpClient";
 import type { TGetParamValue } from "../IHttpClient";
+import { ErrorMsg, ResponseError } from "./models/ResponseError";
+import { AuthWrapper } from "./wrappers/AuthWrapper";
 
 export class ApiClient extends HttpClient {
   static readonly BASE_URL = "https://platform";
@@ -29,8 +31,12 @@ export class ApiClient extends HttpClient {
     return super.put<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
   }
 
-  protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
-    if (Object.getOwnPropertyNames(options.headers).includes("cookie")) {
+  private refreshToken(headers?: Record<string, any>): Promise<string> {
+    return this.get("/auth/access/refresh", undefined, headers);
+  }
+
+  protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
+    if (options && options.headers && Object.getOwnPropertyNames(options.headers).includes("cookie")) {
       const token = CookieHelper.get("AccessToken", (options.headers as any)["cookie"]);
       delete (options.headers as any)["cookie"];
       options.headers = {
@@ -39,6 +45,20 @@ export class ApiClient extends HttpClient {
       };
     }
 
-    return await super.request<T>(url, options);
+    try {
+      return await super.request<AuthWrapper>(url, options);
+    } catch (_error: any) {
+      const error: ResponseError = _error;
+      if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
+        try {
+          const res = await this.refreshToken(options.headers);
+          const request = await this.request<AuthWrapper>(url, options);
+          return (new AuthWrapper(res, request)) as AuthWrapper;
+        } catch (error) {
+        console.log(error);
+      }
+    }
+    throw error;
   }
+}
 }

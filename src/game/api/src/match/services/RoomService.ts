@@ -5,6 +5,8 @@ import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
 
+const MATCH_BASE_ROUTE = "/match"
+
 export class RoomService {
   private _gameRooms: Record<string, Room>;
   private _apiClient: ApiClient;
@@ -35,47 +37,88 @@ export class RoomService {
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
-      room.matchState = MatchState.PAUSED;
+      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS)
+        room.matchState = MatchState.PAUSED;
     }
     if (room.playersAmount() === 0) {
-      delete this._gameRooms[room.token];
       if (room.matchState === MatchState.WAITING) {
-        // const opts: RequestInit = {};
-        // opts.headers = {};
-        // this._apiClient.delete(`/${room.token}`, undefined, opts)
-        // .then(() => console.log("API MATCH DELETE DONE"))
-        // .catch(() => console.log("API MATCH DELETE FAILED"));;
+        const opts: RequestInit = {};
+        if (!socket.cookie)
+          return; // TODO: Throw error
+        opts.headers = { cookie: socket.cookie };
+        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}`, undefined, opts)
+        .then(() => console.log("API MATCH DELETE DONE"))
+        .catch((error) => console.log("API MATCH DELETE FAILED", error));
       }
+      delete this._gameRooms[room.token];
     }
   }
 
-  public startMatch(room: Room, targetFPS: number) {
-    if (room.gameEnded()) { return; }
+  public startMatch(socket: AuthenticatedSocket, room: Room) {
+    if (room.gameEnded()) { return };
     this.io.to(room.token).emit("message", "Players are ready! || Starting Match in 3...");
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;
     }
-    room.interval = setInterval(() => {
-      room.nextSnapshot();
-    }, targetFPS);
+    this.io.to(room.token).emit("start");
+    room.matchState = MatchState.IN_PROGRESS;
+
+    const targetFPS = 500;
+    const frameTime = 1000 / targetFPS;
+    let lastTime = performance.now();
+    let lastSnapshot = performance.now();
+    let accumulated = 0;
+    let running = true;
+    console.log(this._apiClient);
+
+    const loop = (now: number) => {
+      if (!running || room.gameEnded() || (room.matchState === MatchState.PAUSED) || (room.matchState === MatchState.FINISHED)) { return };
+
+      const delta = now - lastTime;
+      lastTime = now;
+      accumulated += delta;
+
+      while (accumulated > frameTime) {
+        lastSnapshot = room.nextSnapshot(lastSnapshot);
+        accumulated -= frameTime;
+      }
+
+      setImmediate(() => loop(performance.now()));
+    };
 
     room.on("snapshot", (snapshot) => {
       this.io.to(room.token).emit("snapshot", snapshot);
     });
 
     room.on("ballChange", (ballChange) => {
-      console.log(ballChange);
+      this.io.to(room.token).emit("ballChange", ballChange);
+    });
+
+    room.on("paddleChange", (paddleChange) => {
+      this.io.to(room.token).emit("paddleChange", paddleChange);
     });
 
     room.on("end", (result) => {
+      running = false;
       this.io.to(room.token).emit("end", result.score);
       clearInterval(room.interval);
-      console.log(this._apiClient);
-      // const opts: RequestInit = {};
-      // opts.headers = {};
-      // this._apiClient.put(`/${room.token}`, result, opts)
-      // .then(() => console.log("API RESULT UPDATE DONE"))
-      // .catch(() => console.log("API RESULT UPDATE FAILED"));
+      const opts: RequestInit = {};
+      if (!socket.cookie)
+        return; // TODO: Throw error
+      opts.headers = { cookie: socket.cookie };
+      this._apiClient.put(`${MATCH_BASE_ROUTE}/${room.token}`, result, opts)
+        .then((val) => {
+          console.log("API RESULT UPDATE DONE");
+          this.setCredentials(socket, val);
+        })
+        .catch((error) => console.log("API RESULT UPDATE FAILED", error));
     });
+
+    loop(performance.now());
+  }
+
+  setCredentials(socket: AuthenticatedSocket, val: any) {
+    if (val.auth)
+      socket.cookie = val.auth;
   }
 }

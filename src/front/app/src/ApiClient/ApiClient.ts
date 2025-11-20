@@ -51,7 +51,7 @@ export class ApiClient extends HttpClient {
       const error: ResponseError = _error;
       if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
         try {
-          const res = await this.refreshToken()
+          const res = await this.refreshToken();
           if (res.success)
             return this.request<T>(url, options);
         } catch (error) {
