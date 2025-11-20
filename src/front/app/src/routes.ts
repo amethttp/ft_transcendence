@@ -55,6 +55,11 @@ export const routes: Route[] = [
         ]
       },
       {
+        path: "/privacy",
+        component: () => import("./PublicLayout/PrivacyPageComponent/PrivacyPageComponent"),
+        title: "Privacy Policy"
+      },
+      {
         path: "404",
         component: () => import("./PublicLayout/NotFound/NotFound"),
         title: "Not found"
