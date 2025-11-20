@@ -1,0 +1,25 @@
+@layer components {
+  .privacy-section {
+    @apply flex flex-col gap-4;
+  }
+
+  .privacy-information {
+    @apply text-xl list-disc list-inside;
+  }
+
+  .privacy-title-2 {
+    @apply text-3xl md:text-4xl font-bold text-gray-800 mb-3;
+  }
+
+  .privacy-table th {
+    @apply text-2xl;
+  } 
+
+  .privacy-table td {
+    @apply text-xl text-center;
+  }
+  
+  .privacy-link {
+    @apply text-brand-900 hover:text-brand-600 transition duration-300;
+  }
+}
