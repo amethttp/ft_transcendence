@@ -73,7 +73,7 @@ export class AuthService {
   }
 
   async applyLoginMethod(user: User, loginCredentials: UserLoginRequest): Promise<boolean> {
-    if (user.auth.password) {
+    if (user.auth.password && user.auth.password.hash) {
       if (!(await this._passwordService.verify(user.auth.password.hash, loginCredentials.password))) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }

@@ -144,7 +144,7 @@ CREATE TABLE
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
 
-  CREATE TABLE
+CREATE TABLE
   IF NOT EXISTS tournament_player (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     round INT NOT NULL,

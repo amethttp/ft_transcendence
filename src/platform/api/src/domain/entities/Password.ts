@@ -11,7 +11,7 @@ export class Password extends AEntity {
   static readonly entitySchema = passwordSchema;
 
   id!: number;
-  hash!: string;
+  hash?: string;
   updateTime!: string;
 
   constructor() {

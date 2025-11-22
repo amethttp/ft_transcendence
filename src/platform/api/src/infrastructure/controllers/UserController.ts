@@ -312,10 +312,13 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userData = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
-      delete userData.auth.password;
-      delete userData.auth.googleAuth;
-      const data = { ...userData }; // TODO: Add games, tournaments, etc...
+      const userData = await this._downloadDataService.getUserByToken(token);
+
+      const data = {
+        ...userData,
+      };
+
+      await this._downloadDataService.deleteByToken(token);
 
       reply.header("Content-Type", "application/json")
         .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)

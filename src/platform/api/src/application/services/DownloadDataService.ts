@@ -44,18 +44,21 @@ export class DownloadDataService {
     }
     const user = downloadData.user;
 
+    delete user.auth.password?.hash;
+    delete user.auth.googleAuth?.accessToken;
+    delete user.auth.googleAuth?.refreshToken;
+    delete user.auth.googleAuth?.tokenType;
+    delete user.auth.googleAuth?.expirationTime;
+    delete user.auth.googleAuth?.scope;
+    delete user.auth.googleAuth?.creationTime;
+    delete user.auth.googleAuth?.updateTime;
+
     return user;
   }
 
-  async getUserByTokenAndDeleteRecover(token: string): Promise<User> {
-    const downloadData = await this._downloadDataRepository.findByToken(token);
-    if (downloadData === null) {
-      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
-    }
-    const user = downloadData.user;
-    await this._downloadDataRepository.delete(downloadData.id);
-
-    return user;
+  async deleteByToken(token: string) {
+    const data: DownloadData = await this.getByToken(token);
+    await this._downloadDataRepository.delete(data.id);
   }
 
   async eraseAllUserDownloadDatas(user: User) {
