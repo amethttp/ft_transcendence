@@ -44,7 +44,8 @@ export default class UserController {
     this._matchService = matchService;
     this._matchPlayerService = matchPlayerService;
     this._tournamentService = tournamentService;
-    this._tournamentPlayerService = tournamentPlayerService;    this._userStatusService = userStatusService;
+    this._tournamentPlayerService = tournamentPlayerService;
+    this._userStatusService = userStatusService;
     this._downloadDataService = downloadDataService;
   }
 
@@ -312,16 +313,16 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userData = await this._downloadDataService.getUserByToken(token);
+      const userDownloadData = await this._downloadDataService.getUserByToken(token);
 
       const data = {
-        ...userData,
+        user: userDownloadData,
       };
 
       await this._downloadDataService.deleteByToken(token);
 
       reply.header("Content-Type", "application/json")
-        .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)
+        .header("Content-Disposition", `attachment; filename=${userDownloadData.username}-amethpong.json`)
         .send(JSON.stringify(data, null, 2));
     } catch (err) {
       reply.code(404).send();

@@ -18,13 +18,13 @@ export class GoogleAuth extends AEntity {
 
   id!: number;
   googleUserid!: number;
-  accessToken?: string;
-  refreshToken?: string;
-  tokenType?: string;
-  expirationTime?: string;
-  scope?: string;
-  creationTime?: string;
-  updateTime?: string;
+  accessToken!: string;
+  refreshToken!: string;
+  tokenType!: string;
+  expirationTime!: string;
+  scope!: string;
+  creationTime!: string;
+  updateTime!: string;
 
   constructor() {
     super();

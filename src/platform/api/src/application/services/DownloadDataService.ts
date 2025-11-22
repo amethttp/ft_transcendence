@@ -2,12 +2,42 @@ import { DownloadData } from "../../domain/entities/DownloadData";
 import { User } from "../../domain/entities/User";
 import { IDownloadDataRepository } from "../../domain/repositories/IDownloadDataRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { UserDownloadDto } from "../models/UserDownloadDto";
 
 export class DownloadDataService {
   private _downloadDataRepository: IDownloadDataRepository;
 
   constructor(downloadDataRepository: IDownloadDataRepository) {
     this._downloadDataRepository = downloadDataRepository;
+  }
+
+  private static toUserDownloadDto(user: User): UserDownloadDto {
+    const dto: UserDownloadDto = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      birthDate: user.birthDate,
+      creationTime: user.creationTime,
+      updateTime: user.updateTime,
+      auth: {
+        id: user.auth.id,
+        lastLogin: user.auth.lastLogin,
+        password: user.auth.password ? {
+          id: user.auth.password.id,
+          updateTime: user.auth.password.updateTime
+        } : undefined,
+        googleAuth: user.auth.googleAuth ? {
+          id: user.auth.googleAuth.id,
+          googleUserId: user.auth.googleAuth.googleUserid
+        } : undefined,
+      }
+    };
+
+    if (!dto.auth.password) delete dto.auth.password;
+    if (!dto.auth.googleAuth) delete dto.auth.googleAuth;
+    
+    return dto;
   }
 
   async newDownloadData(inputUser: User, inputToken: string): Promise<DownloadData | null> {
@@ -31,29 +61,19 @@ export class DownloadDataService {
   async getByToken(token: string): Promise<DownloadData> {
     const downloadData = await this._downloadDataRepository.findByToken(token);
     if (downloadData === null) {
-      throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
+      throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
     }
 
     return downloadData;
   }
 
-  async getUserByToken(token: string): Promise<User> {
+  async getUserByToken(token: string): Promise<UserDownloadDto> {
     const downloadData = await this._downloadDataRepository.findByToken(token);
     if (downloadData === null) {
-      throw new ResponseError(ErrorParams.PASSWORD_RECOVER_FAILED);
+      throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
     }
-    const user = downloadData.user;
 
-    delete user.auth.password?.hash;
-    delete user.auth.googleAuth?.accessToken;
-    delete user.auth.googleAuth?.refreshToken;
-    delete user.auth.googleAuth?.tokenType;
-    delete user.auth.googleAuth?.expirationTime;
-    delete user.auth.googleAuth?.scope;
-    delete user.auth.googleAuth?.creationTime;
-    delete user.auth.googleAuth?.updateTime;
-
-    return user;
+    return DownloadDataService.toUserDownloadDto(downloadData.user);
   }
 
   async deleteByToken(token: string) {
