@@ -1,13 +1,17 @@
 import { DownloadData } from "../../domain/entities/DownloadData";
+import { MatchState } from "../../domain/entities/Match";
+import { MatchPlayer } from "../../domain/entities/MatchPlayer";
 import { User } from "../../domain/entities/User";
 import { UserRelation } from "../../domain/entities/UserRelation";
 import { UserStatus } from "../../domain/entities/UserStatus";
 import { IDownloadDataRepository } from "../../domain/repositories/IDownloadDataRepository";
+import { IMatchPlayerRepository } from "../../domain/repositories/IMatchPlayerRepository";
 import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { IUserStatusRepository } from "../../domain/repositories/IUserStatusRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { RelationType } from "../models/Relation";
 import { UserDownloadDto } from "../models/UserDownloadDto";
+import { UserMatchDownloadDto, UserMatchState } from "../models/UserMatchDownloadDto";
 import { UserRelationDownloadDto, UserRelationType } from "../models/UserRelationDownloadDto";
 import { UserStatusDownloadDto } from "../models/UserStatusDownloadDto";
 import { StatusType } from "../models/UserStatusDto";
@@ -16,11 +20,18 @@ export class DownloadDataService {
   private _downloadDataRepository: IDownloadDataRepository;
   private _userStatusRespository: IUserStatusRepository;
   private _userRelationRepository: IUserRelationRepository;
+  private _matchPlayerRepository: IMatchPlayerRepository;
 
-  constructor(downloadDataRepository: IDownloadDataRepository, userStatusRepository: IUserStatusRepository, userRelationRepository: IUserRelationRepository) {
+  constructor(
+    downloadDataRepository: IDownloadDataRepository,
+    userStatusRepository: IUserStatusRepository,
+    userRelationRepository: IUserRelationRepository,
+    matchPlayerRepository: IMatchPlayerRepository
+  ) {
     this._downloadDataRepository = downloadDataRepository;
     this._userStatusRespository = userStatusRepository;
     this._userRelationRepository = userRelationRepository;
+    this._matchPlayerRepository = matchPlayerRepository;
   }
 
   private static toUserDownloadDto(user: User): UserDownloadDto {
@@ -90,6 +101,36 @@ export class DownloadDataService {
     return dto;
   }
 
+  private static toUserMatchesDownloadDto(matchPlayers: MatchPlayer[]): UserMatchDownloadDto[] {
+    const dto: UserMatchDownloadDto[] = [];
+  
+    for (let player of matchPlayers) {
+      let matchState: UserMatchState = 'WAITING';
+
+      if (player.match.state == MatchState.IN_PROGRESS)
+        matchState = 'IN_PROGRESS';
+      else if (player.match.state == MatchState.FINISHED)
+        matchState = 'FINISHED';
+
+      const matchDto: UserMatchDownloadDto = {
+        id: player.match.id,
+        name: player.match.name,
+        points: player.match.points,
+        isVisible: player.match.isVisible ? "true" : "false",
+        tournamentRoundId: player.match.tournamentRound?.id,
+        state: matchState,
+        userScore: player.score,
+        isWinner: player.isWinner ? "true" : "false",
+        creationTime: player.match.creationTime,
+        finishTime: player.match.finishTime
+      }
+
+      dto.push(matchDto);
+    }
+
+    return dto;
+  }
+
   async newDownloadData(inputUser: User, inputToken: string): Promise<DownloadData | null> {
     const downloadDataBlueprint: Partial<DownloadData> = {
       user: inputUser,
@@ -143,6 +184,15 @@ export class DownloadDataService {
       throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
 
     return DownloadDataService.toUserRelationsDownloadDto(userRelations);
+  }
+
+  async getUserMatchesDownloadDataByUserId(userId: number) {
+    const userMatchPlayers = await this._matchPlayerRepository.findAllByUser(userId);
+
+    if (userMatchPlayers == null)
+      throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
+
+    return DownloadDataService.toUserMatchesDownloadDto(userMatchPlayers);
   }
 
   async deleteByToken(token: string) {

@@ -316,11 +316,13 @@ export default class UserController {
       const userDownloadData = await this._downloadDataService.getUserDownloadDataByToken(token);
       const userStatusDownloadData = await this._downloadDataService.getUserStatusDownloadDataByUserId(userDownloadData.id);
       const userRelationsDownloadData = await this._downloadDataService.getUserRelationDownloadDataByUserId(userDownloadData.id);
+      const userMatchesDownloadData = await this._downloadDataService.getUserMatchesDownloadDataByUserId(userDownloadData.id);
 
       const data = {
         user: userDownloadData,
         userStatus: userStatusDownloadData,
-        userRelations: userRelationsDownloadData
+        userRelations: userRelationsDownloadData,
+        matchesPlayed: userMatchesDownloadData
       };
 
       await this._downloadDataService.deleteByToken(token);

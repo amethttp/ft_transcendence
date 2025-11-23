@@ -50,7 +50,7 @@ export default async function userRoutes(server: FastifyInstance) {
   const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const downloadDataRepository = new SQLiteDownloadDataRepository();
-  const downloadDataService = new DownloadDataService(downloadDataRepository, userStatusRepository, userRelationRepository);
+  const downloadDataService = new DownloadDataService(downloadDataRepository, userStatusRepository, userRelationRepository, matchPlayerRepository);
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
   const tournamentService = new TournamentService(tournamentRepository);
