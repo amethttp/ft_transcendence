@@ -315,10 +315,12 @@ export default class UserController {
       const token = request.params.token;
       const userDownloadData = await this._downloadDataService.getUserDownloadDataByToken(token);
       const userStatusDownloadData = await this._downloadDataService.getUserStatusDownloadDataByUserId(userDownloadData.id);
+      const userRelationsDownloadData = await this._downloadDataService.getUserRelationDownloadDataByUserId(userDownloadData.id);
 
       const data = {
         user: userDownloadData,
-        userStatus: userStatusDownloadData
+        userStatus: userStatusDownloadData,
+        userRelations: userRelationsDownloadData
       };
 
       await this._downloadDataService.deleteByToken(token);

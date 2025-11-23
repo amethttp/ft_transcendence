@@ -1,20 +1,26 @@
 import { DownloadData } from "../../domain/entities/DownloadData";
 import { User } from "../../domain/entities/User";
+import { UserRelation } from "../../domain/entities/UserRelation";
 import { UserStatus } from "../../domain/entities/UserStatus";
 import { IDownloadDataRepository } from "../../domain/repositories/IDownloadDataRepository";
+import { IUserRelationRepository } from "../../domain/repositories/IUserRelationRepository";
 import { IUserStatusRepository } from "../../domain/repositories/IUserStatusRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
+import { RelationType } from "../models/Relation";
 import { UserDownloadDto } from "../models/UserDownloadDto";
+import { UserRelationDownloadDto, UserRelationType } from "../models/UserRelationDownloadDto";
 import { UserStatusDownloadDto } from "../models/UserStatusDownloadDto";
 import { StatusType } from "../models/UserStatusDto";
 
 export class DownloadDataService {
   private _downloadDataRepository: IDownloadDataRepository;
   private _userStatusRespository: IUserStatusRepository;
+  private _userRelationRepository: IUserRelationRepository;
 
-  constructor(downloadDataRepository: IDownloadDataRepository, userStatusRepository: IUserStatusRepository) {
+  constructor(downloadDataRepository: IDownloadDataRepository, userStatusRepository: IUserStatusRepository, userRelationRepository: IUserRelationRepository) {
     this._downloadDataRepository = downloadDataRepository;
     this._userStatusRespository = userStatusRepository;
+    this._userRelationRepository = userRelationRepository;
   }
 
   private static toUserDownloadDto(user: User): UserDownloadDto {
@@ -53,6 +59,34 @@ export class DownloadDataService {
       updateTime: userStatus.updateTime
     };
     
+    return dto;
+  }
+
+  private static toUserRelationsDownloadDto(userRelations: UserRelation[]): UserRelationDownloadDto[] {
+    const dto: UserRelationDownloadDto[] = [];
+  
+    for (let userRelation of userRelations) {
+      let relationType: UserRelationType = 'FRIENDSHIP_REQUESTED';
+
+      if (userRelation.type == RelationType.FRIENDSHIP_ACCEPTED)
+        relationType = 'FRIENDSHIP_ACCEPTED';
+      else if (userRelation.type == RelationType.BLOCKED)
+        relationType = 'BLOCKED';
+
+      const userRelationDto: UserRelationDownloadDto = {
+        alias: userRelation.alias,
+        type: relationType,
+        ownerUserId: userRelation.ownerUser.id,
+        ownerUsername: userRelation.ownerUser.username,
+        receiverUserId: userRelation.receiverUser.id,
+        receiverUsername: userRelation.receiverUser.username,
+        creationTime: userRelation.creationTime,
+        updateTime: userRelation.updateTime
+      }
+
+      dto.push(userRelationDto);
+    }
+
     return dto;
   }
 
@@ -100,6 +134,15 @@ export class DownloadDataService {
     }
 
     return DownloadDataService.toUserStatusDownloadDto(userStatus);
+  }
+
+  async getUserRelationDownloadDataByUserId(userId: number) {
+    const userRelations = await this._userRelationRepository.findAllBySingleUser(userId);
+
+    if (userRelations == null)
+      throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
+
+    return DownloadDataService.toUserRelationsDownloadDto(userRelations);
   }
 
   async deleteByToken(token: string) {
