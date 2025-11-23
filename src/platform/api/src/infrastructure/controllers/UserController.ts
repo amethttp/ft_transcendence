@@ -313,10 +313,12 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userDownloadData = await this._downloadDataService.getUserByToken(token);
+      const userDownloadData = await this._downloadDataService.getUserDownloadDataByToken(token);
+      const userStatusDownloadData = await this._downloadDataService.getUserStatusDownloadDataByUserId(userDownloadData.id);
 
       const data = {
         user: userDownloadData,
+        userStatus: userStatusDownloadData
       };
 
       await this._downloadDataService.deleteByToken(token);
