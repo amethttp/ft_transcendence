@@ -44,7 +44,8 @@ export default class UserController {
     this._matchService = matchService;
     this._matchPlayerService = matchPlayerService;
     this._tournamentService = tournamentService;
-    this._tournamentPlayerService = tournamentPlayerService;    this._userStatusService = userStatusService;
+    this._tournamentPlayerService = tournamentPlayerService;
+    this._userStatusService = userStatusService;
     this._downloadDataService = downloadDataService;
   }
 
@@ -312,13 +313,24 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userData = await this._downloadDataService.getUserByTokenAndDeleteRecover(token);
-      delete userData.auth.password;
-      delete userData.auth.googleAuth;
-      const data = { ...userData }; // TODO: Add games, tournaments, etc...
+      const userDownloadData = await this._downloadDataService.getUserDownloadDataByToken(token);
+      const userStatusDownloadData = await this._downloadDataService.getUserStatusDownloadDataByUserId(userDownloadData.id);
+      const userRelationsDownloadData = await this._downloadDataService.getUserRelationDownloadDataByUserId(userDownloadData.id);
+      const userMatchesDownloadData = await this._downloadDataService.getUserMatchesDownloadDataByUserId(userDownloadData.id);
+      const userTournamentsDownloadData = await this._downloadDataService.getUserTournamentsDownloadDataByUserId(userDownloadData.id);
+
+      const data = {
+        user: userDownloadData,
+        userStatus: userStatusDownloadData,
+        userRelations: userRelationsDownloadData,
+        matchesPlayed: userMatchesDownloadData,
+        tournamentsPlayed: userTournamentsDownloadData
+      };
+
+      await this._downloadDataService.deleteByToken(token);
 
       reply.header("Content-Type", "application/json")
-        .header("Content-Disposition", `attachment; filename=${userData.username}-amethpong.json`)
+        .header("Content-Disposition", `attachment; filename=${userDownloadData.username}-amethpong.json`)
         .send(JSON.stringify(data, null, 2));
     } catch (err) {
       reply.code(404).send();
