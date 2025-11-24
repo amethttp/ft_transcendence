@@ -1,0 +1,33 @@
+@layer components {
+  .privacy-section {
+    @apply flex flex-col gap-2 md:gap-4 mx-8;
+  }
+
+  .privacy-information {
+    @apply text-sm md:text-xl list-disc list-inside;
+  }
+
+  .privacy-title-1 {
+    @apply text-3xl md:text-5xl font-extrabold text-gray-900;
+  }
+
+  .privacy-title-2 {
+    @apply text-2xl md:text-4xl font-bold text-gray-800 mb-3;
+  }
+
+  .privacy-title-3 {
+    @apply text-lg md:text-3xl font-semibold text-gray-700;
+  }
+
+  .privacy-table th {
+    @apply text-lg md:text-2xl;
+  }
+
+  .privacy-table td {
+    @apply text-xs md:text-xl text-center;
+  }
+
+  .privacy-link {
+    @apply text-brand-900 hover:text-brand-600 transition duration-300;
+  }
+}
