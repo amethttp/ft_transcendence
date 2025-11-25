@@ -8,6 +8,7 @@ import Canvas from "./Elements/Canvas";
 import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Elements/Viewport";
 import type { Snapshot } from "./models/Snapshot";
 import CanvasOverlay from "./Elements/CanvasOverlay";
+import FullScreenButton from "./Elements/FullScreenButton";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -19,6 +20,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _socketClient!: SocketClient;
   private _canvas!: Canvas;
   private _canvasOverlay!: CanvasOverlay;
+  private _fullScreenButton!: FullScreenButton;
   private _paddles: Paddle[] = [];
   private _inputs: boolean[] = [false, false];
   private _ball: Ball;
@@ -77,6 +79,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvas = new Canvas();
     this._canvasOverlay = new CanvasOverlay();
     this._canvasOverlay.onclick(() => this.setReadyToPlay());
+    this._fullScreenButton = new FullScreenButton();
+    this._fullScreenButton.onclick(() => { this._canvas.toggleFullScreen(); this._fullScreenButton.toggleIcon() });
     this.observeResize();
   }
 
@@ -201,6 +205,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._canvas.resize();
       this._canvas.paintGameState(this._paddles, this._ball);
       this._canvasOverlay.resizeAdjustingTo(this._canvas);
+      this._fullScreenButton.resizeAdjustingTo(this._canvas);
     });
     observer.observe(canvasContainer);
   }
