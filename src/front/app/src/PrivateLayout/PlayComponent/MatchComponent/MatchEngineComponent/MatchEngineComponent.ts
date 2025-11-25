@@ -80,8 +80,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay = new CanvasOverlay();
     this._canvasOverlay.onclick(() => this.setReadyToPlay());
     this._fullScreenButton = new FullScreenButton();
-    this._fullScreenButton.onclick(() => { this._canvas.toggleFullScreen(); this._fullScreenButton.toggleIcon() });
+    this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
+    document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
   }
 
   private startMatch() {
