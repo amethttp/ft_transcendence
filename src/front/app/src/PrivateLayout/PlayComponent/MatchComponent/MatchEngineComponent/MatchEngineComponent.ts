@@ -39,7 +39,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socketClient = new SocketClient('https://localhost:8081');
+    this._socketClient = new SocketClient(import.meta.env.VITE_API_GAME_URL);
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
@@ -124,7 +124,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     event.preventDefault();
 
     const touch: Touch = event.touches[0];
-    
+
     if (!touch) return ;
 
     const yTouch = this.getTouchCoord(touch);
