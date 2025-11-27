@@ -113,6 +113,13 @@ export default class Canvas {
     this._canvas.addEventListener('touchend', func);
   }
 
+  toggleFullScreen() {
+    if (!document.fullscreenElement)
+      this._canvasContainer.requestFullscreen();
+    else
+      document.exitFullscreen();
+  }
+
   get cssWidth(): string {
     return this._canvas.style.width;
   }
