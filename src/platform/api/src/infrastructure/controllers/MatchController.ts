@@ -68,6 +68,22 @@ export default class MatchController {
     }
   }
 
+  async deleteMatchPlayer(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const match = await this._matchService.getByToken(request.params.token);
+      if (match) {
+        const matchPlayer = await this._matchPlayerService.getByUserAndMatch(originUser.id, match.id);
+        await this._matchPlayerService.delete(matchPlayer);
+      }
+
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
   async joinMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const jwtUser = request.user as JwtPayloadInfo;

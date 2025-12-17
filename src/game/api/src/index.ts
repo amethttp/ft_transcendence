@@ -69,7 +69,7 @@ const main = async () => {
 
       socket.on("ready", (token) => {
         const room = roomService.getRoom(token);
-        if (room.playersAmount() === 1) { return; }
+        if (room && room.playersAmount() === 1) { return; }
         const player = room.getPlayer(socket.id);
         if (player.state === PlayerState.READY) { return; }
 
@@ -93,7 +93,7 @@ const main = async () => {
         for (const token of activeRooms.values()) {
           const room = roomService.getRoom(token);
           if (room) {
-            roomService.playerDisconnect(socket, room)
+            roomService.playerDisconnect(socket, room);
           } else {
             socket.leave(token);
           }

@@ -47,6 +47,20 @@ export class Room extends EventEmitter<RoomEvents> {
     return this._matchState;
   }
 
+  public get matchScore(): number[] {
+    return this._matchService.score;
+  }
+
+  public get matchResult(): MatchResult {
+    const result = {
+      score: this._matchService.score,
+      players: this.players,
+      state: this._matchState
+    } as MatchResult;
+
+    return result;
+  }
+
   public set matchState(ms: TMatchState) {
     this._matchState = ms;
   }
@@ -98,7 +112,7 @@ export class Room extends EventEmitter<RoomEvents> {
   public allPlayersReady(): boolean {
     const roomPlayers = Object.values(this._players);
     for (const player of roomPlayers) {
-      if (player.state !== PlayerState.READY) {
+      if (player.state !== PlayerState.READY && player.state !== PlayerState.IN_GAME) {
         return false;
       }
     }
@@ -120,13 +134,8 @@ export class Room extends EventEmitter<RoomEvents> {
     this._matchService.checkGoal();
     if (this._matchService.checkEndState(MAX_POINTS)) {
       this._matchState = MatchState.FINISHED;
-      const result = {
-        score: this._matchService.score,
-        players: this.players,
-        state: this._matchState
-      } as MatchResult;
 
-      this.emit("end", result);
+      this.emit("end", this.matchResult);
     }
 
     if (ballChange)

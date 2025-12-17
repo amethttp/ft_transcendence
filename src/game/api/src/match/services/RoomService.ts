@@ -5,7 +5,7 @@ import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
 
-const MATCH_BASE_ROUTE = "/match"
+const MATCH_BASE_ROUTE = "/match";
 
 export class RoomService {
   private _gameRooms: Record<string, Room>;
@@ -37,8 +37,10 @@ export class RoomService {
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
-      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS)
+      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS) {
         room.matchState = MatchState.PAUSED;
+        this.io.to(room.token).emit("pause");
+      }
     }
     if (room.playersAmount() === 0) {
       if (room.matchState === MatchState.WAITING) {
@@ -47,10 +49,31 @@ export class RoomService {
           return; // TODO: Throw error
         opts.headers = { cookie: socket.cookie };
         this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}`, undefined, opts)
-        .then(() => console.log("API MATCH DELETE DONE"))
-        .catch((error) => console.log("API MATCH DELETE FAILED", error));
+          .then(() => console.log("API MATCH DELETE DONE"))
+          .catch((error) => console.log("API MATCH DELETE FAILED", error));
+      } else if (room.matchState !== MatchState.FINISHED) {
+        const opts: RequestInit = {};
+        if (!socket.cookie)
+          return; // TODO: Throw error
+        opts.headers = { cookie: socket.cookie };
+        this._apiClient.put(`${MATCH_BASE_ROUTE}/${room.token}`, room.matchResult, opts)
+          .then((val) => {
+            console.log("API RESULT UPDATE DONE");
+            this.setCredentials(socket, val);
+          })
+          .catch((error) => console.log("API RESULT UPDATE FAILED", error));
       }
       delete this._gameRooms[room.token];
+    } else {
+      if (room.matchState === MatchState.WAITING) {
+        const opts: RequestInit = {};
+        if (!socket.cookie)
+          return; // TODO: Throw error
+        opts.headers = { cookie: socket.cookie };
+        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}/player`, undefined, opts)
+          .then(() => console.log("API MATCH DELETE DONE"))
+          .catch((error) => console.log("API MATCH DELETE FAILED", error));
+      }
     }
   }
 
