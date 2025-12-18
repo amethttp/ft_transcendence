@@ -8,8 +8,7 @@ import { PlayerState } from "./PlayerState";
 import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
-
-const MAX_POINTS = 1;
+import { MatchSettings } from "./MatchSettings";
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -20,17 +19,21 @@ export type RoomEvents = {
 
 export class Room extends EventEmitter<RoomEvents> {
   private _token: string;
+  private _local: boolean;
   private _players: Record<string, Player>;
+  private _maxPoints: number;
   private _matchState: TMatchState;
   private _matchService: MatchService;
   public interval: any;
 
-  constructor(token: string) {
+  constructor(token: string, settings: MatchSettings) {
     super();
 
     this._token = token;
+    this._local = settings.local;
     this._players = {};
-    this._matchState = MatchState.WAITING;
+    this._maxPoints = settings.maxScore;
+    this._matchState = settings.state;
 
     this._matchService = new MatchService();
   }
@@ -62,6 +65,7 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public set matchState(ms: TMatchState) {
+    this._local = this._local; // TODO: PLACEHOLDER
     this._matchState = ms;
   }
 
@@ -125,14 +129,14 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public gameEnded() {
-    return this._matchService.checkEndState(MAX_POINTS);
+    return this._matchService.checkEndState(this._maxPoints);
   }
 
   public nextSnapshot(lastSnapshot: number): number {
     let paddleChange = this._matchService.updatePaddles();
     let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();
-    if (this._matchService.checkEndState(MAX_POINTS)) {
+    if (this._matchService.checkEndState(this._maxPoints)) {
       this._matchState = MatchState.FINISHED;
 
       this.emit("end", this.matchResult);

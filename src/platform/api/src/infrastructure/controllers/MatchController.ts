@@ -39,6 +39,20 @@ export default class MatchController {
     }
   }
 
+  async getMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const match = await this._matchService.getByToken(request.params.token);
+      if (!match)
+        throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
+      const settings = this._matchService.toMatchSettings(match);
+
+      reply.send(settings);
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
   async updateMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const matchResult = request.body as MatchResult;
@@ -48,6 +62,7 @@ export default class MatchController {
 
       await this._matchService.setMatchFinished(match);
       await this._matchPlayerService.updateResult(match, matchResult);
+      reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
@@ -62,6 +77,7 @@ export default class MatchController {
         await this._matchService.delete(match);
       }
 
+      reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
@@ -78,6 +94,7 @@ export default class MatchController {
         await this._matchPlayerService.delete(matchPlayer);
       }
 
+      reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
@@ -95,7 +112,7 @@ export default class MatchController {
         match.players.push(newPlayer);
       }
       else if (!match) {
-        return reply.code(404).send("");
+        return reply.code(404).send({ success: false });
       }
       reply.send(match);
     } catch (error: any) {

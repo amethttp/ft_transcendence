@@ -50,14 +50,14 @@ const main = async () => {
     server.io.on("connection", (socket: AuthenticatedSocket) => {
       console.log(`\nClient: ${socket.username} connected`);
 
-      socket.on("joinMatch", (token) => { // TODO: fix user rejoining on inverted order visual bug
+      socket.on("joinMatch", async (token) => { // TODO: fix user rejoining on inverted order visual bug
         try {
           const existingRoom = roomService.getRoom(token);
           if (existingRoom) {
             existingRoom.joinPlayer(socket);
             console.log("Players connected successfully:", existingRoom.players);
           } else {
-            const newRoom = roomService.newRoom(token);
+            const newRoom = await roomService.newRoom(socket.cookie, token);
             newRoom.addPlayer(socket);
             console.log(`Player ${socket.username} is waiting for a match.`);
           }

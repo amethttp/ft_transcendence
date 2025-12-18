@@ -4,6 +4,7 @@ import { AuthenticatedSocket } from "../models/AuthenticatedSocket";
 import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
+import { MatchSettings } from "../models/MatchSettings";
 
 const MATCH_BASE_ROUTE = "/match";
 
@@ -26,8 +27,23 @@ export class RoomService {
     this._gameRooms[room.token] = room;
   }
 
-  public newRoom(token: string): Room {
-    this._gameRooms[token] = new Room(token);
+  public async newRoom(cookie: string | undefined, token: string): Promise<Room> {
+    let settings = {
+      maxScore: 3,
+      local: false,
+      state: MatchState.WAITING
+    } as MatchSettings;
+    if (cookie) {
+      try {
+        const opts: RequestInit = { headers: { cookie } };
+        settings = await this._apiClient.get(`${MATCH_BASE_ROUTE}/${token}`, undefined, opts);
+        console.log("API MATCH FETCH DONE", settings);
+      } catch (error) {
+        console.log("API MATCH FETCH FAILED", error);
+      }
+    }
+
+    this._gameRooms[token] = new Room(token, settings);
     return this._gameRooms[token];
   }
 
@@ -44,35 +60,14 @@ export class RoomService {
     }
     if (room.playersAmount() === 0) {
       if (room.matchState === MatchState.WAITING) {
-        const opts: RequestInit = {};
-        if (!socket.cookie)
-          return; // TODO: Throw error
-        opts.headers = { cookie: socket.cookie };
-        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}`, undefined, opts)
-          .then(() => console.log("API MATCH DELETE DONE"))
-          .catch((error) => console.log("API MATCH DELETE FAILED", error));
+        this.deleteMatch(socket.cookie, room.token);
       } else if (room.matchState !== MatchState.FINISHED) {
-        const opts: RequestInit = {};
-        if (!socket.cookie)
-          return; // TODO: Throw error
-        opts.headers = { cookie: socket.cookie };
-        this._apiClient.put(`${MATCH_BASE_ROUTE}/${room.token}`, room.matchResult, opts)
-          .then((val) => {
-            console.log("API RESULT UPDATE DONE");
-            this.setCredentials(socket, val);
-          })
-          .catch((error) => console.log("API RESULT UPDATE FAILED", error));
+        this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];
     } else {
       if (room.matchState === MatchState.WAITING) {
-        const opts: RequestInit = {};
-        if (!socket.cookie)
-          return; // TODO: Throw error
-        opts.headers = { cookie: socket.cookie };
-        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}/player`, undefined, opts)
-          .then(() => console.log("API MATCH DELETE DONE"))
-          .catch((error) => console.log("API MATCH DELETE FAILED", error));
+        this.deleteMatchPlayer(socket.cookie, room.token);
       }
     }
   }
@@ -143,5 +138,38 @@ export class RoomService {
   setCredentials(socket: AuthenticatedSocket, val: any) {
     if (val.auth)
       socket.cookie = val.auth;
+  }
+
+  private deleteMatch(cookie: string | undefined, token: string) {
+    const opts: RequestInit = {};
+    if (!cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: cookie };
+    this._apiClient.delete(`${MATCH_BASE_ROUTE}/${token}`, undefined, opts)
+      .then(() => console.log("API MATCH DELETE DONE"))
+      .catch((error) => console.log("API MATCH DELETE FAILED", error));
+  }
+
+  private deleteMatchPlayer(cookie: string | undefined, token: string) {
+    const opts: RequestInit = {};
+    if (!cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: cookie };
+    this._apiClient.delete(`${MATCH_BASE_ROUTE}/${token}/player`, undefined, opts)
+      .then(() => console.log("API MATCH DELETE DONE"))
+      .catch((error) => console.log("API MATCH DELETE FAILED", error));
+  }
+
+  private updateMatch(socket: AuthenticatedSocket, token: string, result: number[]) {
+    const opts: RequestInit = {};
+    if (!socket.cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: socket.cookie };
+    this._apiClient.put(`${MATCH_BASE_ROUTE}/${token}`, result, opts)
+      .then((val) => {
+        console.log("API RESULT UPDATE DONE");
+        this.setCredentials(socket, val);
+      })
+      .catch((error) => console.log("API RESULT UPDATE FAILED", error));
   }
 }

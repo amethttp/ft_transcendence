@@ -1,0 +1,7 @@
+import { UserMatchState } from "./UserMatchDownloadDto";
+
+export interface MatchSettings {
+  maxScore: number;
+  local: boolean;
+  state: UserMatchState;
+}

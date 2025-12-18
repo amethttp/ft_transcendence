@@ -1,11 +1,12 @@
 import { randomBytes } from "crypto";
-import { Match } from "../../domain/entities/Match";
+import { Match, MatchStateByValue } from "../../domain/entities/Match";
 import { IMatchRepository } from "../../domain/repositories/IMatchRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
 import StringTime from "../helpers/StringTime";
 import { NewMatchRequest } from "../models/NewMatchRequest";
 import { MatchMinified } from "../models/MatchMinified";
+import { MatchSettings } from "../models/MatchSettings";
 
 export class MatchService {
   private _matchRepository: IMatchRepository;
@@ -149,5 +150,15 @@ export class MatchService {
     else {
       return matches;
     }
+  }
+
+  public toMatchSettings(match: Match): MatchSettings {
+    const settings = {
+      maxScore: match.points,
+      local: match.isVisible,
+      state: MatchStateByValue[match.state]
+    } as MatchSettings;
+
+    return settings;
   }
 }
