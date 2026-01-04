@@ -1,6 +1,6 @@
 @layer components {
   .sidebar {
-    @apply flex flex-row flex-1 overflow-hidden bg-gray-100;
+    @apply flex flex-row flex-1 overflow-hidden bg-gray-100 border-0 border-r-[0.5px];
   }
 
   .sidebar.collapsed {
