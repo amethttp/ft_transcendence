@@ -22,6 +22,7 @@ export class Auth extends AEntity {
     super();
     this.id = -1;
     this.lastLogin = "";
+    this.googleAuth = new GoogleAuth();
     this.password = new Password();
   }
 

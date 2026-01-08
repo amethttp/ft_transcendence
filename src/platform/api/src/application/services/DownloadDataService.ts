@@ -59,14 +59,14 @@ export class DownloadDataService {
         } : undefined,
         googleAuth: user.auth.googleAuth ? {
           id: user.auth.googleAuth.id,
-          googleUserId: user.auth.googleAuth.googleUserid
+          googleUserId: user.auth.googleAuth.googleUserId
         } : undefined,
       }
     };
 
     if (!dto.auth.password) delete dto.auth.password;
     if (!dto.auth.googleAuth) delete dto.auth.googleAuth;
-    
+
     return dto;
   }
 
@@ -76,13 +76,13 @@ export class DownloadDataService {
       creationTime: userStatus.creationTime,
       updateTime: userStatus.updateTime
     };
-    
+
     return dto;
   }
 
   private static toUserRelationsDownloadDto(userRelations: UserRelation[]): UserRelationDownloadDto[] {
     const dto: UserRelationDownloadDto[] = [];
-  
+
     for (let userRelation of userRelations) {
       let relationType: UserRelationType = 'FRIENDSHIP_REQUESTED';
 
@@ -110,7 +110,7 @@ export class DownloadDataService {
 
   private static toUserMatchesDownloadDto(matchPlayers: MatchPlayer[]): UserMatchDownloadDto[] {
     const dto: UserMatchDownloadDto[] = [];
-  
+
     for (let player of matchPlayers) {
       let matchState: UserMatchState = 'WAITING';
 
@@ -140,7 +140,7 @@ export class DownloadDataService {
 
   private static toUserTournamentsDownloadDto(tournamentPlayers: TournamentPlayer[]): UserTournamentDownloadDto[] {
     const dto: UserTournamentDownloadDto[] = [];
-  
+
     for (let player of tournamentPlayers) {
       let tournamentState: UserTournamentState = 'WAITING';
 

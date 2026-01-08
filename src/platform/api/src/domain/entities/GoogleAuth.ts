@@ -17,24 +17,14 @@ export class GoogleAuth extends AEntity {
   static readonly entitySchema = googleAuthSchema;
 
   id!: number;
-  googleUserid!: number;
-  accessToken!: string;
-  refreshToken!: string;
-  tokenType!: string;
-  expirationTime!: string;
-  scope!: string;
+  googleUserId!: string;
   creationTime!: string;
   updateTime!: string;
 
   constructor() {
     super();
     this.id = -1;
-    this.googleUserid = -1;
-    this.accessToken = "";
-    this.refreshToken = "";
-    this.tokenType = "";
-    this.expirationTime = "";
-    this.scope = "";
+    this.googleUserId = "";
     this.creationTime = "";
     this.updateTime = "";
   }
