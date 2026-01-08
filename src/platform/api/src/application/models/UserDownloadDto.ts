@@ -5,7 +5,7 @@ type PasswordDownloadDto = {
 
 type GoogleAuthDownloadDto = {
   id: number,
-  googleUserId: number
+  googleUserId: string
 }
 
 type AuthDownloadDto = {
