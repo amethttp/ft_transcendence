@@ -26,18 +26,13 @@ export default class AccessLayout extends AmethComponent {
 
   private initGoogleSignIn(): void {
     const scriptId = 'google-identity-script';
-
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => { this.onLoadGoogleScript(); };
-      document.head.appendChild(script);
-    } else {
-      this.onLoadGoogleScript();
-    }
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => { this.onLoadGoogleScript(); };
+    this.outlet?.appendChild(script);
   }
 
   private onLoadGoogleScript() {
