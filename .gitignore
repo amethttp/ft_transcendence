@@ -3,6 +3,8 @@ node_modules/
 
 # Environment files
 .env*.local
+.env*.development
+.env*.production
 
 # TypeScript cache
 *.tsbuildinfo

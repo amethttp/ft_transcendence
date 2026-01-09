@@ -13,6 +13,8 @@ import { TStatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
 import { GoogleAuthService } from "./GoogleAuthService";
+import { GooglePayload } from "../../infrastructure/auth/OAuth2";
+import { UserCreationDto } from "../models/UserCreation";
 
 export class UserService {
   private _userRepository: IUserRepository;
@@ -27,12 +29,12 @@ export class UserService {
     this._googleAuthService = googleAuthService;
   }
 
-  async newUser(newUser: UserRegistrationRequest, newAuth: Auth): Promise<User> {
+  async newUser(newUser: UserCreationDto, newAuth: Auth): Promise<User> {
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
       birthDate: newUser.birthDate,
-      avatarUrl: "/default-avatar.webp",
+      avatarUrl: newUser.avatarUrl || "/default-avatar.webp",
       auth: newAuth
     };
 
@@ -60,6 +62,63 @@ export class UserService {
     } catch (error) {
       await this._userRepository.dbRollback();
       throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+  }
+
+  async authenticateWithGoogle(googlePayload: GooglePayload): Promise<User> {
+    try {
+      const user = await this._userRepository.findByEmail(googlePayload.email);
+
+      if (!user) return await this.registerUserViaGoogle(googlePayload);
+      if (user.auth.googleAuth && user.auth.googleAuth.id) return user;
+
+      return await this.addGoogleAuthenticationMethodToUser(user, googlePayload);
+    } catch (err) {
+      console.error(err);
+      if (err instanceof ResponseError) throw err;
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+    }
+  }
+
+  private async registerUserViaGoogle(googlePayload: GooglePayload): Promise<User> {
+    try {
+      await this._userRepository.dbBegin();
+      const googleAuth = await this._googleAuthService.newGoogleAuth(googlePayload.sub);
+      const auth = await this._authService.newAuth(undefined, googleAuth);
+      const userCreationDto = this.fromGooglePayloadToUserCreationDto(googlePayload);
+      const user = await this.newUser(userCreationDto, auth);
+      await this._userRepository.dbCommit();
+      return user;
+    } catch (err) {
+      console.error(err);
+      await this._userRepository.dbRollback();
+      throw new ResponseError(ErrorParams.REGISTRATION_FAILED);
+    }
+  }
+
+  private fromGooglePayloadToUserCreationDto(googlePayload: GooglePayload): UserCreationDto {
+    return {
+      username: googlePayload.name,
+      email: googlePayload.email,
+      birthDate: '1970-01-01',
+      avatarUrl: googlePayload.avatar || '/default-avatar.webp'
+    };
+  }
+
+  private async addGoogleAuthenticationMethodToUser(user: User, googlePayload: GooglePayload): Promise<User> {
+    try {
+      await this._userRepository.dbBegin();
+      const createdGoogle = await this._googleAuthService.newGoogleAuth(googlePayload.sub);
+      await this._authService.attachGoogleAuth(user.auth.id, createdGoogle);
+      await this._userRepository.dbCommit();
+      const newUser = await this._userRepository.findById(user.id);
+      if (newUser === null) {
+        throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+      }
+      return newUser;
+    } catch (err) {
+      await this._userRepository.dbRollback();
+      throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
   }
 
@@ -138,10 +197,10 @@ export class UserService {
       if (!(await this._userRepository.update(user.id, userBlueprint))) {
         throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
       }
-      if (user.auth.googleAuth) { // TODO: reminder to check about nulls repeated deletes and possible dangling data
+      if (user.auth.googleAuth && user.auth.googleAuth.id) {
         await this._googleAuthService.delete(user.auth.googleAuth);
       }
-      if (user.auth.password) {
+      if (user.auth.password && user.auth.password.id) {
         await this._passwordService.delete(user.auth.password);
       }
       await this._authService.erasePersonalInformation(user);

@@ -21,9 +21,9 @@ export default async function matchRoutes(server: FastifyInstance) {
   const userRepository = new SQLiteUserRepository();
   const matchRepository = new SQLiteMatchRepository();
   const matchPlayerRepository = new SQLiteMatchPlayerRepository();
-  const passwordService = new PasswordService(passwordRepository);
+  const authService = new AuthService(authRepository);
+  const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
-  const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);

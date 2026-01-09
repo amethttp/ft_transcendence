@@ -25,9 +25,9 @@ export default async function tournamentRoutes(server: FastifyInstance) {
   const passwordRepository = new SQLitePasswordRepository();
   const authRepository = new SQLiteAuthRepository();
   const userRepository = new SQLiteUserRepository();
-  const passwordService = new PasswordService(passwordRepository);
+  const authService = new AuthService(authRepository);
+  const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
-  const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const tournamentRepository = new SQLiteTournamentRepository();
   const tournamentService = new TournamentService(tournamentRepository);

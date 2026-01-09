@@ -17,6 +17,7 @@ export class AuthService {
   private static readonly RECOVER_ENDPOINT = this.BASE + "/recover";
   private static readonly REGISTER_ENDPOINT = this.BASE + "/register";
   private static readonly LOGGED_USER_ENDPOINT = "/user";
+  private static readonly GOOGLE_AUTH_ENDPOINT = this.BASE + "/google";
   private readonly http: IHttpClient;
 
   constructor() {
@@ -51,8 +52,11 @@ export class AuthService {
     return this.http.post<RegisterRequest, BasicResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
   }
 
+  authenticateWithGoogle(idToken: string): Promise<any> {
+    return this.http.post<{ idToken: string }, any>(AuthService.GOOGLE_AUTH_ENDPOINT, { idToken }, { credentials: "include" });
+  }
+
   getLoggedUser(): Promise<User> {
     return this.http.get(AuthService.LOGGED_USER_ENDPOINT);
   }
-
 }

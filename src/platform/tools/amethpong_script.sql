@@ -27,12 +27,7 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS google_auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    google_user_id TEXT NOT NULL,
-    access_token TEXT NOT NULL,
-    refresh_token TEXT NOT NULL,
-    token_type TEXT NOT NULL,
-    expiration_time TEXT NOT NULL,
-    scope TEXT NOT NULL,
+    google_user_id TEXT NOT NULL UNIQUE,
     creation_time TEXT NOT NULL DEFAULT current_timestamp,
     update_time TEXT NOT NULL DEFAULT current_timestamp
   );
