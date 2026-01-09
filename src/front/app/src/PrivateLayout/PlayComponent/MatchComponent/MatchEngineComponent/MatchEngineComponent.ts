@@ -24,6 +24,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _paddles: Paddle[] = [];
   private _inputs: boolean[] = [false, false];
   private _ball: Ball;
+  private _score: number[] = [0, 0];
   private _animationId: number = 0;
   private _lastTime: number = 0;
   private _deltaTime: number = 0;
@@ -39,7 +40,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socketClient = new SocketClient('https://localhost:8081');
+    this._socketClient = new SocketClient(import.meta.env.VITE_API_GAME_URL);
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
@@ -124,7 +125,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     event.preventDefault();
 
     const touch: Touch = event.touches[0];
-    
+
     if (!touch) return ;
 
     const yTouch = this.getTouchCoord(touch);
@@ -185,6 +186,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._paddles[0].y = data.paddles[0].position;
     this._paddles[1].y = data.paddles[1].position;
     this._ball.setFromBallChange(data.ball);
+    this._score = data.score;
   }
 
   private setEndState(score: number[]) {
@@ -204,7 +206,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     const canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
     const observer = new ResizeObserver(() => {
       this._canvas.resize();
-      this._canvas.paintGameState(this._paddles, this._ball);
+      this._canvas.paintGameState(this._paddles, this._ball, this._score);
       this._canvasOverlay.resizeAdjustingTo(this._canvas);
       this._fullScreenButton.resizeAdjustingTo(this._canvas);
     });
@@ -215,7 +217,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     let now = performance.now();
     this._deltaTime = (now - this._lastTime) / 2;
     this._lastTime = now;
-    this._canvas.paintGameState(this._paddles, this._ball);
+    this._canvas.paintGameState(this._paddles, this._ball, this._score);
     this._ball.updatePosition(this._deltaTime);
     this._animationId = requestAnimationFrame(() => this.gameLoop());
   }

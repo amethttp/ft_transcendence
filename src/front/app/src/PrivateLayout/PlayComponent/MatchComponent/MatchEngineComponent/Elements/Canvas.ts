@@ -42,6 +42,17 @@ export default class Canvas {
     this._canvasContext.fillRect(ball.x, ball.y, Ball.size, Ball.size);
   }
 
+  private paintScore(score: number[]) {
+    const text = `${score[0]} - ${score[1]}`;
+    const fontSize = 180;
+    this._canvasContext.font = `${fontSize}px 'Micro 5', monospace`;
+    this._canvasContext.textAlign = 'center';
+    this._canvasContext.textBaseline = 'top';
+    this._canvasContext.fillStyle = OBJECT_COLOR;
+    this._canvasContext.fillText(text, VIEWPORT_WIDTH / 2, 20);
+
+  }
+
   private getCanvasCssDimensions() {
     const containerWidth = this._canvasContainer.clientWidth;
     const containerHeight = this._canvasContainer.clientHeight;
@@ -95,7 +106,7 @@ export default class Canvas {
     this.applyCanvasTransformations(cssCanvasWidth, cssCanvasHeight);
   }
 
-  paintGameState(paddles: Paddle[], ball: Ball) {
+  paintGameState(paddles: Paddle[], ball: Ball, score: number[]) {
     this.clearBackground();
     this.changePaintColor(BACKGROUND_COLOR);
     this.paintBackground();
@@ -103,12 +114,13 @@ export default class Canvas {
     this.paintPaddle(paddles[0]);
     this.paintPaddle(paddles[1]);
     this.paintBall(ball);
+    this.paintScore(score);
   }
 
   setOnTouchDownCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
     this._canvas.addEventListener('touchstart', func)
   }
-  
+
   setOnTouchLiftCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
     this._canvas.addEventListener('touchend', func);
   }
