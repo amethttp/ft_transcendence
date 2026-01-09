@@ -31,7 +31,9 @@ export class RoomService {
     let settings = {
       maxScore: 3,
       local: false,
-      state: MatchState.WAITING
+      state: MatchState.WAITING,
+      creationTime: "",
+      score: [0,0]
     } as MatchSettings;
     if (cookie) {
       try {
@@ -59,9 +61,9 @@ export class RoomService {
       }
     }
     if (room.playersAmount() === 0) {
-      if (room.matchState === MatchState.WAITING) {
+      if (room.matchState === MatchState.WAITING && room.isExpired()) {
         this.deleteMatch(socket.cookie, room.token);
-      } else if (room.matchState !== MatchState.FINISHED) {
+      } else if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
         this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];

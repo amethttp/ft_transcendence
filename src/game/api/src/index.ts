@@ -50,16 +50,21 @@ const main = async () => {
     server.io.on("connection", (socket: AuthenticatedSocket) => {
       console.log(`\nClient: ${socket.username} connected`);
 
-      socket.on("joinMatch", async (token) => { // TODO: fix user rejoining on inverted order visual bug
+      socket.on("joinMatch", async (token) => {
         try {
-          const existingRoom = roomService.getRoom(token);
-          if (existingRoom) {
-            existingRoom.joinPlayer(socket);
-            console.log("Players connected successfully:", existingRoom.players);
+          let gameRoom = roomService.getRoom(token);
+          if (gameRoom) {
+            gameRoom.joinPlayer(socket);
+            console.log("Players connected successfully:", gameRoom.players);
           } else {
-            const newRoom = await roomService.newRoom(socket.cookie, token);
-            newRoom.addPlayer(socket);
+            gameRoom = await roomService.newRoom(socket.cookie, token);
+            gameRoom.addPlayer(socket);
             console.log(`Player ${socket.username} is waiting for a match.`);
+          }
+          if (gameRoom.gameEnded()) {
+            server.io.to(socket.id).emit("end", gameRoom.matchScore);
+            gameRoom.deletePlayer(socket.id);
+            throw "Game already ended";
           }
         } catch (error) {
           console.log(error);
@@ -69,7 +74,7 @@ const main = async () => {
 
       socket.on("ready", (token) => {
         const room = roomService.getRoom(token);
-        if (room && room.playersAmount() === 1) { return; }
+        if (!room || room.playersAmount() === 1 || room.gameEnded()) { return; }
         const player = room.getPlayer(socket.id);
         if (player.state === PlayerState.READY) { return; }
 

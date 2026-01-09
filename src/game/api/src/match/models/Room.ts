@@ -9,6 +9,7 @@ import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
 import { MatchSettings } from "./MatchSettings";
+import StringTime from "../helpers/StringTime";
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -24,6 +25,7 @@ export class Room extends EventEmitter<RoomEvents> {
   private _maxPoints: number;
   private _matchState: TMatchState;
   private _matchService: MatchService;
+  private _creationTime: string;
   public interval: any;
 
   constructor(token: string, settings: MatchSettings) {
@@ -34,8 +36,9 @@ export class Room extends EventEmitter<RoomEvents> {
     this._players = {};
     this._maxPoints = settings.maxScore;
     this._matchState = settings.state;
+    this._creationTime = settings.creationTime;
 
-    this._matchService = new MatchService();
+    this._matchService = new MatchService(settings.score);
   }
 
   public get token(): string {
@@ -128,8 +131,14 @@ export class Room extends EventEmitter<RoomEvents> {
     this._matchService.setPaddleChange(socket.id, key, isPressed);
   }
 
-  public gameEnded() {
-    return this._matchService.checkEndState(this._maxPoints);
+  public isExpired(): boolean {
+    if (!this._creationTime) { return true; }
+
+    return ((StringTime.timeStampNow() - StringTime.toTimestamp(this._creationTime)) > 360000);
+  }
+
+  public gameEnded(): boolean {
+    return ((this._matchState === MatchState.FINISHED) || this._matchService.checkEndState(this._maxPoints));
   }
 
   public nextSnapshot(lastSnapshot: number): number {

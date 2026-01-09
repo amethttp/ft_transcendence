@@ -44,7 +44,13 @@ export default class MatchController {
       const match = await this._matchService.getByToken(request.params.token);
       if (!match)
         throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
+      const players = await this._matchPlayerService.getAllSingleMatchPlayers(match);
       const settings = this._matchService.toMatchSettings(match);
+      if (players.length > 1) {
+        settings.score[0] = players[0].score;
+        settings.score[1] = players[1].score;
+      }
+      settings.creationTime = match.creationTime;
 
       reply.send(settings);
     } catch (error: any) {
