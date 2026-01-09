@@ -24,7 +24,7 @@ const main = async () => {
     }
   });
 
-  const publicRoutes = ['/auth/register', '/auth/login', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
+  const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
   await server.register(cors, {
     origin: [`${process.env.CLIENT_HOST}`],
@@ -37,7 +37,7 @@ const main = async () => {
     timeWindow: '1 minute',
     keyGenerator: (req) => req.ip + req.headers['user-agent'] || 'unknown'
   });
-  
+
   await server.register(jwt, { secret: process.env.JWT_SECRET || "", prefix: "" });
   await server.register(cookie);
   await server.register(mailerPlugin);

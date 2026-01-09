@@ -25,9 +25,9 @@ export default async function authRoutes(server: FastifyInstance) {
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
   const userRepository = new SQLiteUserRepository();
   const userStatusService = new UserStatusService(userStatusRepository);
-  const passwordService = new PasswordService(passwordRepository);
+  const authService = new AuthService(authRepository);
+  const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
-  const authService = new AuthService(authRepository, passwordService);
   const userVerificationService = new UserVerificationService(userVerificationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
@@ -49,6 +49,10 @@ export default async function authRoutes(server: FastifyInstance) {
 
   server.post("/login", async (request, reply) => {
     await authController.login(request, reply);
+  });
+
+  server.post("/google", async (request, reply) => {
+    await authController.authenticateWithGoogle(request, reply);
   });
 
   server.post("/login/verify", async (request, reply) => {

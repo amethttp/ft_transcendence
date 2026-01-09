@@ -51,8 +51,11 @@ export class AuthService {
     return this.http.post<RegisterRequest, BasicResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
   }
 
+  authenticateWithGoogle(idToken: string): Promise<any> {
+    return this.http.post<{ idToken: string }, any>(AuthService.BASE + "/google", { idToken }, { credentials: "include" });
+  }
+
   getLoggedUser(): Promise<User> {
     return this.http.get(AuthService.LOGGED_USER_ENDPOINT);
   }
-
 }

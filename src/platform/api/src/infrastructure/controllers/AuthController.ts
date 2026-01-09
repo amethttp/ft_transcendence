@@ -16,6 +16,7 @@ import { PasswordService } from "../../application/services/PasswordService";
 import { RelationType } from "../../application/models/Relation";
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { StatusType } from "../../application/models/UserStatusDto";
+import { GoogleTokenBody, OAuth2Service } from "../auth/OAuth2";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -125,7 +126,7 @@ export default class AuthController {
       const loginCredentials = request.body as UserLoginRequest;
       this._authService.validateLoginCredentials(loginCredentials);
       const user = await this._userService.getByIdentifier(loginCredentials.identifier);
-      const needs2FA = await this._authService.applyLoginMethod(user, loginCredentials);
+      const needs2FA = await this._passwordService.verify(user.auth, loginCredentials.password);
       if (needs2FA) {
         const userVerification = await this._userVerificationService.newUserVerification(user);
         this._userVerificationService.sendVerificationCode(request.server.mailer, user.email, userVerification.code);
@@ -229,6 +230,28 @@ export default class AuthController {
     return reply.status(200).send({ success: true });
   }
 
+  async authenticateWithGoogle(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const body = request.body as GoogleTokenBody;
+      const payload = await OAuth2Service.getGooglePayloadFromBody(body);
+      const user = await this._userService.authenticateWithGoogle(payload);
+
+      const JWTHeaders = await this.setJWTHeaders(user.id, reply);
+      await this._authService.updateLastLogin(user);
+      await this._userStatusService.createUserConnectionStatus(user).catch(() => {});
+
+      reply.header('set-cookie', JWTHeaders);
+      reply.status(200).send({ id: user.id });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   async register(request: FastifyRequest, reply: FastifyReply) {
     try {
       const registrationCredentials = request.body as UserRegistrationRequest;
@@ -246,7 +269,6 @@ export default class AuthController {
         reply.code(err.code).send(err.toDto());
       }
       else {
-        console.log(err);
         reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
       }
     }

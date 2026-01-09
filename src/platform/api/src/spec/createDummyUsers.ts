@@ -15,13 +15,14 @@ import { GoogleAuthService } from "../application/services/GoogleAuthService";
 import { SQLiteGoogleAuthRepository } from "../infrastructure/repositories/sqlite/SQLiteGoogleAuthRepository";
 import { UserStatusService } from "../application/services/UserStatusService";
 import { SQLiteUserStatusRepository } from "../infrastructure/repositories/sqlite/SQLiteUserStatusRepository";
+import { ResponseError } from "../application/errors/ResponseError";
 
 export const createDummyUsers = async () => {
   const authController = new AuthController(
-    new AuthService(new SQLiteAuthRepository(), new PasswordService(new SQLitePasswordRepository)),
-    new PasswordService(new SQLitePasswordRepository),
+    new AuthService(new SQLiteAuthRepository()),
+    new PasswordService(new SQLitePasswordRepository, new AuthService(new SQLiteAuthRepository())),
     new RecoverPasswordService(new SQLiteRecoverPasswordRepository()),
-    new UserService(new SQLiteUserRepository(), new AuthService(new SQLiteAuthRepository(), new PasswordService(new SQLitePasswordRepository)), new PasswordService(new SQLitePasswordRepository), new GoogleAuthService(new SQLiteGoogleAuthRepository)),
+    new UserService(new SQLiteUserRepository(), new AuthService(new SQLiteAuthRepository()), new PasswordService(new SQLitePasswordRepository, new AuthService(new SQLiteAuthRepository())), new GoogleAuthService(new SQLiteGoogleAuthRepository)),
     new UserVerificationService(new SQLiteUserVerificationRepository()),
     new UserStatusService(new SQLiteUserStatusRepository())
   );
@@ -52,7 +53,9 @@ export const createDummyUsers = async () => {
       await authController.register({ body: user } as FastifyRequest, {} as FastifyReply);
     }
     catch (e) {
-      console.log(e);
+      if (e instanceof ResponseError) {
+        console.log(e);
+      }
     }
   }
 }

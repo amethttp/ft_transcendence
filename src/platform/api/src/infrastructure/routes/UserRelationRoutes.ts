@@ -20,9 +20,9 @@ export default async function UserRelationRoutes(server: FastifyInstance) {
   const userRepository = new SQLiteUserRepository();
   const userRelationRepository = new SQLiteUserRelationRepository();
   const userStatusRepository = new SQLiteUserStatusRepository();
-  const passwordService = new PasswordService(passwordRepository);
+  const authService = new AuthService(authRepository);
+  const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
-  const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const userStatusService = new UserStatusService(userStatusRepository);
   const userRelationService = new UserRelationService(userStatusService, userRelationRepository);

@@ -46,9 +46,9 @@ export default async function SearchRoutes(server: FastifyInstance) {
   const userStatusService = new UserStatusService(userStatusRepository);
   const userRelationService = new UserRelationService(userStatusService, userRelationRepository);
   const recoverPasswordService = new RecoverPasswordService(recoverPasswordRepository);
-  const passwordService = new PasswordService(passwordRepository);
+  const authService = new AuthService(authRepository);
+  const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
-  const authService = new AuthService(authRepository, passwordService);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const downloadDataService = new DownloadDataService(downloadDataRepository, userStatusRepository, userRelationRepository, matchPlayerRepository, tournamentPlayerRepository);
   const matchService = new MatchService(matchRepository);
