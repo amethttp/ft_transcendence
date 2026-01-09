@@ -82,6 +82,9 @@ export default class UserController {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
+      if (requestedUser.username.startsWith("__deleted__")) {
+        throw new ResponseError(ErrorParams.USER_NOT_FOUND);        
+      }
       const userProfile = await this.toUserProfile(originUser, requestedUser);
 
       reply.code(200).send(userProfile);
@@ -96,7 +99,7 @@ export default class UserController {
     }
   }
 
-  async createMatch(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) {
+  async createMatch(request: FastifyRequest<{ Params: { username: string } }>, reply: FastifyReply) { // TODO: remove this placeholder
     try {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
