@@ -4,5 +4,4 @@ export interface RegisterForm {
   password: string;
   repeatPassword: string;
   birthDate: string;
-  terms: boolean;
 }

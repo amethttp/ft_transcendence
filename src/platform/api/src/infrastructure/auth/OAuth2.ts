@@ -1,34 +1,40 @@
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client, OAuth2ClientOptions } from "google-auth-library";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
-
-export type GoogleTokenBody = {
-  idToken?: string;
-};
-
-export type GooglePayload = {
-  sub: string;
-  name: string;
-  email: string;
-  avatar?: string;
-};
+import { GoogleTicketPayload } from "../../application/models/GoogleTicketPayload";
+import { GoogleAuthenticationRequest } from "../../application/models/GoogleAuthenticationRequest";
 
 export class OAuth2Service {
-  static async getGooglePayloadFromBody(googleTokenBody?: GoogleTokenBody): Promise<GooglePayload> {
+  private googleClient: OAuth2Client;
+
+  constructor() {
+    const options: OAuth2ClientOptions = {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_REDIRECT_URI
+    };
+
+    this.googleClient = new OAuth2Client(options);
+  }
+
+  async getGooglePayload(googleAuthenticationRequest: GoogleAuthenticationRequest): Promise<GoogleTicketPayload> {
     try {
-      if (!googleTokenBody || !googleTokenBody.idToken) {
+      if (!googleAuthenticationRequest || !googleAuthenticationRequest.code) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }
 
-      const client = new OAuth2Client(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
-        process.env.GOOGLE_REDIRECT_URI
-      );
+      const { tokens } = await this.googleClient.getToken(googleAuthenticationRequest.code);
+      if (!tokens || !tokens.id_token) {
+        throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      }
 
-      const ticket = await client.verifyIdToken({ idToken: googleTokenBody.idToken, audience: process.env.GOOGLE_CLIENT_ID });
+      const ticket = await this.googleClient.verifyIdToken({ idToken: tokens.id_token, audience: process.env.GOOGLE_CLIENT_ID });
       const payload = ticket.getPayload();
       if (!payload || !payload.sub || !payload.name || !payload.email) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      }
+
+      if (!payload.email_verified) {
+        throw new ResponseError(ErrorParams.EMAIL_NOT_VERIFIED);
       }
 
       return {
@@ -41,5 +47,16 @@ export class OAuth2Service {
       console.error(err);
       throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
+  }
+
+  generateGoogleAuthUrl(): string {
+    const url = this.googleClient.generateAuthUrl({
+      access_type: 'offline',
+      response_type: 'code',
+      prompt: 'consent',
+      scope: ['openid', 'email', 'profile']
+    });
+
+    return url;
   }
 };

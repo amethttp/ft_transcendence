@@ -20,19 +20,16 @@
     <label for="dateInput" class="label">Birth date</label>
     <input id="dateInput" name="birthDate" type="date" autocomplete="bday" min="1900-01-01">
   </div>
-  <div class="field">
-    <label for="confirmTermsInput" class="checkbox">
-      <input id="confirmTermsInput" name="terms" type="checkbox" autocomplete="off" />
-      <div>
-        Accept <a href="/privacy" class="decorated" target="_blank">privacy policy</a>.
-      </div>
-    </label>
-  </div>
   <article class="flex flex-wrap w-full invisible text-red-700" id="registerError">
     <div class="message-body">
       Registration failed. Please check the form and try again, or contact support if the issue persists.
     </div>
   </article>
+  <div class="field">
+    <div>
+      By creating an account, you accept our <a href="/privacy" class="decorated" target="_blank">privacy policy</a> and you assure you are older than 16 years old.
+    </div>
+  </div>
   <div class="field items-center">
     <p class="control w-full">
       <button class="btn btn-primary w-full" type="submit">Register</button>
