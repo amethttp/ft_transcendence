@@ -1,36 +1,33 @@
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client, OAuth2ClientOptions } from "google-auth-library";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
-
-export type GoogleCodeBody = {
-  code?: string;
-};
-
-export type GooglePayload = {
-  sub: string;
-  name: string;
-  email: string;
-  avatar?: string;
-};
+import { GoogleTicketPayload } from "../../application/models/GoogleTicketPayload";
+import { GoogleCodeRequestBody } from "../../application/models/GoogleCodeRequestBody";
 
 export class OAuth2Service {
-  static async getGooglePayloadFromBody(googleCodeBody: GoogleCodeBody): Promise<GooglePayload> {
+  private googleClient: OAuth2Client;
+
+  constructor() {
+    const options: OAuth2ClientOptions = {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_REDIRECT_URI
+    };
+
+    this.googleClient = new OAuth2Client(options);
+  }
+
+  async getGooglePayloadFromBody(googleCodeBody: GoogleCodeRequestBody): Promise<GoogleTicketPayload> {
     try {
       if (!googleCodeBody || !googleCodeBody.code) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }
 
-      const client = new OAuth2Client(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
-        process.env.GOOGLE_REDIRECT_URI
-      );
-
-      const { tokens } = await client.getToken(googleCodeBody.code);
+      const { tokens } = await this.googleClient.getToken(googleCodeBody.code);
       if (!tokens || !tokens.id_token) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }
 
-      const ticket = await client.verifyIdToken({ idToken: tokens.id_token, audience: process.env.GOOGLE_CLIENT_ID });
+      const ticket = await this.googleClient.verifyIdToken({ idToken: tokens.id_token, audience: process.env.GOOGLE_CLIENT_ID });
       const payload = ticket.getPayload();
       if (!payload || !payload.sub || !payload.name || !payload.email) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
@@ -52,15 +49,8 @@ export class OAuth2Service {
     }
   }
 
-  static generateGoogleAuthUrl(): string {
-    // TODO: Check deprecation of parameters
-    const client = new OAuth2Client(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
-    );
-
-    const url = client.generateAuthUrl({
+  generateGoogleAuthUrl(): string {
+    const url = this.googleClient.generateAuthUrl({
       access_type: 'offline',
       response_type: 'code',
       prompt: 'consent',

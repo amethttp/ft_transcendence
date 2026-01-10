@@ -13,7 +13,7 @@ import { TStatusType } from "../models/UserStatusDto";
 import { AuthService } from "./AuthService";
 import { PasswordService } from "./PasswordService";
 import { GoogleAuthService } from "./GoogleAuthService";
-import { GooglePayload } from "../../infrastructure/auth/OAuth2";
+import { GoogleTicketPayload } from "../models/GoogleTicketPayload";
 import { UserCreationDto } from "../models/UserCreation";
 
 export class UserService {
@@ -65,7 +65,7 @@ export class UserService {
     }
   }
 
-  async authenticateWithGoogle(googlePayload: GooglePayload): Promise<User> {
+  async authenticateWithGoogle(googlePayload: GoogleTicketPayload): Promise<User> {
     try {
       const user = await this._userRepository.findByEmail(googlePayload.email);
 
@@ -80,7 +80,7 @@ export class UserService {
     }
   }
 
-  private async registerUserViaGoogle(googlePayload: GooglePayload): Promise<User> {
+  private async registerUserViaGoogle(googlePayload: GoogleTicketPayload): Promise<User> {
     try {
       await this._userRepository.dbBegin();
       const googleAuth = await this._googleAuthService.newGoogleAuth(googlePayload.sub);
@@ -96,7 +96,7 @@ export class UserService {
     }
   }
 
-  private fromGooglePayloadToUserCreationDto(googlePayload: GooglePayload): UserCreationDto {
+  private fromGooglePayloadToUserCreationDto(googlePayload: GoogleTicketPayload): UserCreationDto {
     return {
       username: googlePayload.name,
       email: googlePayload.email,
@@ -105,7 +105,7 @@ export class UserService {
     };
   }
 
-  private async addGoogleAuthenticationMethodToUser(user: User, googlePayload: GooglePayload): Promise<User> {
+  private async addGoogleAuthenticationMethodToUser(user: User, googlePayload: GoogleTicketPayload): Promise<User> {
     try {
       await this._userRepository.dbBegin();
       const createdGoogle = await this._googleAuthService.newGoogleAuth(googlePayload.sub);
