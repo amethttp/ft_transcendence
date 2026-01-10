@@ -16,7 +16,7 @@ import { PasswordService } from "../../application/services/PasswordService";
 import { RelationType } from "../../application/models/Relation";
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { StatusType } from "../../application/models/UserStatusDto";
-import { GoogleTokenBody, OAuth2Service } from "../auth/OAuth2";
+import { GoogleCodeBody, OAuth2Service } from "../auth/OAuth2";
 
 export default class AuthController {
   private _authService: AuthService;
@@ -230,9 +230,24 @@ export default class AuthController {
     return reply.status(200).send({ success: true });
   }
 
+  async getGoogleAuthUrl(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      (void request);
+      const url = OAuth2Service.generateGoogleAuthUrl();
+      reply.status(200).send({ url: url });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      } else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
   async authenticateWithGoogle(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const body = request.body as GoogleTokenBody;
+      const body = request.body as GoogleCodeBody;
       const payload = await OAuth2Service.getGooglePayloadFromBody(body);
       const user = await this._userService.authenticateWithGoogle(payload);
 

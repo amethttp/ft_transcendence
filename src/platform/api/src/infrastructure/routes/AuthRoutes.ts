@@ -51,7 +51,11 @@ export default async function authRoutes(server: FastifyInstance) {
     await authController.login(request, reply);
   });
 
-  server.post("/google", async (request, reply) => {
+  server.get("/google/url", async (request, reply) => {
+    await authController.getGoogleAuthUrl(request, reply);
+  });
+
+  server.post("/google/callback", async (request, reply) => {
     await authController.authenticateWithGoogle(request, reply);
   });
 

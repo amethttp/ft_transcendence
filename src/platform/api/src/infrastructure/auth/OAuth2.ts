@@ -1,8 +1,8 @@
 import { OAuth2Client } from "google-auth-library";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 
-export type GoogleTokenBody = {
-  idToken?: string;
+export type GoogleCodeBody = {
+  code?: string;
 };
 
 export type GooglePayload = {
@@ -13,9 +13,9 @@ export type GooglePayload = {
 };
 
 export class OAuth2Service {
-  static async getGooglePayloadFromBody(googleTokenBody?: GoogleTokenBody): Promise<GooglePayload> {
+  static async getGooglePayloadFromBody(googleCodeBody: GoogleCodeBody): Promise<GooglePayload> {
     try {
-      if (!googleTokenBody || !googleTokenBody.idToken) {
+      if (!googleCodeBody || !googleCodeBody.code) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }
 
@@ -25,10 +25,19 @@ export class OAuth2Service {
         process.env.GOOGLE_REDIRECT_URI
       );
 
-      const ticket = await client.verifyIdToken({ idToken: googleTokenBody.idToken, audience: process.env.GOOGLE_CLIENT_ID });
+      const { tokens } = await client.getToken(googleCodeBody.code);
+      if (!tokens || !tokens.id_token) {
+        throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      }
+
+      const ticket = await client.verifyIdToken({ idToken: tokens.id_token, audience: process.env.GOOGLE_CLIENT_ID });
       const payload = ticket.getPayload();
       if (!payload || !payload.sub || !payload.name || !payload.email) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
+      }
+
+      if (!payload.email_verified) {
+        throw new ResponseError(ErrorParams.EMAIL_NOT_VERIFIED);
       }
 
       return {
@@ -41,5 +50,23 @@ export class OAuth2Service {
       console.error(err);
       throw new ResponseError(ErrorParams.LOGIN_FAILED);
     }
+  }
+
+  static generateGoogleAuthUrl(): string {
+    // TODO: Check deprecation of parameters
+    const client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    const url = client.generateAuthUrl({
+      access_type: 'offline',
+      response_type: 'code',
+      prompt: 'consent',
+      scope: ['openid', 'email', 'profile']
+    });
+
+    return url;
   }
 };

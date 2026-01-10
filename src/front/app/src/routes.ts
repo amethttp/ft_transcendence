@@ -67,6 +67,11 @@ export const routes: Route[] = [
     ],
   },
   {
+    path: "/google/callback",
+    component: () => import("./OAuthCallback/OAuthCallbackComponent"),
+    title: "Signing in..."
+  },
+  {
     path: "",
     component: () => import("./PrivateLayout/PrivateLayout"),
     guard: loggedGuard,
