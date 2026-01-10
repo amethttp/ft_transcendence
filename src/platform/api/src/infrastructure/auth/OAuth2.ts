@@ -1,7 +1,7 @@
 import { OAuth2Client, OAuth2ClientOptions } from "google-auth-library";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { GoogleTicketPayload } from "../../application/models/GoogleTicketPayload";
-import { GoogleCodeRequestBody } from "../../application/models/GoogleCodeRequestBody";
+import { GoogleAuthenticationRequest } from "../../application/models/GoogleAuthenticationRequest";
 
 export class OAuth2Service {
   private googleClient: OAuth2Client;
@@ -16,13 +16,13 @@ export class OAuth2Service {
     this.googleClient = new OAuth2Client(options);
   }
 
-  async getGooglePayloadFromBody(googleCodeBody: GoogleCodeRequestBody): Promise<GoogleTicketPayload> {
+  async getGooglePayload(googleAuthenticationRequest: GoogleAuthenticationRequest): Promise<GoogleTicketPayload> {
     try {
-      if (!googleCodeBody || !googleCodeBody.code) {
+      if (!googleAuthenticationRequest || !googleAuthenticationRequest.code) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }
 
-      const { tokens } = await this.googleClient.getToken(googleCodeBody.code);
+      const { tokens } = await this.googleClient.getToken(googleAuthenticationRequest.code);
       if (!tokens || !tokens.id_token) {
         throw new ResponseError(ErrorParams.LOGIN_FAILED);
       }

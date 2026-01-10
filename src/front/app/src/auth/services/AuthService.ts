@@ -2,6 +2,8 @@ import { ApiClient } from "../../ApiClient/ApiClient";
 import type { IHttpClient } from "../../framework/HttpClient/IHttpClient";
 import type { BasicResponse } from "../models/BasicResponse";
 import type { CreatePasswordRequest } from "../models/CreatePasswordRequest";
+import type { GoogleAuthenticationRequest } from "../models/GoogleAuthenticationRequest";
+import type { GoogleAuthUrlResponse } from "../models/GoogleAuthUrlResponse";
 import type { LoginRequest } from "../models/LoginRequest";
 import type { LoginResponse } from "../models/LoginResponse";
 import type { RecoverRequest } from "../models/RecoverRequest";
@@ -53,13 +55,12 @@ export class AuthService {
     return this.http.post<RegisterRequest, BasicResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
   }
 
-  getGoogleAuthUrl(): Promise<{ url: string }> {
+  getGoogleAuthUrl(): Promise<GoogleAuthUrlResponse> {
     return this.http.get(AuthService.GOOGLE_URL_ENDPOINT);
   }
 
-  // TODO: Add proper typing for the request (code)
   authenticateWithGoogle(code: string): Promise<LoginResponse> {
-    return this.http.post<{ code: string }, LoginResponse>(AuthService.GOOGLE_AUTH_ENDPOINT, { code }, { credentials: "include" });
+    return this.http.post<GoogleAuthenticationRequest, LoginResponse>(AuthService.GOOGLE_AUTH_ENDPOINT, { code }, { credentials: "include" });
   }
 
   getLoggedUser(): Promise<User> {
