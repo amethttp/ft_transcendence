@@ -10,6 +10,9 @@ import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
 import { MatchSettings } from "./MatchSettings";
 import StringTime from "../helpers/StringTime";
+import { HumanPlayer } from "./HumanPlayer";
+import { LocalPlayer } from "./LocalPlayer";
+import { AIPlayer } from "./AIPlayer";
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -49,6 +52,10 @@ export class Room extends EventEmitter<RoomEvents> {
     return Object.values(this._players);
   }
 
+  public get local(): boolean {
+    return this._local;
+  }
+
   public get matchState(): TMatchState {
     return this._matchState;
   }
@@ -67,8 +74,11 @@ export class Room extends EventEmitter<RoomEvents> {
     return result;
   }
 
+  public set local(newState: boolean) {
+    this._local = newState;
+  }
+
   public set matchState(ms: TMatchState) {
-    this._local = this._local; // TODO: PLACEHOLDER
     this._matchState = ms;
   }
 
@@ -96,12 +106,26 @@ export class Room extends EventEmitter<RoomEvents> {
     return null;
   }
 
-  public addPlayer(socket: AuthenticatedSocket) {
+  public addHumanPlayer(socket: AuthenticatedSocket) {
     if (this.players.length >= 2) { throw "Room already full!" }
-    const newPlayer = new Player(socket);
-    this._players[socket.id] = newPlayer;
+    const newPlayer = new HumanPlayer(socket);
+    this._players[newPlayer.id] = newPlayer;
     this._matchService.addPlayer(newPlayer.id);
     socket.join(this.token);
+  }
+
+  public addLocalPlayer() {
+    if (this.players.length >= 2) { throw "Room already full!" }
+    const newPlayer = new LocalPlayer();
+    this._players[newPlayer.id] = newPlayer;
+    this._matchService.addPlayer(newPlayer.id);
+  }
+
+  public addAIPlayer() {
+    if (this.players.length >= 2) { throw "Room already full!" }
+    const newPlayer = new AIPlayer();
+    this._players[newPlayer.id] = newPlayer;
+    this._matchService.addPlayer(newPlayer.id);
   }
 
   public joinPlayer(socket: AuthenticatedSocket) {
@@ -111,7 +135,7 @@ export class Room extends EventEmitter<RoomEvents> {
       throw "User already connected";
     }
 
-    this.addPlayer(socket);
+    this.addHumanPlayer(socket);
     socket.broadcast.to(this.token).emit("message", `New Opponent: ${socket.username}(${socket.id}`);
     socket.broadcast.to(this.token).emit("handshake", socket.userId);
   }
@@ -128,13 +152,17 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
-    this._matchService.setPaddleChange(socket.id, key, isPressed);
+    if (this.local && (key === "upArrow" || key === "downArrow")) {
+      this._matchService.setPaddleChange("LOCAL", key, isPressed);
+    } else {
+      this._matchService.setPaddleChange(socket.id, key, isPressed);
+    }
   }
 
   public isExpired(): boolean {
     if (!this._creationTime) { return true; }
 
-    return ((StringTime.timeStampNow() - StringTime.toTimestamp(this._creationTime)) > 360000);
+    return ((StringTime.timeStampNow() - StringTime.toTimestamp(this._creationTime)) > 300000);
   }
 
   public gameEnded(): boolean {

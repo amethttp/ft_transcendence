@@ -1,13 +1,12 @@
+import { AuthenticatedSocket } from "./AuthenticatedSocket";
+import { Player } from "./Player";
 import { PlayerState, TPlayerState } from "./PlayerState";
 
-export abstract class Player {
-  protected _id: string;
-  protected _username: string;
-  protected _state: TPlayerState;
-
-  protected constructor() {
-    this._id = "DefaultID";
-    this._username = "DefaultUsername";
+export class HumanPlayer extends Player {
+  constructor(socket: AuthenticatedSocket) {
+    super();
+    this._id = socket.id;
+    this._username = socket.username || "";
     this._state = PlayerState.WAITING;
   }
 

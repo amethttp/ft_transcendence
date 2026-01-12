@@ -53,9 +53,9 @@ export class MatchService {
       paddle.movementDirection = 0;
     else {
       paddle.movementDirection = 1;
-      if (key === "w") {
+      if (key === "w" || key === "upArrow") {
         paddle.movementDirection = -1;
-      } else if (key !== "s") { return; }
+      } else if (key !== "s" && key !== "downArrow") { return; }
     }
   }
 

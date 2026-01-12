@@ -19,6 +19,10 @@ export class RoomService {
     this.io = server;
   }
 
+  public get rooms(): Room[] {
+    return Object.values(this._gameRooms);
+  }
+
   public getRoom(token: string): Room {
     return this._gameRooms[token];
   }
@@ -47,6 +51,11 @@ export class RoomService {
 
     this._gameRooms[token] = new Room(token, settings);
     return this._gameRooms[token];
+  }
+
+  public goLocal(socket: AuthenticatedSocket, room: Room) {
+    room.local = true;
+    this.deleteMatch(socket.cookie, room.token);
   }
 
   public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
@@ -89,7 +98,6 @@ export class RoomService {
     let lastSnapshot = performance.now();
     let accumulated = 0;
     let running = true;
-    console.log(this._apiClient);
 
     const loop = (now: number) => {
       if (!running || room.gameEnded() || (room.matchState === MatchState.PAUSED) || (room.matchState === MatchState.FINISHED)) { return };
