@@ -101,6 +101,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.setWaitingState();
     this._canvasOverlay.onclick(() => null);
     this._socketClient.emitEvent('ready', this._token);
+    this._canvas.toggleFullScreen();
   }
 
   private getTouchCoord(touch: Touch): number {

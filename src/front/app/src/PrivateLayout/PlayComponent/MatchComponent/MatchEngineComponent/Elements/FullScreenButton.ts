@@ -28,7 +28,7 @@ export default class FullScreenButton {
   }
 
   resizeAdjustingTo(canvas: Canvas) {
-    this._button.style.left = canvas.cssLeftPos;
-    this._button.style.top = canvas.cssTopPos;
+    this._button.style.right = canvas.cssLeftPos;
+    this._button.style.bottom = canvas.cssTopPos;
   }
 }
