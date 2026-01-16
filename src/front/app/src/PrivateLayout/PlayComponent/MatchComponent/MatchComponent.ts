@@ -52,6 +52,10 @@ export default class MatchComponent extends AmethComponent {
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
+  matchEnded = (won: boolean) => {
+    // alert("Match ended! You " + (won ? "won!" : "lost!"));
+  }
+
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
@@ -77,6 +81,7 @@ export default class MatchComponent extends AmethComponent {
     await this._initPlayers();
     this._fillView();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
+    this._matchEngineComponent?.on("matchEnded", this.matchEnded);
     this._matchEngineComponent?.afterInit();
   }
 
@@ -184,7 +189,7 @@ export default class MatchComponent extends AmethComponent {
   }
 
   async destroy() {
-    this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
+    // this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
     await this._matchEngineComponent?.destroy();
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
