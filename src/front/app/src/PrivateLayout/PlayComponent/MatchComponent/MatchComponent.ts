@@ -101,8 +101,12 @@ export default class MatchComponent extends AmethComponent {
   }
 
   private _clearView() {
+    document.getElementById("MatchComponentTournamentName")!.innerText = "";
+    document.getElementById("MatchComponentTournamentRound")!.innerText = "";
     document.getElementById("MatchComponentMatchName")!.innerText = "";
     document.getElementById("MatchComponentVisibility")!.innerText = "";
+    document.getElementById("MatchComponentTournamentElem")?.classList.add("hidden");
+    document.getElementById("MatchComponentNameElem")?.classList.add("hidden");
     document.getElementById("MatchComponentToken")!.innerText = "";
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
@@ -137,15 +141,21 @@ export default class MatchComponent extends AmethComponent {
 
   private _fillNameView(match: MatchJoin) {
     if (match.tournamentRound?.tournament) {
+      document.getElementById("MatchComponentTournamentElem")?.classList.add("flex");
+      document.getElementById("MatchComponentTournamentElem")?.classList.remove("hidden");
       const roundName = TournamentRound.getRoundTextFromTop(match.tournamentRound.top);
       const name = `${roundName} - ${match.tournamentRound.tournament.name}`;
-      document.getElementById("MatchComponentMatchName")!.innerText = name;
+      document.getElementById("MatchComponentTournamentName")!.innerText = match.tournamentRound.tournament.name;
+      document.getElementById("MatchComponentTournamentRound")!.innerText = roundName;
+      (document.getElementById("MatchComponentTournamentElem")! as HTMLAnchorElement).href = `/play/tournament/${match.tournamentRound.tournament.token}`;
       document.title = TitleHelper.addTitlePart(name);
     }
     else {
+      document.getElementById("MatchComponentNameElem")?.classList.add("flex");
+      document.getElementById("MatchComponentNameElem")?.classList.remove("hidden");
       document.getElementById("MatchComponentMatchName")!.innerText = match.name;
-      document.title = TitleHelper.addTitlePart(match.name);
       document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
+      document.title = TitleHelper.addTitlePart(match.name);
     }
   }
 
