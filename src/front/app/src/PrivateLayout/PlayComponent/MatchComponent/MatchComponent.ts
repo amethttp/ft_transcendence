@@ -115,11 +115,13 @@ export default class MatchComponent extends AmethComponent {
     document.getElementById("MatchComponentToken")!.innerText = "";
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
+    document.getElementById("MatchComponentOpponentPlayer")!.classList.remove("flex");
     document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
   private _showOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.remove("hidden");
+    document.getElementById("MatchComponentOpponentPlayer")?.classList.add("flex");
     document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
   }
 
