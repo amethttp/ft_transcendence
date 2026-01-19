@@ -199,7 +199,6 @@ export default class MatchComponent extends AmethComponent {
   }
 
   async destroy() {
-    // this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
     await this._matchEngineComponent?.destroy();
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
