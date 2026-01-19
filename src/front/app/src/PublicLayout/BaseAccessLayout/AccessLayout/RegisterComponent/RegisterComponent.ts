@@ -28,8 +28,7 @@ export default class RegisterComponent extends AmethComponent {
       email: new FormControl<string>("", [Validators.email, RegisterValidators.emailUnique]),
       password: passwdControl,
       repeatPassword: new FormControl<string>("", [Validators.passwordRepeat(passwdControl)]),
-      birthDate: new FormControl<string>("", [Validators.isValidBirthDate]),
-      terms: new FormControl<boolean>(false, [Validators.requiredTrue])
+      birthDate: new FormControl<string>("", [Validators.isValidBirthDate])
     });
 
     this.form.submit = (val: RegisterForm) => {

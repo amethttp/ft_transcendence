@@ -192,22 +192,3 @@ INSERT INTO e_tournament_state (name) VALUES ('WAITING');
 INSERT INTO e_tournament_state (name) VALUES ('CLOSED');
 INSERT INTO e_tournament_state (name) VALUES ('IN_PROGRESS');
 INSERT INTO e_tournament_state (name) VALUES ('FINISHED');
-
-
--- DUMMY DATA --
-
-INSERT INTO match (name, token, is_visible, state, type) VALUES ('partidaza', 'a35Fda1', 0, 2, 2);
-
-INSERT INTO match_player (score, is_winner, user_id, match_id)
-  SELECT 5, 1, u.id, m.id FROM (
-    SELECT id FROM user WHERE username='cfidalgo'
-  ) AS u CROSS JOIN (
-    SELECT id FROM match ORDER BY id DESC LIMIT 1
-  ) AS m;
-
-INSERT INTO match_player (score, is_winner, user_id, match_id)
-  SELECT 0, 0, u.id, m.id FROM (
-    SELECT id FROM user WHERE username='vperez-f'
-  ) AS u CROSS JOIN (
-    SELECT id FROM match ORDER BY id DESC LIMIT 1
-  ) AS m;

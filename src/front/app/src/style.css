@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
+@config '../tailwind.config.ts';
+
 @import "./styles/themes/theme-default";
 @import "./styles/base/all";
 @import "./styles/components/all";
 
-@plugin 'tailwind-scrollbar';
