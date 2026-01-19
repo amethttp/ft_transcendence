@@ -85,7 +85,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
     document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
-    this.emit('matchEnded', false);
   }
 
   private startMatch() {
@@ -195,6 +194,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private setEndState(score: number[]) {
     console.log(score);
     this._canvasOverlay.showMatchResult(score);
+    this.emit('matchEnded', score[0] > score[1]);
   }
 
   async refresh(token?: string) {
