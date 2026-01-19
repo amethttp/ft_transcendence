@@ -2,6 +2,8 @@ import { ApiClient } from "../../ApiClient/ApiClient";
 import type { IHttpClient } from "../../framework/HttpClient/IHttpClient";
 import type { BasicResponse } from "../models/BasicResponse";
 import type { CreatePasswordRequest } from "../models/CreatePasswordRequest";
+import type { GoogleAuthenticationRequest } from "../models/GoogleAuthenticationRequest";
+import type { GoogleAuthUrlResponse } from "../models/GoogleAuthUrlResponse";
 import type { LoginRequest } from "../models/LoginRequest";
 import type { LoginResponse } from "../models/LoginResponse";
 import type { RecoverRequest } from "../models/RecoverRequest";
@@ -17,7 +19,8 @@ export class AuthService {
   private static readonly RECOVER_ENDPOINT = this.BASE + "/recover";
   private static readonly REGISTER_ENDPOINT = this.BASE + "/register";
   private static readonly LOGGED_USER_ENDPOINT = "/user";
-  private static readonly GOOGLE_AUTH_ENDPOINT = this.BASE + "/google";
+  private static readonly GOOGLE_URL_ENDPOINT = this.BASE + "/google/url";
+  private static readonly GOOGLE_AUTH_ENDPOINT = this.BASE + "/google/callback";
   private readonly http: IHttpClient;
 
   constructor() {
@@ -52,8 +55,12 @@ export class AuthService {
     return this.http.post<RegisterRequest, BasicResponse>(AuthService.REGISTER_ENDPOINT, request, { credentials: "include" });
   }
 
-  authenticateWithGoogle(idToken: string): Promise<any> {
-    return this.http.post<{ idToken: string }, any>(AuthService.GOOGLE_AUTH_ENDPOINT, { idToken }, { credentials: "include" });
+  getGoogleAuthUrl(): Promise<GoogleAuthUrlResponse> {
+    return this.http.get(AuthService.GOOGLE_URL_ENDPOINT);
+  }
+
+  authenticateWithGoogle(code: string): Promise<LoginResponse> {
+    return this.http.post<GoogleAuthenticationRequest, LoginResponse>(AuthService.GOOGLE_AUTH_ENDPOINT, { code }, { credentials: "include" });
   }
 
   getLoggedUser(): Promise<User> {
