@@ -3,6 +3,7 @@ import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { TournamentRound } from "../TournamentComponent/models/TournamentRound";
+import { MatchEndedMenu } from "./MatchEndedMenu/MatchEndedMenu";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
 import type { MatchJoin } from "./models/MatchJoin";
 import type { MatchPlayer } from "./models/MatchPlayer";
@@ -52,8 +53,15 @@ export default class MatchComponent extends AmethComponent {
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
-  matchEnded = (won: boolean) => {
-    // alert("Match ended! You " + (won ? "won!" : "lost!"));
+  matchEnded = (winner: boolean) => {
+    if (this._match?.tournamentRound?.tournament) {
+      document.getElementById("matchFinishMenuContainer")!.classList.remove("hidden");
+      document.getElementById("matchFinishMenuContainer")!.classList.add("opacity-100");
+      const matchEndedMenu = new MatchEndedMenu(winner, this.router, this._match?.tournamentRound?.tournament);
+      matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
+        matchEndedMenu.destroy();
+      });
+    }
   }
 
   async init(selector: string, router?: Router): Promise<void> {

@@ -71,7 +71,6 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent("end", (data) => {
       this.setEndState(data);
-      this.emit('matchEnded', true);
     });
     this._socketClient.setEvent('disconnect', (reason) => {
       console.log("Disconnected:", reason);
@@ -86,7 +85,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
     document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
-    this.emit('matchEnded', true);
+    this.emit('matchEnded', false);
   }
 
   private startMatch() {
