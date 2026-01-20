@@ -12,6 +12,7 @@ import FullScreenButton from "./Elements/FullScreenButton";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
+  matchEnded: number[];
 };
 
 export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
@@ -40,7 +41,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
-    this._socketClient = new SocketClient(import.meta.env.VITE_API_GAME_URL);
+    this._socketClient = new SocketClient(import.meta.env.VITE_GAME_API_URL);
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
@@ -190,8 +191,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   }
 
   private setEndState(score: number[]) {
-    console.log(score);
+    this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
+    console.log(score);
+    this.emit('matchEnded', score);
   }
 
   async refresh(token?: string) {

@@ -1,8 +1,10 @@
+import { LoggedUser } from "../../../auth/LoggedUser";
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { TournamentRound } from "../TournamentComponent/models/TournamentRound";
+import { MatchEndedMenu } from "./MatchEndedMenu/MatchEndedMenu";
 import MatchEngineComponent from "./MatchEngineComponent/MatchEngineComponent";
 import type { MatchJoin } from "./models/MatchJoin";
 import type { MatchPlayer } from "./models/MatchPlayer";
@@ -52,6 +54,21 @@ export default class MatchComponent extends AmethComponent {
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
+  matchEnded = (score: number[]) => {
+    setTimeout(async () => {
+      if (this._match?.tournamentRound?.tournament) {
+        document.getElementById("matchFinishMenuContainer")!.classList.add("visible", "z-50", "opacity-100");
+        const username = (await LoggedUser.get())?.username;
+        const playerIndex = this._match.players.findIndex(player => player.user.username === username);
+        const winnerScoreIndex = score.findIndex(s => s === Math.max(...score));
+        const matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
+        matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
+          matchEndedMenu.destroy();
+        });
+      }
+    }, 1000);
+  }
+
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
 
@@ -77,6 +94,7 @@ export default class MatchComponent extends AmethComponent {
     await this._initPlayers();
     this._fillView();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
+    this._matchEngineComponent?.on("matchEnded", this.matchEnded);
     this._matchEngineComponent?.afterInit();
   }
 
@@ -101,16 +119,22 @@ export default class MatchComponent extends AmethComponent {
   }
 
   private _clearView() {
+    document.getElementById("MatchComponentTournamentName")!.innerText = "";
+    document.getElementById("MatchComponentTournamentRound")!.innerText = "";
     document.getElementById("MatchComponentMatchName")!.innerText = "";
     document.getElementById("MatchComponentVisibility")!.innerText = "";
+    document.getElementById("MatchComponentTournamentElem")?.classList.add("hidden");
+    document.getElementById("MatchComponentNameElem")?.classList.add("hidden");
     document.getElementById("MatchComponentToken")!.innerText = "";
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
+    document.getElementById("MatchComponentOpponentPlayer")!.classList.remove("flex");
     document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
   private _showOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.remove("hidden");
+    document.getElementById("MatchComponentOpponentPlayer")?.classList.add("flex");
     document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
   }
 
@@ -137,15 +161,21 @@ export default class MatchComponent extends AmethComponent {
 
   private _fillNameView(match: MatchJoin) {
     if (match.tournamentRound?.tournament) {
+      document.getElementById("MatchComponentTournamentElem")?.classList.add("flex");
+      document.getElementById("MatchComponentTournamentElem")?.classList.remove("hidden");
       const roundName = TournamentRound.getRoundTextFromTop(match.tournamentRound.top);
       const name = `${roundName} - ${match.tournamentRound.tournament.name}`;
-      document.getElementById("MatchComponentMatchName")!.innerText = name;
+      document.getElementById("MatchComponentTournamentName")!.innerText = match.tournamentRound.tournament.name;
+      document.getElementById("MatchComponentTournamentRound")!.innerText = roundName;
+      (document.getElementById("MatchComponentTournamentElem")! as HTMLAnchorElement).href = `/play/tournament/${match.tournamentRound.tournament.token}`;
       document.title = TitleHelper.addTitlePart(name);
     }
     else {
+      document.getElementById("MatchComponentNameElem")?.classList.add("flex");
+      document.getElementById("MatchComponentNameElem")?.classList.remove("hidden");
       document.getElementById("MatchComponentMatchName")!.innerText = match.name;
-      document.title = TitleHelper.addTitlePart(match.name);
       document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
+      document.title = TitleHelper.addTitlePart(match.name);
     }
   }
 
@@ -174,7 +204,6 @@ export default class MatchComponent extends AmethComponent {
   }
 
   async destroy() {
-    this._matchEngineComponent?.off("opponentConnected", this.opponentConnected);
     await this._matchEngineComponent?.destroy();
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
