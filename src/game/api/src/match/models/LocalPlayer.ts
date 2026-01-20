@@ -1,14 +1,12 @@
+import { Player } from "./Player";
 import { PlayerState, TPlayerState } from "./PlayerState";
 
-export abstract class Player {
-  protected _id: string;
-  protected _username: string;
-  protected _state: TPlayerState;
-
-  protected constructor() {
-    this._id = "DefaultID";
-    this._username = "DefaultUsername";
-    this._state = PlayerState.WAITING;
+export class LocalPlayer extends Player {
+  constructor() {
+    super();
+    this._id = "LOCAL";
+    this._username = "Player 2";
+    this._state = PlayerState.READY;
   }
 
   public get id() : string {

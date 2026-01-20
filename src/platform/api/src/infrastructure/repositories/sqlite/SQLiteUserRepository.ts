@@ -17,6 +17,9 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
   }
 
   async findAllByUsername(username: string): Promise<User[] | null> {
-    return this.baseFindAll("WHERE username LIKE ?", [`${username}%`]);
+    username = username.replace(/\\/g, '\\\\')
+      .replace(/%/g, '\\%')
+      .replace(/_/g, '\\_');
+    return this.baseFindAll("WHERE username LIKE ? ESCAPE '\\' AND username NOT LIKE '__deleted__%'", [`${username}%`]);
   }
 }

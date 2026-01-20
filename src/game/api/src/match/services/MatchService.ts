@@ -16,8 +16,8 @@ const PADDLE_VELOCITY = 1;
 export class MatchService {
   private _matchData: MatchData;
 
-  constructor() {
-    this._matchData = new MatchData();
+  constructor(score: number[]) {
+    this._matchData = new MatchData(score);
   }
 
   public get snapshot(): Snapshot {
@@ -29,11 +29,9 @@ export class MatchService {
     } as Snapshot;
   }
 
-
   public get score(): number[] {
     return this._matchData.score;
   }
-
 
   public addPlayer(newPlayerId: string) {
     this._matchData.paddles[newPlayerId] = {
@@ -55,9 +53,9 @@ export class MatchService {
       paddle.movementDirection = 0;
     else {
       paddle.movementDirection = 1;
-      if (key === "w") {
+      if (key === "w" || key === "ArrowUp") {
         paddle.movementDirection = -1;
-      } else if (key !== "s") { return; }
+      } else if (key !== "s" && key !== "ArrowDown") { return; }
     }
   }
 

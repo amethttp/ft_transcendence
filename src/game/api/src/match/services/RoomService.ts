@@ -4,8 +4,9 @@ import { AuthenticatedSocket } from "../models/AuthenticatedSocket";
 import { ApiClient } from "../../HttpClient/ApiClient/ApiClient";
 import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
+import { MatchSettings } from "../models/MatchSettings";
 
-const MATCH_BASE_ROUTE = "/match"
+const MATCH_BASE_ROUTE = "/match";
 
 export class RoomService {
   private _gameRooms: Record<string, Room>;
@@ -18,6 +19,10 @@ export class RoomService {
     this.io = server;
   }
 
+  public get rooms(): Room[] {
+    return Object.values(this._gameRooms);
+  }
+
   public getRoom(token: string): Room {
     return this._gameRooms[token];
   }
@@ -26,9 +31,31 @@ export class RoomService {
     this._gameRooms[room.token] = room;
   }
 
-  public newRoom(token: string): Room {
-    this._gameRooms[token] = new Room(token);
+  public async newRoom(cookie: string | undefined, token: string): Promise<Room> {
+    let settings = {
+      maxScore: 3,
+      local: false,
+      state: MatchState.WAITING,
+      creationTime: "",
+      score: [0,0]
+    } as MatchSettings;
+    if (cookie) {
+      try {
+        const opts: RequestInit = { headers: { cookie } };
+        settings = await this._apiClient.get(`${MATCH_BASE_ROUTE}/${token}`, undefined, opts);
+        console.log("API MATCH FETCH DONE", settings);
+      } catch (error) {
+        console.log("API MATCH FETCH FAILED", error);
+      }
+    }
+
+    this._gameRooms[token] = new Room(token, settings);
     return this._gameRooms[token];
+  }
+
+  public goLocal(socket: AuthenticatedSocket, room: Room) {
+    room.local = true;
+    this.deleteMatch(socket.cookie, room.token);
   }
 
   public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
@@ -37,20 +64,22 @@ export class RoomService {
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
-      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS)
+      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS) {
         room.matchState = MatchState.PAUSED;
+        this.io.to(room.token).emit("pause");
+      }
     }
     if (room.playersAmount() === 0) {
-      if (room.matchState === MatchState.WAITING) {
-        const opts: RequestInit = {};
-        if (!socket.cookie)
-          return; // TODO: Throw error
-        opts.headers = { cookie: socket.cookie };
-        this._apiClient.delete(`${MATCH_BASE_ROUTE}/${room.token}`, undefined, opts)
-        .then(() => console.log("API MATCH DELETE DONE"))
-        .catch((error) => console.log("API MATCH DELETE FAILED", error));
+      if (room.matchState === MatchState.WAITING && room.isExpired()) {
+        this.deleteMatch(socket.cookie, room.token);
+      } else if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
+        this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];
+    } else {
+      if (room.matchState === MatchState.WAITING) {
+        this.deleteMatchPlayer(socket.cookie, room.token);
+      }
     }
   }
 
@@ -69,7 +98,6 @@ export class RoomService {
     let lastSnapshot = performance.now();
     let accumulated = 0;
     let running = true;
-    console.log(this._apiClient);
 
     const loop = (now: number) => {
       if (!running || room.gameEnded() || (room.matchState === MatchState.PAUSED) || (room.matchState === MatchState.FINISHED)) { return };
@@ -120,5 +148,38 @@ export class RoomService {
   setCredentials(socket: AuthenticatedSocket, val: any) {
     if (val.auth)
       socket.cookie = val.auth;
+  }
+
+  private deleteMatch(cookie: string | undefined, token: string) {
+    const opts: RequestInit = {};
+    if (!cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: cookie };
+    this._apiClient.delete(`${MATCH_BASE_ROUTE}/${token}`, undefined, opts)
+      .then(() => console.log("API MATCH DELETE DONE"))
+      .catch((error) => console.log("API MATCH DELETE FAILED", error));
+  }
+
+  private deleteMatchPlayer(cookie: string | undefined, token: string) {
+    const opts: RequestInit = {};
+    if (!cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: cookie };
+    this._apiClient.delete(`${MATCH_BASE_ROUTE}/${token}/player`, undefined, opts)
+      .then(() => console.log("API MATCH DELETE DONE"))
+      .catch((error) => console.log("API MATCH DELETE FAILED", error));
+  }
+
+  private updateMatch(socket: AuthenticatedSocket, token: string, result: number[]) {
+    const opts: RequestInit = {};
+    if (!socket.cookie)
+      return; // TODO: Throw error
+    opts.headers = { cookie: socket.cookie };
+    this._apiClient.put(`${MATCH_BASE_ROUTE}/${token}`, result, opts)
+      .then((val) => {
+        console.log("API RESULT UPDATE DONE");
+        this.setCredentials(socket, val);
+      })
+      .catch((error) => console.log("API RESULT UPDATE FAILED", error));
   }
 }

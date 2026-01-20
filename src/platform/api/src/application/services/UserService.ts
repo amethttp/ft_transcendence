@@ -185,9 +185,9 @@ export class UserService {
 
   async erasePersonalInformation(user: User) {
     const userBlueprint: Partial<User> = {
-      email: "deletedEmail" + user.id + "@deleted.com",
-      username: "deletedUser" + user.id,
-      avatarUrl: "deletedAvatar" + user.id,
+      email: "__deleted__Email" + (user.id + 23) + "@deleted.com",
+      username: "__deleted__User" + (user.id + 23),
+      avatarUrl: "__deleted__Avatar" + (user.id + 23),
       creationTime: StringTime.epoch(),
       updateTime: StringTime.epoch(),
     }
