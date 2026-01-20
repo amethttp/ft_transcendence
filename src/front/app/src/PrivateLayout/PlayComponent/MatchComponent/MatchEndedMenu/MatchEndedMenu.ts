@@ -22,15 +22,14 @@ export class MatchEndedMenu extends AmethComponent {
       if (this._winner) {
         document.getElementById("MatchEndedMenuSubtitle")!.textContent = "You advance to the next round!";
         const ctaElement = document.getElementById("MatchEndedTournamentCta") as HTMLAnchorElement;
-        ctaElement.href = `/play/tournament/${this._tournament?.token}`;
+        ctaElement.href = `/play/tournament/${this._tournament.token}`;
         ctaElement.classList.remove("hidden");
       } else {
         document.getElementById("MatchEndedMenuSubtitle")!.textContent = "Better luck next time!";
         const ctaElement = document.getElementById("MatchEndedTournamentBack") as HTMLAnchorElement;
-        ctaElement.href = `/play/tournament/${this._tournament?.token}`;
+        ctaElement.href = `/play/tournament/${this._tournament.token}`;
         ctaElement.classList.remove("hidden");
       }
-
     }
   }
 }

@@ -56,6 +56,7 @@ export default class MatchComponent extends AmethComponent {
   matchEnded = (winner: boolean) => {
     if (this._match?.tournamentRound?.tournament) {
       document.getElementById("matchFinishMenuContainer")!.classList.remove("hidden");
+      document.getElementById("matchFinishMenuContainer")!.classList.add("flex");
       document.getElementById("matchFinishMenuContainer")!.classList.add("opacity-100");
       const matchEndedMenu = new MatchEndedMenu(winner, this.router, this._match?.tournamentRound?.tournament);
       matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
