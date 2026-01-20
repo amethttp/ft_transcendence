@@ -52,4 +52,9 @@ export default class CanvasOverlay {
     this._overlay.style.left = canvas.cssLeftPos;
     this._overlay.style.top = canvas.cssTopPos;
   }
+
+  disable() {
+    this._overlay.onclick = null;
+    this._overlay.classList.remove('cursor-pointer');
+  }
 }
