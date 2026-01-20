@@ -8,8 +8,11 @@ import { PlayerState } from "./PlayerState";
 import EventEmitter from "../../EventEmitter/EventEmitter";
 import { BallChange } from "./BallChange";
 import { MatchResult } from "./MatchResult";
-
-const MAX_POINTS = 1;
+import { MatchSettings } from "./MatchSettings";
+import StringTime from "../helpers/StringTime";
+import { HumanPlayer } from "./HumanPlayer";
+import { LocalPlayer } from "./LocalPlayer";
+import { AIPlayer } from "./AIPlayer";
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -20,19 +23,25 @@ export type RoomEvents = {
 
 export class Room extends EventEmitter<RoomEvents> {
   private _token: string;
+  private _local: boolean;
   private _players: Record<string, Player>;
+  private _maxPoints: number;
   private _matchState: TMatchState;
   private _matchService: MatchService;
+  private _creationTime: string;
   public interval: any;
 
-  constructor(token: string) {
+  constructor(token: string, settings: MatchSettings) {
     super();
 
     this._token = token;
+    this._local = settings.local;
     this._players = {};
-    this._matchState = MatchState.WAITING;
+    this._maxPoints = settings.maxScore;
+    this._matchState = settings.state;
+    this._creationTime = settings.creationTime;
 
-    this._matchService = new MatchService();
+    this._matchService = new MatchService(settings.score);
   }
 
   public get token(): string {
@@ -43,8 +52,30 @@ export class Room extends EventEmitter<RoomEvents> {
     return Object.values(this._players);
   }
 
+  public get local(): boolean {
+    return this._local;
+  }
+
   public get matchState(): TMatchState {
     return this._matchState;
+  }
+
+  public get matchScore(): number[] {
+    return this._matchService.score;
+  }
+
+  public get matchResult(): MatchResult {
+    const result = {
+      score: this._matchService.score,
+      players: this.players,
+      state: this._matchState
+    } as MatchResult;
+
+    return result;
+  }
+
+  public set local(newState: boolean) {
+    this._local = newState;
   }
 
   public set matchState(ms: TMatchState) {
@@ -75,12 +106,26 @@ export class Room extends EventEmitter<RoomEvents> {
     return null;
   }
 
-  public addPlayer(socket: AuthenticatedSocket) {
+  public addHumanPlayer(socket: AuthenticatedSocket) {
     if (this.players.length >= 2) { throw "Room already full!" }
-    const newPlayer = new Player(socket);
-    this._players[socket.id] = newPlayer;
+    const newPlayer = new HumanPlayer(socket);
+    this._players[newPlayer.id] = newPlayer;
     this._matchService.addPlayer(newPlayer.id);
     socket.join(this.token);
+  }
+
+  public addLocalPlayer() {
+    if (this.players.length >= 2) { throw "Room already full!" }
+    const newPlayer = new LocalPlayer();
+    this._players[newPlayer.id] = newPlayer;
+    this._matchService.addPlayer(newPlayer.id);
+  }
+
+  public addAIPlayer() {
+    if (this.players.length >= 2) { throw "Room already full!" }
+    const newPlayer = new AIPlayer();
+    this._players[newPlayer.id] = newPlayer;
+    this._matchService.addPlayer(newPlayer.id);
   }
 
   public joinPlayer(socket: AuthenticatedSocket) {
@@ -90,15 +135,18 @@ export class Room extends EventEmitter<RoomEvents> {
       throw "User already connected";
     }
 
-    this.addPlayer(socket);
+    this.addHumanPlayer(socket);
     socket.broadcast.to(this.token).emit("message", `New Opponent: ${socket.username}(${socket.id}`);
     socket.broadcast.to(this.token).emit("handshake", socket.userId);
+    if (this._matchState === MatchState.PAUSED) {
+      socket.broadcast.to(this.token).emit("unpause", socket.userId);
+    }
   }
 
   public allPlayersReady(): boolean {
     const roomPlayers = Object.values(this._players);
     for (const player of roomPlayers) {
-      if (player.state !== PlayerState.READY) {
+      if (player.state !== PlayerState.READY && player.state !== PlayerState.IN_GAME) {
         return false;
       }
     }
@@ -107,26 +155,31 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
-    this._matchService.setPaddleChange(socket.id, key, isPressed);
+    if (this.local && (key === "ArrowUp" || key === "ArrowDown")) {
+      this._matchService.setPaddleChange("LOCAL", key, isPressed);
+    } else {
+      this._matchService.setPaddleChange(socket.id, key, isPressed);
+    }
   }
 
-  public gameEnded() {
-    return this._matchService.checkEndState(MAX_POINTS);
+  public isExpired(): boolean {
+    if (!this._creationTime) { return true; }
+
+    return ((StringTime.timeStampNow() - StringTime.toTimestamp(this._creationTime)) > 300000);
+  }
+
+  public gameEnded(): boolean {
+    return ((this._matchState === MatchState.FINISHED) || this._matchService.checkEndState(this._maxPoints));
   }
 
   public nextSnapshot(lastSnapshot: number): number {
     let paddleChange = this._matchService.updatePaddles();
     let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();
-    if (this._matchService.checkEndState(MAX_POINTS)) {
+    if (this._matchService.checkEndState(this._maxPoints)) {
       this._matchState = MatchState.FINISHED;
-      const result = {
-        score: this._matchService.score,
-        players: this.players,
-        state: this._matchState
-      } as MatchResult;
 
-      this.emit("end", result);
+      this.emit("end", this.matchResult);
     }
 
     if (ballChange)

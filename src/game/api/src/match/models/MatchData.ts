@@ -8,7 +8,7 @@ export class MatchData {
   private _paddles: Record<string, PaddleChange>;
   private _score: number[];
 
-  constructor() {
+  constructor(score: number[]) {
     this._id = 0;
     this._ball = {
       position: { x: 800, y: 450 },
@@ -16,15 +16,19 @@ export class MatchData {
       velocity: 1,
     };
     this._paddles = {};
-    this._score = [0,0];
+    this._score = score ? score : [0,0];
   }
 
   public get id(): number {
     return this._id;
-  } 
+  }
 
   public get score(): number[] {
     return this._score;
+  }
+
+  public set score(newScore: number[]) {
+    this._score = newScore;
   }
 
   public get paddles(): Record<string, PaddleChange> {

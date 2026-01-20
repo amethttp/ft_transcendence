@@ -39,6 +39,26 @@ export default class MatchController {
     }
   }
 
+  async getMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const match = await this._matchService.getByToken(request.params.token);
+      if (!match)
+        throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
+      const players = await this._matchPlayerService.getAllSingleMatchPlayers(match);
+      const settings = this._matchService.toMatchSettings(match);
+      if (players.length > 1) {
+        settings.score[0] = players[0].score;
+        settings.score[1] = players[1].score;
+      }
+      settings.creationTime = match.creationTime;
+
+      reply.send(settings);
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
   async updateMatch(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const matchResult = request.body as MatchResult;
@@ -48,6 +68,7 @@ export default class MatchController {
 
       await this._matchService.setMatchFinished(match);
       await this._matchPlayerService.updateResult(match, matchResult);
+      reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
@@ -62,6 +83,24 @@ export default class MatchController {
         await this._matchService.delete(match);
       }
 
+      reply.code(200).send({ success: true });
+    } catch (error: any) {
+      console.log(error);
+      reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
+    }
+  }
+
+  async deleteMatchPlayer(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
+    try {
+      const jwtUser = request.user as JwtPayloadInfo;
+      const originUser = await this._userService.getById(jwtUser.sub);
+      const match = await this._matchService.getByToken(request.params.token);
+      if (match) {
+        const matchPlayer = await this._matchPlayerService.getByUserAndMatch(originUser.id, match.id);
+        await this._matchPlayerService.delete(matchPlayer);
+      }
+
+      reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
@@ -79,7 +118,7 @@ export default class MatchController {
         match.players.push(newPlayer);
       }
       else if (!match) {
-        return reply.code(404).send("");
+        return reply.code(404).send({ success: false });
       }
       reply.send(match);
     } catch (error: any) {
