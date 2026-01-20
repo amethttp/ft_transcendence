@@ -12,7 +12,7 @@ import FullScreenButton from "./Elements/FullScreenButton";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
-  matchEnded: boolean;
+  matchEnded: number[];
 };
 
 export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
@@ -193,7 +193,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private setEndState(score: number[]) {
     console.log(score);
     this._canvasOverlay.showMatchResult(score);
-    this.emit('matchEnded', score[0] > score[1]);
+    console.log(score);
+    this.emit('matchEnded', score);
   }
 
   async refresh(token?: string) {

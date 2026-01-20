@@ -1,3 +1,4 @@
+import { LoggedUser } from "../../../auth/LoggedUser";
 import Alert from "../../../framework/Alert/Alert";
 import AmethComponent from "../../../framework/AmethComponent";
 import type { Router } from "../../../framework/Router/Router";
@@ -53,16 +54,19 @@ export default class MatchComponent extends AmethComponent {
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
-  matchEnded = (winner: boolean) => {
-    if (this._match?.tournamentRound?.tournament) {
-      document.getElementById("matchFinishMenuContainer")!.classList.remove("hidden");
-      document.getElementById("matchFinishMenuContainer")!.classList.add("flex");
-      document.getElementById("matchFinishMenuContainer")!.classList.add("opacity-100");
-      const matchEndedMenu = new MatchEndedMenu(winner, this.router, this._match?.tournamentRound?.tournament);
-      matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
-        matchEndedMenu.destroy();
-      });
-    }
+  matchEnded = (score: number[]) => {
+    setTimeout(async () => {
+      if (this._match?.tournamentRound?.tournament) {
+        document.getElementById("matchFinishMenuContainer")!.classList.add("visible", "z-50", "opacity-100");
+        const username = (await LoggedUser.get())?.username;
+        const playerIndex = this._match.players.findIndex(player => player.user.username === username);
+        const winnerScoreIndex = score.findIndex(s => s === Math.max(...score));
+        const matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
+        matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
+          matchEndedMenu.destroy();
+        });
+      }
+    }, 1000);
   }
 
   async init(selector: string, router?: Router): Promise<void> {
