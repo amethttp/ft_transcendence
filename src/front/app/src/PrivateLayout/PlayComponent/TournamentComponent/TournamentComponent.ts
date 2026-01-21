@@ -150,7 +150,7 @@ export default class TournamentComponent extends AmethComponent {
       const container = document.getElementById("tournamentPlayers")!;
       for (const player of this._tournament.players.sort((a, b) => a.round - b.round)) {
         let status = "";
-        if (this._tournament.round !== player.round) {
+        if (player.round < this._tournament.round) {
           status = `<span class="text-xs top-0.5 relative bg-red-50 outline-1 outline-red-100 p-0.5 rounded">out</span>`;
         }
         const htmlElem = `
