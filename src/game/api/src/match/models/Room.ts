@@ -67,7 +67,7 @@ export class Room extends EventEmitter<RoomEvents> {
   public get matchResult(): MatchResult {
     const result = {
       score: this._matchService.score,
-      players: this.players,
+      players: this.players.map((player) => player.toDto()),
       state: this._matchState
     } as MatchResult;
 

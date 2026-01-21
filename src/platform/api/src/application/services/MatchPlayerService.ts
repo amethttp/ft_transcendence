@@ -38,30 +38,29 @@ export class MatchPlayerService {
   }
 
   async updateResult(match: Match, matchResult: MatchResult) {
-    let winnerIndex = 0; // winnerIndex = matchResult.score[1] > matchResult.score[0];
-    if (matchResult.score[1] > matchResult.score[0]) {
-      winnerIndex = 1;
-    }
+    const winnerIndex = matchResult.score.findIndex(score => score === Math.max(...matchResult.score));
 
-    const winner: Partial<MatchPlayer> = {
+    const winnerBlueprint: Partial<MatchPlayer> = {
       score: matchResult.score[winnerIndex],
       isWinner: true,
     };
-    const loser: Partial<MatchPlayer> = {
-      score: matchResult.score[1 - winnerIndex],
-      isWinner: false,
-    };
-
-    const winnerId = match.players[winnerIndex].id;
-    const loserId = match.players[1 - winnerIndex].id;
-    const winnerUpdate = await this._matchPlayerRepository.update(winnerId, winner);
+    
+    const winner = match.players[winnerIndex];
+    const winnerUpdate = await this._matchPlayerRepository.update(winner.id, winnerBlueprint);
     if (winnerUpdate === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
-    const loserUpdate = await this._matchPlayerRepository.update(loserId, loser);
+    Object.assign(winner, winnerBlueprint);
+    const loserBlueprint: Partial<MatchPlayer> = {
+      score: matchResult.score[1 - winnerIndex],
+      isWinner: false,
+    };
+    const loser = match.players[1 - winnerIndex];
+    const loserUpdate = await this._matchPlayerRepository.update(loser.id, loserBlueprint);
     if (loserUpdate === null) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+    Object.assign(loser, loserBlueprint);
   }
 
   async getLast10UserMatches(originUser: User): Promise<MatchInfo[]> {

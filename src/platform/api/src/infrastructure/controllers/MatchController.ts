@@ -6,16 +6,19 @@ import { NewMatchRequest } from "../../application/models/NewMatchRequest";
 import { ErrorParams, ResponseError } from "../../application/errors/ResponseError";
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { MatchResult } from "../../application/models/MatchResult";
+import { TournamentMatchService } from "../../application/services/TournamentMatchService";
 
 export default class MatchController {
   private _matchService: MatchService;
   private _matchPlayerService: MatchPlayerService;
   private _userService: UserService;
+  private _tournamentMatchService: TournamentMatchService;
 
-  constructor(matchService: MatchService, matchPlayerService: MatchPlayerService, userService: UserService) {
+  constructor(matchService: MatchService, matchPlayerService: MatchPlayerService, userService: UserService, tournamentMatchService: TournamentMatchService) {
     this._matchService = matchService;
     this._matchPlayerService = matchPlayerService;
     this._userService = userService;
+    this._tournamentMatchService = tournamentMatchService;
   }
 
   async newMatch(request: FastifyRequest, reply: FastifyReply) {
@@ -64,10 +67,12 @@ export default class MatchController {
       const matchResult = request.body as MatchResult;
       const match = await this._matchService.getByToken(request.params.token);
       if (!match)
-        throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
-
+        throw (new ResponseError(ErrorParams.NOT_FOUND));
       await this._matchService.setMatchFinished(match);
       await this._matchPlayerService.updateResult(match, matchResult);
+      if (match.tournamentRound?.tournament) {
+        await this._tournamentMatchService.updateMatchScore(matchResult, match.tournamentRound.tournament.token);
+      }
       reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);

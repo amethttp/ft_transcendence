@@ -25,5 +25,13 @@ export abstract class Player {
   
   public set state(newState : TPlayerState) {
     this._state = newState;
-  }  
+  }
+
+  toDto() {
+    return {
+      id: this._id,
+      username: this._username,
+      state: this._state
+    };
+  }
 }

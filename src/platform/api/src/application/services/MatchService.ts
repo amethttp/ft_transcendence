@@ -44,6 +44,7 @@ export class MatchService {
     const update = await this._matchRepository.update(match.id, matchUpdate);
     if (!update)
       throw new ResponseError(ErrorParams.USER_NOT_FOUND);
+    Object.assign(match, matchUpdate);
   }
 
   async getByToken(token: string): Promise<Match | null> {
