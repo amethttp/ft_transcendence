@@ -86,6 +86,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
             SELECT COALESCE(json_group_array(
               json_object(
                 'round', ${entity.players[0].tableName}.round,
+                'isWinner', ${entity.players[0].tableName}.is_winner,
                 'id', ${entity.players[0].tableName}.id,
                 'user', json_object(
                   'id', user1.id,

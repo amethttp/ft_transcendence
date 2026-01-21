@@ -150,9 +150,16 @@ export default class TournamentComponent extends AmethComponent {
       const container = document.getElementById("tournamentPlayers")!;
       for (const player of this._tournament.players.sort((a, b) => a.round - b.round)) {
         let status = "";
-        if (player.round < this._tournament.round) {
+        if (player.round < this._tournament.round || (this._tournament.state === TournamentState.FINISHED && !player.isWinner)) {
           status = `<span class="text-xs top-0.5 relative bg-red-50 outline-1 outline-red-100 p-0.5 rounded">out</span>`;
         }
+        else if (this._tournament.state === TournamentState.FINISHED && player.isWinner) {
+          status = `<span class="text-xs top-0.5 relative bg-green-50 outline-1 outline-green-100 p-0.5 rounded">winner</span>`;
+        }
+        else {
+          status = `<span class="text-xs top-0.5 relative bg-yellow-50 outline-1 outline-yellow-100 p-0.5 rounded">playing</span>`;
+        }
+
         const htmlElem = `
           <a href="/${player.user.username}" class="flex items-center p-2 gap-2 rounded hover:bg-brand-100 transition-colors">
             <img src="${player.user.avatarUrl}" width="40" height="40" class="aspect-square w-10 h-10 rounded-full overflow-hidden object-cover" />

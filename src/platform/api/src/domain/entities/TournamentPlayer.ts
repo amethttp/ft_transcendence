@@ -5,6 +5,7 @@ import { Tournament } from "./Tournament";
 const tournamentPlayerSchema: Record<string, string> = {
   id: "id",
   round: "round",
+  isWinner: "is_winner",
   user: "user_id",
   tournament: "tournament_id",
   creationTime: "creation_time",
@@ -16,6 +17,7 @@ export class TournamentPlayer extends AEntity {
 
   id: number;
   round: number;
+  isWinner: boolean;
   user: User;
   tournament: Tournament;
   creationTime: string;
@@ -24,6 +26,7 @@ export class TournamentPlayer extends AEntity {
     super();
     this.id = -1;
     this.round = 0;
+    this.isWinner = false;
     this.user = new User();
     if (tournament)
       this.tournament = tournament;
