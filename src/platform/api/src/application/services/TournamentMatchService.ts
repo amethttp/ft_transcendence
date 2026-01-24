@@ -26,7 +26,7 @@ export class TournamentMatchService {
     const round = tournament?.rounds[tournament.rounds.length - 1];
     if (!round)
       return;
-    else if(round.matches.length === 1 && round.matches[0].state === MatchState.FINISHED) {
+    else if (round.matches.length === 1 && round.matches[0].state === MatchState.FINISHED) {
       await this._updateWinnerPlayer(tournament, matchResult);
       tournament.state = TournamentState.FINISHED;
       const id = await this._tournamentRepository.update(tournament.id, { state: tournament.state, finishTime: new Date().toISOString() });
@@ -34,20 +34,31 @@ export class TournamentMatchService {
         throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
     else {
-      await this._updateMatchWinnerPlayer(tournament, matchResult);
+      await this._updateMatchPlayers(tournament, matchResult);
       const ongoingMatch = round?.matches.find(match => match.state != MatchState.FINISHED);
       if (!ongoingMatch)
         this._tournamentRoundService.createNext(tournament);
     }
   }
 
-  private async _updateMatchWinnerPlayer(tournament: Tournament, matchResult: MatchResult) {
+  private async _updateMatchPlayers(tournament: Tournament, matchResult: MatchResult) {
     const winnerPlayer = this._getWinnerPlayer(matchResult, tournament);
     if (winnerPlayer) {
       winnerPlayer.round++;
       const id = await this._tournamentPlayerRepository.update(winnerPlayer.id, { round: winnerPlayer.round });
       if (id === null)
         throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+      matchResult.players.forEach(async (player) => {
+        if (player.username !== winnerPlayer.user.username) {
+          const loserPlayer = tournament.players.find(pl => player.username === pl.user.username);
+          if (loserPlayer) {
+            loserPlayer.isAlive = false;
+            const id = await this._tournamentPlayerRepository.update(loserPlayer.id, { isAlive: loserPlayer.isAlive });
+            if (id === null)
+              throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+          }
+        }
+      });
     }
     else {
       console.error("Winner player not found in tournament players");

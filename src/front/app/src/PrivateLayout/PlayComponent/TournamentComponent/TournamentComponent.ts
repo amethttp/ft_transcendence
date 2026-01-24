@@ -6,6 +6,7 @@ import type { Router } from "../../../framework/Router/Router";
 import { TitleHelper } from "../../../framework/TitleHelper/TitleHelper";
 import { DOMHelper } from "../../../utils/DOMHelper";
 import { TournamentState, type Tournament } from "./models/Tournament";
+import { MatchState } from "./models/TournamentMatch";
 import type { TournamentPlayer } from "./models/TournamentPlayer";
 import { TournamentService } from "./services/TournamentService";
 import TournamentBracketsComponent from "./TournamentBracketsComponent/TournamentBracketsComponent";
@@ -134,9 +135,9 @@ export default class TournamentComponent extends AmethComponent {
       }
     }
     else if (tournament.state == TournamentState.IN_PROGRESS) {
-      if (tournament.rounds.length > 0 && this._loggedPlayer?.round === tournament.round) {
+      if (tournament.rounds.length > 0 && this._loggedPlayer?.isAlive && this._loggedPlayer?.round === tournament.round) {
         const nextMatch = tournament.rounds[tournament.rounds.length - 1].matches
-          .find(match => match.players.find(pl => pl.userId === this._loggedUser?.id));
+          .find(match => match.state != MatchState.FINISHED && match.players.find(pl => pl.userId === this._loggedUser?.id));
         if (nextMatch) {
           (document.getElementById("playMatchBtn") as HTMLAnchorElement).href = `/play/${nextMatch.token}`;
           document.getElementById("playMatchBtn")?.classList.remove("hidden");
@@ -150,13 +151,13 @@ export default class TournamentComponent extends AmethComponent {
       const container = document.getElementById("tournamentPlayers")!;
       for (const player of this._tournament.players.sort((a, b) => a.round - b.round)) {
         let status = "";
-        if (player.round < this._tournament.round || (this._tournament.state === TournamentState.FINISHED && !player.isWinner)) {
+        if (!player.isAlive || player.round < this._tournament.round) {
           status = `<span class="text-xs top-0.5 relative bg-red-50 outline-1 outline-red-100 p-0.5 rounded">out</span>`;
         }
         else if (this._tournament.state === TournamentState.FINISHED && player.isWinner) {
           status = `<span class="text-xs top-0.5 relative bg-green-50 outline-1 outline-green-100 p-0.5 rounded">winner</span>`;
         }
-        else {
+        else if (player.round === this._tournament.round && this._tournament.state === TournamentState.IN_PROGRESS) {
           status = `<span class="text-xs top-0.5 relative bg-yellow-50 outline-1 outline-yellow-100 p-0.5 rounded">playing</span>`;
         }
 

@@ -87,6 +87,7 @@ export class SQLiteTournamentRepository extends SQLiteBaseRepository<Tournament>
               json_object(
                 'round', ${entity.players[0].tableName}.round,
                 'isWinner', ${entity.players[0].tableName}.is_winner,
+                'isAlive', ${entity.players[0].tableName}.is_alive,
                 'id', ${entity.players[0].tableName}.id,
                 'user', json_object(
                   'id', user1.id,

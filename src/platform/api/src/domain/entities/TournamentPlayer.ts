@@ -6,6 +6,7 @@ const tournamentPlayerSchema: Record<string, string> = {
   id: "id",
   round: "round",
   isWinner: "is_winner",
+  isAlive: "is_alive",
   user: "user_id",
   tournament: "tournament_id",
   creationTime: "creation_time",
@@ -18,6 +19,7 @@ export class TournamentPlayer extends AEntity {
   id: number;
   round: number;
   isWinner: boolean;
+  isAlive: boolean;
   user: User;
   tournament: Tournament;
   creationTime: string;
@@ -27,6 +29,7 @@ export class TournamentPlayer extends AEntity {
     this.id = -1;
     this.round = 0;
     this.isWinner = false;
+    this.isAlive = true;
     this.user = new User();
     if (tournament)
       this.tournament = tournament;
