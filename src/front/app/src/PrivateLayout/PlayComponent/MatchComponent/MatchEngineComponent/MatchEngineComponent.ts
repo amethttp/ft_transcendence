@@ -12,6 +12,7 @@ import FullScreenButton from "./Elements/FullScreenButton";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
+  opponentLeft: boolean;
   matchEnded: number[];
 };
 
@@ -74,6 +75,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent('disconnect', (reason) => {
       console.log("Disconnected:", reason);
+    });
+    this._socketClient.setEvent('opponentLeft', () => {
+      this.emit("opponentLeft", true);
     });
   }
 

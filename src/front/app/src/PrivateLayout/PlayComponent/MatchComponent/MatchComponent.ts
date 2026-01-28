@@ -46,12 +46,26 @@ export default class MatchComponent extends AmethComponent {
   }
 
   opponentConnected = (userId: number) => {
-    this._matchService.getPlayer(userId, this._match?.id || -1).then(
-      val => {
-        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
-        this._showOpponentPlayer();
-      })
+    this._matchService.getPlayer(userId, this._match?.id || -1).then(val => {
+      this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
+      this._showOpponentPlayer();
+    })
       .catch(() => Alert.error("Some error occurred with opponent"));
+  }
+
+  opponentLeft = async () => {
+    if (!this._match)
+      return;
+    const loggedName = (await LoggedUser.get())!.username;
+    const loggedPlayer = this._match?.players.find(pl => pl.user.username === loggedName)!;
+    const loggedIndex = this._match?.players.indexOf(loggedPlayer)!;
+    if (loggedIndex === 1) {
+      this._match.players[0] = this._match.players[1];
+    }
+    this._match.players.splice(1, 1);
+    this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match.players[0]));
+    this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match.players[1]));
+    this._hideOpponentPlayer();
   }
 
   matchEnded = (score: number[]) => {
@@ -95,6 +109,7 @@ export default class MatchComponent extends AmethComponent {
     this._fillView();
     this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
     this._matchEngineComponent?.on("matchEnded", this.matchEnded);
+    this._matchEngineComponent?.on("opponentLeft", this.opponentLeft);
     this._matchEngineComponent?.afterInit();
   }
 
@@ -133,9 +148,13 @@ export default class MatchComponent extends AmethComponent {
   }
 
   private _showOpponentPlayer() {
-    document.getElementById("MatchComponentOpponentPlayer")?.classList.remove("hidden");
-    document.getElementById("MatchComponentOpponentPlayer")?.classList.add("flex");
+    document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("hidden", "flex");
     document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
+  }
+
+  private _hideOpponentPlayer() {
+    document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("flex", "hidden");
+    document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
   private _fillView() {
