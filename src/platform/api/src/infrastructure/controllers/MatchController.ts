@@ -71,7 +71,7 @@ export default class MatchController {
       await this._matchService.setMatchFinished(match);
       await this._matchPlayerService.updateResult(match, matchResult);
       if (match.tournamentRound?.tournament) {
-        await this._tournamentMatchService.updateMatchScore(matchResult, match.tournamentRound.tournament.token);
+        await this._tournamentMatchService.updateMatchScore(matchResult, match);
       }
       reply.code(200).send({ success: true });
     } catch (error: any) {
