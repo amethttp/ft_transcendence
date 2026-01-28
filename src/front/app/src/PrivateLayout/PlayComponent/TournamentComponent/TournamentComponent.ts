@@ -32,18 +32,21 @@ export default class TournamentComponent extends AmethComponent {
 
   async afterInit() {
     this._loggedUser = (await LoggedUser.get())!;
+    document.getElementById('refreshTournamentStateBtn')!.addEventListener('click', () => { this.refreshTournamentState() });
     await this._setTournament();
     this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
     this._setTitle();
-    this._interval = setInterval(async () => {
-      await this._setTournament();
-      this._bracketsComponent?.refresh(this._tournament);
-      if (!this._tournament)
-        return;
-      this._fillActions(this._tournament);
-      this._fillPlayers();
-    }, 20000);
+    this._interval = setInterval(async () => { this.refreshTournamentState() }, 20000);
+  }
+
+  private async refreshTournamentState() {
+    await this._setTournament();
+    this._bracketsComponent?.refresh(this._tournament);
+    if (!this._tournament)
+      return;
+    this._fillActions(this._tournament);
+    this._fillPlayers();
   }
 
   async refresh() {
@@ -200,6 +203,7 @@ export default class TournamentComponent extends AmethComponent {
 
   async destroy() {
     clearInterval(this._interval);
+    document.getElementById('refreshTournamentStateBtn')?.removeEventListener('click', () => { this.refreshTournamentState() });
     await super.destroy();
   }
 }
