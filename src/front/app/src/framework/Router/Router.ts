@@ -49,8 +49,20 @@ export class Router extends EventEmitter<RouterEvents> {
     );
   }
 
+  private userDoesntWantToLeave(): boolean {
+    const hasProtection = (window as any).__ameth_protectFromUnload;
+    return hasProtection && !window.confirm("You have an active match. Are you sure you want to leave?");
+  }
+
   private listen() {
-    window.addEventListener("popstate", () => this.navigate(this.normalizeURL(location.href)));
+    window.addEventListener("popstate", () => {
+      if (this.userDoesntWantToLeave()) {
+        history.pushState(null, "", this.currentPath.fullPath || "/");
+        return;
+      }
+      this.navigate(this.normalizeURL(location.href));
+    });
+
     document.addEventListener("click", (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>("a");
       if (!anchor || this.isOtherEvent(e, anchor)) return;
@@ -152,6 +164,8 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   navigateByUrl(newUrl: URL) {
+    if (this.userDoesntWantToLeave())
+      return;
     history.pushState(null, "", newUrl.href);
     this.navigate(newUrl.pathname);
   }

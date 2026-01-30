@@ -96,6 +96,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
     document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    (window as any).__ameth_protectFromUnload = true;
+  }
+
+  private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = '';
   }
 
   private startMatch() {
@@ -247,6 +254,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._animationId = 0;
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    (window as any).__ameth_protectFromUnload = false;
     await super.destroy();
   }
 }
