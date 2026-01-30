@@ -1,6 +1,7 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import SocketClient from "../../../../framework/SocketClient/SocketClient";
+import { PlayerType } from "../MatchComponent";
 import type { PlayerTypeValue } from "../MatchComponent";
 import Ball from "./Elements/Ball";
 import Paddle from "./Elements/Paddle";
@@ -74,6 +75,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     });
     this._socketClient.setEvent('disconnect', (reason) => {
       console.log("Disconnected:", reason);
+    });
+    this._socketClient.setEvent('pause', () => {
+      this._canvasOverlay.setPauseState();
+      if (this._animationId)
+        cancelAnimationFrame(this._animationId);
+      this._animationId = 0;
+    });
+    this._socketClient.setEvent('reset', () => {
+      this._canvasOverlay.reset();
+      this._canvasOverlay.onclick(() => this.setReadyToPlay());
     });
   }
 
@@ -203,6 +214,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   setPlayer(type: PlayerTypeValue) {
     console.log("new player", type);
+    if (type === PlayerType.CPU)
+      this._socketClient.emitEvent('ai');
+    else if (type === PlayerType.LOCAL)
+      this._socketClient.emitEvent('local');
   }
 
   private observeResize() {
