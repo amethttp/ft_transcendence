@@ -1,27 +1,27 @@
-<div class="flex flex-1 flex-col sm:flex-row flex-wrap items-center gap-7 justify-center">
-  <div class="flex flex-1 flex-wrap gap-5 items-center justify-center">
+<div class="flex flex-1 flex-col sm:flex-row items-center gap-7 justify-center">
+  <div class="flex flex-1 flex-wrap gap-5 items-center justify-center max-w-[400px]">
     <img src="/default-avatar.webp"
-      class="userAvatar rounded-full aspect-square max-w-sm w-1/4 min-w-[100px] object-cover object-center transform scale-[0.9999]"
-      alt="User avatar" width="800" height="800">
-    <div class="flex flex-col gap-3">
-      <div class="flex flex-wrap items-center justify-center gap-2 w-full">
-        <h2 class="UserComponentUsername title-2 relative -top-1"></h2>
-        <div class="UserComponentOnline hidden tooltip bg-green-50 outline-green-600 before:bg-green-600">
+      class="userAvatar rounded-full aspect-square size-20 max-w-sm sm:size-1/4 min-w-[80px] object-cover object-center transform scale-[0.9999]"
+      alt="User avatar" width="640" height="640">
+    <div class="flex flex-col gap-1 min-w-0 flex-1">
+      <div class="flex flex-nowrap items-center gap-2 w-full">
+        <h2 class="UserComponentUsername title-3 truncate min-w-0 relative -top-1"></h2>
+        <div class="UserComponentOnline flex-shrink-0 hidden tooltip bg-green-50 outline-green-600 before:bg-green-600">
           online
         </div>
-        <div class="UserComponentOffline hidden tooltip bg-gray-50 outline-gray-600 before:bg-gray-600">
+        <div class="UserComponentOffline flex-shrink-0 hidden tooltip bg-gray-50 outline-gray-600 before:bg-gray-600">
           offline
         </div>
       </div>
       <div class="whitespace-nowrap">
-        Joined on <span class="UserComponentCreationTime"></h2>
+        Joined on <span class="UserComponentCreationTime"></span>
       </div>
     </div>
   </div>
   <div id="userActionsContainer" class="userActions flex sm:flex-col gap-2 flex-wrap justify-center ">
-    <a class="UserComponentEditBtn btn btn-tertiary">Edit profile</a>
-    <button class="UserComponentAddFriendBtn btn btn-primary">Add friend</button>
-    <button class="UserComponentDeleteFriendBtn btn btn-primary">Delete friend</button>
+    <a class="UserComponentEditBtn btn btn-tertiary text-nowrap">Edit profile</a>
+    <button class="UserComponentAddFriendBtn btn btn-primary text-nowrap">Add friend</button>
+    <button class="UserComponentDeleteFriendBtn btn btn-primary text-nowrap">Delete friend</button>
     <div class="UserComponentPendingRequest hidden flex flex-col items-center gap-2 w-full sm:w-auto">
       <p class="text-center text-sm sm:text-base font-medium text-gray-700">
         <span class="pendingReqText">Wants to be your friend!</span>
