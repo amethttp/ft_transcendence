@@ -79,6 +79,7 @@ export default class FriendsListComponent<Component extends UserProfileComponent
     await profile.init(elem.id, this.router);
     profile.on("change", () => this.router?.refresh());
     profile.afterInit();
+    await (profile as unknown as UserProfileActionsComponent).hideLoggedUserActions();
     return profile;
   }
 

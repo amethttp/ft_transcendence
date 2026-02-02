@@ -11,6 +11,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   template = () => import("./UserProfileActionsComponent.html?raw");
   protected userProfileService: UserProfileService;
   protected relationService: RelationService;
+  private _uniqueActionsContainerId!: string;
 
   constructor(userProfile: UserProfile) {
     super(userProfile);
@@ -20,6 +21,9 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   async afterInit() {
     super.afterInit();
+    const container = document.getElementById('userActionsContainer')! as HTMLDivElement;
+    this._uniqueActionsContainerId = `${container.id}-${this.userProfile.username}`;
+    container.id = this._uniqueActionsContainerId;
     this.refresh();
   }
 
@@ -156,9 +160,16 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   }
 
   hideActions() {
-    const container = document.getElementById('userActionsContainer');
+    const container = document.getElementById(this._uniqueActionsContainerId);
 
     container?.classList.add('hidden');
+  }
+
+  async hideLoggedUserActions() {
+    const loggedUserProfile = (await LoggedUser.get(true)) as unknown as UserProfile;
+    if (this._userProfile?.username === loggedUserProfile.username) {
+      this.hideActions();
+    }
   }
 
   async destroy() {
