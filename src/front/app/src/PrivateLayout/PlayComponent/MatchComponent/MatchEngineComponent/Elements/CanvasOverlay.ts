@@ -24,22 +24,47 @@ export default class CanvasOverlay {
     this._overlay.style.display = 'none';
   }
 
-  private changeStyles() {
-    this._overlay.classList.toggle('lg:text-7xl');
-    this._overlay.classList.toggle('lg:text-6xl');
-    this._overlay.classList.toggle('md:text-5xl');
-    this._overlay.classList.toggle('md:text-4xl');
-    this._overlay.classList.toggle('sm:text-3xl');
-    this._overlay.classList.toggle('sm:text-2xl');
+  private setSmallerStyles() {
+    this._overlay.classList.remove('lg:text-7xl');
+    this._overlay.classList.add('lg:text-6xl');
+    this._overlay.classList.remove('md:text-5xl');
+    this._overlay.classList.add('md:text-4xl');
+    this._overlay.classList.remove('sm:text-3xl');
+    this._overlay.classList.add('sm:text-2xl');
+  }
+
+  private setBiggerStyles() {
+    this._overlay.classList.add('lg:text-7xl');
+    this._overlay.classList.remove('lg:text-6xl');
+    this._overlay.classList.add('md:text-5xl');
+    this._overlay.classList.remove('md:text-4xl');
+    this._overlay.classList.add('sm:text-3xl');
+    this._overlay.classList.remove('sm:text-2xl');
   }
 
   setWaitingState() {
-    this.changeStyles();
+    this.setSmallerStyles();
     this._overlay.innerHTML = 'WAITING FOR OPPONENT...';
   }
 
+  setPauseState() {
+    this.setSmallerStyles();
+    this._spanMessage.innerHTML = 'FREE WIN IN 2 MINS.';
+    this._overlay.innerHTML = 'WAITING FOR OPPONENT...';
+    this._overlay.append(this._spanMessage);
+    this.show();
+  }
+
+  reset() {
+    this.setBiggerStyles();
+    this._spanMessage.innerHTML = 'CLICK HERE TO START!';
+    this._overlay.innerHTML = 'READY TO PLAY?'
+    this._overlay.append(this._spanMessage);
+    this.show();
+  }
+
   showMatchResult(score: number[]) {
-    this.changeStyles();
+    this.setBiggerStyles();
     this._spanMessage.innerHTML = `${score[0]} - ${score[1]}`;
     this._overlay.innerHTML = 'MATCH OVER!';
     this._overlay.append(this._spanMessage);
