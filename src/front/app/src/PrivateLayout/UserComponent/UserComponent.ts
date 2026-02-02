@@ -9,6 +9,7 @@ import UserProfileComponent from "./UserProfileComponent/UserProfileComponent";
 import UserProfileActionsComponent from "./UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 import { RelationType } from "./models/Relation";
 import { Context } from "../../framework/Context/Context";
+import type { Router } from "../../framework/Router/Router";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
@@ -47,6 +48,10 @@ export default class UserComponent extends AmethComponent {
 
   async afterInit() {
     await this.setUserProfile();
+    if ((await LoggedUser.get())?.username === this.userProfile.username) {
+      this.router?.redirectByPath("/home");
+      return;
+    }
     this.userProfileComponent = new UserProfileActionsComponent(this.userProfile);
     await this.userProfileComponent.init('UserComponentProfile', this.router);
     this.userProfileComponent.afterInit();
