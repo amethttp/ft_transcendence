@@ -6,7 +6,7 @@ import Path from "./Path/Path";
 import type { Route } from "./Route/Route";
 
 export type RouterEvents = {
-  navigate: {routeTree: Route[], path: Path, router?: Router};
+  navigate: { routeTree: Route[], path: Path, router?: Router };
 }
 
 export class Router extends EventEmitter<RouterEvents> {
@@ -80,7 +80,7 @@ export class Router extends EventEmitter<RouterEvents> {
       e.preventDefault();
       const newUrl = new URL(anchor.href);
       const oldHref = location.href;
-      newUrl.pathname = this.normalizeURL(newUrl.href);
+      newUrl.pathname = this.normalizeURL(newUrl.href, false);
       if (newUrl.href !== oldHref)
         this.navigateByUrl(newUrl);
     });
@@ -105,10 +105,13 @@ export class Router extends EventEmitter<RouterEvents> {
     return undefined;
   }
 
-  private normalizeURL(href: string): string {
+  private normalizeURL(href: string, replaceHistory = true): string {
     const url = new URL(href);
-    if (url.pathname.endsWith("/")) {
+    url.pathname = PathHelper.normalize(url.pathname);
+    if (url.pathname !== "/" && url.pathname.endsWith("/")) {
       url.pathname = PathHelper.removeTrailingSlash(url.pathname);
+    }
+    if (replaceHistory && url.pathname !== new URL(location.href).pathname) {
       history.replaceState(null, "", url.href);
     }
     return url.pathname;
@@ -122,7 +125,7 @@ export class Router extends EventEmitter<RouterEvents> {
     }
 
     this._currentPath = PathMapper.fromRouteTree(routeTree, path);
-    this.emitSync("navigate", {routeTree: routeTree, path: this._currentPath, router: this});
+    this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
 
     let lastI = 0;
     const oldComponents: AmethComponent[] = [];
@@ -153,7 +156,7 @@ export class Router extends EventEmitter<RouterEvents> {
       }
     }
     for (const [i, component] of this._currentComponents.entries()) {
-      if (i <= lastI){
+      if (i <= lastI) {
         if (i >= oldComponents.length || component != oldComponents[i])
           component.afterInit();
         else
