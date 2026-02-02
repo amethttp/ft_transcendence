@@ -17,6 +17,7 @@ export default class TournamentComponent extends AmethComponent {
   private _bracketsComponent?: TournamentBracketsComponent;
   private _loggedUser?: User;
   private _loggedPlayer?: TournamentPlayer;
+  private _interval?: number;
 
   constructor() {
     super();
@@ -31,10 +32,21 @@ export default class TournamentComponent extends AmethComponent {
 
   async afterInit() {
     this._loggedUser = (await LoggedUser.get())!;
+    document.getElementById('refreshTournamentStateBtn')!.addEventListener('click', () => { this.refreshTournamentState() });
     await this._setTournament();
     this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
     this._setTitle();
+    this._interval = setInterval(() => { this.refreshTournamentState() }, 20000);
+  }
+
+  private async refreshTournamentState() {
+    await this._setTournament();
+    this._bracketsComponent?.refresh(this._tournament);
+    if (!this._tournament)
+      return;
+    this._fillActions(this._tournament);
+    this._fillPlayers();
   }
 
   async refresh() {
@@ -122,6 +134,11 @@ export default class TournamentComponent extends AmethComponent {
             document.getElementById("startTournamentBtn")?.setAttribute("title", "Wait for opponents to start tournament");
             document.getElementById("startTournamentBtn")?.setAttribute("disabled", "true");
           }
+          else
+          {
+            document.getElementById("startTournamentBtn")?.removeAttribute("title");
+            document.getElementById("startTournamentBtn")?.removeAttribute("disabled");
+          }
         }
       }
       else if (tournament.players.length < tournament.playersAmount) {
@@ -148,6 +165,7 @@ export default class TournamentComponent extends AmethComponent {
   private _fillPlayers() {
     if (this._tournament && this._tournament.players && this._tournament.players.length > 0) {
       const container = document.getElementById("tournamentPlayers")!;
+      container.innerHTML = '';
       for (const player of this._tournament.players.sort((a, b) => a.round - b.round)) {
         let status = "";
         if (this._tournament.round !== player.round) {
@@ -181,5 +199,11 @@ export default class TournamentComponent extends AmethComponent {
     if (this._tournament) {
       document.title = TitleHelper.addTitlePart(this._tournament.name);
     }
+  }
+
+  async destroy() {
+    clearInterval(this._interval);
+    document.getElementById('refreshTournamentStateBtn')?.removeEventListener('click', () => { this.refreshTournamentState() });
+    await super.destroy();
   }
 }
