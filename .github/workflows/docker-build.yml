@@ -1,0 +1,57 @@
+name: Docker Build Check
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+    paths:
+      - 'src/front/**'
+      - 'src/platform/**'
+      - 'src/game/**'
+      - 'src/nginx/**'
+      - 'src/docker-compose*.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/front/**'
+      - 'src/platform/**'
+      - 'src/game/**'
+      - 'src/nginx/**'
+      - 'src/docker-compose*.yml'
+
+jobs:
+  docker-check:
+    name: Docker Images Build Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/front
+          file: ./src/front/Dockerfile
+          push: false
+      
+      - name: Build Platform API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/platform
+          file: ./src/platform/Dockerfile
+          push: false
+      
+      - name: Build Game API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/game
+          file: ./src/game/Dockerfile
+          push: false
+      
+      - name: Build Nginx image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src/nginx
+          file: ./src/nginx/Dockerfile
+          push: false
