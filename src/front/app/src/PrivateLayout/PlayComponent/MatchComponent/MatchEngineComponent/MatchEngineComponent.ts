@@ -97,7 +97,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this.observeResize();
     document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
-    (window as any).__ameth_protectFromUnload = true;
+    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
   }
 
   private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -255,7 +255,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-    (window as any).__ameth_protectFromUnload = false;
+    this.router?.permitUnload(); 
     await super.destroy();
   }
 }

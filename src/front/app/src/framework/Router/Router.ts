@@ -15,6 +15,8 @@ export class Router extends EventEmitter<RouterEvents> {
   private _currentTree: Route[];
   private _currentComponents: AmethComponent[];
   private _currentPath: Path;
+  private _protectFromUnload: boolean;
+  private _protectUnloadMsg: string;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -24,10 +26,24 @@ export class Router extends EventEmitter<RouterEvents> {
     this._currentComponents = [];
     this._currentPath = new Path();
     this.listen();
+    this._protectFromUnload = false;
+    this._protectUnloadMsg = "You have unsaved changes. Are you sure you want to leave?";
   }
 
   get currentPath(): Path {
     return this._currentPath;
+  }
+
+  preventUnload(msg?: string) {
+    this._protectFromUnload = true;
+    if (msg) {
+      this._protectUnloadMsg = msg;
+    }
+  }
+
+  permitUnload() {
+    this._protectFromUnload = false;
+    this._protectUnloadMsg = "You have unsaved changes. Are you sure you want to leave?";
   }
 
   private isOtherEvent(e: MouseEvent, anchor: HTMLAnchorElement): boolean {
@@ -49,14 +65,9 @@ export class Router extends EventEmitter<RouterEvents> {
     );
   }
 
-  private userDoesntWantToLeave(): boolean {
-    const hasProtection = (window as any).__ameth_protectFromUnload;
-    return hasProtection && !window.confirm("You have an active match. Are you sure you want to leave?");
-  }
-
   private listen() {
     window.addEventListener("popstate", () => {
-      if (this.userDoesntWantToLeave()) {
+      if (this._protectFromUnload && !window.confirm(this._protectUnloadMsg)) {
         history.pushState(null, "", this.currentPath.fullPath || "/");
         return;
       }
@@ -164,7 +175,7 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   navigateByUrl(newUrl: URL) {
-    if (this.userDoesntWantToLeave())
+    if (this._protectFromUnload && !window.confirm(this._protectUnloadMsg))
       return;
     history.pushState(null, "", newUrl.href);
     this.navigate(newUrl.pathname);
