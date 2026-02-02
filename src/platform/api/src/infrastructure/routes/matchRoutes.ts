@@ -13,6 +13,11 @@ import { MatchPlayerService } from "../../application/services/MatchPlayerServic
 import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
 import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchPlayerRepository";
 import MatchController from "../controllers/MatchController";
+import { TournamentMatchService } from "../../application/services/TournamentMatchService";
+import { SQLiteTournamentRepository } from "../repositories/sqlite/SQLiteTournamentRepository";
+import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
+import { TournamentRoundService } from "../../application/services/TournamentRoundService";
+import { SQLiteTournamentRoundRepository } from "../repositories/sqlite/SQLiteTournamentRoundRepository";
 
 export default async function matchRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
@@ -27,7 +32,12 @@ export default async function matchRoutes(server: FastifyInstance) {
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
-  const matchController = new MatchController(matchService, matchPlayerService, userService);
+  const tournamentRepository = new SQLiteTournamentRepository();
+  const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
+  const tournamentRoundRepository = new SQLiteTournamentRoundRepository();
+  const tournamentRoundService = new TournamentRoundService(tournamentRoundRepository, tournamentRepository, matchService, matchPlayerService);
+  const tournamentMatchService = new TournamentMatchService(tournamentRepository, tournamentPlayerRepository, tournamentRoundService);
+  const matchController = new MatchController(matchService, matchPlayerService, userService, tournamentMatchService);
 
   server.post('', async (request: FastifyRequest, reply: FastifyReply) => {
     await matchController.newMatch(request, reply);

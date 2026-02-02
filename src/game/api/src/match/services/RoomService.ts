@@ -37,7 +37,7 @@ export class RoomService {
       local: false,
       state: MatchState.WAITING,
       creationTime: "",
-      score: [0,0]
+      score: [0, 0]
     } as MatchSettings;
     if (cookie) {
       try {
@@ -60,7 +60,6 @@ export class RoomService {
 
   public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
     socket.leave(room.token);
-    this.io.to(room.token).emit("message", `${socket.username} left`);
     clearInterval(room.interval);
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
@@ -166,7 +165,7 @@ export class RoomService {
       return; // TODO: Throw error
     opts.headers = { cookie: cookie };
     this._apiClient.delete(`${MATCH_BASE_ROUTE}/${token}/player`, undefined, opts)
-      .then(() => console.log("API MATCH DELETE DONE"))
+      .then(() => { this.io.to(token).emit("opponentLeft"); console.log("API MATCH DELETE DONE") })
       .catch((error) => console.log("API MATCH DELETE FAILED", error));
   }
 

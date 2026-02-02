@@ -8,9 +8,6 @@ import { UserService } from "../../application/services/UserService";
 import { Tournament, TournamentState } from "../../domain/entities/Tournament";
 import { TournamentMinified } from "../../application/models/TournamentMinified";
 import { TournamentRoundService } from "../../application/services/TournamentRoundService";
-import { MatchService } from "../../application/services/MatchService";
-import { MatchPlayerService } from "../../application/services/MatchPlayerService";
-import { NewMatchRequest } from "../../application/models/NewMatchRequest";
 import { User } from "../../domain/entities/User";
 
 export default class TournamentController {
@@ -18,16 +15,12 @@ export default class TournamentController {
   private _tournamentService: TournamentService;
   private _tournamentPlayerService: TournamentPlayerService;
   private _tournamentRoundService: TournamentRoundService;
-  private _matchService: MatchService;
-  private _matchPlayerService: MatchPlayerService;
 
-  constructor(userService: UserService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService, tournamentRoundService: TournamentRoundService, matchService: MatchService, matchPlayerService: MatchPlayerService) {
+  constructor(userService: UserService, tournamentService: TournamentService, tournamentPlayerService: TournamentPlayerService, tournamentRoundService: TournamentRoundService) {
     this._userService = userService;
     this._tournamentService = tournamentService;
     this._tournamentPlayerService = tournamentPlayerService;
     this._tournamentRoundService = tournamentRoundService;
-    this._matchService = matchService;
-    this._matchPlayerService = matchPlayerService;
   }
 
   async newTournament(request: FastifyRequest, reply: FastifyReply) {
@@ -163,7 +156,11 @@ export default class TournamentController {
         const player = tournament.players.find(player => player.user.id === jwtUser.sub);
         if (player && tournament.players[0] === player) {
           await this._tournamentService.start(tournament);
-          await this._createRound(tournament);
+          for (const player of tournament.players ) {
+            player.round++;
+            await this._tournamentPlayerService.update(player, { round: player.round });
+          }
+          await this._tournamentRoundService.createNext(tournament);
           return reply.send({ success: true });
         }
         else {
@@ -183,48 +180,6 @@ export default class TournamentController {
     }
   }
 
-  private async _createRound(tournament: Tournament) {
-    const activePlayers = tournament.players.filter(player => player.round === tournament.round);
-    const round = await this._tournamentRoundService.create(activePlayers.length.toString(), tournament);
-    for (let i = 0; i < activePlayers.length; i += 2) {
-      const matchRequest: NewMatchRequest = {
-        name: `${tournament.name} - round of ${round.top}`,
-        points: tournament.points,
-        tournamentRound: round,
-        isVisible: false
-      }
-      const match = await this._matchService.newMatch(matchRequest);
-      await this._matchPlayerService.newMatchPlayer(activePlayers[i].user, match);
-      if (activePlayers[i + 1])
-        await this._matchPlayerService.newMatchPlayer(activePlayers[i + 1].user, match);
-    }
-  }
-
-  async fill(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
-    try {
-      if (!request.params.token) {
-        const err = new ResponseError(ErrorParams.BAD_REQUEST);
-        return reply.code(err.code).send(err.toDto());
-      }
-      const tournament = await this._tournamentService.getByToken(request.params.token);
-      const jwtUser = request.user as JwtPayloadInfo;
-      const originUser = await this._userService.getById(jwtUser.sub);
-      if (tournament.players.length < tournament.playersAmount) {
-        await this.fillAllPlayers(tournament, originUser);
-      }
-      await this._tournamentService.start(tournament);
-      await this.createRounds(tournament);
-      this._tournamentService.update(tournament.id, tournament);
-      return reply.send({ success: true });
-    }
-    catch (err: any) {
-      console.log(err);
-      if (err instanceof ResponseError)
-        reply.code(err.code).send(err.toDto());
-      else
-        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
-    }
-  }
 
   async fillAllPlayers(tournament: Tournament, originUser: User) {
     const players = [];
@@ -239,7 +194,7 @@ export default class TournamentController {
     let alivePlayers = tournament.players;
     while (tournament.round < maxRounds) {
       await this._tournamentPlayerService.updateMultiple(alivePlayers, {round: tournament.round});
-      await this._createRound(tournament);
+      await this._tournamentRoundService.createNext(tournament);
       tournament.round++;
       alivePlayers = alivePlayers.filter( player => {
         const index = alivePlayers.indexOf(player);

@@ -143,6 +143,8 @@ CREATE TABLE
   IF NOT EXISTS tournament_player (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     round INT NOT NULL,
+	is_winner BOOLEAN NOT NULL DEFAULT FALSE,
+	is_alive BOOLEAN NOT NULL DEFAULT TRUE,
     user_id INTEGER NOT NULL,
 	creation_time TEXT NOT NULL DEFAULT current_timestamp,
     tournament_id INTEGER NOT NULL,
@@ -169,7 +171,7 @@ CREATE TABLE
   IF NOT EXISTS match_player (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     score INT NOT NULL,
-    is_winner BOOLEAN NOT NULL,
+    is_winner BOOLEAN NOT NULL DEFAULT FALSE,
     user_id INTEGER NOT NULL,
     match_id INTEGER NOT NULL,
 	creation_time TEXT NOT NULL DEFAULT current_timestamp,

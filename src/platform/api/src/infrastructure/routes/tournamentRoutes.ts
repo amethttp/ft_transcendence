@@ -34,12 +34,12 @@ export default async function tournamentRoutes(server: FastifyInstance) {
   const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
   const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
   const tournamentRoundRepository = new SQLiteTournamentRoundRepository();
-  const tournamentRoundService = new TournamentRoundService(tournamentRoundRepository);
   const matchRepository = new SQLiteMatchRepository();
   const matchPlayerRepository = new SQLiteMatchPlayerRepository();
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
-  const tournamentController = new TournamentController(userService, tournamentService, tournamentPlayerService, tournamentRoundService, matchService, matchPlayerService);
+  const tournamentRoundService = new TournamentRoundService(tournamentRoundRepository, tournamentRepository, matchService, matchPlayerService);
+  const tournamentController = new TournamentController(userService, tournamentService, tournamentPlayerService, tournamentRoundService);
 
   server.post('', async (request: FastifyRequest, reply: FastifyReply) => {
     await tournamentController.newTournament(request, reply);
@@ -63,9 +63,5 @@ export default async function tournamentRoutes(server: FastifyInstance) {
 
   server.post('/:token/start', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
     await tournamentController.start(request, reply);
-  });
-
-   server.post('/:token/fill', async (request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) => {
-    await tournamentController.fill(request, reply);
   });
 }

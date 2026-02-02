@@ -5,5 +5,4 @@ export interface ITournamentPlayerRepository extends IBaseRepository<TournamentP
   findLastAmountByUser(id: number, amount: number): Promise<TournamentPlayer[] | null>;
   findAllByUser(id: number): Promise<TournamentPlayer[] | null>;
   deleteAllByUser(id: number): Promise<boolean | null>;
-
 }

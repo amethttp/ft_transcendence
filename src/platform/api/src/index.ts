@@ -3,15 +3,15 @@ import jwt from '@fastify/jwt';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import fs from 'fs';
-import userRoutes from "./infrastructure/routes/UserRoutes";
+import userRoutes from "./infrastructure/routes/userRoutes";
 import { JwtAuth } from "./infrastructure/auth/JwtAuth";
-import authRoutes from "./infrastructure/routes/AuthRoutes";
+import authRoutes from "./infrastructure/routes/authRoutes";
 import { createDummyUsers } from "./spec/createDummyUsers";
 import mailerPlugin from "./infrastructure/plugins/mailerPlugin";
 import fastifyRateLimit from "@fastify/rate-limit";
-import UserRelationRoutes from "./infrastructure/routes/UserRelationRoutes";
-import UserStatusRoutes from "./infrastructure/routes/UserStatusRoutes";
-import SearchRoutes from "./infrastructure/routes/SearchRoutes";
+import userRelationRoutes from "./infrastructure/routes/userRelationRoutes";
+import userStatusRoutes from "./infrastructure/routes/userStatusRoutes";
+import searchRoutes from "./infrastructure/routes/searchRoutes";
 import matchRoutes from "./infrastructure/routes/matchRoutes";
 import tournamentRoutes from "./infrastructure/routes/tournamentRoutes";
 
@@ -44,9 +44,9 @@ const main = async () => {
 
   await server.register(userRoutes, { prefix: '/user' });
   await server.register(authRoutes, { prefix: '/auth' });
-  await server.register(UserRelationRoutes, { prefix: '/relation' });
-  await server.register(UserStatusRoutes, { prefix: '/status' });
-  await server.register(SearchRoutes, { prefix: '/search' });
+  await server.register(userRelationRoutes, { prefix: '/relation' });
+  await server.register(userStatusRoutes, { prefix: '/status' });
+  await server.register(searchRoutes, { prefix: '/search' });
   await server.register(matchRoutes, { prefix: '/match' });
   await server.register(tournamentRoutes, { prefix: '/tournament' });
 

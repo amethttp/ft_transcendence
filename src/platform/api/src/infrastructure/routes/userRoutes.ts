@@ -1,4 +1,3 @@
-import SearchController from "../controllers/SearchController";
 import { FastifyInstance, FastifyRequest } from "fastify";
 import UserController from "../controllers/UserController";
 import { SQLiteUserRepository } from "../repositories/sqlite/SQLiteUserRepository";
@@ -15,20 +14,21 @@ import { SQLiteRecoverPasswordRepository } from "../repositories/sqlite/SQLiteRe
 import { UserVerificationService } from "../../application/services/UserVerificationService";
 import { UserRelationService } from "../../application/services/UserRelationService";
 import { RecoverPasswordService } from "../../application/services/RecoverPasswordService";
+import fastifyMultipart from "@fastify/multipart";
+import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
+import { MatchPlayerService } from "../../application/services/MatchPlayerService";
+import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchPlayerRepository";
+import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
+import { MatchService } from "../../application/services/MatchService";
+import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
+import { SQLiteTournamentRepository } from "../repositories/sqlite/SQLiteTournamentRepository";
+import { TournamentService } from "../../application/services/TournamentService";
 import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
 import { SQLiteDownloadDataRepository } from "../repositories/sqlite/SQLiteDownloadDataRepository";
-import { MatchService } from "../../application/services/MatchService";
-import { MatchPlayerService } from "../../application/services/MatchPlayerService";
-import { TournamentService } from "../../application/services/TournamentService";
-import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
-import { SQLiteMatchRepository } from "../repositories/sqlite/SQLiteMatchRepository";
-import { SQLiteMatchPlayerRepository } from "../repositories/sqlite/SQLiteMatchPlayerRepository";
-import { SQLiteTournamentRepository } from "../repositories/sqlite/SQLiteTournamentRepository";
-import { SQLiteTournamentPlayerRepository } from "../repositories/sqlite/SQLiteTournamentPlayerRepository";
 
-export default async function SearchRoutes(server: FastifyInstance) {
+export default async function userRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
   const passwordRepository = new SQLitePasswordRepository();
   const authRepository = new SQLiteAuthRepository();
@@ -36,12 +36,11 @@ export default async function SearchRoutes(server: FastifyInstance) {
   const userVerificationRepository = new SQLiteUserVerificationRepository();
   const userRelationRepository = new SQLiteUserRelationRepository();
   const recoverPasswordRepository = new SQLiteRecoverPasswordRepository();
-  const userStatusRepository = new SQLiteUserStatusRepository();
-  const downloadDataRepository = new SQLiteDownloadDataRepository();
   const matchRepository = new SQLiteMatchRepository();
   const matchPlayerRepository = new SQLiteMatchPlayerRepository();
   const tournamentRepository = new SQLiteTournamentRepository();
   const tournamentPlayerRepository = new SQLiteTournamentPlayerRepository();
+  const userStatusRepository = new SQLiteUserStatusRepository();
   const userVerificationService = new UserVerificationService(userVerificationRepository);
   const userStatusService = new UserStatusService(userStatusRepository);
   const userRelationService = new UserRelationService(userStatusService, userRelationRepository);
@@ -50,16 +49,54 @@ export default async function SearchRoutes(server: FastifyInstance) {
   const passwordService = new PasswordService(passwordRepository, authService);
   const googleAuthService = new GoogleAuthService(googleAuthRepository);
   const userService = new UserService(userRepository, authService, passwordService, googleAuthService);
+  const downloadDataRepository = new SQLiteDownloadDataRepository();
   const downloadDataService = new DownloadDataService(downloadDataRepository, userStatusRepository, userRelationRepository, matchPlayerRepository, tournamentPlayerRepository);
   const matchService = new MatchService(matchRepository);
   const matchPlayerService = new MatchPlayerService(matchPlayerRepository);
   const tournamentService = new TournamentService(tournamentRepository);
   const tournamentPlayerService = new TournamentPlayerService(tournamentPlayerRepository);
   const userController = new UserController(userService, userVerificationService, userRelationService, recoverPasswordService, userStatusService, downloadDataService, matchService, matchPlayerService, tournamentService, tournamentPlayerService);
-  const searchController = new SearchController(userService, userController);
 
   server.get('', async (request: FastifyRequest, reply) => {
-    await searchController.searchResults(request, reply);
+    await userController.getLoggedUser(request, reply);
   });
 
+  server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.getUserProfile(request, reply);
+  });
+
+  server.get('/stats/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.getUserStats(request, reply);
+  });
+
+  server.get('/check/username/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
+    await userController.checkUsername(request, reply);
+  });
+
+  server.get('/check/email/:email', async (request: FastifyRequest<{ Params: { email: string } }>, reply) => {
+    await userController.checkEmail(request, reply);
+  });
+
+  server.put('', async (request: FastifyRequest, reply) => {
+    await userController.updateUser(request, reply);
+  });
+
+  server.delete('', async (request: FastifyRequest, reply) => {
+    await userController.eraseAccount(request, reply);
+  });
+
+  server.register(fastifyMultipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10 MB
+    }
+  });
+  server.post('/avatar', async (request, reply) => await userController.uploadAvatar(request, reply));
+
+  server.get('/download/:token', async (request: FastifyRequest<{ Params: { token: string } }>, reply) => {
+    await userController.downloadData(request, reply);
+  });
+
+  server.get('/download', async (request, reply) => {
+    await userController.requestDownloadData(request, reply);
+  });
 }

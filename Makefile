@@ -99,6 +99,9 @@ fclean: fdown
 	@$(DOCKER) system prune -fa
 	@$(PRINT) "$(GREEN)Cache removed successfully$(RESET)"
 
+re: fclean up
+	@$(PRINT) "$(GREEN)Application rebuilt successfully$(RESET)"
+
 # ------------------ #
 
 
@@ -112,7 +115,8 @@ fclean: fdown
 		log \
 		interact \
 		clean \
-		fclean
+		fclean \
+		re
 
 .SILENT:
 # ------------------ #

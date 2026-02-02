@@ -13,7 +13,7 @@ import UserRelationController from "../controllers/UserRelationController";
 import { SQLiteUserStatusRepository } from "../repositories/sqlite/SQLiteUserStatusRepository";
 import { UserStatusService } from "../../application/services/UserStatusService";
 
-export default async function UserRelationRoutes(server: FastifyInstance) {
+export default async function userRelationRoutes(server: FastifyInstance) {
   const googleAuthRepository = new SQLiteGoogleAuthRepository();
   const passwordRepository = new SQLitePasswordRepository();
   const authRepository = new SQLiteAuthRepository();

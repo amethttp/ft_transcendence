@@ -12,7 +12,7 @@ export default class CanvasOverlay {
     this._overlay.append(this._spanMessage);
   }
 
-  onclick(funct: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null) {
+  onclick(funct: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null) {
     this._overlay.onclick = funct;
   }
 
