@@ -22,6 +22,7 @@ export default abstract class AmethComponent<Events extends Record<string, any> 
     if (selector && this.template) {
       this.outlet = document.getElementById(selector) || undefined;
       if (this.outlet) this.outlet.innerHTML = (await this.template()).default;
+      (this.outlet?.querySelector('[autofocus]') as HTMLElement)?.focus();
     }
   }
 }
