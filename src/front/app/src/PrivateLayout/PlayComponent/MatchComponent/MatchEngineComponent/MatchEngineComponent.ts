@@ -216,6 +216,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
     console.log(score);
+    this.router?.permitUnload();
     this.emit('matchEnded', score);
   }
 
