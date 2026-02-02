@@ -23,6 +23,12 @@ export default class UserEditComponent extends AmethComponent {
   }
 
   async refresh() {
+    const usernameParam = this.router?.currentPath.params["userId"] as string | undefined;
+    const logged = (await LoggedUser.get())?.username;
+    if (usernameParam && logged && usernameParam !== logged) {
+      this.router?.redirectByPath("/" + usernameParam);
+      return;
+    }
     this._user = (await LoggedUser.get(true))!;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
@@ -32,6 +38,12 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
+    const usernameParam = this.router?.currentPath.params["userId"] as string | undefined;
+    const logged = (await LoggedUser.get())?.username;
+    if (usernameParam && logged && usernameParam !== logged) {
+      this.router?.redirectByPath("/" + usernameParam);
+      return;
+    }
     this._user = (await LoggedUser.get(true))!;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
