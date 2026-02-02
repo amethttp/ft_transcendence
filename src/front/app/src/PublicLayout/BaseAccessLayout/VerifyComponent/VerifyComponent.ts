@@ -30,7 +30,12 @@ export default class VerifyComponent extends AmethComponent {
           const user = await LoggedUser.get(true);
           if (user) {
             sessionStorage.removeItem("userId");
-            this.router?.redirectByPath("/home");
+            const params = new URLSearchParams(location.search);
+            let redirect = '/home';
+            if (params.has('redirect')) {
+              redirect = decodeURIComponent(params.get('redirect')!);
+            }
+            this.router?.redirectByPath(redirect || "/");
           }
           else
             this._errorView.classList.remove("invisible");

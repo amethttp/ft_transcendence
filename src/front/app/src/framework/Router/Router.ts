@@ -99,7 +99,7 @@ export class Router extends EventEmitter<RouterEvents> {
 
       if (isParentMatch) {
         if (route.guard) {
-          const guardResult = await route.guard(route, this);
+          const guardResult = await route.guard(route, path);
           if (typeof guardResult === 'object' && guardResult.redirect) {
             this._redirectTarget = guardResult.redirect;
             return undefined;
@@ -108,12 +108,12 @@ export class Router extends EventEmitter<RouterEvents> {
         }
         const childTree = await this.findRouteTree(path, route.children!, fullPath);
         if (childTree) return [route, ...childTree];
-        if (this._redirectTarget) return undefined; // Guard redirect occurred
+        if (this._redirectTarget) return undefined;
         else continue;
       }
       else if (isExactMatch) {
         if (route.guard) {
-          const guardResult = await route.guard(route, this);
+          const guardResult = await route.guard(route, path);
           if (typeof guardResult === 'object' && guardResult.redirect) {
             this._redirectTarget = guardResult.redirect;
             return undefined;
