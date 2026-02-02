@@ -82,11 +82,6 @@ export default class TournamentComponent extends AmethComponent {
     document.getElementById("tournamentPlayersAmount")!.innerText = this._tournament.playersAmount + "";
     this._fillActions(this._tournament);
     this._fillPlayers();
-    document.getElementById("fillTournamentBtn")!.onclick = () => {
-      this._tournamentService.fill(this._tournament!.token)
-        .then(() => this.refresh())
-        .catch(err => Alert.error("Error", JSON.stringify(err)));
-    }
     this._togglePlayers();
   }
 

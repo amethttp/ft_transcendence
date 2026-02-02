@@ -18,7 +18,7 @@ export default class FullScreenButton {
     this._isInFullScreen = false;
   }
 
-  onclick(funct: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null) {
+  onclick(funct: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null) {
     this._button.onclick = funct;
   }
 

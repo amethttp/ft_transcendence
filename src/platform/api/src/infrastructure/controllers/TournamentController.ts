@@ -180,31 +180,6 @@ export default class TournamentController {
     }
   }
 
-  async fill(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
-    try {
-      if (!request.params.token) {
-        const err = new ResponseError(ErrorParams.BAD_REQUEST);
-        return reply.code(err.code).send(err.toDto());
-      }
-      const tournament = await this._tournamentService.getByToken(request.params.token);
-      const jwtUser = request.user as JwtPayloadInfo;
-      const originUser = await this._userService.getById(jwtUser.sub);
-      if (tournament.players.length < tournament.playersAmount) {
-        await this.fillAllPlayers(tournament, originUser);
-      }
-      await this._tournamentService.start(tournament);
-      await this.createRounds(tournament);
-      this._tournamentService.update(tournament.id, tournament);
-      return reply.send({ success: true });
-    }
-    catch (err: any) {
-      console.log(err);
-      if (err instanceof ResponseError)
-        reply.code(err.code).send(err.toDto());
-      else
-        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
-    }
-  }
 
   async fillAllPlayers(tournament: Tournament, originUser: User) {
     const players = [];
