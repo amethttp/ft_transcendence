@@ -26,6 +26,7 @@ export default class HomeComponent extends AmethComponent {
     this.userProfileComponent = new UserProfileActionsComponent(this.userProfile);
     await this.userProfileComponent.init("HomeProfile", this.router);
     await this.userProfileComponent.afterInit();
+    this.userProfileComponent.hideActions();
 
     this.userStats = new UserStatsComponent(this.userProfile);
     await this.userStats.init("HomeStats", this.router);

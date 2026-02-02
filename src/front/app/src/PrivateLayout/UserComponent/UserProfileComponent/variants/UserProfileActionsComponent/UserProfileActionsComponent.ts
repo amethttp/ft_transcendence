@@ -155,6 +155,12 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     }
   }
 
+  hideActions() {
+    const container = document.getElementById('userActionsContainer');
+
+    container?.classList.add('hidden');
+  }
+
   async destroy() {
     Context.friends.off('status', this.updateStatus);
     super.destroy();
