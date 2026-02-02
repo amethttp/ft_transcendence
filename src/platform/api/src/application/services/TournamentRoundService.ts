@@ -53,7 +53,7 @@ export class TournamentRoundService {
         points: tournament.points,
         tournamentRound: round,
         isVisible: false
-      }
+      };
       const match = await this._matchService.newMatch(matchRequest);
       await this._matchPlayerService.newMatchPlayer(activePlayers[i].user, match);
       if (activePlayers[i + 1])
