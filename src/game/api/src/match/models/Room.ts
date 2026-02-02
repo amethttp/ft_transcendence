@@ -139,7 +139,7 @@ export class Room extends EventEmitter<RoomEvents> {
     socket.broadcast.to(this.token).emit("message", `New Opponent: ${socket.username}(${socket.id}`);
     socket.broadcast.to(this.token).emit("handshake", socket.userId);
     if (this._matchState === MatchState.PAUSED) {
-      socket.broadcast.to(this.token).emit("unpause", socket.userId);
+      socket.broadcast.to(this.token).emit("reset", socket.userId);
     }
   }
 

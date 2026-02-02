@@ -1,6 +1,7 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import SocketClient from "../../../../framework/SocketClient/SocketClient";
+import { PlayerType } from "../MatchComponent";
 import type { PlayerTypeValue } from "../MatchComponent";
 import Ball from "./Elements/Ball";
 import Paddle from "./Elements/Paddle";
@@ -79,6 +80,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socketClient.setEvent('opponentLeft', () => {
       this.emit("opponentLeft", true);
     });
+    this._socketClient.setEvent('pause', () => {
+      this._canvasOverlay.setPauseState();
+      if (this._animationId)
+        cancelAnimationFrame(this._animationId);
+      this._animationId = 0;
+    });
+    this._socketClient.setEvent('reset', () => {
+      this._canvasOverlay.reset();
+      this._canvasOverlay.onclick(() => this.setReadyToPlay());
+    });
   }
 
   afterInit() {
@@ -89,6 +100,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
     document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
+    window.addEventListener('beforeunload', this.beforeUnloadHandler);
+    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
+  }
+
+  private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = '';
   }
 
   private startMatch() {
@@ -207,6 +225,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   setPlayer(type: PlayerTypeValue) {
     console.log("new player", type);
+    if (type === PlayerType.CPU)
+      this._socketClient.emitEvent('ai');
+    else if (type === PlayerType.LOCAL)
+      this._socketClient.emitEvent('local');
   }
 
   private observeResize() {
@@ -236,6 +258,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._animationId = 0;
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
+    window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    this.router?.permitUnload(); 
     await super.destroy();
   }
 }

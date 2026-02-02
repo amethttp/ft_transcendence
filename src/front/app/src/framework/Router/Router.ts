@@ -15,6 +15,8 @@ export class Router extends EventEmitter<RouterEvents> {
   private _currentTree: Route[];
   private _currentComponents: AmethComponent[];
   private _currentPath: Path;
+  private _protectFromUnload: boolean;
+  private _protectUnloadMsg: string;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -24,10 +26,24 @@ export class Router extends EventEmitter<RouterEvents> {
     this._currentComponents = [];
     this._currentPath = new Path();
     this.listen();
+    this._protectFromUnload = false;
+    this._protectUnloadMsg = "You have unsaved changes. Are you sure you want to leave?";
   }
 
   get currentPath(): Path {
     return this._currentPath;
+  }
+
+  preventUnload(msg?: string) {
+    this._protectFromUnload = true;
+    if (msg) {
+      this._protectUnloadMsg = msg;
+    }
+  }
+
+  permitUnload() {
+    this._protectFromUnload = false;
+    this._protectUnloadMsg = "You have unsaved changes. Are you sure you want to leave?";
   }
 
   private isOtherEvent(e: MouseEvent, anchor: HTMLAnchorElement): boolean {
@@ -50,7 +66,14 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   private listen() {
-    window.addEventListener("popstate", () => this.navigate(this.normalizeURL(location.href)));
+    window.addEventListener("popstate", () => {
+      if (this._protectFromUnload && !window.confirm(this._protectUnloadMsg)) {
+        history.pushState(null, "", this.currentPath.fullPath || "/");
+        return;
+      }
+      this.navigate(this.normalizeURL(location.href));
+    });
+
     document.addEventListener("click", (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>("a");
       if (!anchor || this.isOtherEvent(e, anchor)) return;
@@ -152,6 +175,8 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   navigateByUrl(newUrl: URL) {
+    if (this._protectFromUnload && !window.confirm(this._protectUnloadMsg))
+      return;
     history.pushState(null, "", newUrl.href);
     this.navigate(newUrl.pathname);
   }
