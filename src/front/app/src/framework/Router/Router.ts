@@ -17,6 +17,7 @@ export class Router extends EventEmitter<RouterEvents> {
   private _currentPath: Path;
   private _protectFromUnload: boolean;
   private _protectUnloadMsg: string;
+  private _redirectTarget: string | null = null;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -93,12 +94,32 @@ export class Router extends EventEmitter<RouterEvents> {
       if (route.path === "")
         separator = '';
       const fullPath = PathHelper.normalize(parentPath + separator + route.path);
-      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
-        const childTree = await this.findRouteTree(path, route.children, fullPath);
+      const isParentMatch = !!route.children && PathHelper.isParentMatching(fullPath, path);
+      const isExactMatch = PathHelper.isMatching(fullPath, path);
+
+      if (isParentMatch) {
+        if (route.guard) {
+          const guardResult = await route.guard(route, this);
+          if (typeof guardResult === 'object' && guardResult.redirect) {
+            this._redirectTarget = guardResult.redirect;
+            return undefined;
+          }
+          if (guardResult !== true) continue;
+        }
+        const childTree = await this.findRouteTree(path, route.children!, fullPath);
         if (childTree) return [route, ...childTree];
+        if (this._redirectTarget) return undefined; // Guard redirect occurred
         else continue;
       }
-      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
+      else if (isExactMatch) {
+        if (route.guard) {
+          const guardResult = await route.guard(route, this);
+          if (typeof guardResult === 'object' && guardResult.redirect) {
+            this._redirectTarget = guardResult.redirect;
+            return undefined;
+          }
+          if (guardResult !== true) continue;
+        }
         return [route];
       }
     }
@@ -118,7 +139,13 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   private async navigate(path: string) {
+    this._redirectTarget = null;
     const routeTree = await this.findRouteTree(path);
+    if (this._redirectTarget) {
+      this.redirectByPath(this._redirectTarget);
+      return;
+    }
+    
     if (!routeTree) {
       console.warn(`No route found for path: ${path}`);
       return;
