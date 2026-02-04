@@ -212,9 +212,16 @@ describe("Memory Leak Prevention - DOM Elements", () => {
 
   describe("Event Listener Cleanup", () => {
     it("should remove window event listeners on destroy", async () => {
+      const resizeHandler = vi.fn();
+      
       class TestComponent extends AmethComponent {
         template = async () => ({ default: "<div></div>" });
-        private handler = () => {};
+        private handler: () => void;
+
+        constructor() {
+          super();
+          this.handler = resizeHandler;
+        }
 
         async afterInit() {
           window.addEventListener("resize", this.handler);
@@ -229,21 +236,24 @@ describe("Memory Leak Prevention - DOM Elements", () => {
       const comp = new TestComponent();
       await comp.init("test-container");
       await comp.afterInit();
-      
-      const resizeHandler = vi.fn();
-      comp["handler"] = resizeHandler;
 
       await comp.destroy();
       
-      // Handler should be removed
       window.dispatchEvent(new Event("resize"));
       expect(resizeHandler).not.toHaveBeenCalled();
     });
 
     it("should remove document event listeners on destroy", async () => {
+      const clickHandler = vi.fn();
+      
       class TestComponent extends AmethComponent {
         template = async () => ({ default: "<div></div>" });
-        private handler = () => {};
+        private handler: () => void;
+
+        constructor() {
+          super();
+          this.handler = clickHandler;
+        }
 
         async afterInit() {
           document.addEventListener("click", this.handler);
@@ -261,8 +271,8 @@ describe("Memory Leak Prevention - DOM Elements", () => {
 
       await comp.destroy();
       
-      // Component should be cleaned up
-      expect(container.innerHTML).toBe("");
+      document.dispatchEvent(new Event("click"));
+      expect(clickHandler).not.toHaveBeenCalled();
     });
   });
 
