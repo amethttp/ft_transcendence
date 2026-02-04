@@ -11,7 +11,7 @@ export class MatchListService {
     this._apiClient = new ApiClient();
   }
 
-  getMatches(): Promise<MatchMinified[]> {
-    return this._apiClient.get(MatchListService.BASE_ENDPOINT);
+  getMatches(signal?: AbortSignal): Promise<MatchMinified[]> {
+    return this._apiClient.get(MatchListService.BASE_ENDPOINT, undefined, { signal });
   }
 }

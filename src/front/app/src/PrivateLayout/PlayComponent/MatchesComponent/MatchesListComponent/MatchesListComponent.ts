@@ -22,7 +22,7 @@ export default class MatchesListComponent extends AmethComponent {
     this._container = this.outlet?.getElementsByClassName("MatchesListContainer")[0] as HTMLDivElement;
     await this._setMatches();
     this._fillView();
-    this._interval = setInterval(() => {
+    this._interval = this.setInterval(() => {
       this._setMatches().then(() => this._fillView());
     }, 20000);
   }
@@ -34,9 +34,10 @@ export default class MatchesListComponent extends AmethComponent {
 
   private async _setMatches() {
     try {
-      this._matches = await this._matchListService.getMatches();
+      this._matches = await this._matchListService.getMatches(this.abortController.signal);
     }
     catch (err: any) {
+      if (err.name === 'AbortError') return;
       console.warn(err);
       Alert.error("Something occurred with matches");
     }
@@ -78,7 +79,6 @@ export default class MatchesListComponent extends AmethComponent {
   }
 
   async destroy() {
-    clearInterval(this._interval);
     await super.destroy();
   }
 }

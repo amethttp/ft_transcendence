@@ -179,9 +179,16 @@ export class Router extends EventEmitter<RouterEvents> {
         }
       }
       else {
-        // this._currentComponents[i].refresh();
       }
     }
+    
+    if (this._currentComponents.length > routeTree.length) {
+      const componentsToDestroy = this._currentComponents.splice(routeTree.length);
+      for (const component of componentsToDestroy) {
+        await component.destroy();
+      }
+    }
+    
     for (const [i, component] of this._currentComponents.entries()) {
       if (i <= lastI) {
         if (i >= oldComponents.length || component != oldComponents[i])

@@ -22,7 +22,7 @@ export default class TournamentsListComponent extends AmethComponent {
     this._container = this.outlet?.getElementsByClassName("TournamentsListContainer")[0] as HTMLDivElement;
     await this._setTournaments();
     this._fillView();
-    this._interval = setInterval(() => {
+    this._interval = this.setInterval(() => {
       this._setTournaments().then(() => this._fillView());
     }, 20000);
   }
@@ -34,9 +34,10 @@ export default class TournamentsListComponent extends AmethComponent {
 
   private async _setTournaments() {
     try {
-      this._tournaments = await this._tournamentsListService.getList();
+      this._tournaments = await this._tournamentsListService.getList(this.abortController.signal);
     }
     catch (err: any) {
+      if (err.name === 'AbortError') return;
       console.warn(err);
       Alert.error("Something occurred with tournaments");
     }
@@ -96,7 +97,6 @@ export default class TournamentsListComponent extends AmethComponent {
   }
 
   async destroy() {
-    clearInterval(this._interval);
     await super.destroy();
   }
 }

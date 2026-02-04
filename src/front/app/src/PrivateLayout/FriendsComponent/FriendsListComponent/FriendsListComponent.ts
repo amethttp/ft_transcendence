@@ -95,6 +95,6 @@ export default class FriendsListComponent<Component extends UserProfileComponent
   async destroy() {
     this.stopListenData();
     this.deleteUnused([]);
-    super.destroy();
+    await super.destroy();
   }
 }

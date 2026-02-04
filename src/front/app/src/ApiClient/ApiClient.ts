@@ -48,6 +48,9 @@ export class ApiClient extends HttpClient {
     try {
       return await super.request<T>(url, options);
     } catch (_error: any) {
+      if (_error.name === 'AbortError') {
+        throw _error;
+      }
       const error: ResponseError = _error;
       if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
         try {

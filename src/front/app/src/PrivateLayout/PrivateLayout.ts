@@ -21,7 +21,7 @@ export default class PrivateLayout extends AmethComponent {
 
   private _startStatusPooling() {
     this._statusService.refreshStatus();
-    this._statusIntervalId = setInterval(() => {
+    this._statusIntervalId = this.setInterval(() => {
       this._statusService.refreshStatus();
     }, 20000)
   }
@@ -41,9 +41,9 @@ export default class PrivateLayout extends AmethComponent {
   }
 
   async destroy() {
-    super.destroy();
-    clearInterval(this._statusIntervalId);
+    Context.friends.destroy();
     await this._sidebar.destroy();
     await this._contextBar.destroy();
+    await super.destroy();
   }
 }
