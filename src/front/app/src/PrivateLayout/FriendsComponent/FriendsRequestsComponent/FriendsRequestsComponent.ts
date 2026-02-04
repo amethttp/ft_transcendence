@@ -21,8 +21,8 @@ export default class FriendsRequestsComponent extends AmethComponent {
     this.refresh();
   }
 
-  clearView() {
-    this._profileComponents.forEach(p => p.destroy());
+  async clearView() {
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
     this._profileComponents = [];
     this._container.innerHTML = "Still no requests :(";
   }
@@ -45,14 +45,14 @@ export default class FriendsRequestsComponent extends AmethComponent {
   }
 
   async refresh() {
-    this.clearView();
+    await this.clearView();
     this.friendsService.getRequests().then(val => {
       this.fillView(val);
     }).catch(() => Alert.error("Some error occurred: ", "Could not retrieve your friendship requests"));
   }
 
   async destroy(): Promise<void> {
-    this._profileComponents.forEach(p => p.destroy());
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
     this._profileComponents = [];
     await super.destroy();
   }

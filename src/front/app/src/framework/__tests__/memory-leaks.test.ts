@@ -5,9 +5,18 @@ import EventEmitter from "../EventEmitter/EventEmitter";
 
 if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) {}
     observe() {}
     disconnect() {}
     unobserve() {}
+  } as any;
+}
+
+if (typeof globalThis.MutationObserver === "undefined") {
+  globalThis.MutationObserver = class {
+    constructor(callback: MutationCallback) {}
+    observe() {}
+    disconnect() {}
   } as any;
 }
 
