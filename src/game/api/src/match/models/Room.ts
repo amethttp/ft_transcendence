@@ -24,6 +24,7 @@ export type RoomEvents = {
 export class Room extends EventEmitter<RoomEvents> {
   private _token: string;
   private _local: boolean;
+  private _tournament: boolean;
   private _players: Record<string, Player>;
   private _maxPoints: number;
   private _matchState: TMatchState;
@@ -36,6 +37,7 @@ export class Room extends EventEmitter<RoomEvents> {
 
     this._token = token;
     this._local = settings.local;
+    this._tournament = settings.tournament;
     this._players = {};
     this._maxPoints = settings.maxScore;
     this._matchState = settings.state;
@@ -54,6 +56,10 @@ export class Room extends EventEmitter<RoomEvents> {
 
   public get local(): boolean {
     return this._local;
+  }
+
+  public get tournament(): boolean {
+    return this._tournament;
   }
 
   public get matchState(): TMatchState {
