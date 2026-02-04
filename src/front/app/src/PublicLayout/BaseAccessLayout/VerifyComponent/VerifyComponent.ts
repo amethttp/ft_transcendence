@@ -4,6 +4,7 @@ import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { validateRedirectUrl } from "../../../utils/RedirectValidator";
 
 export default class VerifyComponent extends AmethComponent {
   template = () => import("./VerifyComponent.html?raw");
@@ -31,11 +32,9 @@ export default class VerifyComponent extends AmethComponent {
           if (user) {
             sessionStorage.removeItem("userId");
             const params = new URLSearchParams(location.search);
-            let redirect = '/home';
-            if (params.has('redirect')) {
-              redirect = decodeURIComponent(params.get('redirect')!);
-            }
-            this.router?.redirectByPath(redirect || "/");
+            const redirectParam = params.get('redirect');
+            const validatedRedirect = validateRedirectUrl(redirectParam, "/home");
+            this.router?.redirectByPath(validatedRedirect);
           }
           else
             this._errorView.classList.remove("invisible");
