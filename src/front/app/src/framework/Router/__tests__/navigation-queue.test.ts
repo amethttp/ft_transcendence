@@ -344,8 +344,11 @@ describe("Router Navigation Queue", () => {
     const navigationPath: string[] = [];
 
     class TrackingComponent extends TestComponent {
-      constructor(private path: string) {
+      private path: string;
+      
+      constructor(path: string) {
         super();
+        this.path = path;
       }
 
       async init(selector: string, router?: any) {

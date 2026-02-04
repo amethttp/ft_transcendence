@@ -72,12 +72,10 @@ describe("Original Issue: Non-existent Match Navigation", () => {
   });
 
   it("should handle navigation to non-existent match without errors", async () => {
-    let sidebarDestroyed = false;
     let sidebarErrorCount = 0;
 
     class TrackingSidebarLayout extends MockPrivateLayout {
       async destroy() {
-        sidebarDestroyed = true;
         try {
           await super.destroy();
         } catch (error) {
