@@ -98,7 +98,7 @@ export class UserService {
 
   private fromGooglePayloadToUserCreationDto(googlePayload: GoogleTicketPayload): UserCreationDto {
     return {
-      username: googlePayload.name,
+      username: `user${Date.now()}`,
       email: googlePayload.email,
       birthDate: '1970-01-01',
       avatarUrl: googlePayload.avatar || '/default-avatar.webp'

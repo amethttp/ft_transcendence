@@ -9,7 +9,6 @@ import UserProfileComponent from "./UserProfileComponent/UserProfileComponent";
 import UserProfileActionsComponent from "./UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 import { RelationType } from "./models/Relation";
 import { Context } from "../../framework/Context/Context";
-import type { Router } from "../../framework/Router/Router";
 
 export default class UserComponent extends AmethComponent {
   template = () => import("./UserComponent.html?raw");
