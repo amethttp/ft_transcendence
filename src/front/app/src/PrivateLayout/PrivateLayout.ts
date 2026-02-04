@@ -7,7 +7,6 @@ import { StatusService } from "./services/StatusService";
 
 export default class PrivateLayout extends AmethComponent {
   template = () => import("./PrivateLayout.html?raw");
-  private _statusIntervalId?: number;
   private _statusService: StatusService;
   private _sidebar!: SidebarComponent;
   private _contextBar!: ContextBarComponent;
@@ -21,9 +20,9 @@ export default class PrivateLayout extends AmethComponent {
 
   private _startStatusPooling() {
     this._statusService.refreshStatus();
-    this._statusIntervalId = this.setInterval(() => {
+    this.setInterval(() => {
       this._statusService.refreshStatus();
-    }, 20000)
+    }, 20000);
   }
 
   async afterInit() {

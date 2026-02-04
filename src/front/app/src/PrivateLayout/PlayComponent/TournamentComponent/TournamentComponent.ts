@@ -18,7 +18,7 @@ export default class TournamentComponent extends AmethComponent {
   private _bracketsComponent?: TournamentBracketsComponent;
   private _loggedUser?: User;
   private _loggedPlayer?: TournamentPlayer;
-  private _interval?: number;  private _refreshHandler?: () => void;
+  private _refreshHandler?: () => void;
   constructor() {
     super();
     this._tournamentService = new TournamentService();
@@ -38,7 +38,7 @@ export default class TournamentComponent extends AmethComponent {
     this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
     this._setTitle();
-    this._interval = this.setInterval(() => { this.refreshTournamentState() }, 20000);
+    this.setInterval(() => { this.refreshTournamentState() }, 20000);
   }
 
   private async refreshTournamentState() {

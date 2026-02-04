@@ -10,7 +10,6 @@ export default class TournamentsListComponent extends AmethComponent {
   private _tournamentsListService: TournamentsListService;
   private _tournaments: TournamentMinified[];
   private _container?: HTMLDivElement;
-  private _interval?: number;
 
   constructor() {
     super();
@@ -22,7 +21,7 @@ export default class TournamentsListComponent extends AmethComponent {
     this._container = this.outlet?.getElementsByClassName("TournamentsListContainer")[0] as HTMLDivElement;
     await this._setTournaments();
     this._fillView();
-    this._interval = this.setInterval(() => {
+    this.setInterval(() => {
       this._setTournaments().then(() => this._fillView());
     }, 20000);
   }

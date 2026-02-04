@@ -119,7 +119,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvas.setOnTouchDownCallback((event) => this.onTouchDown(event));
     this._canvas.setOnTouchLiftCallback((event) => this.onTouchLift(event));
     this._lastTime = performance.now();
-    this._animationId = requestAnimationFrame(() => this.gameLoop());
+    this._animationId = this.requestAnimationFrame(() => this.gameLoop());
   }
 
   private setReadyToPlay() {
@@ -252,7 +252,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._lastTime = now;
     this._canvas.paintGameState(this._paddles, this._ball, this._score);
     this._ball.updatePosition(this._deltaTime);
-    this._animationId = requestAnimationFrame(() => this.gameLoop());
+    this._animationId = this.requestAnimationFrame(() => this.gameLoop());
   }
 
   async destroy(): Promise<void> {

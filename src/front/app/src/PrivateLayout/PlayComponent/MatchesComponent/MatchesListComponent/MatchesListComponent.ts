@@ -10,7 +10,6 @@ export default class MatchesListComponent extends AmethComponent {
   private _matchListService: MatchListService;
   private _matches: MatchMinified[];
   private _container?: HTMLDivElement;
-  private _interval?: number;
 
   constructor() {
     super();
@@ -22,7 +21,7 @@ export default class MatchesListComponent extends AmethComponent {
     this._container = this.outlet?.getElementsByClassName("MatchesListContainer")[0] as HTMLDivElement;
     await this._setMatches();
     this._fillView();
-    this._interval = this.setInterval(() => {
+    this.setInterval(() => {
       this._setMatches().then(() => this._fillView());
     }, 20000);
   }
