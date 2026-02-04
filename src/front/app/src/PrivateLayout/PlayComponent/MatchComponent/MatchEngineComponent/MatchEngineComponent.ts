@@ -237,7 +237,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private observeResize() {
     const canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
-    this._resizeObserver = new ResizeObserver(() => {
+    this._resizeObserver = new ResizeObserver((_entries) => {
       this._canvas.resize();
       this._canvas.paintGameState(this._paddles, this._ball, this._score);
       this._canvasOverlay.resizeAdjustingTo(this._canvas);

@@ -283,7 +283,7 @@ describe("Memory Leak Prevention - DOM Elements", () => {
         private observer?: ResizeObserver;
 
         async afterInit() {
-          this.observer = new ResizeObserver(() => {});
+          this.observer = new ResizeObserver((_entries) => {});
           const element = this.outlet || container;
           this.observer.observe(element);
         }

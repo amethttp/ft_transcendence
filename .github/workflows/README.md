@@ -44,7 +44,7 @@ The frontend application underwent a comprehensive memory leak audit and remedia
   - `FriendsBlockedComponent` & `FriendsRequestsComponent` – Profile component lifecycle management
   - `MatchComponent`, `Canvas.ts`, `RoundsSliderComponent`, `UserComponent` – Eliminated redundant cleanup code
 
-- **Test Coverage**: 25 passing tests in `src/front/app/__tests__/memory-leaks.test.ts`
+- **Test Coverage**: 25 passing tests in `src/front/app/src/framework/__tests__/memory-leaks.test.ts`
   - Tests verify AbortController usage, EventEmitter cleanup, Observer disconnection, and nested component destruction
   - All tests passing (100%) with zero warnings
 
