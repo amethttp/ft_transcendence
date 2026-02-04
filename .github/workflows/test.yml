@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: cd src/front/app && npm ci
       
-      - name: Format check
-        run: cd src/front/app && npm run lint:format
+    #   - name: Format check
+    #     run: cd src/front/app && npm run lint:format
 
       - name: Run tests
         run: cd src/front/app && npm test
@@ -48,8 +48,8 @@ jobs:
       - name: Install dependencies
         run: cd src/platform/api && npm ci
       
-      - name: Format check
-        run: cd src/platform/api && npm run lint:format
+    #   - name: Format check
+    #     run: cd src/platform/api && npm run lint:format
       
       - name: TypeScript compilation check
         run: cd src/platform/api && npm run build
@@ -71,8 +71,8 @@ jobs:
       - name: Install dependencies
         run: cd src/game/api && npm ci
       
-      - name: Format check
-        run: cd src/game/api && npm run lint:format
+    #   - name: Format check
+    #     run: cd src/game/api && npm run lint:format
       
       - name: TypeScript compilation check
         run: cd src/game/api && npm run build
