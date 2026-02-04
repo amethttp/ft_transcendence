@@ -8,7 +8,7 @@ import UserProfileActionsComponent from "../../UserComponent/UserProfileComponen
 
 export default class FriendsListComponent<Component extends UserProfileComponent = UserProfileActionsComponent> extends AmethComponent {
   template = () => import("./FriendsListComponent.html?raw");
-  protected _container!: HTMLDivElement;
+  protected _container?: HTMLDivElement;
   protected userProfiles: Component[];
   fillView: (friends: UserProfile[]) => Promise<void>;
   updateStatuses: (statuses: FriendsStatus) => void;
@@ -35,7 +35,8 @@ export default class FriendsListComponent<Component extends UserProfileComponent
   }
 
   clearView() {
-    this._container.innerHTML = "Still no friends :(";
+    if (this._container)
+      this._container.innerHTML = "Still no friends :(";
   }
 
   private deleteProfiles(list: UserProfile[]) {
@@ -54,7 +55,7 @@ export default class FriendsListComponent<Component extends UserProfileComponent
     this.deleteProfiles(friends);
     if (friends.length === 0)
       this.clearView();
-    else if (this.userProfiles.length === 0)
+    else if (this.userProfiles.length === 0 && this._container)
       this._container.innerHTML = '';
   }
 
@@ -74,7 +75,7 @@ export default class FriendsListComponent<Component extends UserProfileComponent
             <a class="" href="/${friend.username}"></a>
           `;
     const elem = DOMHelper.createElementFromHTML(template);
-    this._container.appendChild(elem);
+    this._container?.appendChild(elem);
     const profile = new UserProfileActionsComponent(friend) as unknown as Component;
     await profile.init(elem.id, this.router);
     profile.on("change", () => this.router?.refresh());

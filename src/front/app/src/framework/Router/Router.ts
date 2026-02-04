@@ -18,6 +18,8 @@ export class Router extends EventEmitter<RouterEvents> {
   private _protectFromUnload: boolean;
   private _protectUnloadMsg: string;
   private _redirectTarget: string | null = null;
+  private _navigationQueue: Promise<void> = Promise.resolve();
+  private _isNavigating: boolean = false;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -139,17 +141,34 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   private async navigate(path: string) {
-    this._redirectTarget = null;
-    const routeTree = await this.findRouteTree(path);
-    if (this._redirectTarget) {
-      this.redirectByPath(this._redirectTarget);
-      return;
-    }
-    
-    if (!routeTree) {
-      console.warn(`No route found for path: ${path}`);
-      return;
-    }
+    this._navigationQueue = this._navigationQueue.then(async () => {
+      try {
+        await this._performNavigation(path);
+      } catch (error) {
+        console.error("Navigation error:", error);
+      }
+    });
+    await this._navigationQueue;
+  }
+
+  private async _performNavigation(path: string) {
+    if (this._isNavigating) return;
+    this._isNavigating = true;
+
+    try {
+      this._redirectTarget = null;
+      const routeTree = await this.findRouteTree(path);
+      if (this._redirectTarget) {
+        this._isNavigating = false;
+        this.redirectByPath(this._redirectTarget);
+        return;
+      }
+      
+      if (!routeTree) {
+        console.warn(`No route found for path: ${path}`);
+        this._isNavigating = false;
+        return;
+      }
 
     this._currentPath = PathMapper.fromRouteTree(routeTree, path);
     this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
@@ -189,15 +208,32 @@ export class Router extends EventEmitter<RouterEvents> {
       }
     }
     
+    const afterInitPromises: Promise<void>[] = [];
     for (const [i, component] of this._currentComponents.entries()) {
       if (i <= lastI) {
-        if (i >= oldComponents.length || component != oldComponents[i])
-          component.afterInit();
-        else
+        if (i >= oldComponents.length || component != oldComponents[i]) {
+          afterInitPromises.push(
+            (async () => {
+              try {
+                await component.afterInit();
+              } catch (error) {
+                console.error("Component afterInit error:", error);
+              }
+            })()
+          );
+        }
+        else {
           component.refresh();
+        }
       }
     }
+    await Promise.all(afterInitPromises);
     this._currentTree = routeTree;
+    } catch (error) {
+      console.error("Navigation error:", error);
+    } finally {
+      this._isNavigating = false;
+    }
   }
 
   navigateByPath(path: string) {
