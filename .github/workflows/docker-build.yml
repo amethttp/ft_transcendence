@@ -1,14 +1,6 @@
 name: Docker Build Check
 
 on:
-  push:
-    branches: [ main, develop, 'feature/**' ]
-    paths:
-      - 'src/front/**'
-      - 'src/platform/**'
-      - 'src/game/**'
-      - 'src/nginx/**'
-      - 'src/docker-compose*.yml'
   pull_request:
     branches: [ main, develop ]
     paths:

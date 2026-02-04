@@ -31,6 +31,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _animationId: number = 0;
   private _lastTime: number = 0;
   private _deltaTime: number = 0;
+  private _resizeObserver?: ResizeObserver;
+  private _fullscreenChangeHandler?: () => void;
 
   constructor(token?: string) {
     super();
@@ -99,7 +101,8 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton = new FullScreenButton();
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
-    document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
+    this._fullscreenChangeHandler = () => { this._fullScreenButton.toggleIcon() };
+    document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
     this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
   }
@@ -234,13 +237,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private observeResize() {
     const canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
-    const observer = new ResizeObserver(() => {
+    this._resizeObserver = new ResizeObserver(() => {
       this._canvas.resize();
       this._canvas.paintGameState(this._paddles, this._ball, this._score);
       this._canvasOverlay.resizeAdjustingTo(this._canvas);
       this._fullScreenButton.resizeAdjustingTo(this._canvas);
     });
-    observer.observe(canvasContainer);
+    this._resizeObserver.observe(canvasContainer);
   }
 
   private gameLoop() {
@@ -257,6 +260,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     if (this._animationId)
       cancelAnimationFrame(this._animationId);
     this._animationId = 0;
+    this._resizeObserver?.disconnect();
+    if (this._fullscreenChangeHandler)
+      document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('beforeunload', this.beforeUnloadHandler);

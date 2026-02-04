@@ -1,41 +1,62 @@
 # GitHub Actions CI/CD
 
-Este proyecto está configurado con dos workflows de GitHub Actions para validar la calidad del código:
+This project is configured with GitHub Actions workflows to validate code quality, build artifacts, and run automated tests.
 
 ## Workflows
 
 ### 1. **Test & Build** (`.github/workflows/test.yml`)
-Se ejecuta en:
-- Push a `main`, `develop` o ramas `feature/**`
-- Pull requests a `main` o `develop`
 
-**Ejecuta para cada módulo:**
+**Triggers:**
+- Pull requests to `main` or `develop`
+
+**Executes for each module in parallel:**
 - Frontend (`src/front/app`)
 - Platform API (`src/platform/api`)
 - Game API (`src/game/api`)
 
-**Validaciones:**
-✅ `npm ci` - Instala dependencias exactas  
-✅ `npm run lint:format` - Verifica formato de código (Prettier)  
-✅ `npm run build` - Compila TypeScript y genera artefactos
+**Validations:**
+
+| Module | Steps |
+|--------|-------|
+| Frontend | ✅ `npm ci` – Install exact dependencies<br>✅ `npm run lint:format` – Verify code formatting (Prettier)<br>✅ `npm test` – Run memory leak prevention tests (Vitest)<br>✅ `npm run build` – Compile TypeScript and generate build artifacts |
+| Platform API | ✅ `npm ci`<br>✅ `npm run lint:format`<br>✅ `npm run build` |
+| Game API | ✅ `npm ci`<br>✅ `npm run lint:format`<br>✅ `npm run build` |
 
 ### 2. **Docker Build Check** (`.github/workflows/docker-build.yml`)
-Se ejecuta en:
-- Push/PR que modifiquen archivos en `src/front`, `src/platform`, `src/game`, `src/nginx` o `docker-compose*.yml`
 
-**Validaciones:**
-✅ Construye todas las imágenes Docker sin hacerlas push  
-✅ Verifica que los Dockerfiles sean válidos
+**Triggers:**
+- Push/PR that modify files in `src/front`, `src/platform`, `src/game`, `src/nginx`, or `docker-compose*.yml`
 
-## Status en el Repositorio
+**Validations:**
+✅ Builds Frontend Docker image (without pushing)
+✅ Builds Platform API Docker image (without pushing)
+✅ Builds Game API Docker image (without pushing)
+✅ Builds Nginx Docker image (without pushing)
 
-Puedes ver el estado de los workflows en:
-- **Actions tab**: https://github.com/amethttp/amethpong/actions
-- **En PRs**: Aparecerá un checkmark o X indicando si pasaron/fallaron
+## Recent Changes
 
-## Ejecutar localmente
+### Memory Leak Prevention (Frontend)
+The frontend application underwent a comprehensive memory leak audit and remediation:
 
-Para simular lo que hace el CI localmente:
+- **Fixed memory leaks** in 8 critical components:
+  - `MatchEngineComponent` – ResizeObserver and fullscreenchange listener cleanup
+  - `UserStatsComponent` – Chartist chart detachment and animation timeout tracking
+  - `FriendsBlockedComponent` & `FriendsRequestsComponent` – Profile component lifecycle management
+  - `MatchComponent`, `Canvas.ts`, `RoundsSliderComponent`, `UserComponent` – Eliminated redundant cleanup code
+
+- **Test Coverage**: 25 passing tests in `src/front/app/__tests__/memory-leaks.test.ts`
+  - Tests verify AbortController usage, EventEmitter cleanup, Observer disconnection, and nested component destruction
+  - All tests passing (100%) with zero warnings
+
+## Repository Status
+
+View workflow status at:
+- **Actions Tab**: https://github.com/amethttp/amethpong/actions
+- **Pull Requests**: Each PR shows a checkmark (✅) or X (❌) indicating pass/fail status
+
+## Run Locally
+
+To simulate CI checks locally:
 
 ### Frontend
 ```bash
@@ -43,6 +64,7 @@ cd src/front/app
 npm ci
 npm run lint:format
 npm run build
+npm test
 ```
 
 ### Platform API
@@ -61,11 +83,12 @@ npm run lint:format
 npm run build
 ```
 
-## Agregar más validaciones
+## Adding Validation Steps
 
-Para agregar más checks (tests, linters, etc.), edita los archivos YAML en `.github/workflows/`
+To add additional checks (new tests, linters, etc.), edit the YAML files in `.github/workflows/`:
 
-Ejemplos:
-- **ESLint**: Agregar `npm run lint` si configuras ESLint
-- **Unit tests**: Agregar `npm test` si configuras Jest/Vitest
-- **E2E tests**: Agregar paso para tests end-to-end
+Examples:
+- **ESLint**: Add `npm run lint` step (configure eslintrc)
+- **Unit tests**: Add `npm test` (Vitest is already configured for frontend)
+- **E2E tests**: Add end-to-end testing step
+- **Performance checks**: Add performance benchmarking

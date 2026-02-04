@@ -21,6 +21,9 @@ describe("Router", () => {
   it("redirects safely from guard without crashing", async () => {
     const routes: Route[] = [
       {
+        path: "/",
+      },
+      {
         path: "/private",
         guard: async () => ({ redirect: "/login" }),
       },
@@ -38,6 +41,9 @@ describe("Router", () => {
 
   it("does not redirect on public routes", async () => {
     const routes: Route[] = [
+      {
+        path: "/",
+      },
       {
         path: "/private",
         guard: async () => ({ redirect: "/login" }),

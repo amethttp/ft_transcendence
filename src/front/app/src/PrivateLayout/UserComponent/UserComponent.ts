@@ -89,7 +89,8 @@ export default class UserComponent extends AmethComponent {
   }
 
   async destroy() {
-    await Promise.all([this.userProfileComponent?.destroy(), this.userStats?.destroy()]);
+    await this.userProfileComponent?.destroy();
+    await this.userStats?.destroy();
     this.userProfileComponent = undefined;
     this.userStats = undefined;
     await super.destroy();

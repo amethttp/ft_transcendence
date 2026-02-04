@@ -71,7 +71,7 @@ export default class MatchComponent extends AmethComponent {
   }
 
   matchEnded = (score: number[]) => {
-    setTimeout(async () => {
+    this.setTimeout(async () => {
       if (this._match?.tournamentRound?.tournament) {
         document.getElementById("matchFinishMenuContainer")!.classList.add("visible", "z-50", "opacity-100");
         const username = (await LoggedUser.get())?.username;
@@ -109,10 +109,12 @@ export default class MatchComponent extends AmethComponent {
       await this.setMatch(this._token);
     await this._initPlayers();
     this._fillView();
-    this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
-    this._matchEngineComponent?.on("matchEnded", this.matchEnded);
-    this._matchEngineComponent?.on("opponentLeft", this.opponentLeft);
-    this._matchEngineComponent?.afterInit();
+    if (this._matchEngineComponent) {
+      this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
+      this._matchEngineComponent.on("matchEnded", this.matchEnded);
+      this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
+      this._matchEngineComponent.afterInit();
+    }
   }
 
   private _getPlayerOpts(player?: MatchPlayer): PlayerOptions | undefined {
