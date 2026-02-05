@@ -72,7 +72,7 @@ export default class UserController {
     let status: UserStatusDto;
     if (relation.type === RelationType.FRIENDSHIP_ACCEPTED)
       status = await this._userStatusService.getUserConnectionStatus(user.id);
-    else 
+    else
       status = {userId: user.id, value: StatusType.OFFLINE};
     return UserService.toUserProfile(user, relation, status.value);
   }
@@ -83,7 +83,7 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
       if (requestedUser.username.startsWith("__deleted__")) {
-        throw new ResponseError(ErrorParams.USER_NOT_FOUND);        
+        throw new ResponseError(ErrorParams.USER_NOT_FOUND);
       }
       const userProfile = await this.toUserProfile(originUser, requestedUser);
 
@@ -301,7 +301,7 @@ export default class UserController {
       await this._storeFile(data.file, filePath);
 
       const oldAvatarUrl = (await this._userService.getById(requestedUser.sub)).avatarUrl;
-      if (!oldAvatarUrl.endsWith("default-avatar.webp"))
+      if (!oldAvatarUrl.endsWith("default-avatar.webp") && !oldAvatarUrl.startsWith("http"))
         this._removeFile(oldAvatarUrl);
 
       await this._userService.updateAvatar(requestedUser.sub, filePath);

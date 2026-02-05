@@ -16,10 +16,10 @@ export default class PrivateLayout extends AmethComponent {
     super();
     Context.friends = new UserFriends();
     this._statusService = new StatusService();
-    this._startStatusPooling();
+    this._startStatusPolling();
   }
 
-  private _startStatusPooling() {
+  private _startStatusPolling() {
     this._statusService.refreshStatus();
     this._statusIntervalId = setInterval(() => {
       this._statusService.refreshStatus();
