@@ -12,6 +12,7 @@ import CanvasOverlay from "./Elements/CanvasOverlay";
 import FullScreenButton from "./Elements/FullScreenButton";
 
 export type MatchEngineEvents = {
+  connectionAmount: number;
   opponentConnected: number;
   opponentLeft: boolean;
   matchEnded: number[];
@@ -51,6 +52,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
       this.emit('opponentConnected', data);
+    });
+    this._socketClient.setEvent('connectionAmount', (data) => {
+      this.emit('connectionAmount', data);
     });
     this._socketClient.setEvent('start', () => {
       this.startMatch();

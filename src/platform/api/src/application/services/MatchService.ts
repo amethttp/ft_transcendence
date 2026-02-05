@@ -156,7 +156,7 @@ export class MatchService {
   public toMatchSettings(match: Match): MatchSettings {
     const settings = {
       maxScore: match.points,
-      local: match.isVisible,
+      local: false,
       tournament: match.tournamentRound ? true : false,
       state: MatchStateByValue[match.state],
       score: [0,0],

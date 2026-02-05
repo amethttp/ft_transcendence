@@ -45,13 +45,34 @@ export default class MatchComponent extends AmethComponent {
     this._matchService = new MatchService();
   }
 
-  opponentConnected = (userId: number) => {
-    if (!this._match || (this._match.tournamentRound && this._match.tournamentRound.tournament))
+  connectionAmount = async (userId: number) => {
+    if (!this._match)
       return;
-    this._matchService.getPlayer(userId, this._match?.id || -1).then(val => {
-      this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
-      this._showOpponentPlayer();
-    })
+    const username = (await LoggedUser.get())!.username;
+    let ownerOpts = this._getPlayerOpts(this._match?.players[0]);
+    let oppOpts = this._getPlayerOpts(this._match?.players[1]);
+
+    if (username === ownerOpts?.name) {
+      const temp = ownerOpts;
+      ownerOpts = oppOpts;
+      oppOpts = temp;
+    }
+
+    this._ownerPlayerComponent?.refresh(ownerOpts);
+    this._opponentPlayerComponent?.refresh(oppOpts);    
+  }
+
+  opponentConnected = (userId: number) => {
+    if (!this._match)
+      return;
+    if (this._match.tournamentRound && this._match.tournamentRound.tournament) {
+
+    }
+    this._matchService.getPlayer(userId, this._match?.id || -1)
+      .then(val => {
+        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
+        this._showOpponentPlayer();
+      })
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
@@ -133,6 +154,7 @@ export default class MatchComponent extends AmethComponent {
     this._opponentPlayerComponent = new PlayerComponent(this._getPlayerOpts(this._match?.players[1]));
     await this._opponentPlayerComponent.init("opponentPlayerComponent");
     this._opponentPlayerComponent.afterInit();
+    this.balanceNames();
   }
 
   private _clearView() {
@@ -219,8 +241,9 @@ export default class MatchComponent extends AmethComponent {
     const token = this.router?.currentPath.params["token"] as string;
     await this.setMatch(token);
     this._matchEngineComponent?.refresh(token);
-    this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
-    this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
+    // this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
+    // this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
+    this.balanceNames();
     this._fillView();
   }
 
@@ -229,5 +252,20 @@ export default class MatchComponent extends AmethComponent {
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
     await super.destroy();
+  }
+
+  private async balanceNames() {
+    const username = (await LoggedUser.get())!.username;
+    let ownerOpts = this._getPlayerOpts(this._match?.players[0]);
+    let oppOpts = this._getPlayerOpts(this._match?.players[1]);
+
+    if (username === oppOpts?.name) {
+      const temp = ownerOpts;
+      ownerOpts = oppOpts;
+      oppOpts = temp;
+    }
+
+    this._ownerPlayerComponent?.refresh(ownerOpts);
+    this._opponentPlayerComponent?.refresh(oppOpts);
   }
 }

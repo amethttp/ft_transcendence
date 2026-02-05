@@ -35,6 +35,7 @@ export class RoomService {
     let settings = {
       maxScore: 3,
       local: false,
+      tournament: false,
       state: MatchState.WAITING,
       creationTime: "",
       score: [0, 0]
@@ -54,10 +55,14 @@ export class RoomService {
   }
 
   private publicDisconnect(socket: AuthenticatedSocket, room: Room) {
+    console.log("public disc");
     if (room.playersAmount() === 0) {
-      if (room.matchState === MatchState.WAITING && room.isExpired()) {
-        this.deleteMatch(socket.cookie, room.token);
-      } else if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
+      if (room.matchState === MatchState.WAITING) {
+        this.deleteMatchPlayer(socket.cookie, room.token);
+        if (room.isExpired()) {
+          this.deleteMatch(socket.cookie, room.token);
+        }
+      } else if (room.matchState !== MatchState.FINISHED) {
         this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];
@@ -100,6 +105,7 @@ export class RoomService {
     socket.leave(room.token);
     clearInterval(room.interval);
     this.roomPlayerRemoval(socket, room);
+    console.log("discccc", room.local, room.tournament, room.playersAmount());
 
     if (room.local) {
       this.localDisconnect(socket, room);
@@ -112,6 +118,7 @@ export class RoomService {
 
   public startMatch(socket: AuthenticatedSocket, room: Room) {
     if (room.gameEnded()) { return };
+    console.log(room.players);
     this.io.to(room.token).emit("message", "Players are ready! || Starting Match in 3...");
     for (const player of room.players) {
       player.state = PlayerState.IN_GAME;

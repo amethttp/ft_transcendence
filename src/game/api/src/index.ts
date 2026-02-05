@@ -55,6 +55,7 @@ const main = async () => {
           try {
             let gameRoom = roomService.getRoom(token);
             if (gameRoom) {
+              socket.broadcast.to(gameRoom.token).emit("connectionAmount", 2);
               gameRoom.joinPlayer(socket);
               socket.broadcast.to(gameRoom.token).emit("reset");
               console.log("Players connected successfully:", gameRoom.players);
