@@ -89,16 +89,16 @@ const main = async () => {
           }
         });
 
-        socket.on("local", (data) => {
-          const room = roomService.getRoom(data.token);
-          roomService.goLocal(socket, room);
+        socket.on("local", (token) => {
+          const room = roomService.getRoom(token);
+          room.local = true;
           room.addLocalPlayer();
           server.io.to(socket.id).emit("reset");
         });
 
-        socket.on("ai", (data) => {
-          const room = roomService.getRoom(data.token);
-          roomService.goLocal(socket, room);
+        socket.on("ai", (token) => {
+          const room = roomService.getRoom(token);
+          room.local = true;
           room.addAIPlayer();
           server.io.to(socket.id).emit("reset");
         });

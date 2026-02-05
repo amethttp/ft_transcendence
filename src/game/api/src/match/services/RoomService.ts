@@ -53,32 +53,60 @@ export class RoomService {
     return this._gameRooms[token];
   }
 
-  public goLocal(socket: AuthenticatedSocket, room: Room) {
-    room.local = true;
-    this.deleteMatch(socket.cookie, room.token);
-  }
-
-  public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
-    socket.leave(room.token);
-    clearInterval(room.interval);
-    if (room.getPlayer(socket.id)) {
-      room.deletePlayer(socket.id);
-      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS) {
-        room.matchState = MatchState.PAUSED;
-        this.io.to(room.token).emit("pause");
-      }
-    }
+  private publicDisconnect(socket: AuthenticatedSocket, room: Room) {
     if (room.playersAmount() === 0) {
-      if (room.matchState === MatchState.WAITING && !room.tournament && room.isExpired()) {
+      if (room.matchState === MatchState.WAITING && room.isExpired()) {
         this.deleteMatch(socket.cookie, room.token);
       } else if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
         this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];
     } else {
-      if (room.matchState === MatchState.WAITING && !room.tournament) {
+      if (room.matchState === MatchState.WAITING) {
         this.deleteMatchPlayer(socket.cookie, room.token);
       }
+    }
+  }
+
+  private localDisconnect(socket: AuthenticatedSocket, room: Room) {
+    if (room.matchState === MatchState.WAITING && room.isExpired()) {
+      this.deleteMatch(socket.cookie, room.token);
+    } else if (room.matchState !== MatchState.WAITING) {
+      this.deleteMatch(socket.cookie, room.token);
+    }
+    delete this._gameRooms[room.token];
+  }
+
+  private tournamentDisconnect(socket: AuthenticatedSocket, room: Room) {
+    if (room.playersAmount() === 0) {
+      if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
+        this.updateMatch(socket, room.token, room.matchScore);
+      }
+      delete this._gameRooms[room.token];
+    } 
+  }
+
+  private roomPlayerRemoval(socket: AuthenticatedSocket, room: Room) {
+    if (room.getPlayer(socket.id)) {
+      room.deletePlayer(socket.id);
+      if (room.playersAmount() > 0 && room.matchState === MatchState.IN_PROGRESS) {
+        room.matchState = MatchState.PAUSED;
+        this.io.to(room.token).emit("pause");
+      }
+    }    
+  }
+
+  public playerDisconnect(socket: AuthenticatedSocket, room: Room) {
+    socket.leave(room.token);
+    clearInterval(room.interval);
+    this.roomPlayerRemoval(socket, room);
+
+    if (room.local) {
+      this.localDisconnect(socket, room);
+    } else if (room.tournament) {
+      this.tournamentDisconnect(socket, room);
+    } else {
+      this.publicDisconnect(socket, room);
     }
   }
 
