@@ -61,6 +61,9 @@ export default class HttpClient implements IHttpClient {
       return response.json().catch(err => { throw err });
     }
     catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw err;
+      }
       if (!Object.keys(err).includes("status"))
         Alert.error('Network error');
 

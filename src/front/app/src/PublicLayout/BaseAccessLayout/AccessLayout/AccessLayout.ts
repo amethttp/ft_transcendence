@@ -8,12 +8,14 @@ export default class AccessLayout extends AmethComponent {
   private tabsContainer!: HTMLDivElement;
   private googleSignInButton!: HTMLButtonElement;
   private authService!: AuthService;
+  private googleSignInHandler!: () => void;
 
   afterInit() {
     this.authService = new AuthService();
     this.tabsContainer = document.getElementById("accessTabs")! as HTMLDivElement;
     this.googleSignInButton = document.getElementById("googleSignInButton")! as HTMLButtonElement;
-    this.googleSignInButton.addEventListener("click", () => { this.redirectToGoogleAuthUrl(); });
+    this.googleSignInHandler = () => { this.redirectToGoogleAuthUrl(); };
+    this.googleSignInButton.addEventListener("click", this.googleSignInHandler);
     this.refresh();
   }
 
@@ -31,6 +33,7 @@ export default class AccessLayout extends AmethComponent {
   }
 
   async destroy() {
-    this.googleSignInButton.removeEventListener("click", () => { this.redirectToGoogleAuthUrl(); });
+    this.googleSignInButton?.removeEventListener("click", this.googleSignInHandler);
+    await super.destroy();
   }
 }

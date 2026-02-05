@@ -6,7 +6,7 @@ import Path from "./Path/Path";
 import type { Route } from "./Route/Route";
 
 export type RouterEvents = {
-  navigate: {routeTree: Route[], path: Path, router?: Router};
+  navigate: { routeTree: Route[], path: Path, router?: Router };
 }
 
 export class Router extends EventEmitter<RouterEvents> {
@@ -17,6 +17,9 @@ export class Router extends EventEmitter<RouterEvents> {
   private _currentPath: Path;
   private _protectFromUnload: boolean;
   private _protectUnloadMsg: string;
+  private _redirectTarget: string | null = null;
+  private _navigationQueue: Promise<void> = Promise.resolve();
+  private _isNavigating: boolean = false;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -80,7 +83,7 @@ export class Router extends EventEmitter<RouterEvents> {
       e.preventDefault();
       const newUrl = new URL(anchor.href);
       const oldHref = location.href;
-      newUrl.pathname = this.normalizeURL(newUrl.href);
+      newUrl.pathname = this.normalizeURL(newUrl.href, false);
       if (newUrl.href !== oldHref)
         this.navigateByUrl(newUrl);
     });
@@ -93,36 +96,82 @@ export class Router extends EventEmitter<RouterEvents> {
       if (route.path === "")
         separator = '';
       const fullPath = PathHelper.normalize(parentPath + separator + route.path);
-      if (route.children && PathHelper.isParentMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
-        const childTree = await this.findRouteTree(path, route.children, fullPath);
+      const isParentMatch = !!route.children && PathHelper.isParentMatching(fullPath, path);
+      const isExactMatch = PathHelper.isMatching(fullPath, path);
+
+      if (isParentMatch) {
+        if (route.guard) {
+          const guardResult = await route.guard(route, path);
+          if (typeof guardResult === 'object' && guardResult.redirect) {
+            this._redirectTarget = guardResult.redirect;
+            return undefined;
+          }
+          if (guardResult !== true) continue;
+        }
+        const childTree = await this.findRouteTree(path, route.children!, fullPath);
         if (childTree) return [route, ...childTree];
+        if (this._redirectTarget) return undefined;
         else continue;
       }
-      else if (PathHelper.isMatching(fullPath, path) && (!route.guard || await route.guard(route, this))) {
+      else if (isExactMatch) {
+        if (route.guard) {
+          const guardResult = await route.guard(route, path);
+          if (typeof guardResult === 'object' && guardResult.redirect) {
+            this._redirectTarget = guardResult.redirect;
+            return undefined;
+          }
+          if (guardResult !== true) continue;
+        }
         return [route];
       }
     }
     return undefined;
   }
 
-  private normalizeURL(href: string): string {
+  private normalizeURL(href: string, replaceHistory = true): string {
     const url = new URL(href);
-    if (url.pathname.endsWith("/")) {
+    url.pathname = PathHelper.normalize(url.pathname);
+    if (url.pathname !== "/" && url.pathname.endsWith("/")) {
       url.pathname = PathHelper.removeTrailingSlash(url.pathname);
+    }
+    if (replaceHistory && url.pathname !== new URL(location.href).pathname) {
       history.replaceState(null, "", url.href);
     }
     return url.pathname;
   }
 
   private async navigate(path: string) {
-    const routeTree = await this.findRouteTree(path);
-    if (!routeTree) {
-      console.warn(`No route found for path: ${path}`);
-      return;
-    }
+    this._navigationQueue = this._navigationQueue.then(async () => {
+      try {
+        await this._performNavigation(path);
+      } catch (error) {
+        console.error("Navigation error:", error);
+      }
+    });
+    await this._navigationQueue;
+  }
+
+  private async _performNavigation(path: string) {
+    if (this._isNavigating) return;
+    this._isNavigating = true;
+
+    try {
+      this._redirectTarget = null;
+      const routeTree = await this.findRouteTree(path);
+      if (this._redirectTarget) {
+        this._isNavigating = false;
+        this.redirectByPath(this._redirectTarget);
+        return;
+      }
+      
+      if (!routeTree) {
+        console.warn(`No route found for path: ${path}`);
+        this._isNavigating = false;
+        return;
+      }
 
     this._currentPath = PathMapper.fromRouteTree(routeTree, path);
-    this.emitSync("navigate", {routeTree: routeTree, path: this._currentPath, router: this});
+    this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
 
     let lastI = 0;
     const oldComponents: AmethComponent[] = [];
@@ -149,18 +198,42 @@ export class Router extends EventEmitter<RouterEvents> {
         }
       }
       else {
-        // this._currentComponents[i].refresh();
       }
     }
+    
+    if (this._currentComponents.length > routeTree.length) {
+      const componentsToDestroy = this._currentComponents.splice(routeTree.length);
+      for (const component of componentsToDestroy) {
+        await component.destroy();
+      }
+    }
+    
+    const afterInitPromises: Promise<void>[] = [];
     for (const [i, component] of this._currentComponents.entries()) {
-      if (i <= lastI){
-        if (i >= oldComponents.length || component != oldComponents[i])
-          component.afterInit();
-        else
+      if (i <= lastI) {
+        if (i >= oldComponents.length || component != oldComponents[i]) {
+          afterInitPromises.push(
+            (async () => {
+              try {
+                await component.afterInit();
+              } catch (error) {
+                console.error("Component afterInit error:", error);
+              }
+            })()
+          );
+        }
+        else {
           component.refresh();
+        }
       }
     }
+    await Promise.all(afterInitPromises);
     this._currentTree = routeTree;
+    } catch (error) {
+      console.error("Navigation error:", error);
+    } finally {
+      this._isNavigating = false;
+    }
   }
 
   navigateByPath(path: string) {

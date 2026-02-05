@@ -6,6 +6,7 @@ import { AuthWrapper } from "./wrappers/AuthWrapper";
 
 export class ApiClient extends HttpClient {
   static readonly BASE_URL = "https://platform";
+  private static _refreshPromise: Promise<string> | null = null;
 
   constructor() {
     super();
@@ -32,7 +33,15 @@ export class ApiClient extends HttpClient {
   }
 
   private refreshToken(headers?: Record<string, any>): Promise<string> {
-    return this.get("/auth/access/refresh", undefined, headers);
+    if (ApiClient._refreshPromise) {
+      return ApiClient._refreshPromise;
+    }
+    const refreshPromise = this.get<string>("/auth/access/refresh", undefined, headers)
+      .finally(() => {
+        ApiClient._refreshPromise = null;
+      });
+    ApiClient._refreshPromise = refreshPromise;
+    return refreshPromise;
   }
 
   protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
@@ -40,8 +49,8 @@ export class ApiClient extends HttpClient {
       const token = CookieHelper.get("AccessToken", (options.headers as any)["cookie"]);
       delete (options.headers as any)["cookie"];
       options.headers = {
-        ...(token ? { Authorization: "Bearer " + token } : {}),
         ...options.headers,
+        ...(token ? { Authorization: "Bearer " + token } : {}),
       };
     }
 
@@ -50,6 +59,9 @@ export class ApiClient extends HttpClient {
     } catch (_error: any) {
       const error: ResponseError = _error;
       if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
+        if (url.includes("/auth/access/refresh")) {
+          throw error;
+        }
         try {
           const res = await this.refreshToken(options.headers);
           const request = await this.request<AuthWrapper>(url, options);

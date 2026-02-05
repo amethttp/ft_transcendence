@@ -40,7 +40,7 @@ export default class RoundsSliderComponent extends AmethComponent {
 
         playersDisplay.textContent = `${players} players`;
         playersDisplay.style.transform = "scale(1.1)";
-        setTimeout(() => (playersDisplay.style.transform = "scale(1)"), 120);
+        this.setTimeout(() => (playersDisplay.style.transform = "scale(1)"), 120);
 
         roundsDisplay.textContent = `${rounds} rounds (${TournamentRound.roundsText[index + 1] || ""})`;
         return true;
@@ -53,6 +53,6 @@ export default class RoundsSliderComponent extends AmethComponent {
 
     slider.addEventListener("input", () => {
       if (updateSlider() && "vibrate" in navigator) navigator.vibrate(50);
-    })
+    });
   }
 }

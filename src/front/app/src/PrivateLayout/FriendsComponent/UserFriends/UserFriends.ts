@@ -25,7 +25,16 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   }
 
   startPoolings() {
-    this._statusPooling = setInterval(this.getStatuses.bind(this), 20000);
+    if (!this._statusPooling) {
+      this._statusPooling = setInterval(this.getStatuses.bind(this), 20000);
+    }
+  }
+
+  stopPoolings() {
+    if (this._statusPooling) {
+      clearInterval(this._statusPooling);
+      this._statusPooling = undefined;
+    }
   }
 
   async getStatuses() {
@@ -53,6 +62,6 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   }
 
   destroy() {
-    clearInterval(this._statusPooling);
+    this.stopPoolings();
   }
 }
