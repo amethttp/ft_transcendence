@@ -57,6 +57,12 @@ export const createDummyUsers = async () => {
       email: "test2@gmail.commm",
       password: "testuser",
       birthDate: '1997-10-21'
+    },
+    {
+      username: "test3",
+      email: "test3@gmail.commm",
+      password: "testuser",
+      birthDate: '1997-10-21'
     }
   ]
 
