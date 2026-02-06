@@ -34,7 +34,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
       action.classList.add("hidden");
     }
-    this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.add("hidden");
   }
 
   private updateStatus = (statuses: FriendsStatus) => {
@@ -101,17 +100,12 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected showRequestedFriend(targetUser: UserProfile) {
     super.showRequestedFriend(targetUser);
     this.showBlockUser(targetUser.username);
-    const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this._userProfile?.relation.owner) {
-      pendingRequestEl.innerHTML = `Waiting for acceptance...`;
-      pendingRequestEl.classList.remove("hidden");
       return;
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
-    pendingRequestEl.innerHTML = `${targetUser.username} sent a friend request!`;
 
-    pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
     declineBtn.classList.remove("hidden");
 
