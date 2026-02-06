@@ -11,7 +11,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   template = () => import("./UserProfileActionsComponent.html?raw");
   protected userProfileService: UserProfileService;
   protected relationService: RelationService;
-  private _uniqueActionsContainerId!: string;
 
   constructor(userProfile: UserProfile) {
     super(userProfile);
@@ -21,9 +20,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   async afterInit() {
     super.afterInit();
-    const container = document.getElementById('userActionsContainer')! as HTMLDivElement;
-    this._uniqueActionsContainerId = `${container.id}-${this.userProfile.username}`;
-    container.id = this._uniqueActionsContainerId;
     this.refresh();
   }
 
@@ -107,13 +103,13 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     this.showBlockUser(targetUser.username);
     const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this._userProfile?.relation.owner) {
-      this.outlet!.getElementsByClassName("pendingReqText")[0]!.innerHTML = `Waiting for acceptance...`;
+      pendingRequestEl.innerHTML = `Waiting for acceptance...`;
       pendingRequestEl.classList.remove("hidden");
       return;
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
-    this.outlet!.getElementsByClassName("pendingReqText")![0].innerHTML = `${targetUser.username} wants to be your friend!`;
+    pendingRequestEl.innerHTML = `${targetUser.username} sent a friend request!`;
 
     pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
@@ -156,19 +152,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       e.stopImmediatePropagation();
       this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
-    }
-  }
-
-  hideActions() {
-    const container = document.getElementById(this._uniqueActionsContainerId);
-
-    container?.classList.add('hidden');
-  }
-
-  async hideLoggedUserActions() {
-    const loggedUserProfile = (await LoggedUser.get(true)) as unknown as UserProfile;
-    if (this._userProfile?.username === loggedUserProfile.username) {
-      this.hideActions();
     }
   }
 
