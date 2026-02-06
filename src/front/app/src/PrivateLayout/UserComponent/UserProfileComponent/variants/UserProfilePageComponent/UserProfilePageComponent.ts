@@ -1,5 +1,3 @@
-import { LoggedUser } from "../../../../../auth/LoggedUser";
-import { AuthService } from "../../../../../auth/services/AuthService";
 import { Context } from "../../../../../framework/Context/Context";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
 import type UserProfile from "../../../models/UserProfile";
@@ -7,8 +5,8 @@ import RelationService from "../../../services/RelationService";
 import UserProfileService from "../../../services/UserProfileService";
 import UserProfileComponent from "../../UserProfileComponent";
 
-export default class UserProfileActionsComponent extends UserProfileComponent {
-  template = () => import("./UserProfileActionsComponent.html?raw");
+export default class UserProfilePageComponent extends UserProfileComponent {
+  template = () => import("./UserProfilePageComponent.html?raw");
   protected userProfileService: UserProfileService;
   protected relationService: RelationService;
 
@@ -34,6 +32,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
       action.classList.add("hidden");
     }
+    this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.add("hidden");
   }
 
   private updateStatus = (statuses: FriendsStatus) => {
@@ -50,24 +49,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   protected showMyProfile() {
     super.showMyProfile();
-    const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
-    editBtn.href = `/${this._userProfile!.username}/edit`;
-    editBtn.classList.remove("hidden");
-    const logOutBtn = this.outlet?.getElementsByClassName("UserComponentLogout")[0]! as HTMLElement;
-    logOutBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      this.logOut();
-    };
-    logOutBtn.classList.remove("hidden");
-  }
-
-  private logOut() {
-    const authService = new AuthService();
-    authService.logout().then(async () => {
-      await LoggedUser.get(true);
-      this.router?.redirectByPath("/");
-    });
   }
 
   protected showNoRelation(targetUser: UserProfile) {
@@ -100,12 +81,17 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected showRequestedFriend(targetUser: UserProfile) {
     super.showRequestedFriend(targetUser);
     this.showBlockUser(targetUser.username);
+    const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this._userProfile?.relation.owner) {
+      pendingRequestEl.innerHTML = `Waiting for acceptance...`;
+      pendingRequestEl.classList.remove("hidden");
       return;
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
+    pendingRequestEl.innerHTML = `${targetUser.username} sent a friend request!`;
 
+    pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
     declineBtn.classList.remove("hidden");
 

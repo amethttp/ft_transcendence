@@ -56,6 +56,7 @@ const main = async () => {
             let gameRoom = roomService.getRoom(token);
             if (gameRoom) {
               gameRoom.joinPlayer(socket);
+              gameRoom.resetPlayersState();
               socket.broadcast.to(gameRoom.token).emit("reset");
               console.log("Players connected successfully:", gameRoom.players);
             } else {
@@ -93,6 +94,7 @@ const main = async () => {
           const room = roomService.getRoom(data.token);
           roomService.goLocal(socket, room);
           room.addLocalPlayer();
+          room.resetPlayersState();
           server.io.to(socket.id).emit("reset");
         });
 
@@ -100,6 +102,7 @@ const main = async () => {
           const room = roomService.getRoom(data.token);
           roomService.goLocal(socket, room);
           room.addAIPlayer();
+          room.resetPlayersState();
           server.io.to(socket.id).emit("reset");
         });
 

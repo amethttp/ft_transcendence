@@ -23,6 +23,12 @@ export default class UserEditComponent extends AmethComponent {
   }
 
   async refresh() {
+    const usernameParam = decodeURI(this.router?.currentPath.params["userId"] as string);
+    const logged = (await LoggedUser.get())?.username;
+    if (usernameParam && logged && usernameParam !== logged) {
+      this.router?.redirectByPath("/" + usernameParam);
+      return;
+    }
     this._user = (await LoggedUser.get(true))!;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
@@ -32,6 +38,12 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
+    const usernameParam = decodeURI(this.router?.currentPath.params["userId"] as string);
+    const logged = (await LoggedUser.get())?.username;
+    if (usernameParam && logged && usernameParam !== logged) {
+      this.router?.redirectByPath("/" + usernameParam);
+      return;
+    }
     this._user = (await LoggedUser.get(true))!;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
@@ -97,8 +109,8 @@ export default class UserEditComponent extends AmethComponent {
         .catch(() => Alert.error("Could not send data download email"));
     }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
-      const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
-      if (challenge === "sure") {
+      const challenge = prompt("Are you sure to delete your account? Type \"delete\".");
+      if (challenge === "delete") {
         this._userEditService.deleteUser()
           .then(async () => {
             Alert.success("Successfully deleted your account");
@@ -109,7 +121,7 @@ export default class UserEditComponent extends AmethComponent {
           });
       }
       else if (challenge !== null)
-        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"sure\".");
+        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"delete\".");
     }
   }
 }

@@ -103,7 +103,7 @@ export default class SidebarComponent extends AmethComponent {
         (document.getElementById("sidebarUserAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
       if (userProfile.username) {
         document.getElementById("sidebarUserName")!.innerText = userProfile.username;
-        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username;
+        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username + "/edit";
       }
     }
   }

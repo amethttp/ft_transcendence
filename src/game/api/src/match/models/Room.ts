@@ -146,6 +146,7 @@ export class Room extends EventEmitter<RoomEvents> {
     socket.broadcast.to(this.token).emit("handshake", socket.userId);
     if (this._matchState === MatchState.PAUSED) {
       socket.broadcast.to(this.token).emit("reset", socket.userId);
+      this.resetPlayersState();
     }
   }
 
@@ -158,6 +159,13 @@ export class Room extends EventEmitter<RoomEvents> {
     }
 
     return true;
+  }
+
+  public resetPlayersState() {
+    const roomPlayers = Object.values(this._players);
+    for (const player of roomPlayers) {
+      player.state = PlayerState.WAITING;
+    }
   }
 
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
