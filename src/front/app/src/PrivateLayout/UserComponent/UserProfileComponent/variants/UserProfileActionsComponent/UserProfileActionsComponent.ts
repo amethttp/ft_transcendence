@@ -1,5 +1,3 @@
-import { LoggedUser } from "../../../../../auth/LoggedUser";
-import { AuthService } from "../../../../../auth/services/AuthService";
 import { Context } from "../../../../../framework/Context/Context";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
 import type UserProfile from "../../../models/UserProfile";
@@ -50,24 +48,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   protected showMyProfile() {
     super.showMyProfile();
-    const editBtn = (this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]! as HTMLAnchorElement);
-    editBtn.href = `/${this._userProfile!.username}/edit`;
-    editBtn.classList.remove("hidden");
-    const logOutBtn = this.outlet?.getElementsByClassName("UserComponentLogout")[0]! as HTMLElement;
-    logOutBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      this.logOut();
-    };
-    logOutBtn.classList.remove("hidden");
-  }
-
-  private logOut() {
-    const authService = new AuthService();
-    authService.logout().then(async () => {
-      await LoggedUser.get(true);
-      this.router?.redirectByPath("/");
-    });
   }
 
   protected showNoRelation(targetUser: UserProfile) {
@@ -147,6 +127,10 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
     }
+  }
+
+  hideActions() {
+    this.outlet?.getElementsByClassName('userActions')[0].classList.add('hidden');
   }
 
   async destroy() {
