@@ -1,6 +1,6 @@
-<div class="flex flex-row gap-14 items-center justify-center">
+<div class="flex flex-row gap-6 sm:gap-10 items-center justify-center max-w-xs sm:max-w-none">
   <div class="flex flex-row gap-4 items-center justify-center">
-    <div class="relative size-22">
+    <div class="relative size-18 sm:size-22">
       <div class="UserComponentOnline absolute bottom-[7%] right-[7%] z-50 size-[15%] rounded-full hidden bg-green-600 ring-4 ring-white"></div>
       <div class="UserComponentOffline absolute bottom-[7%] right-[7%] z-50 size-[15%] rounded-full hidden bg-gray-600 ring-4 ring-white"></div>
       <img src="/default-avatar.webp"
@@ -8,40 +8,40 @@
         alt="User avatar" width="650" height="650"/>
     </div>
     <div class="flex flex-col gap-2 items-start justify-center">
-      <h2 class="UserComponentUsername title-3 truncate w-full max-w-56"></h2>
-      <div class="whitespace-nowrap text-gray-600 text-sm">
+      <h2 class="UserComponentUsername title-3 truncate w-full max-w-44 sm:max-w-56"></h2>
+      <div class="whitespace-nowrap text-gray-600 text-xs sm:text-sm">
         Joined on <span class="UserComponentCreationTime"></span>
       </div>
     </div>
   </div>
-  <div class="userActions flex flex-row gap-2 justify-center items-center">
-    <button class="UserComponentAddFriendBtn btn btn-primary text-nowrap p-2.25" title="Send friend request">
+  <div class="userActions flex flex-col sm:flex-row gap-2 justify-center items-center">
+    <button class="UserComponentAddFriendBtn btn btn-primary text-nowrap p-1.5 sm:p-2.25" title="Send friend request">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
       </svg>
     </button>
-    <button class="UserComponentDeleteFriendBtn btn btn-primary text-nowrap p-2.25" title="Delete from friend list">
+    <button class="UserComponentDeleteFriendBtn btn btn-primary text-nowrap p-1.5 sm:p-2.25" title="Delete from friend list">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
       </svg>
     </button>
-    <button class="UserComponentAcceptBtn btn btn-primary p-2.25" title="Accept friendship">
+    <button class="UserComponentAcceptBtn btn btn-primary p-1.5 sm:p-2.25" title="Accept friendship">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
       </svg>
     </button>
-    <button class="UserComponentDeclineBtn btn btn-danger p-2.25" title="Decline friendship">
+    <button class="UserComponentDeclineBtn btn btn-danger p-1.5 sm:p-2.25" title="Decline friendship">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
       </svg>
     </button>
-    <button class="UserComponentBlockBtn btn btn-primary p-2.25" title="Block user">
+    <button class="UserComponentBlockBtn btn btn-primary p-1.5 sm:p-2.25" title="Block user">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
       </svg>
     </button>
     <button class="UserComponentUnblockBtn btn btn-primary p-2.25" title="Unblock user">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
       </svg>
     </button>
