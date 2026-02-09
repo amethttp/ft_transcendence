@@ -33,9 +33,11 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _deltaTime: number = 0;
   private _resizeObserver?: ResizeObserver;
   private _fullscreenChangeHandler?: () => void;
+  private _activeMatch?: boolean;
 
   constructor(token?: string) {
     super();
+    this._activeMatch = false;
     this._token = token;
     this._paddles[0] = new Paddle(100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
     this._paddles[1] = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
@@ -89,6 +91,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._animationId = 0;
     });
     this._socketClient.setEvent('reset', () => {
+      this._unLockNavigation();
       this._canvasOverlay.reset();
       this._canvasOverlay.onclick(() => this.setReadyToPlay());
     });
@@ -104,12 +107,23 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullscreenChangeHandler = () => { this._fullScreenButton.toggleIcon() };
     document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
-    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
   }
 
   private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
-    event.preventDefault();
-    event.returnValue = '';
+    if (this._activeMatch) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  }
+
+  private _lockNavigation() {
+    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
+    this._activeMatch = true;
+  }
+
+  private _unLockNavigation() {
+    this.router?.permitUnload();
+    this._activeMatch = false;
   }
 
   private startMatch() {
@@ -124,6 +138,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private setReadyToPlay() {
     console.log('ready!');
+    this._lockNavigation();
     this._canvasOverlay.setWaitingState();
     this._canvasOverlay.onclick(() => null);
     this._socketClient.emitEvent('ready', this._token);
@@ -219,7 +234,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
     console.log(score);
-    this.router?.permitUnload();
+    this._unLockNavigation();
     this.emit('matchEnded', score);
   }
 
