@@ -16,17 +16,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     this.relationService = new RelationService();
   }
 
-  async afterInit() {
-    super.afterInit();
-    this.refresh();
-  }
-
-  async refresh(userProfile?: UserProfile) {
-    super.refresh(userProfile);
-    this.clearView();
-    this.fillView();
-  }
-
   protected clearView() {
     super.clearView();
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
@@ -130,7 +119,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   }
 
   hideActions() {
-    this.outlet?.getElementsByClassName('userActions')[0].classList.add('hidden');
+    this.outlet?.getElementsByClassName('userActions')[0]!.classList.add('hidden');
   }
 
   async destroy() {

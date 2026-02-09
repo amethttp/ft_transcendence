@@ -98,7 +98,7 @@ export class UserService {
 
   private fromGooglePayloadToUserCreationDto(googlePayload: GoogleTicketPayload): UserCreationDto {
     return {
-      username: `user${Date.now()}`,
+      username: `user${Date.now()}${parseInt((Math.random() * 999).toString())}`,
       email: googlePayload.email,
       birthDate: '1970-01-01',
       avatarUrl: googlePayload.avatar || '/default-avatar.webp'

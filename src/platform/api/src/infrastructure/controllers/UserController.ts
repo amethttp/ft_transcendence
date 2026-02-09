@@ -11,7 +11,7 @@ import { randomBytes } from "crypto";
 import { BusboyFileStream } from "@fastify/busboy";
 import { MatchPlayerService } from "../../application/services/MatchPlayerService";
 import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
-import { createWriteStream, unlink } from "fs";
+import { existsSync, createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
 import { TournamentService } from "../../application/services/TournamentService";
@@ -284,7 +284,10 @@ export default class UserController {
   }
 
   private _removeFile(path: string) {
-    unlink(process.env.UPLOADS_PATH + path, (err) => {
+    const filePath = process.env.UPLOADS_PATH + path;
+    if (!existsSync(filePath))
+      return;
+    unlink(filePath, (err) => {
       if (err)
         console.log("error removing file " + path + ": ", err);
     });
@@ -301,7 +304,7 @@ export default class UserController {
       await this._storeFile(data.file, filePath);
 
       const oldAvatarUrl = (await this._userService.getById(requestedUser.sub)).avatarUrl;
-      if (!oldAvatarUrl.endsWith("default-avatar.webp") && !oldAvatarUrl.startsWith("http"))
+      if (!oldAvatarUrl.endsWith("default-avatar.webp"))
         this._removeFile(oldAvatarUrl);
 
       await this._userService.updateAvatar(requestedUser.sub, filePath);

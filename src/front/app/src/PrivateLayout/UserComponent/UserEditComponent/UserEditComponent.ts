@@ -23,7 +23,7 @@ export default class UserEditComponent extends AmethComponent {
   }
 
   async refresh() {
-    const usernameParam = decodeURI(this.router?.currentPath.params["userId"] as string);
+    const usernameParam = (this.router?.currentPath.params["userId"] as string);
     const logged = (await LoggedUser.get())?.username;
     if (usernameParam && logged && usernameParam !== logged) {
       this.router?.redirectByPath("/" + usernameParam);
@@ -38,7 +38,7 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
-    const usernameParam = decodeURI(this.router?.currentPath.params["userId"] as string);
+    const usernameParam = (this.router?.currentPath.params["userId"] as string);
     const logged = (await LoggedUser.get())?.username;
     if (usernameParam && logged && usernameParam !== logged) {
       this.router?.redirectByPath("/" + usernameParam);
