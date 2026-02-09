@@ -1,20 +1,10 @@
-<a class="UserProfileComponentAnchor link flex gap-2 items-center hover:bg-brand-100 justify-around px-1 rounded w-full">
-  <span class="link-icon rounded-full aspect-square flex-none overflow-hidden flex justify-center items-center size-8">
+<a class="UserProfileComponentAnchor link flex gap-3 items-center hover:bg-brand-100 justify-start friend-link sm:p-4 rounded w-full">
+  <span class="relative link-icon rounded-full aspect-square flex-none flex justify-center items-center size-8">
+    <div class="UserComponentOnline absolute bottom-[5%] right-[2%] z-50 size-[25%] rounded-full hidden bg-green-600 ring-2 ring-gray-100"></div>
+    <div class="UserComponentOffline absolute bottom-[5%] right-[2%] z-50 size-[25%] rounded-full hidden bg-gray-600 ring-2 ring-gray-100"></div>
     <img src="/default-avatar.webp"
-      class="userAvatar  link-icon rounded-full aspect-square object-cover object-center transform scale-[0.9999]"
+      class="userAvatar size-full link-icon rounded-full aspect-square object-cover object-center transform scale-[0.9999]"
       alt="User avatar" width="80" height="80">
   </span>
-  <p class="UserComponentUsername relative -top-0.5 be-hidden truncate"></p>
-  <div class="be-hidden">
-    <div class="UserComponentOnline hidden tooltip tooltip-sm bg-green-50 outline-green-600 before:bg-green-600">
-      <span class="truncate">
-        online
-      </span>
-    </div>
-    <div class="UserComponentOffline hidden tooltip tooltip-sm bg-gray-50 outline-gray-600 before:bg-gray-600">
-      <span class="truncate">
-        offline
-      </span>
-    </div>
-  </div>
+  <p class="UserComponentUsername relative be-hidden truncate"></p>
 </a>
