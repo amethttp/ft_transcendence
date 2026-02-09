@@ -69,14 +69,14 @@ export class RoomService {
       }
     }
     if (room.playersAmount() === 0) {
-      if (room.matchState === MatchState.WAITING && room.isExpired()) {
+      if (room.matchState === MatchState.WAITING && !room.tournament && room.isExpired()) {
         this.deleteMatch(socket.cookie, room.token);
       } else if (room.matchState !== MatchState.FINISHED && room.matchState !== MatchState.WAITING) {
         this.updateMatch(socket, room.token, room.matchScore);
       }
       delete this._gameRooms[room.token];
     } else {
-      if (room.matchState === MatchState.WAITING) {
+      if (room.matchState === MatchState.WAITING && !room.tournament) {
         this.deleteMatchPlayer(socket.cookie, room.token);
       }
     }

@@ -46,6 +46,8 @@ export default class MatchComponent extends AmethComponent {
   }
 
   opponentConnected = (userId: number) => {
+    if (!this._match || (this._match.tournamentRound && this._match.tournamentRound.tournament))
+      return;
     this._matchService.getPlayer(userId, this._match?.id || -1).then(val => {
       this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
       this._showOpponentPlayer();
@@ -58,7 +60,7 @@ export default class MatchComponent extends AmethComponent {
       return;
     const loggedName = (await LoggedUser.get())!.username;
     const loggedPlayer = this._match?.players.find(pl => pl.user.username === loggedName)!;
-    const loggedIndex = this._match?.players.indexOf(loggedPlayer)!;
+    const loggedIndex = this._match?.players.indexOf(loggedPlayer);
     if (loggedIndex === 1) {
       this._match.players[0] = this._match.players[1];
     }
