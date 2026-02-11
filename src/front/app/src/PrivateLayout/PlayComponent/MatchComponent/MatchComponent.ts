@@ -18,7 +18,9 @@ export const PlayerType = {
 
 export type PlayerTypeValue = typeof PlayerType[keyof typeof PlayerType];
 
-export default class MatchComponent extends AmethComponent {
+type MatchComponentResolvedData = { match: MatchJoin };
+
+export default class MatchComponent extends AmethComponent<MatchComponentResolvedData> {
   template = () => import("./MatchComponent.html?raw");
   private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
     {
@@ -85,33 +87,25 @@ export default class MatchComponent extends AmethComponent {
     }, 1000);
   }
 
-  async init(selector: string, router?: Router): Promise<void> {
-    await super.init(selector, router);
+  async init(selector: string, router?: Router, resolvedData?: MatchComponentResolvedData): Promise<void> {
+    await super.init(selector, router, resolvedData);
     this._token = this.router?.currentPath.params["token"] as string;
     this._matchEngineComponent = new MatchEngineComponent(this._token);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
   }
 
-  async setMatch(token: string): Promise<boolean> {
-    try {
-      this._match = await this._matchService.getJoinMatch(token);
+  setMatch() {
+    if (this.resolverData?.match) {
+      this._match = this.resolverData?.match;
       return true;
     }
-    catch (e: any) {
-      if (e.status === 404) {
-        this.router?.redirectByPath('/404');
-      }
-      console.warn(e);
+    else
       return false;
-    }
   }
 
   async afterInit() {
-    if (this._token && this.router) {
-      const valid = await this.setMatch(this._token);
-      if (!valid)
-        return;
-    }
+    if (!this.setMatch())
+      return;
     await this._initPlayers();
     this._fillView();
     if (this._matchEngineComponent) {
@@ -222,9 +216,9 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  async refresh() {
+  refresh() {
     const token = this.router?.currentPath.params["token"] as string;
-    await this.setMatch(token);
+    this.setMatch();
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));

@@ -1,5 +1,7 @@
 import loggedResolver from "./auth/resolver/loggedResolver";
 import type { Route } from "./framework/Router/Route/Route";
+import matchResolver from "./PrivateLayout/PlayComponent/MatchComponent/resolvers/matchResolver";
+import tournamentResolver from "./PrivateLayout/PlayComponent/TournamentComponent/resolvers/tournamentResolver";
 import userEditResolver from "./PrivateLayout/UserComponent/UserEditComponent/resolver/userEditResolver";
 import accessResolver from "./PublicLayout/BaseAccessLayout/AccessLayout/resolver/accessResolver";
 import verifyResolver from "./PublicLayout/BaseAccessLayout/VerifyComponent/resolver/verifyResolver";
@@ -117,11 +119,13 @@ export const routes: Route[] = [
       {
         path: "/play/:token",
         component: () => import("./PrivateLayout/PlayComponent/MatchComponent/MatchComponent"),
+        resolver: matchResolver,
         title: "Match",
       },
       {
         path: "/play/tournament/:token",
         component: () => import("./PrivateLayout/PlayComponent/TournamentComponent/TournamentComponent"),
+        resolver: tournamentResolver,
         title: "Tournament",
       },
       {

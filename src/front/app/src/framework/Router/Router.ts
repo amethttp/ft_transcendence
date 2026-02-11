@@ -129,7 +129,7 @@ export class Router extends EventEmitter<RouterEvents> {
    * - `false`: Cancel navigation, revert URL.
    */
   private async executeResolution(routeTree: Route[], targetPath: string): Promise<{ success: false; reason: 'redirect' | 'cancelled'; target?: string } | { success: true; contextData: Record<string, any> }> {
-    const contextData: Record<string, any> = { __path: targetPath, __routeTree: routeTree };
+    const contextData: Record<string, any> = {};
 
     for (const route of routeTree) {
       if (route.resolver) {
@@ -230,20 +230,20 @@ export class Router extends EventEmitter<RouterEvents> {
       let lastI = 0;
       const oldComponents: AmethComponent<any>[] = [];
       this._currentComponents.forEach(comp => oldComponents.push(comp));
-      
+
       for (const [i, route] of routeTree.entries()) {
         lastI = i;
         if (route.redirect) return this.redirectByPath(route.redirect);
-        
+
         if (this._currentTree[i] !== route) {
           if (this._currentComponents && this._currentComponents[i])
             await this._currentComponents[i].destroy();
-          
+
           if (route.component) {
             const Component = (await route.component()).default;
             const newComponent: AmethComponent<any> = new Component();
             let selector = this._selector;
-            
+
             if (i > 0) {
               const outlet = this._currentComponents[i - 1].outlet?.getElementsByClassName("router-outlet")[0];
               if (!outlet)
@@ -251,7 +251,7 @@ export class Router extends EventEmitter<RouterEvents> {
               selector = "r-" + Date.now() + Math.random().toString(36).slice(2, 9);
               outlet.setAttribute("id", selector);
             }
-            
+
             // Pass resolver data to component
             await newComponent.init(selector, this, this._currentResolution);
             this._currentComponents[i] = newComponent;
@@ -285,7 +285,7 @@ export class Router extends EventEmitter<RouterEvents> {
           }
         }
       }
-      
+
       await Promise.all(afterInitPromises);
       this._currentTree = routeTree;
     } catch (error) {
