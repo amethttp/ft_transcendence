@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { TabsHelper } from "../../../framework/Tabs/TabsHelper";
@@ -25,11 +24,7 @@ export default class AccessLayout extends AmethComponent {
   }
 
   async refresh() {
-    const loggedUser = await LoggedUser.get();
-    if (loggedUser !== null)
-      this.router?.redirectByPath('/home');
-    else
-      TabsHelper.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
+    TabsHelper.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
   }
 
   async destroy() {

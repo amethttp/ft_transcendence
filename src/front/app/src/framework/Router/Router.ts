@@ -100,22 +100,24 @@ export class Router extends EventEmitter<RouterEvents> {
       const isExactMatch = PathHelper.isMatching(fullPath, path);
 
       if (isParentMatch) {
-        if (route.guard) {
-          const guardResult = await route.guard(route, path);
-          if (typeof guardResult === 'object' && guardResult.redirect) {
-            this._redirectTarget = guardResult.redirect;
-            return undefined;
-          }
-          if (guardResult !== true) continue;
-        }
         const childTree = await this.findRouteTree(path, route.children!, fullPath);
-        if (childTree) return [route, ...childTree];
+        if (childTree) {
+          if (route.guard) {
+            const guardResult = await route.guard(PathMapper.fromRouteTree([route, ...childTree], path));
+            if (typeof guardResult === 'object' && guardResult.redirect) {
+              this._redirectTarget = guardResult.redirect;
+              return undefined;
+            }
+            if (guardResult !== true) continue;
+          }
+          return [route, ...childTree];
+        }
         if (this._redirectTarget) return undefined;
         else continue;
       }
       else if (isExactMatch) {
         if (route.guard) {
-          const guardResult = await route.guard(route, path);
+          const guardResult = await route.guard(PathMapper.fromRouteTree([route], path));
           if (typeof guardResult === 'object' && guardResult.redirect) {
             this._redirectTarget = guardResult.redirect;
             return undefined;
@@ -163,72 +165,72 @@ export class Router extends EventEmitter<RouterEvents> {
         this.redirectByPath(this._redirectTarget);
         return;
       }
-      
+
       if (!routeTree) {
         console.warn(`No route found for path: ${path}`);
         this._isNavigating = false;
         return;
       }
 
-    this._currentPath = PathMapper.fromRouteTree(routeTree, path);
-    this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
+      this._currentPath = PathMapper.fromRouteTree(routeTree, path);
+      this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
 
-    let lastI = 0;
-    const oldComponents: AmethComponent[] = [];
-    this._currentComponents.forEach(comp => oldComponents.push(comp));
-    for (const [i, route] of routeTree.entries()) {
-      lastI = i;
-      if (route.redirect) return this.redirectByPath(route.redirect);
-      if (this._currentTree[i] !== route) {
-        if (this._currentComponents && this._currentComponents[i])
-          await this._currentComponents[i].destroy();
-        if (route.component) {
-          const Component = (await route.component()).default;
-          const newComponent: AmethComponent = new Component();
-          let selector = this._selector;
-          if (i > 0) {
-            const outlet = this._currentComponents[i - 1].outlet?.getElementsByClassName("router-outlet")[0];
-            if (!outlet)
-              return console.warn("No <div class=\"router-outlet\"></div> on ", this._currentComponents[i - 1]);
-            selector = "r-" + Date.now() + Math.random().toString(36).slice(2, 9);
-            outlet.setAttribute("id", selector);
+      let lastI = 0;
+      const oldComponents: AmethComponent[] = [];
+      this._currentComponents.forEach(comp => oldComponents.push(comp));
+      for (const [i, route] of routeTree.entries()) {
+        lastI = i;
+        if (route.redirect) return this.redirectByPath(route.redirect);
+        if (this._currentTree[i] !== route) {
+          if (this._currentComponents && this._currentComponents[i])
+            await this._currentComponents[i].destroy();
+          if (route.component) {
+            const Component = (await route.component()).default;
+            const newComponent: AmethComponent = new Component();
+            let selector = this._selector;
+            if (i > 0) {
+              const outlet = this._currentComponents[i - 1].outlet?.getElementsByClassName("router-outlet")[0];
+              if (!outlet)
+                return console.warn("No <div class=\"router-outlet\"></div> on ", this._currentComponents[i - 1]);
+              selector = "r-" + Date.now() + Math.random().toString(36).slice(2, 9);
+              outlet.setAttribute("id", selector);
+            }
+            await newComponent.init(selector, this);
+            this._currentComponents[i] = newComponent;
           }
-          await newComponent.init(selector, this);
-          this._currentComponents[i] = newComponent;
-        }
-      }
-      else {
-      }
-    }
-    
-    if (this._currentComponents.length > routeTree.length) {
-      const componentsToDestroy = this._currentComponents.splice(routeTree.length);
-      for (const component of componentsToDestroy) {
-        await component.destroy();
-      }
-    }
-    
-    const afterInitPromises: Promise<void>[] = [];
-    for (const [i, component] of this._currentComponents.entries()) {
-      if (i <= lastI) {
-        if (i >= oldComponents.length || component != oldComponents[i]) {
-          afterInitPromises.push(
-            (async () => {
-              try {
-                await component.afterInit();
-              } catch (error) {
-                console.error("Component afterInit error:", error);
-              }
-            })()
-          );
         }
         else {
-          component.refresh();
         }
       }
-    }
-    await Promise.all(afterInitPromises);
-    this._currentTree = routeTree;
+
+      if (this._currentComponents.length > routeTree.length) {
+        const componentsToDestroy = this._currentComponents.splice(routeTree.length);
+        for (const component of componentsToDestroy) {
+          await component.destroy();
+        }
+      }
+
+      const afterInitPromises: Promise<void>[] = [];
+      for (const [i, component] of this._currentComponents.entries()) {
+        if (i <= lastI) {
+          if (i >= oldComponents.length || component != oldComponents[i]) {
+            afterInitPromises.push(
+              (async () => {
+                try {
+                  await component.afterInit();
+                } catch (error) {
+                  console.error("Component afterInit error:", error);
+                }
+              })()
+            );
+          }
+          else {
+            component.refresh();
+          }
+        }
+      }
+      await Promise.all(afterInitPromises);
+      this._currentTree = routeTree;
     } catch (error) {
       console.error("Navigation error:", error);
     } finally {

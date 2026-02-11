@@ -1,12 +1,12 @@
 import type User from "../models/User";
-import type { GuardResult } from "../../framework/Router/Route/Guard";
-import type { Route } from "../../framework/Router/Route/Route";
+import type { Guard, GuardResult } from "../../framework/Router/Route/Guard";
 import { LoggedUser } from "../LoggedUser";
+import type Path from "../../framework/Router/Path/Path";
 
-export const loggedGuard = async (_route: Route, fullPath: string): Promise<GuardResult> => {
+export const loggedGuard: Guard = async (path: Path): Promise<GuardResult> => {
   const loggedUser: User | null = await LoggedUser.get(true);
   if (loggedUser === null) {
-    return { redirect: '/login?redirect=' + encodeURIComponent(fullPath) };
+    return { redirect: '/login?redirect=' + encodeURIComponent(path.fullPath) };
   }
   return true;
 }

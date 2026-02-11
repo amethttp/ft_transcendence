@@ -1,6 +1,6 @@
-import type { Route } from "./Route";
+import type Path from "../Path/Path";
 
 export type GuardResult = boolean | { redirect: string };
 
-export type Guard = (route: Route, fullPath: string) => Promise<GuardResult>;
+export type Guard = (path: Path) => Promise<GuardResult>;
 

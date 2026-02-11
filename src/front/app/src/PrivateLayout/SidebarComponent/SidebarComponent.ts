@@ -94,7 +94,6 @@ export default class SidebarComponent extends AmethComponent {
       e.preventDefault();
       authService.logout().then(async res => {
         if (res.success) {
-          await LoggedUser.get(true);
           this.router?.navigateByPath("/");
         }
       });

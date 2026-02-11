@@ -1,5 +1,8 @@
 import loggedGuard from "./auth/guards/loggedGuard";
 import type { Route } from "./framework/Router/Route/Route";
+import userEditGuard from "./PrivateLayout/UserComponent/UserEditComponent/guards/userEditGuard";
+import accessGuard from "./PublicLayout/BaseAccessLayout/AccessLayout/guard/accessGuard";
+import verifyGuard from "./PublicLayout/BaseAccessLayout/VerifyComponent/guards/verifyGuard";
 
 export const routes: Route[] = [
   {
@@ -24,6 +27,7 @@ export const routes: Route[] = [
           {
             path: "",
             component: () => import("./PublicLayout/BaseAccessLayout/AccessLayout/AccessLayout"),
+            guard: accessGuard,
             children: [
               {
                 path: "/login",
@@ -40,11 +44,13 @@ export const routes: Route[] = [
           {
             path: "/verify",
             component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
+            guard: verifyGuard,
             title: "Two Factor Authentication",
           },
           {
             path: "/recover",
             component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
+            guard: accessGuard,
             title: "Recover password",
           },
           {
@@ -155,6 +161,8 @@ export const routes: Route[] = [
       {
         path: "/:userId/edit",
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
+        guard: userEditGuard,
+        title: "Edit profile"
       },
     ],
   },
