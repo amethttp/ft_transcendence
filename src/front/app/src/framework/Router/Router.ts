@@ -8,7 +8,7 @@ import type { Route } from "./Route/Route";
 export type RouterEvents = {
   navigate: { routeTree: Route[], path: Path, router?: Router };
   navigationStart: { path: string };
-  navigationEnd: { success: boolean; path: string };
+  navigationEnd: { success: boolean; path: string; reason?: 'redirect' | 'cancelled' | 'error' };
 }
 
 export class Router extends EventEmitter<RouterEvents> {
@@ -199,7 +199,7 @@ export class Router extends EventEmitter<RouterEvents> {
 
       if (!routeTree) {
         console.warn(`No route found for path: ${path}`);
-        this.emitSync("navigationEnd", { success: false, path });
+        this.emitSync("navigationEnd", { success: false, path, reason: 'error' });
         this._isNavigating = false;
         return;
       }
@@ -212,14 +212,14 @@ export class Router extends EventEmitter<RouterEvents> {
       if (!resolution.success) {
         if (resolution.reason === 'redirect') {
           // Hard redirect - stop navigation and go to new path
-          this.emitSync("navigationEnd", { success: false, path });
+          this.emitSync("navigationEnd", { success: false, path, reason: 'redirect' });
           this._isNavigating = false;
           this.redirectByPath(resolution.target!);
           return;
         }
         // Cancelled - revert URL to previous state
         history.replaceState(null, "", previousUrlState);
-        this.emitSync("navigationEnd", { success: false, path });
+        this.emitSync("navigationEnd", { success: false, path, reason: 'cancelled' });
         this._isNavigating = false;
         return;
       }
@@ -297,7 +297,7 @@ export class Router extends EventEmitter<RouterEvents> {
       console.error("Navigation error:", error);
       history.replaceState(null, "", previousUrlState);
 
-      this.emitSync("navigationEnd", { success: false, path });
+      this.emitSync("navigationEnd", { success: false, path, reason: 'error' });
     } finally {
       this._isNavigating = false;
     }

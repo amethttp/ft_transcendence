@@ -2,7 +2,7 @@ import loggedResolver from "./auth/resolver/loggedResolver";
 import type { Route } from "./framework/Router/Route/Route";
 import matchResolver from "./PrivateLayout/PlayComponent/MatchComponent/resolvers/matchResolver";
 import tournamentResolver from "./PrivateLayout/PlayComponent/TournamentComponent/resolvers/tournamentResolver";
-import userEditResolver from "./PrivateLayout/UserComponent/UserEditComponent/resolver/userEditResolver";
+import userComponentResolver from "./PrivateLayout/UserComponent/resolvers/userComponentResolver";
 import accessResolver from "./PublicLayout/BaseAccessLayout/AccessLayout/resolver/accessResolver";
 import verifyResolver from "./PublicLayout/BaseAccessLayout/VerifyComponent/resolver/verifyResolver";
 
@@ -161,11 +161,11 @@ export const routes: Route[] = [
       {
         path: "/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        resolver: userComponentResolver,
       },
       {
         path: "/:userId/edit",
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
-        resolver: userEditResolver,
         title: "Edit profile"
       },
     ],

@@ -10,7 +10,11 @@ Context.router = router;
 const progressBar = new ProgressBar();
 let isInitialLoad = true;
 
-router.on("navigate", (e) => { TitleHelper.setTitleFromRouteTree(e.routeTree) });
+router.on("navigate", (e) => { 
+  TitleHelper.setTitleFromRouteTree(e.routeTree);
+  isInitialLoad = false;
+});
+
 router.on("navigationStart", () => {
   if (!isInitialLoad) {
     progressBar.start();
@@ -21,9 +25,10 @@ router.on("navigationEnd", (e) => {
   if (!isInitialLoad) {
     if (e.success) {
       progressBar.complete();
+    } else if (e.reason === 'redirect') {
+      progressBar.complete();
     } else {
       progressBar.fail();
     }
   }
-  isInitialLoad = false;
 });
