@@ -7,6 +7,8 @@ import type { Route } from "./Route/Route";
 
 export type RouterEvents = {
   navigate: { routeTree: Route[], path: Path, router?: Router };
+  navigationStart: { path: string };
+  navigationEnd: { success: boolean; path: string };
 }
 
 export class Router extends EventEmitter<RouterEvents> {
@@ -105,7 +107,6 @@ export class Router extends EventEmitter<RouterEvents> {
       const isExactMatch = PathHelper.isMatching(fullPath, path);
 
       if (isParentMatch) {
-        // Recursively search children
         const childMatch = this.matchRoutes(path, route.children!, fullPath);
         if (childMatch) {
           return [route, ...childMatch];
@@ -137,20 +138,16 @@ export class Router extends EventEmitter<RouterEvents> {
           const result = await route.resolver(PathMapper.fromRouteTree(routeTree, targetPath), contextData);
 
           if (typeof result === 'string') {
-            // Hard redirect
             return { success: false, reason: 'redirect', target: result };
           }
 
           if (result === false) {
-            // Navigation cancelled
             return { success: false, reason: 'cancelled' };
           }
 
           if (typeof result === 'object' && result !== null) {
-            // Merge resolver data
             Object.assign(contextData, result);
           }
-          // true: continue to next guard
         } catch (error) {
           console.error(`Guard execution error for route ${route.path}:`, error);
           return { success: false, reason: 'cancelled' };
@@ -188,6 +185,9 @@ export class Router extends EventEmitter<RouterEvents> {
     if (this._isNavigating) return;
     this._isNavigating = true;
 
+    // Emit navigation start event
+    this.emitSync("navigationStart", { path });
+
     // Save previous URL state in case we need to revert
     const previousUrlState = location.href;
 
@@ -199,6 +199,7 @@ export class Router extends EventEmitter<RouterEvents> {
 
       if (!routeTree) {
         console.warn(`No route found for path: ${path}`);
+        this.emitSync("navigationEnd", { success: false, path });
         this._isNavigating = false;
         return;
       }
@@ -211,12 +212,14 @@ export class Router extends EventEmitter<RouterEvents> {
       if (!resolution.success) {
         if (resolution.reason === 'redirect') {
           // Hard redirect - stop navigation and go to new path
+          this.emitSync("navigationEnd", { success: false, path });
           this._isNavigating = false;
           this.redirectByPath(resolution.target!);
           return;
         }
         // Cancelled - revert URL to previous state
         history.replaceState(null, "", previousUrlState);
+        this.emitSync("navigationEnd", { success: false, path });
         this._isNavigating = false;
         return;
       }
@@ -288,10 +291,13 @@ export class Router extends EventEmitter<RouterEvents> {
 
       await Promise.all(afterInitPromises);
       this._currentTree = routeTree;
+
+      this.emitSync("navigationEnd", { success: true, path });
     } catch (error) {
       console.error("Navigation error:", error);
-      // On unhandled error, revert URL
       history.replaceState(null, "", previousUrlState);
+
+      this.emitSync("navigationEnd", { success: false, path });
     } finally {
       this._isNavigating = false;
     }
