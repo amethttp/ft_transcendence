@@ -13,11 +13,11 @@ export class Router extends EventEmitter<RouterEvents> {
   private _selector: string;
   private _routes: Route[];
   private _currentTree: Route[];
-  private _currentComponents: AmethComponent[];
+  private _currentComponents: AmethComponent<any>[];
   private _currentPath: Path;
+  private _currentResolution: Record<string, any> = {};
   private _protectFromUnload: boolean;
   private _protectUnloadMsg: string;
-  private _redirectTarget: string | null = null;
   private _navigationQueue: Promise<void> = Promise.resolve();
   private _isNavigating: boolean = false;
 
@@ -90,7 +90,12 @@ export class Router extends EventEmitter<RouterEvents> {
     this.navigate(this.normalizeURL(location.href));
   }
 
-  private async findRouteTree(path: string, routes: Route[] = this._routes, parentPath = ""): Promise<Route[] | undefined> {
+  /**
+   * Phase 1: Pure Route Matching
+   * Synchronously matches a path to a flat list of routes without executing guards.
+   * Handles empty path ("") layouts that act as composition containers.
+   */
+  private matchRoutes(path: string, routes: Route[] = this._routes, parentPath = ""): Route[] | null {
     for (const route of routes) {
       let separator = '/';
       if (route.path === "")
@@ -100,34 +105,60 @@ export class Router extends EventEmitter<RouterEvents> {
       const isExactMatch = PathHelper.isMatching(fullPath, path);
 
       if (isParentMatch) {
-        const childTree = await this.findRouteTree(path, route.children!, fullPath);
-        if (childTree) {
-          if (route.guard) {
-            const guardResult = await route.guard(PathMapper.fromRouteTree([route, ...childTree], path));
-            if (typeof guardResult === 'object' && guardResult.redirect) {
-              this._redirectTarget = guardResult.redirect;
-              return undefined;
-            }
-            if (guardResult !== true) continue;
-          }
-          return [route, ...childTree];
+        // Recursively search children
+        const childMatch = this.matchRoutes(path, route.children!, fullPath);
+        if (childMatch) {
+          return [route, ...childMatch];
         }
-        if (this._redirectTarget) return undefined;
-        else continue;
       }
       else if (isExactMatch) {
-        if (route.guard) {
-          const guardResult = await route.guard(PathMapper.fromRouteTree([route], path));
-          if (typeof guardResult === 'object' && guardResult.redirect) {
-            this._redirectTarget = guardResult.redirect;
-            return undefined;
-          }
-          if (guardResult !== true) continue;
-        }
         return [route];
       }
     }
-    return undefined;
+    return null;
+  }
+
+  /**
+   * Phase 2: Sequential Guard/Resolver Execution
+   * Executes guards parent-to-child, accumulating resolver data.
+   * 
+   * Guard return values:
+   * - `true`: Allow navigation, continue.
+   * - `object`: Allow navigation, merge data into context.
+   * - `string`: Hard redirect, stop navigation.
+   * - `false`: Cancel navigation, revert URL.
+   */
+  private async executeResolution(routeTree: Route[], targetPath: string): Promise<{ success: false; reason: 'redirect' | 'cancelled'; target?: string } | { success: true; contextData: Record<string, any> }> {
+    const contextData: Record<string, any> = { __path: targetPath, __routeTree: routeTree };
+
+    for (const route of routeTree) {
+      if (route.resolver) {
+        try {
+          const result = await route.resolver(PathMapper.fromRouteTree(routeTree, targetPath), contextData);
+
+          if (typeof result === 'string') {
+            // Hard redirect
+            return { success: false, reason: 'redirect', target: result };
+          }
+
+          if (result === false) {
+            // Navigation cancelled
+            return { success: false, reason: 'cancelled' };
+          }
+
+          if (typeof result === 'object' && result !== null) {
+            // Merge resolver data
+            Object.assign(contextData, result);
+          }
+          // true: continue to next guard
+        } catch (error) {
+          console.error(`Guard execution error for route ${route.path}:`, error);
+          return { success: false, reason: 'cancelled' };
+        }
+      }
+    }
+
+    return { success: true, contextData };
   }
 
   private normalizeURL(href: string, replaceHistory = true): string {
@@ -157,14 +188,14 @@ export class Router extends EventEmitter<RouterEvents> {
     if (this._isNavigating) return;
     this._isNavigating = true;
 
+    // Save previous URL state in case we need to revert
+    const previousUrlState = location.href;
+
     try {
-      this._redirectTarget = null;
-      const routeTree = await this.findRouteTree(path);
-      if (this._redirectTarget) {
-        this._isNavigating = false;
-        this.redirectByPath(this._redirectTarget);
-        return;
-      }
+      /**
+       * Phase 1: Pure Route Matching
+       */
+      const routeTree = this.matchRoutes(path);
 
       if (!routeTree) {
         console.warn(`No route found for path: ${path}`);
@@ -172,22 +203,47 @@ export class Router extends EventEmitter<RouterEvents> {
         return;
       }
 
+      /**
+       * Phase 2: Sequential Resolver Execution
+       */
+      const resolution = await this.executeResolution(routeTree, path);
+
+      if (!resolution.success) {
+        if (resolution.reason === 'redirect') {
+          // Hard redirect - stop navigation and go to new path
+          this._isNavigating = false;
+          this.redirectByPath(resolution.target!);
+          return;
+        }
+        // Cancelled - revert URL to previous state
+        history.replaceState(null, "", previousUrlState);
+        this._isNavigating = false;
+        return;
+      }
+
+      // Navigation succeeded - store context data for component access
+      this._currentResolution = resolution.contextData;
+
       this._currentPath = PathMapper.fromRouteTree(routeTree, path);
       this.emitSync("navigate", { routeTree: routeTree, path: this._currentPath, router: this });
 
       let lastI = 0;
-      const oldComponents: AmethComponent[] = [];
+      const oldComponents: AmethComponent<any>[] = [];
       this._currentComponents.forEach(comp => oldComponents.push(comp));
+      
       for (const [i, route] of routeTree.entries()) {
         lastI = i;
         if (route.redirect) return this.redirectByPath(route.redirect);
+        
         if (this._currentTree[i] !== route) {
           if (this._currentComponents && this._currentComponents[i])
             await this._currentComponents[i].destroy();
+          
           if (route.component) {
             const Component = (await route.component()).default;
-            const newComponent: AmethComponent = new Component();
+            const newComponent: AmethComponent<any> = new Component();
             let selector = this._selector;
+            
             if (i > 0) {
               const outlet = this._currentComponents[i - 1].outlet?.getElementsByClassName("router-outlet")[0];
               if (!outlet)
@@ -195,11 +251,11 @@ export class Router extends EventEmitter<RouterEvents> {
               selector = "r-" + Date.now() + Math.random().toString(36).slice(2, 9);
               outlet.setAttribute("id", selector);
             }
-            await newComponent.init(selector, this);
+            
+            // Pass resolver data to component
+            await newComponent.init(selector, this, this._currentResolution);
             this._currentComponents[i] = newComponent;
           }
-        }
-        else {
         }
       }
 
@@ -229,10 +285,13 @@ export class Router extends EventEmitter<RouterEvents> {
           }
         }
       }
+      
       await Promise.all(afterInitPromises);
       this._currentTree = routeTree;
     } catch (error) {
       console.error("Navigation error:", error);
+      // On unhandled error, revert URL
+      history.replaceState(null, "", previousUrlState);
     } finally {
       this._isNavigating = false;
     }

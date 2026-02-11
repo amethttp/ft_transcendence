@@ -17,7 +17,7 @@ export type MatchEngineEvents = {
   matchEnded: number[];
 };
 
-export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
+export default class MatchEngineComponent extends AmethComponent<any, MatchEngineEvents> {
   template = () => import("./MatchEngineComponent.html?raw");
   private _token?: string;
   private _socketClient!: SocketClient;

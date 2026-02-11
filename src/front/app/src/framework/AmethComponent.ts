@@ -5,8 +5,14 @@ export type AmethComponentEvents = {
   change: any;
 };
 
-export default abstract class AmethComponent<Events extends Record<string, any> = AmethComponentEvents> extends EventEmitter<Events> {
+/**
+ * Generic AmethComponent with optional typed data from resolvers.
+ * @template TData - Type of resolver data passed from parent/router
+ * @template Events - Event types emitted by this component
+ */
+export default abstract class AmethComponent<TData = any, Events extends Record<string, any> = AmethComponentEvents> extends EventEmitter<Events> {
   protected router?: Router;
+  protected resolverData?: TData;
   outlet?: HTMLElement;
   template?: () => Promise<typeof import("*.html?raw")>;
   protected abortController: AbortController;
@@ -78,8 +84,9 @@ export default abstract class AmethComponent<Events extends Record<string, any> 
     }
   }
 
-  async init(selector: string, router?: Router) {
+  async init(selector: string, router?: Router, data?: TData) {
     this.router = router;
+    this.resolverData = data;
     if (selector && this.template) {
       this.outlet = document.getElementById(selector) || undefined;
       if (this.outlet) this.outlet.innerHTML = (await this.template()).default;

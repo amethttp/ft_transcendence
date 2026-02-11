@@ -25,7 +25,7 @@ describe("Router", () => {
       },
       {
         path: "/private",
-        guard: async () => ({ redirect: "/login" }),
+        resolver: async () => "/login",
       },
       {
         path: "/login",
@@ -46,7 +46,7 @@ describe("Router", () => {
       },
       {
         path: "/private",
-        guard: async () => ({ redirect: "/login" }),
+        resolver: async () => ({ redirect: "/login" }),
       },
       {
         path: "/login",

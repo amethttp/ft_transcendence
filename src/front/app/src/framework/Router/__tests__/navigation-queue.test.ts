@@ -194,7 +194,7 @@ describe("Router Navigation Queue", () => {
       },
       {
         path: "/protected",
-        guard: async () => ({ redirect: "/login" }),
+        resolver: async () => "/login",
       },
       {
         path: "/login",

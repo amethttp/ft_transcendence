@@ -1,8 +1,8 @@
-import loggedGuard from "./auth/guards/loggedGuard";
+import loggedResolver from "./auth/resolver/loggedResolver";
 import type { Route } from "./framework/Router/Route/Route";
-import userEditGuard from "./PrivateLayout/UserComponent/UserEditComponent/guards/userEditGuard";
-import accessGuard from "./PublicLayout/BaseAccessLayout/AccessLayout/guard/accessGuard";
-import verifyGuard from "./PublicLayout/BaseAccessLayout/VerifyComponent/guards/verifyGuard";
+import userEditResolver from "./PrivateLayout/UserComponent/UserEditComponent/resolver/userEditResolver";
+import accessResolver from "./PublicLayout/BaseAccessLayout/AccessLayout/resolver/accessResolver";
+import verifyResolver from "./PublicLayout/BaseAccessLayout/VerifyComponent/resolver/verifyResolver";
 
 export const routes: Route[] = [
   {
@@ -25,9 +25,26 @@ export const routes: Route[] = [
         component: () => import("./PublicLayout/BaseAccessLayout/BaseAccessLayout"),
         children: [
           {
+            path: "/verify",
+            component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
+            resolver: verifyResolver,
+            title: "Two Factor Authentication",
+          },
+          {
+            path: "/recover",
+            component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
+            resolver: accessResolver,
+            title: "Recover password",
+          },
+          {
+            path: "/recover/:token",
+            component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
+            title: "Create new password",
+          },
+          {
             path: "",
             component: () => import("./PublicLayout/BaseAccessLayout/AccessLayout/AccessLayout"),
-            guard: accessGuard,
+            resolver: accessResolver,
             children: [
               {
                 path: "/login",
@@ -40,23 +57,6 @@ export const routes: Route[] = [
                 title: "Register",
               },
             ]
-          },
-          {
-            path: "/verify",
-            component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
-            guard: verifyGuard,
-            title: "Two Factor Authentication",
-          },
-          {
-            path: "/recover",
-            component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
-            guard: accessGuard,
-            title: "Recover password",
-          },
-          {
-            path: "/recover/:token",
-            component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
-            title: "Create new password",
           }
         ]
       },
@@ -80,7 +80,7 @@ export const routes: Route[] = [
   {
     path: "",
     component: () => import("./PrivateLayout/PrivateLayout"),
-    guard: loggedGuard,
+    resolver: loggedResolver,
     title: import.meta.env.VITE_APP_TITLE,
     children: [
       {
@@ -161,7 +161,7 @@ export const routes: Route[] = [
       {
         path: "/:userId/edit",
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
-        guard: userEditGuard,
+        resolver: userEditResolver,
         title: "Edit profile"
       },
     ],
