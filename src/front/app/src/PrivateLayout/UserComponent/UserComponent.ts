@@ -25,7 +25,7 @@ export default class UserComponent extends AmethComponent {
   async setUserProfile() {
     const username = this.router?.currentPath.params["userId"] as string;
     this.userName = (await LoggedUser.get())?.username;
-  
+
     if (username === this.userName)
       this.userProfile = (await LoggedUser.get(true))! as unknown as UserProfile;
     else {
