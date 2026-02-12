@@ -108,7 +108,7 @@ export default class SidebarComponent extends AmethComponent {
         (document.getElementById("sidebarUserAvatar")! as HTMLImageElement).src = userProfile.avatarUrl;
       if (userProfile.username) {
         document.getElementById("sidebarUserName")!.innerText = userProfile.username;
-        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/" + userProfile.username + "/edit";
+        (document.getElementById("sidebarUserProfileAnchor")! as HTMLAnchorElement).href = "/profile/edit";
       }
     }
   }
@@ -123,9 +123,9 @@ export default class SidebarComponent extends AmethComponent {
     if (this.logoutHandler) {
       document.getElementById("sidebarLogOutBtn")?.removeEventListener("click", this.logoutHandler);
     }
-    
+
     await this.friendsList?.destroy();
-    
+
     await super.destroy();
   }
 }

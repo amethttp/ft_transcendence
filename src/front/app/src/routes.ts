@@ -164,7 +164,7 @@ export const routes: Route[] = [
         resolver: userComponentResolver,
       },
       {
-        path: "/:userId/edit",
+        path: "/profile/edit",
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
         title: "Edit profile"
       },
