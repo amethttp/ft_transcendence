@@ -25,7 +25,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _canvasOverlay!: CanvasOverlay;
   private _fullScreenButton!: FullScreenButton;
   private _paddles: Paddle[] = [];
-  private _inputs: boolean[] = [false, false];
+  private _inputs: boolean[] = [false, false, false, false];
   private _ball: Ball;
   private _score: number[] = [0, 0];
   private _animationId: number = 0;
@@ -179,6 +179,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
         this._inputs[1] = true;
         break;
+      case "ArrowUp":
+        if (!this._inputs[2])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: true })
+        this._inputs[2] = true;
+        break;
+      case "ArrowDown":
+        if (!this._inputs[3])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: true })
+        this._inputs[3] = true;
+        break;
       default:
         break;
     }
@@ -195,6 +205,16 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
         if (this._inputs[1])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
         this._inputs[1] = false;
+        break;
+      case "ArrowUp":
+        if (this._inputs[2])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: false })
+        this._inputs[2] = false;
+        break;
+      case "ArrowDown":
+        if (this._inputs[3])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: false })
+        this._inputs[3] = false;
         break;
       default:
         break;
@@ -260,7 +280,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-    this.router?.permitUnload(); 
+    this.router?.permitUnload();
     await super.destroy();
   }
 }
