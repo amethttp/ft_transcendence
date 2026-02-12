@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../../../auth/LoggedUser";
 import { AuthService } from "../../../../../auth/services/AuthService";
 import { Context } from "../../../../../framework/Context/Context";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
@@ -66,7 +65,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   private logOut() {
     const authService = new AuthService();
     authService.logout().then(async () => {
-      await LoggedUser.get(true);
       this.router?.redirectByPath("/");
     });
   }

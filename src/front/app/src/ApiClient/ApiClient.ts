@@ -7,6 +7,7 @@ import { ErrorMsg, type ResponseError } from "./models/ResponseError";
 
 export class ApiClient extends HttpClient {
   static readonly BASE_URL = import.meta.env.VITE_API_URL;
+  private static _refreshPromise: Promise<BasicResponse> | null = null;
   private _redirect: boolean;
 
   constructor(redirect: boolean = true) {
@@ -35,21 +36,35 @@ export class ApiClient extends HttpClient {
   }
 
   private refreshToken(): Promise<BasicResponse> {
-    return this.get("/auth/refresh", undefined, { credentials: "include" });
+    if (ApiClient._refreshPromise) {
+      return ApiClient._refreshPromise;
+    }
+    const refreshPromise = this.get<BasicResponse>("/auth/refresh", undefined, { credentials: "include" })
+      .finally(() => {
+        ApiClient._refreshPromise = null;
+      });
+    ApiClient._refreshPromise = refreshPromise;
+    return refreshPromise;
   }
 
   protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const token = CookieHelper.get("AccessToken");
     options.headers = {
-      ...(token ? { Authorization: "Bearer " + token } : {}),
       ...options.headers,
+      ...(token ? { Authorization: "Bearer " + token } : {}),
     };
 
     try {
       return await super.request<T>(url, options);
     } catch (_error: any) {
+      if (_error.name === 'AbortError') {
+        throw _error;
+      }
       const error: ResponseError = _error;
       if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
+        if (url.includes("/auth/refresh")) {
+          throw error;
+        }
         try {
           const res = await this.refreshToken();
           if (res.success)

@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../../auth/LoggedUser";
 import type { RegisterRequest } from "../../../../auth/models/RegisterRequest";
 import { AuthService } from "../../../../auth/services/AuthService";
 import AmethComponent from "../../../../framework/AmethComponent";
@@ -41,7 +40,6 @@ export default class RegisterComponent extends AmethComponent {
       }
       this.authService.register(registerRequest)
         .then(async () => {
-          await LoggedUser.get(true);
           this.router?.navigateByPath("/login");
         })
         .catch(this.registrationError.bind(this));

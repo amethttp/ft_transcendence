@@ -9,6 +9,7 @@ export default class FriendsBlockedComponent extends AmethComponent {
   template = () => import("./FriendsBlockedComponent.html?raw");
   private friendsService: FriendsService;
   private _container!: HTMLDivElement;
+  private _profileComponents: UserProfileActionsComponent[] = [];
 
   constructor() {
     super();
@@ -20,7 +21,9 @@ export default class FriendsBlockedComponent extends AmethComponent {
     this.refresh();
   }
 
-  clearView() {
+  async clearView() {
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
+    this._profileComponents = [];
     this._container.innerHTML = "Still no blocked :)";
   }
 
@@ -37,13 +40,20 @@ export default class FriendsBlockedComponent extends AmethComponent {
       await profile.init(elem.id, this.router);
       profile.on("change", () => this.router?.refresh());
       profile.afterInit();
+      this._profileComponents.push(profile);
     }
   }
 
   async refresh() {
-    this.clearView();
+    await this.clearView();
     this.friendsService.getBlocked().then(val => {
       this.fillView(val);
     }).catch(() => Alert.error("Some error occurred", "Could not retrieve blocked users"));
+  }
+
+  async destroy(): Promise<void> {
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
+    this._profileComponents = [];
+    await super.destroy();
   }
 }

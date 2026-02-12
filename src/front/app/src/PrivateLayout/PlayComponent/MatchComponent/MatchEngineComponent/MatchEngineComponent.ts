@@ -17,7 +17,7 @@ export type MatchEngineEvents = {
   matchEnded: number[];
 };
 
-export default class MatchEngineComponent extends AmethComponent<MatchEngineEvents> {
+export default class MatchEngineComponent extends AmethComponent<any, MatchEngineEvents> {
   template = () => import("./MatchEngineComponent.html?raw");
   private _token?: string;
   private _socketClient!: SocketClient;
@@ -31,9 +31,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
   private _animationId: number = 0;
   private _lastTime: number = 0;
   private _deltaTime: number = 0;
+  private _resizeObserver?: ResizeObserver;
+  private _fullscreenChangeHandler?: () => void;
+  private _activeMatch?: boolean;
 
   constructor(token?: string) {
     super();
+    this._activeMatch = false;
     this._token = token;
     this._paddles[0] = new Paddle(100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
     this._paddles[1] = new Paddle(VIEWPORT_WIDTH - Paddle.width - 100, VIEWPORT_HEIGHT / 2 - Paddle.height / 2);
@@ -87,6 +91,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
       this._animationId = 0;
     });
     this._socketClient.setEvent('reset', () => {
+      this._unLockNavigation();
       this._canvasOverlay.reset();
       this._canvasOverlay.onclick(() => this.setReadyToPlay());
     });
@@ -99,14 +104,26 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._fullScreenButton = new FullScreenButton();
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
-    document.addEventListener('fullscreenchange', () => { this._fullScreenButton.toggleIcon() });
+    this._fullscreenChangeHandler = () => { this._fullScreenButton.toggleIcon() };
+    document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
-    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
   }
 
   private beforeUnloadHandler = (event: BeforeUnloadEvent) => {
-    event.preventDefault();
-    event.returnValue = '';
+    if (this._activeMatch) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  }
+
+  private _lockNavigation() {
+    this.router?.preventUnload("You have an active match. Are you sure you want to leave?");
+    this._activeMatch = true;
+  }
+
+  private _unLockNavigation() {
+    this.router?.permitUnload();
+    this._activeMatch = false;
   }
 
   private startMatch() {
@@ -116,11 +133,12 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvas.setOnTouchDownCallback((event) => this.onTouchDown(event));
     this._canvas.setOnTouchLiftCallback((event) => this.onTouchLift(event));
     this._lastTime = performance.now();
-    this._animationId = requestAnimationFrame(() => this.gameLoop());
+    this._animationId = this.requestAnimationFrame(() => this.gameLoop());
   }
 
   private setReadyToPlay() {
     console.log('ready!');
+    this._lockNavigation();
     this._canvasOverlay.setWaitingState();
     this._canvasOverlay.onclick(() => null);
     this._socketClient.emitEvent('ready', this._token);
@@ -264,7 +282,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
     console.log(score);
-    this.router?.permitUnload();
+    this._unLockNavigation();
     this.emit('matchEnded', score);
   }
 
@@ -282,13 +300,13 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
   private observeResize() {
     const canvasContainer = document.getElementById('matchCanvasContainer') as HTMLDivElement;
-    const observer = new ResizeObserver(() => {
+    this._resizeObserver = new ResizeObserver((_entries) => {
       this._canvas.resize();
       this._canvas.paintGameState(this._paddles, this._ball, this._score);
       this._canvasOverlay.resizeAdjustingTo(this._canvas);
       this._fullScreenButton.resizeAdjustingTo(this._canvas);
     });
-    observer.observe(canvasContainer);
+    this._resizeObserver.observe(canvasContainer);
   }
 
   private gameLoop() {
@@ -297,7 +315,7 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._lastTime = now;
     this._canvas.paintGameState(this._paddles, this._ball, this._score);
     this._ball.updatePosition(this._deltaTime);
-    this._animationId = requestAnimationFrame(() => this.gameLoop());
+    this._animationId = this.requestAnimationFrame(() => this.gameLoop());
   }
 
   async destroy(): Promise<void> {
@@ -305,6 +323,9 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     if (this._animationId)
       cancelAnimationFrame(this._animationId);
     this._animationId = 0;
+    this._resizeObserver?.disconnect();
+    if (this._fullscreenChangeHandler)
+      document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('beforeunload', this.beforeUnloadHandler);

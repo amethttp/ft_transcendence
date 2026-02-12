@@ -1,4 +1,4 @@
-import type { Guard } from "./Guard";
+import type { Resolver } from "./Resolver";
 
 export type Module = {
   default: any;
@@ -7,7 +7,7 @@ export type Module = {
 export type Route = {
   path: string;
   component?: () => Promise<Module>;
-  guard?: Guard;
+  resolver?: Resolver;
   redirect?: string;
   children?: Route[];
   title?: string;
