@@ -10,11 +10,11 @@ const matchResolver: Resolver = async (path: Path) => {
       return {match};
     }
     else {
-      return '/404';
+      return '/play';
     }
   }
   catch (e: any) {
-    return '/404';
+    return '/play';
   }
 };
 

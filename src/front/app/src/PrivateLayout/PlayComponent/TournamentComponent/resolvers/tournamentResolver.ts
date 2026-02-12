@@ -11,9 +11,9 @@ const tournamentResolver: Resolver = async (path: Path) => {
         return {tournament: tournament};
       }
       else
-        return "/404";
+        return "/play/tournaments";
     } catch (error) {
-      return "/404";
+      return "/play/tournaments";
     }
 };
 
