@@ -34,4 +34,9 @@ export default class MatchesComponent extends AmethComponent {
   async refresh() {
     await this._matchesListComponent.refresh();
   }
+
+  async destroy(): Promise<void> {
+    await this._matchesListComponent.destroy();
+    await super.destroy();
+  }
 }

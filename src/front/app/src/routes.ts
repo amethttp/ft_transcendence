@@ -1,5 +1,10 @@
-import loggedGuard from "./auth/guards/loggedGuard";
+import loggedResolver from "./auth/resolver/loggedResolver";
 import type { Route } from "./framework/Router/Route/Route";
+import matchResolver from "./PrivateLayout/PlayComponent/MatchComponent/resolvers/matchResolver";
+import tournamentResolver from "./PrivateLayout/PlayComponent/TournamentComponent/resolvers/tournamentResolver";
+import userComponentResolver from "./PrivateLayout/UserComponent/resolvers/userComponentResolver";
+import accessResolver from "./PublicLayout/BaseAccessLayout/AccessLayout/resolver/accessResolver";
+import verifyResolver from "./PublicLayout/BaseAccessLayout/VerifyComponent/resolver/verifyResolver";
 
 export const routes: Route[] = [
   {
@@ -22,8 +27,26 @@ export const routes: Route[] = [
         component: () => import("./PublicLayout/BaseAccessLayout/BaseAccessLayout"),
         children: [
           {
+            path: "/verify",
+            component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
+            resolver: verifyResolver,
+            title: "Two Factor Authentication",
+          },
+          {
+            path: "/recover",
+            component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
+            resolver: accessResolver,
+            title: "Recover password",
+          },
+          {
+            path: "/recover/:token",
+            component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
+            title: "Create new password",
+          },
+          {
             path: "",
             component: () => import("./PublicLayout/BaseAccessLayout/AccessLayout/AccessLayout"),
+            resolver: accessResolver,
             children: [
               {
                 path: "/login",
@@ -36,21 +59,6 @@ export const routes: Route[] = [
                 title: "Register",
               },
             ]
-          },
-          {
-            path: "/verify",
-            component: () => import("./PublicLayout/BaseAccessLayout/VerifyComponent/VerifyComponent"),
-            title: "Two Factor Authentication",
-          },
-          {
-            path: "/recover",
-            component: () => import("./PublicLayout/BaseAccessLayout/RecoverPasswordComponent/RecoverPasswordComponent"),
-            title: "Recover password",
-          },
-          {
-            path: "/recover/:token",
-            component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
-            title: "Create new password",
           }
         ]
       },
@@ -74,7 +82,7 @@ export const routes: Route[] = [
   {
     path: "",
     component: () => import("./PrivateLayout/PrivateLayout"),
-    guard: loggedGuard,
+    resolver: loggedResolver,
     title: import.meta.env.VITE_APP_TITLE,
     children: [
       {
@@ -111,11 +119,13 @@ export const routes: Route[] = [
       {
         path: "/play/:token",
         component: () => import("./PrivateLayout/PlayComponent/MatchComponent/MatchComponent"),
+        resolver: matchResolver,
         title: "Match",
       },
       {
         path: "/play/tournament/:token",
         component: () => import("./PrivateLayout/PlayComponent/TournamentComponent/TournamentComponent"),
+        resolver: tournamentResolver,
         title: "Tournament",
       },
       {
@@ -151,10 +161,12 @@ export const routes: Route[] = [
       {
         path: "/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        resolver: userComponentResolver,
       },
       {
         path: "/:userId/edit",
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
+        title: "Edit profile"
       },
     ],
   },

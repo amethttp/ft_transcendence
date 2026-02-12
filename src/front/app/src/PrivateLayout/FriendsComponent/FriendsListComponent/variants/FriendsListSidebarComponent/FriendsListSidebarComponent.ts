@@ -8,7 +8,8 @@ export default class FriendsListSidebarComponent extends FriendsListComponent<Us
   template = () => import("./FriendsListSidebarComponent.html?raw");
 
   clearView() {
-    this._container.innerHTML = "";
+    if (this._container)
+      this._container.innerHTML = "";
   }
 
   async afterInit() {
@@ -21,7 +22,8 @@ export default class FriendsListSidebarComponent extends FriendsListComponent<Us
       <div class="flex w-full"></div>
     `;
     const elem = DOMHelper.createElementFromHTML(template);
-    this._container.appendChild(elem);
+    if (this._container)
+      this._container.appendChild(elem);
     const profile = new UserProfileSidebarComponent(friend);
     await profile.init(elem.id, this.router);
     profile.on("change", () => this.router?.refresh());

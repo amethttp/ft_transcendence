@@ -9,7 +9,8 @@ export default class SearchUsersListComponent extends FriendsListComponent {
   protected listenData() { }
 
   clearView() {
-    this._container.innerHTML = "";
+    if (this._container)
+      this._container.innerHTML = "";
   }
 
   protected stopListenData() { }

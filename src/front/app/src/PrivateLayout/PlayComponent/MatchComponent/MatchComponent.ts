@@ -18,7 +18,9 @@ export const PlayerType = {
 
 export type PlayerTypeValue = typeof PlayerType[keyof typeof PlayerType];
 
-export default class MatchComponent extends AmethComponent {
+type MatchComponentResolvedData = { match: MatchJoin };
+
+export default class MatchComponent extends AmethComponent<MatchComponentResolvedData> {
   template = () => import("./MatchComponent.html?raw");
   private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
     {
@@ -71,7 +73,7 @@ export default class MatchComponent extends AmethComponent {
   }
 
   matchEnded = (score: number[]) => {
-    setTimeout(async () => {
+    this.setTimeout(async () => {
       if (this._match?.tournamentRound?.tournament) {
         document.getElementById("matchFinishMenuContainer")!.classList.add("visible", "z-50", "opacity-100");
         const username = (await LoggedUser.get())?.username;
@@ -85,34 +87,33 @@ export default class MatchComponent extends AmethComponent {
     }, 1000);
   }
 
-  async init(selector: string, router?: Router): Promise<void> {
-    await super.init(selector, router);
-
+  async init(selector: string, router?: Router, resolvedData?: MatchComponentResolvedData): Promise<void> {
+    await super.init(selector, router, resolvedData);
     this._token = this.router?.currentPath.params["token"] as string;
     this._matchEngineComponent = new MatchEngineComponent(this._token);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
   }
 
-  async setMatch(token: string) {
-    try {
-      this._match = await this._matchService.getJoinMatch(token);
+  setMatch() {
+    if (this.resolverData?.match) {
+      this._match = this.resolverData?.match;
+      return true;
     }
-    catch (e: any) {
-      if (e.status === 404)
-        this.router?.redirectByPath('/404');
-      console.warn(e);
-    }
+    else
+      return false;
   }
 
   async afterInit() {
-    if (this._token)
-      await this.setMatch(this._token);
+    if (!this.setMatch())
+      return;
     await this._initPlayers();
     this._fillView();
-    this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
-    this._matchEngineComponent?.on("matchEnded", this.matchEnded);
-    this._matchEngineComponent?.on("opponentLeft", this.opponentLeft);
-    this._matchEngineComponent?.afterInit();
+    if (this._matchEngineComponent) {
+      this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
+      this._matchEngineComponent.on("matchEnded", this.matchEnded);
+      this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
+      this._matchEngineComponent.afterInit();
+    }
   }
 
   private _getPlayerOpts(player?: MatchPlayer): PlayerOptions | undefined {
@@ -215,9 +216,9 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  async refresh() {
+  refresh() {
     const token = this.router?.currentPath.params["token"] as string;
-    await this.setMatch(token);
+    this.setMatch();
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));

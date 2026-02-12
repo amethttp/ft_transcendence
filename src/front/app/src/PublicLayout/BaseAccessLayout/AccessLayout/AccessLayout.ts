@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { TabsHelper } from "../../../framework/Tabs/TabsHelper";
@@ -8,12 +7,14 @@ export default class AccessLayout extends AmethComponent {
   private tabsContainer!: HTMLDivElement;
   private googleSignInButton!: HTMLButtonElement;
   private authService!: AuthService;
+  private googleSignInHandler!: () => void;
 
   afterInit() {
     this.authService = new AuthService();
     this.tabsContainer = document.getElementById("accessTabs")! as HTMLDivElement;
     this.googleSignInButton = document.getElementById("googleSignInButton")! as HTMLButtonElement;
-    this.googleSignInButton.addEventListener("click", () => { this.redirectToGoogleAuthUrl(); });
+    this.googleSignInHandler = () => { this.redirectToGoogleAuthUrl(); };
+    this.googleSignInButton.addEventListener("click", this.googleSignInHandler);
     this.refresh();
   }
 
@@ -23,14 +24,11 @@ export default class AccessLayout extends AmethComponent {
   }
 
   async refresh() {
-    const loggedUser = await LoggedUser.get();
-    if (loggedUser !== null)
-      this.router?.redirectByPath('/home');
-    else
-      TabsHelper.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
+    TabsHelper.checkTabs(this.tabsContainer, this.router?.currentPath.routePath)
   }
 
   async destroy() {
-    this.googleSignInButton.removeEventListener("click", () => { this.redirectToGoogleAuthUrl(); });
+    this.googleSignInButton?.removeEventListener("click", this.googleSignInHandler);
+    await super.destroy();
   }
 }

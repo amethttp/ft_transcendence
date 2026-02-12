@@ -6,6 +6,9 @@ import FriendsListSidebarComponent from "../FriendsComponent/FriendsListComponen
 export default class SidebarComponent extends AmethComponent {
   template = () => import("./SidebarComponent.html?raw");
   friendsList!: FriendsListSidebarComponent;
+  private resizeHandler?: () => void;
+  private pointerDownHandler?: (e: PointerEvent) => void;
+  private logoutHandler?: (e: Event) => void;
 
   async afterInit() {
     this.friendsList = new FriendsListSidebarComponent();
@@ -63,9 +66,10 @@ export default class SidebarComponent extends AmethComponent {
 
     setStoredWidth();
 
-    window.addEventListener("resize", () => { setStoredWidth() })
+    this.resizeHandler = () => { setStoredWidth() };
+    window.addEventListener("resize", this.resizeHandler);
 
-    resizer.addEventListener('pointerdown', e => {
+    this.pointerDownHandler = (e: PointerEvent) => {
       e.preventDefault();
       const offset = e.clientX - sidebar.clientWidth;
 
@@ -79,21 +83,22 @@ export default class SidebarComponent extends AmethComponent {
         window.removeEventListener('pointerup', stop);
       }
 
-      window.addEventListener('pointermove', resize)
-      window.addEventListener('pointerup', stop)
-    })
+      window.addEventListener('pointermove', resize);
+      window.addEventListener('pointerup', stop);
+    };
+    resizer.addEventListener('pointerdown', this.pointerDownHandler);
 
     const authService = new AuthService();
-    document.getElementById("sidebarLogOutBtn")?.addEventListener("click", (e) => {
+    this.logoutHandler = (e: Event) => {
       e.stopImmediatePropagation();
       e.preventDefault();
       authService.logout().then(async res => {
         if (res.success) {
-          await LoggedUser.get(true);
           this.router?.navigateByPath("/");
         }
       });
-    });
+    };
+    document.getElementById("sidebarLogOutBtn")?.addEventListener("click", this.logoutHandler);
   }
 
   private async setUserProfileView() {
@@ -109,6 +114,18 @@ export default class SidebarComponent extends AmethComponent {
   }
 
   async destroy() {
-
+    if (this.resizeHandler) {
+      window.removeEventListener("resize", this.resizeHandler);
+    }
+    if (this.pointerDownHandler) {
+      document.getElementById('resizer')?.removeEventListener('pointerdown', this.pointerDownHandler);
+    }
+    if (this.logoutHandler) {
+      document.getElementById("sidebarLogOutBtn")?.removeEventListener("click", this.logoutHandler);
+    }
+    
+    await this.friendsList?.destroy();
+    
+    await super.destroy();
   }
 }
