@@ -36,10 +36,6 @@ export default class UserComponent extends AmethComponent {
 
   async afterInit() {
     await this.setUserProfile();
-    if ((await LoggedUser.get())?.username === this.userProfile.username) {
-      this.router?.redirectByPath("/home");
-      return;
-    }
     this.userProfileComponent = new UserProfilePageComponent(this.userProfile);
     await this.userProfileComponent.init('UserComponentProfile', this.router);
     this.userProfileComponent.afterInit();

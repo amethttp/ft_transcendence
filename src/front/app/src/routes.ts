@@ -4,6 +4,7 @@ import matchResolver from "./PrivateLayout/PlayComponent/MatchComponent/resolver
 import tournamentResolver from "./PrivateLayout/PlayComponent/TournamentComponent/resolvers/tournamentResolver";
 import userComponentResolver from "./PrivateLayout/UserComponent/resolvers/userComponentResolver";
 import accessResolver from "./PublicLayout/BaseAccessLayout/AccessLayout/resolver/accessResolver";
+import { createPasswordResolver } from "./PublicLayout/BaseAccessLayout/CreatePasswordComponent/resolvers/createPasswordResolver";
 import verifyResolver from "./PublicLayout/BaseAccessLayout/VerifyComponent/resolver/verifyResolver";
 
 export const routes: Route[] = [
@@ -41,6 +42,7 @@ export const routes: Route[] = [
           {
             path: "/recover/:token",
             component: () => import("./PublicLayout/BaseAccessLayout/CreatePasswordComponent/CreatePasswordComponent"),
+            resolver: createPasswordResolver,
             title: "Create new password",
           },
           {
