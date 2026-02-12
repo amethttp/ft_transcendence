@@ -45,7 +45,7 @@ export default class MatchComponent extends AmethComponent {
     this._matchService = new MatchService();
   }
 
-  connectionAmount = async (userId: number) => {
+  connectionAmount = async () => {
     if (!this._match)
       return;
     const username = (await LoggedUser.get())!.username;
