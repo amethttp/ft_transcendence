@@ -1,9 +1,9 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import { AuthService } from "../../../auth/services/AuthService";
 import AmethComponent from "../../../framework/AmethComponent";
 import { Form } from "../../../framework/Form/Form";
 import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import { Validators } from "../../../framework/Form/FormGroup/FormControl/Validators/Validators";
+import { validateRedirectUrl } from "../../../utils/RedirectValidator";
 
 export default class VerifyComponent extends AmethComponent {
   template = () => import("./VerifyComponent.html?raw");
@@ -14,8 +14,10 @@ export default class VerifyComponent extends AmethComponent {
 
   afterInit() {
     this._authService = new AuthService();
-    this.refresh();
-    if (!this._userId) {
+    const userId = sessionStorage.getItem("userId");
+    if (userId && parseInt(userId))
+      this._userId = parseInt(userId);
+    else {
       this.router?.redirectByPath("/login");
       return;
     }
@@ -27,21 +29,13 @@ export default class VerifyComponent extends AmethComponent {
       this._errorView.classList.add("invisible");
       this._authService.verify({ code: parseInt(value.code), userId: this._userId! })
         .then(async () => {
-          const user = await LoggedUser.get(true);
-          if (user) {
-            sessionStorage.removeItem("userId");
-            this.router?.redirectByPath("/home");
-          }
-          else
-            this._errorView.classList.remove("invisible");
+          sessionStorage.removeItem("userId");
+          const params = new URLSearchParams(location.search);
+          const redirectParam = params.get('redirect');
+          const validatedRedirect = validateRedirectUrl(redirectParam, "/home");
+          this.router?.redirectByPath(validatedRedirect);
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };
-  }
-
-  refresh() {
-    const userId = sessionStorage.getItem("userId");
-    if (userId)
-      this._userId = parseInt(userId);
   }
 }
