@@ -28,21 +28,21 @@ CREATE TABLE
   IF NOT EXISTS google_auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     google_user_id TEXT NOT NULL UNIQUE,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    update_time TEXT NOT NULL DEFAULT current_timestamp
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    update_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
   );
 
 CREATE TABLE
   IF NOT EXISTS password (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     hash TEXT NOT NULL,
-    update_time TEXT NOT NULL DEFAULT current_timestamp
+    update_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
   );
 
 CREATE TABLE
   IF NOT EXISTS auth (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    last_login TEXT NOT NULL DEFAULT current_timestamp,
+    last_login TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     google_auth_id INTEGER UNIQUE,
     password_id INTEGER UNIQUE,
     FOREIGN KEY (google_auth_id) REFERENCES google_auth (id) ON DELETE SET NULL,
@@ -56,8 +56,8 @@ CREATE TABLE
     username TEXT NOT NULL UNIQUE,
     avatar_url TEXT NOT NULL,
 	birth_date TEXT NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    update_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    update_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     auth_id INTEGER NOT NULL UNIQUE,
     FOREIGN KEY (auth_id) REFERENCES auth (id)
   );
@@ -67,7 +67,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     code INTEGER NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
 
@@ -76,7 +76,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     token TEXT NOT NULL UNIQUE,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
 
@@ -85,8 +85,8 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     type INTEGER NOT NULL,
     user_id INTEGER NOT NULL UNIQUE,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    update_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    update_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (type) REFERENCES e_user_status_type (value),
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
@@ -96,7 +96,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     user_id INTEGER NOT NULL,
     token TEXT NOT NULL UNIQUE,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (user_id) REFERENCES user (id)
   );
 
@@ -107,8 +107,8 @@ CREATE TABLE
     type INTEGER NOT NULL,
     owner_user_id INTEGER NOT NULL,
     receiver_user_id INTEGER NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
-    update_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    update_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (type) REFERENCES e_user_relation_type (value),
     FOREIGN KEY (owner_user_id) REFERENCES user (id),
     FOREIGN KEY (receiver_user_id) REFERENCES user (id)
@@ -122,7 +122,7 @@ CREATE TABLE
     round INT NOT NULL,
     is_visible BOOLEAN NOT NULL,
     players_amount INT NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     finish_time TEXT,
     state INTEGER NOT NULL,
     points INTEGER NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     top TEXT NOT NULL,
     token TEXT NOT NULL UNIQUE,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     tournament_id INTEGER NOT NULL,
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
   );
@@ -146,7 +146,7 @@ CREATE TABLE
 	is_winner BOOLEAN NOT NULL DEFAULT FALSE,
 	is_alive BOOLEAN NOT NULL DEFAULT TRUE,
     user_id INTEGER NOT NULL,
-	creation_time TEXT NOT NULL DEFAULT current_timestamp,
+	creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     tournament_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (tournament_id) REFERENCES tournament (id)
@@ -161,7 +161,7 @@ CREATE TABLE
     is_visible BOOLEAN NOT NULL,
     tournament_round_id INTEGER,
     state INTEGER NOT NULL,
-    creation_time TEXT NOT NULL DEFAULT current_timestamp,
+    creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     finish_time TEXT,
     FOREIGN KEY (state) REFERENCES e_match_state (value),
     FOREIGN KEY (tournament_round_id) REFERENCES tournament_round (id)
@@ -174,7 +174,7 @@ CREATE TABLE
     is_winner BOOLEAN NOT NULL DEFAULT FALSE,
     user_id INTEGER NOT NULL,
     match_id INTEGER NOT NULL,
-	creation_time TEXT NOT NULL DEFAULT current_timestamp,
+	creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (match_id) REFERENCES match (id)
   );

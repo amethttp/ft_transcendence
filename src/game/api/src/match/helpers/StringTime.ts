@@ -1,17 +1,17 @@
 export default class StringTime {
   static now(): string {
-    const time = new Date().toISOString().replace('T', ' ').slice(0, 19);
-    return time;
+    return new Date().toISOString();
   }
 
   static epoch(): string {
-    const time = new Date(0).toISOString().replace('T', ' ').slice(0, 19);
-
-    return time;
+    return new Date(0).toISOString();
   }
 
   static toTimestamp(dateStr: string): number {
-    return new Date(dateStr.replace(' ', 'T')).getTime();
+    if (!dateStr.includes('T')) {
+      dateStr = dateStr.replace(' ', 'T') + 'Z';
+    }
+    return new Date(dateStr).getTime();
   }
 
   static timeStampNow(): number {
