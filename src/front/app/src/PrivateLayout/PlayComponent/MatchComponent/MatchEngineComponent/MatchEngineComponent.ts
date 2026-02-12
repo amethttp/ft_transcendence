@@ -126,21 +126,39 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     this._socketClient.emitEvent('ready', this._token);
   }
 
-  private getTouchCoord(touch: Touch): number {
+  private getTouchCoordX(touch: Touch): number {
+    const canvasCssX = touch.clientX - this._canvas.boundingClientRect.left;
+
+    return (canvasCssX - this._canvas.offsetX) / this._canvas.scale;
+  }
+
+  private getTouchCoordY(touch: Touch): number {
     const canvasCssY = touch.clientY - this._canvas.boundingClientRect.top;
 
     return (canvasCssY - this._canvas.offsetY) / this._canvas.scale;
   }
 
-  private handleTouch(yPos: number) {
-    if (0 <= yPos && yPos <= VIEWPORT_HEIGHT / 2) {
-      if (!this._inputs[0])
-        this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
-      this._inputs[0] = true;
+  private handleTouch(xPos: number, yPos: number) {
+    if (xPos <= VIEWPORT_WIDTH / 2) {
+      if (0 <= yPos && yPos <= VIEWPORT_HEIGHT / 2) {
+        if (!this._inputs[0])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
+        this._inputs[0] = true;
+      } else {
+        if (!this._inputs[1])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
+        this._inputs[1] = true;
+      }
     } else {
-      if (!this._inputs[1])
-        this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
-      this._inputs[1] = true;
+      if (0 <= yPos && yPos <= VIEWPORT_HEIGHT / 2) {
+        if (!this._inputs[2])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: true })
+        this._inputs[2] = true;
+        } else {
+        if (!this._inputs[3])
+          this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: true })
+        this._inputs[3] = true;
+        }
     }
   }
 
@@ -151,8 +169,10 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
 
     if (!touch) return ;
 
-    const yTouch = this.getTouchCoord(touch);
-    this.handleTouch(yTouch);
+    const xTouch = this.getTouchCoordX(touch);
+    const yTouch = this.getTouchCoordY(touch);
+
+    this.handleTouch(xTouch, yTouch);
   }
 
   private onTouchLift(event: TouchEvent) {
@@ -165,6 +185,14 @@ export default class MatchEngineComponent extends AmethComponent<MatchEngineEven
     if (this._inputs[1])
       this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
     this._inputs[1] = false;
+
+    if (this._inputs[2])
+      this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: false });
+    this._inputs[2] = false;
+
+    if (this._inputs[3])
+      this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: false });
+    this._inputs[3] = false;
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
