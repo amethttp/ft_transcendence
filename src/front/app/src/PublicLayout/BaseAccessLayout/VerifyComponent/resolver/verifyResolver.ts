@@ -1,9 +1,9 @@
 import type { Resolver } from "../../../../framework/Router/Route/Resolver";
 
-export const verifyResolver: Resolver = async (): Promise<boolean | string> => {
+export const verifyResolver: Resolver = async () => {
   const userId = sessionStorage.getItem("userId");
   if (userId && parseInt(userId))
-    return true;
+    return { userId: parseInt(userId) };
   else
     return '/login';
 }

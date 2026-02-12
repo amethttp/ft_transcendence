@@ -11,7 +11,7 @@ import { randomBytes } from "crypto";
 import { BusboyFileStream } from "@fastify/busboy";
 import { MatchPlayerService } from "../../application/services/MatchPlayerService";
 import { TournamentPlayerService } from "../../application/services/TournamentPlayerService";
-import { createWriteStream, unlink } from "fs";
+import { existsSync, createWriteStream, unlink } from "fs";
 import { MatchService } from "../../application/services/MatchService";
 import { UserStatsResponse } from "../../application/models/UserStatsResponse";
 import { TournamentService } from "../../application/services/TournamentService";
@@ -72,7 +72,7 @@ export default class UserController {
     let status: UserStatusDto;
     if (relation.type === RelationType.FRIENDSHIP_ACCEPTED)
       status = await this._userStatusService.getUserConnectionStatus(user.id);
-    else 
+    else
       status = {userId: user.id, value: StatusType.OFFLINE};
     return UserService.toUserProfile(user, relation, status.value);
   }
@@ -83,7 +83,7 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
       if (requestedUser.username.startsWith("__deleted__")) {
-        throw new ResponseError(ErrorParams.USER_NOT_FOUND);        
+        throw new ResponseError(ErrorParams.USER_NOT_FOUND);
       }
       const userProfile = await this.toUserProfile(originUser, requestedUser);
 
@@ -284,7 +284,10 @@ export default class UserController {
   }
 
   private _removeFile(path: string) {
-    unlink(process.env.UPLOADS_PATH + path, (err) => {
+    const filePath = process.env.UPLOADS_PATH + path;
+    if (!existsSync(filePath))
+      return;
+    unlink(filePath, (err) => {
       if (err)
         console.log("error removing file " + path + ": ", err);
     });

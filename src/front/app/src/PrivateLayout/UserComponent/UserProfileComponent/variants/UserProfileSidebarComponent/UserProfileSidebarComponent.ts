@@ -7,8 +7,4 @@ export default class UserProfileSidebarComponent extends UserProfileComponent {
   constructor(userProfile: UserProfile) {
     super(userProfile);
   }
-
-  async afterInit() {
-    this.refresh();
-  }
 }

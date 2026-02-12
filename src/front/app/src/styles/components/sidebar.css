@@ -39,6 +39,10 @@
     @apply flex items-center sm:gap-2 w-full py-4
   }
 
+  .sidebar.collapsed .friend-link {
+    @apply !justify-center;
+  }
+
   .sidebar .link-text {
     @apply truncate;
   }

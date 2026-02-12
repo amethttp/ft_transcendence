@@ -69,7 +69,7 @@ export default class SearchComponent extends AmethComponent {
       let amount = 0;
       for (const array of Object.values(this._results))
         amount += array.length;
-       this._container.innerHTML = `Found <b>${amount}</b> results.`;
+      this._container.innerHTML = `Found <b>${amount}</b> results.`;
     }
     else {
       this._clearView();

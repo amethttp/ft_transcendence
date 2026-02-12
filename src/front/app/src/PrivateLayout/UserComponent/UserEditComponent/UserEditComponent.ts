@@ -42,8 +42,6 @@ export default class UserEditComponent extends AmethComponent {
     this._form.submit = (val) => {
       this._userEditService.editUser(val)
         .then(async () => {
-          const user = await LoggedUser.get(true)!;
-          this.router?.redirectByPath("/" + user?.username + "/edit");
           Alert.success("Profile updated successfully");
         })
         .catch(() => {
@@ -97,8 +95,8 @@ export default class UserEditComponent extends AmethComponent {
         .catch(() => Alert.error("Could not send data download email"));
     }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
-      const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
-      if (challenge === "sure") {
+      const challenge = prompt("Are you sure to delete your account? Type \"delete\".");
+      if (challenge === "delete") {
         this._userEditService.deleteUser()
           .then(async () => {
             Alert.success("Successfully deleted your account");
@@ -109,7 +107,7 @@ export default class UserEditComponent extends AmethComponent {
           });
       }
       else if (challenge !== null)
-        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"sure\".");
+        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"delete\".");
     }
   }
 }

@@ -15,25 +15,25 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   private _friendsService: FriendsService;
   private _statusService: StatusService;
   private _friends: Friends | undefined;
-  private _statusPooling?: number;
+  private _statusPolling?: number;
 
   constructor() {
     super();
     this._friendsService = new FriendsService();
     this._statusService = new StatusService();
-    this.startPoolings();
+    this.startPollings();
   }
 
-  startPoolings() {
-    if (!this._statusPooling) {
-      this._statusPooling = setInterval(this.getStatuses.bind(this), 20000);
+  startPollings() {
+    if (!this._statusPolling) {
+      this._statusPolling = setInterval(this.getStatuses.bind(this), 20000);
     }
   }
 
-  stopPoolings() {
-    if (this._statusPooling) {
-      clearInterval(this._statusPooling);
-      this._statusPooling = undefined;
+  stopPollings() {
+    if (this._statusPolling) {
+      clearInterval(this._statusPolling);
+      this._statusPolling = undefined;
     }
   }
 
@@ -62,6 +62,6 @@ export class UserFriends extends EventEmitter<FriendsEvents> {
   }
 
   destroy() {
-    this.stopPoolings();
+    this.stopPollings();
   }
 }
