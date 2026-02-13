@@ -125,6 +125,7 @@ export class MatchPlayerService {
       const relation: Relation = {
         type: RelationType.NO_RELATION,
         owner: false,
+        updateTime: "",
       };
 
       matchInfo.opponentScore = opponent.score;

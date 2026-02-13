@@ -10,4 +10,5 @@ export type TRelationType = typeof RelationType[keyof typeof RelationType];
 export type Relation = {
   type: TRelationType;
   owner: boolean;
+  updateTime: string;
 };
