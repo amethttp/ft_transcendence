@@ -1,6 +1,6 @@
 import Alert from "../../../../framework/Alert/Alert";
 import AmethComponent from "../../../../framework/AmethComponent";
-import DateUtils from "../../../../utils/DateUtils";
+import DateUtils, { timeAgo } from "../../../../utils/DateUtils";
 import { DOMHelper } from "../../../../utils/DOMHelper";
 import type { MatchMinified } from "./models/MatchMinified";
 import { MatchListService } from "./services/MatchListService";
@@ -63,7 +63,7 @@ export default class MatchesListComponent extends AmethComponent {
             <div class="flex-1">${DOMHelper.sanitizeHTML(match.name)}</div>
             <div class="flex flex-1 sm:flex-none gap-5 justify-center items-center">
             <span class="whitespace-nowrap">${match.points}pts</span>
-            <span class="whitespace-nowrap">${DateUtils.timeAgo(match.creationTime)}</span>
+            <span class="whitespace-nowrap">${timeAgo({from: match.creationTime})}</span>
             <div class="btn btn-secondary">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />

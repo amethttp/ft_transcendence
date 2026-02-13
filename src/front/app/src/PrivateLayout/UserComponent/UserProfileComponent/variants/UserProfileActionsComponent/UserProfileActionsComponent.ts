@@ -1,4 +1,5 @@
 import { Context } from "../../../../../framework/Context/Context";
+import { timeAgo, timeAgoLargeText } from "../../../../../utils/DateUtils";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
 import type UserProfile from "../../../models/UserProfile";
 import RelationService from "../../../services/RelationService";
@@ -32,7 +33,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected fillView() {
     super.fillView();
     Context.friends.on('status', this.updateStatus);
-    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = new Date(this._userProfile!.creationTime).toDateString();
+    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = timeAgo({from: this._userProfile!.creationTime, text: timeAgoLargeText});
   }
 
   protected showMyProfile() {
