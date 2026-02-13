@@ -135,7 +135,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
           prefix = "Blocked";
           break;
         case RelationType.FRIENDSHIP_ACCEPTED:
-          prefix = "Friends since";
+          prefix = "Friends";
           break;
       }
       return prefix + " " + timeAgo({ from: this._userProfile.relation.updateTime, text: timeAgoLargeText });
