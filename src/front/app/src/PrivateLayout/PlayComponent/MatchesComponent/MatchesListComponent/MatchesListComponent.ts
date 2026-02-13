@@ -1,6 +1,6 @@
 import Alert from "../../../../framework/Alert/Alert";
 import AmethComponent from "../../../../framework/AmethComponent";
-import DateUtils, { timeAgo } from "../../../../utils/DateUtils";
+import { timeAgo } from "../../../../utils/DateUtils";
 import { DOMHelper } from "../../../../utils/DOMHelper";
 import type { MatchMinified } from "./models/MatchMinified";
 import { MatchListService } from "./services/MatchListService";
