@@ -10,24 +10,16 @@ export default class VerifyComponent extends AmethComponent {
   private _authService!: AuthService;
   private _form!: Form<{ code: string }>;
   private _errorView!: HTMLElement;
-  private _userId?: number;
 
   afterInit() {
     this._authService = new AuthService();
-    const userId = sessionStorage.getItem("userId");
-    if (userId && parseInt(userId))
-      this._userId = parseInt(userId);
-    else {
-      this.router?.redirectByPath("/login");
-      return;
-    }
     this._form = new Form("verifyForm", {
       code: new FormControl<string>("", [Validators.length(6, 6)])
     });
     this._errorView = document.getElementById("verifyError")!;
     this._form.submit = (value) => {
       this._errorView.classList.add("invisible");
-      this._authService.verify({ code: parseInt(value.code), userId: this._userId! })
+      this._authService.verify({ code: parseInt(value.code), userId: this.resolverData.userId })
         .then(async () => {
           sessionStorage.removeItem("userId");
           const params = new URLSearchParams(location.search);

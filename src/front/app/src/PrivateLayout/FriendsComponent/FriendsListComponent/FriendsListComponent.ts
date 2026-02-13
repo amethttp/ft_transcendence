@@ -72,7 +72,7 @@ export default class FriendsListComponent<Component extends UserProfileComponent
 
   async createProfile(friend: UserProfile): Promise<Component> {
     let template = `
-            <a class="" href="/${friend.username}"></a>
+            <a class="w-full" href="/${friend.username}"></a>
           `;
     const elem = DOMHelper.createElementFromHTML(template);
     this._container?.appendChild(elem);

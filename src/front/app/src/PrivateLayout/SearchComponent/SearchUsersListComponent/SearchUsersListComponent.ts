@@ -1,5 +1,7 @@
 
 import FriendsListComponent from "../../FriendsComponent/FriendsListComponent/FriendsListComponent";
+import type UserProfile from "../../UserComponent/models/UserProfile";
+import UserProfileActionsComponent from "../../UserComponent/UserProfileComponent/variants/UserProfileActionsComponent/UserProfileActionsComponent";
 
 export default class SearchUsersListComponent extends FriendsListComponent {
   template = () => import("./SearchUsersListComponent.html?raw")
@@ -12,4 +14,10 @@ export default class SearchUsersListComponent extends FriendsListComponent {
   }
 
   protected stopListenData() { }
+
+  async createProfile(friend: UserProfile): Promise<UserProfileActionsComponent> {
+    const profile = await super.createProfile(friend);
+    profile.hideActions();
+    return profile;
+  }
 }

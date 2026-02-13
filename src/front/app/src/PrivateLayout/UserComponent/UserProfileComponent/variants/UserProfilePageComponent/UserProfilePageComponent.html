@@ -1,0 +1,56 @@
+<div class="flex flex-col gap-8 items-center justify-center">
+  <div class="relative size-48">
+    <div class="UserComponentOnline absolute bottom-[9%] right-[9%] z-50 size-[10%] rounded-full hidden bg-green-600 ring-4 ring-gray-50" title="Online"></div>
+    <div class="UserComponentOffline absolute bottom-[9%] right-[9%] z-50 size-[10%] rounded-full hidden bg-gray-600 ring-4 ring-gray-50" title="Offline"></div>
+    <img src="/default-avatar.webp"
+      class="userAvatar rounded-full aspect-square size-full object-cover object-center transform scale-[0.9999] relative"
+      alt="User avatar" width="650" height="650"/>
+  </div>
+  <div class="flex flex-col gap-2 items-center justify-center">
+    <h2 class="UserComponentUsername title-2 break-all w-full text-center"></h2>
+    <div class="whitespace-nowrap text-gray-600">
+      Joined on <span class="UserComponentCreationTime"></span>
+    </div>
+  </div>
+  <div class="userActions flex flex-col gap-2 justify-center items-center">
+    <div class="UserComponentPendingRequest hidden flex flex-col text-gray-600 items-center gap-2 w-full sm:w-auto">Sent a friend request</div>
+    <div class="flex flex-row gap-2">
+      <button class="UserComponentAddFriendBtn btn btn-tertiary text-nowrap" aria-label="Send friend request" title="Send friend request">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+        </svg>
+        Add
+      </button>
+      <button class="UserComponentDeleteFriendBtn btn btn-primary text-nowrap" aria-label="Delete from friend list" title="Delete from friend list">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+        </svg>
+        Remove
+      </button>
+      <button class="UserComponentAcceptBtn btn btn-tertiary px-4 py-2" aria-label="Accept friendship" title="Accept friendship">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+        </svg>
+        Accept
+      </button>
+      <button class="UserComponentDeclineBtn btn btn-primary px-4 py-2" aria-label="Decline friendship" title="Decline friendship">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+        Decline
+      </button>
+      <button class="UserComponentBlockBtn btn btn-danger" aria-label="Block user" title="Block user">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+        </svg>
+        Block
+      </button>
+      <button class="UserComponentUnblockBtn btn btn-primary" aria-label="Unblock user" title="Unblock user">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+        </svg>
+        Unblock
+      </button>
+    </div>
+  </div>
+</div>

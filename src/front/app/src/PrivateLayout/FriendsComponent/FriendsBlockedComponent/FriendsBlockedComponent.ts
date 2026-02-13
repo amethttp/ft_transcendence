@@ -32,7 +32,7 @@ export default class FriendsBlockedComponent extends AmethComponent {
       this._container.innerHTML = "";
     for (const friend of friends) {
       let template = `
-      <a class="" href="/${friend.username}"></a>
+      <a class="w-full" href="/${friend.username}"></a>
     `;
       const elem = DOMHelper.createElementFromHTML(template);
       this._container.appendChild(elem);

@@ -5,8 +5,8 @@ import RelationService from "../../../services/RelationService";
 import UserProfileService from "../../../services/UserProfileService";
 import UserProfileComponent from "../../UserProfileComponent";
 
-export default class UserProfileActionsComponent extends UserProfileComponent {
-  template = () => import("./UserProfileActionsComponent.html?raw");
+export default class UserProfilePageComponent extends UserProfileComponent {
+  template = () => import("./UserProfilePageComponent.html?raw");
   protected userProfileService: UserProfileService;
   protected relationService: RelationService;
 
@@ -21,6 +21,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
       action.classList.add("hidden");
     }
+    this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.add("hidden");
   }
 
   private updateStatus = (statuses: FriendsStatus) => {
@@ -69,12 +70,17 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected showRequestedFriend(targetUser: UserProfile) {
     super.showRequestedFriend(targetUser);
     this.showBlockUser(targetUser.username);
+    const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this._userProfile?.relation.owner) {
+      pendingRequestEl.innerHTML = `Waiting for acceptance...`;
+      pendingRequestEl.classList.remove("hidden");
       return;
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
+    pendingRequestEl.innerHTML = `${targetUser.username} sent a friend request!`;
 
+    pendingRequestEl.classList.remove("hidden");
     acceptBtn.classList.remove("hidden");
     declineBtn.classList.remove("hidden");
 
@@ -116,10 +122,6 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       this.relationService.unblockUser(targetUser.username)
         .finally(() => this.emit("change", null));
     }
-  }
-
-  hideActions() {
-    this.outlet?.getElementsByClassName('userActions')[0]!.classList.add('hidden');
   }
 
   async destroy() {
