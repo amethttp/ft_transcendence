@@ -11,8 +11,8 @@ export type TimeAgoTextOptions = {
 
 const largeTextPlural = (val: number, text: string) => val > 1 ? `${val} ${text}s` : `${val} ${text}`;
 
-export const timeAgoLargeText: TimeAgoTextOptions = {
-  justNow: 'just now',
+export const timeLargeText: TimeAgoTextOptions = {
+  justNow: 'few seconds',
   secondsAgo: (seconds: number) => largeTextPlural(seconds, "second"),
   minutesAgo: (minutes: number) => largeTextPlural(minutes, "minute"),
   hoursAgo: (hours: number) => largeTextPlural(hours, "hour"),
@@ -22,15 +22,26 @@ export const timeAgoLargeText: TimeAgoTextOptions = {
   yearsAgo: (years: number) => largeTextPlural(years, "year"),
 }
 
+export const timeAgoLargeText: TimeAgoTextOptions = {
+  justNow: 'just now',
+  secondsAgo: (seconds: number) => largeTextPlural(seconds, "second") + " ago",
+  minutesAgo: (minutes: number) => largeTextPlural(minutes, "minute") + " ago",
+  hoursAgo: (hours: number) => largeTextPlural(hours, "hour") + " ago",
+  daysAgo: (days: number) => largeTextPlural(days, "day") + " ago",
+  weeksAgo: (weeks: number) => largeTextPlural(weeks, "week") + " ago",
+  monthsAgo: (months: number) => largeTextPlural(months, "month") + " ago",
+  yearsAgo: (years: number) => largeTextPlural(years, "year") + " ago",
+}
+
 export const timeAgoSimpleText: TimeAgoTextOptions = {
   justNow: 'just now',
-  secondsAgo: (seconds: number) => seconds + "s",
-  minutesAgo: (minutes: number) => minutes + "m",
-  hoursAgo: (hours: number) => hours + "h",
-  daysAgo: (days: number) => days + "d",
-  weeksAgo: (weeks: number) => weeks + "w",
-  monthsAgo: (months: number) => months + "mo",
-  yearsAgo: (years: number) => years + "y",
+  secondsAgo: (seconds: number) => seconds + "s ago",
+  minutesAgo: (minutes: number) => minutes + "m ago",
+  hoursAgo: (hours: number) => hours + "h ago",
+  daysAgo: (days: number) => days + "d ago",
+  weeksAgo: (weeks: number) => weeks + "w ago",
+  monthsAgo: (months: number) => months + "mo ago",
+  yearsAgo: (years: number) => years + "y ago",
 }
 
 export type TimeAgoOptions = {
@@ -56,25 +67,25 @@ export const timeAgo = (opts: TimeAgoOptions): string => {
   if (!opts.text) opts.text = timeAgoSimpleText;
 
   if (diffSec < 5) return opts.text.justNow;
-  if (diffSec < 60) return `${opts.text.secondsAgo(diffSec)} ago`;
+  if (diffSec < 60) return `${opts.text.secondsAgo(diffSec)}`;
 
   const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${opts.text.minutesAgo(diffMin)} ago`;
+  if (diffMin < 60) return `${opts.text.minutesAgo(diffMin)}`;
 
   const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${opts.text.hoursAgo(diffH)} ago`;
+  if (diffH < 24) return `${opts.text.hoursAgo(diffH)}`;
 
   const diffD = Math.floor(diffH / 24);
-  if (diffD < 7) return `${opts.text.daysAgo(diffD)} ago`;
+  if (diffD < 7) return `${opts.text.daysAgo(diffD)}`;
 
   const diffW = Math.floor(diffD / 7);
-  if (diffW < 5) return `${opts.text.weeksAgo(diffW)} ago`;
+  if (diffW < 5) return `${opts.text.weeksAgo(diffW)}`;
 
   const diffM = Math.floor(diffD / 30);
-  if (diffM < 12) return `${opts.text.monthsAgo(diffM)} ago`;
+  if (diffM < 12) return `${opts.text.monthsAgo(diffM)}`;
 
   const diffY = Math.floor(diffD / 365);
-  return `${opts.text.yearsAgo(diffY)} ago`;
+  return `${opts.text.yearsAgo(diffY)}`;
 }
 
 export default class DateUtils {

@@ -1,6 +1,7 @@
 import { Context } from "../../../../../framework/Context/Context";
 import { timeAgo, timeAgoLargeText } from "../../../../../utils/DateUtils";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
+import { RelationType } from "../../../models/Relation";
 import type UserProfile from "../../../models/UserProfile";
 import RelationService from "../../../services/RelationService";
 import UserProfileService from "../../../services/UserProfileService";
@@ -33,7 +34,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected fillView() {
     super.fillView();
     Context.friends.on('status', this.updateStatus);
-    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = timeAgo({from: this._userProfile!.creationTime, text: timeAgoLargeText});
+    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = this._getTimeText() ?? "Joined " + timeAgo({ from: this._userProfile!.creationTime, text: timeAgoLargeText });
   }
 
   protected showMyProfile() {
@@ -121,6 +122,24 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
 
   hideActions() {
     this.outlet?.getElementsByClassName('userActions')[0]!.classList.add('hidden');
+  }
+
+  private _getTimeText(): string | undefined {
+    if (this._userProfile.relation && this._userProfile.relation.updateTime) {
+      let prefix = "";
+      switch (this._userProfile.relation.type) {
+        case RelationType.FRIENDSHIP_REQUESTED:
+          prefix = "Requested";
+          break;
+        case RelationType.BLOCKED:
+          prefix = "Blocked";
+          break;
+        case RelationType.FRIENDSHIP_ACCEPTED:
+          prefix = "Friends since";
+          break;
+      }
+      return prefix + " " + timeAgo({ from: this._userProfile.relation.updateTime, text: timeAgoLargeText });
+    }
   }
 
   async destroy() {
