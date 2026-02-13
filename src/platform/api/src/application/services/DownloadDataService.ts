@@ -92,7 +92,6 @@ export class DownloadDataService {
         relationType = 'BLOCKED';
 
       const userRelationDto: UserRelationDownloadDto = {
-        alias: userRelation.alias,
         type: relationType,
         ownerUserId: userRelation.ownerUser.id,
         ownerUsername: userRelation.ownerUser.username,

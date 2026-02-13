@@ -103,7 +103,6 @@ CREATE TABLE
 CREATE TABLE
   IF NOT EXISTS user_relation (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    alias TEXT,
     type INTEGER NOT NULL,
     owner_user_id INTEGER NOT NULL,
     receiver_user_id INTEGER NOT NULL,

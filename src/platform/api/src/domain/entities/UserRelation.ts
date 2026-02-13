@@ -3,7 +3,6 @@ import { User } from "./User";
 
 const userRelationSchema: Record<string, string> = {
   id: "id",
-  alias: "alias",
   type: "type",
   ownerUser: "owner_user_id",
   receiverUser: "receiver_user_id",
@@ -16,7 +15,6 @@ export class UserRelation extends AEntity {
   static readonly entitySchema = userRelationSchema;
 
   id!: number;
-  alias?: string;
   type!: number;
   ownerUser!: User;
   receiverUser!: User;
@@ -26,7 +24,6 @@ export class UserRelation extends AEntity {
   constructor() {
     super();
     this.id = -1;
-    this.alias = "";
     this.type = 0;
     this.ownerUser = new User();
     this.receiverUser = new User();
