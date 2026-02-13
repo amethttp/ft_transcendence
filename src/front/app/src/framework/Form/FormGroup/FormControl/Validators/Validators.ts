@@ -43,8 +43,8 @@ export class Validators {
   };
 
   private static isOverSixteenYears(formDate: Date, currentDate: Date) {
-    const formDateJson = { y: formDate.getUTCFullYear(), m: formDate.getUTCMonth(), d: formDate.getUTCDate() };
-    const currentDateJson = { y: currentDate.getUTCFullYear(), m: currentDate.getUTCMonth(), d: currentDate.getUTCDate() };
+    const formDateJson = { y: formDate.getUTCFullYear(), m: formDate.getUTCMonth() + 1, d: formDate.getUTCDate() };
+    const currentDateJson = { y: currentDate.getUTCFullYear(), m: currentDate.getUTCMonth() + 1, d: currentDate.getUTCDate() };
 
     let years = currentDateJson.y - formDateJson.y;
     if (currentDateJson.m < formDateJson.m
