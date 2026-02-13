@@ -34,7 +34,7 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
   protected fillView() {
     super.fillView();
     Context.friends.on('status', this.updateStatus);
-    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = this._getTimeText() ?? "Joined " + timeAgo({ from: this._userProfile!.creationTime, text: timeAgoLargeText });
+    (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = this._getTimeText();
   }
 
   protected showMyProfile() {
@@ -124,8 +124,8 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
     this.outlet?.getElementsByClassName('userActions')[0]!.classList.add('hidden');
   }
 
-  private _getTimeText(): string | undefined {
-    if (this._userProfile.relation && this._userProfile.relation.updateTime) {
+  private _getTimeText(): string {
+    if (this._userProfile.relation && this.userProfile.relation.type != RelationType.NO_RELATION && this._userProfile.relation.updateTime) {
       let prefix = "";
       switch (this._userProfile.relation.type) {
         case RelationType.FRIENDSHIP_REQUESTED:
@@ -140,6 +140,8 @@ export default class UserProfileActionsComponent extends UserProfileComponent {
       }
       return prefix + " " + timeAgo({ from: this._userProfile.relation.updateTime, text: timeAgoLargeText });
     }
+    else
+      return "Joined " + timeAgo({ from: this._userProfile!.creationTime, text: timeAgoLargeText });
   }
 
   async destroy() {
