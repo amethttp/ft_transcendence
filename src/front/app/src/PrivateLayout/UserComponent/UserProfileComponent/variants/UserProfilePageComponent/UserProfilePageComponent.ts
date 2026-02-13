@@ -22,7 +22,7 @@ export default class UserProfilePageComponent extends UserProfileComponent {
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
       action.classList.add("hidden");
     }
-    this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.add("hidden");
+    this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.replace("flex", "hidden");
   }
 
   private updateStatus = (statuses: FriendsStatus) => {
@@ -74,16 +74,16 @@ export default class UserProfilePageComponent extends UserProfileComponent {
     const pendingRequestEl = this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]!;
     if (this._userProfile?.relation.owner) {
       pendingRequestEl.innerHTML = `Waiting for acceptance...`;
-      pendingRequestEl.classList.remove("hidden");
+      pendingRequestEl.classList.replace("hidden", "flex");
       return;
     }
     const acceptBtn = this.outlet?.getElementsByClassName("UserComponentAcceptBtn")[0]! as HTMLElement;
     const declineBtn = this.outlet?.getElementsByClassName("UserComponentDeclineBtn")[0]! as HTMLElement;
     pendingRequestEl.innerHTML = `${targetUser.username} sent a friend request!`;
 
-    pendingRequestEl.classList.remove("hidden");
-    acceptBtn.classList.remove("hidden");
-    declineBtn.classList.remove("hidden");
+    pendingRequestEl.classList.replace("hidden", "flex");
+    acceptBtn.classList.replace("hidden", "flex");
+    declineBtn.classList.replace("hidden", "flex");
 
     acceptBtn.onclick = async (e) => {
       e.preventDefault();
@@ -101,7 +101,7 @@ export default class UserProfilePageComponent extends UserProfileComponent {
 
   private showBlockUser(targetUser: string) {
     const blockBtn = (this.outlet?.getElementsByClassName("UserComponentBlockBtn")[0]! as HTMLButtonElement);
-    blockBtn.classList.remove("hidden");
+    blockBtn.classList.replace("hidden", "flex");
     blockBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -116,7 +116,7 @@ export default class UserProfilePageComponent extends UserProfileComponent {
       return;
     }
     const delFriendBtn = (this.outlet?.getElementsByClassName("UserComponentUnblockBtn")[0]! as HTMLButtonElement);
-    delFriendBtn.classList.remove("hidden");
+    delFriendBtn.classList.replace("hidden", "flex");
     delFriendBtn.onclick = async (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();

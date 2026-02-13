@@ -52,7 +52,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
     for (const round of this._tournament.rounds) {
       const roundI = TournamentRound.powersOfTwo.indexOf(Number(round.top));
       const roundDiv = `
-        <div class="flex flex-grow flex-col min-w-fit gap-4 items-center">
+        <div class="flex grow flex-col min-w-fit gap-4 items-center">
           <div class="py-2">${TournamentRound.roundsText[roundI]}</div>
         </div>
       `;
