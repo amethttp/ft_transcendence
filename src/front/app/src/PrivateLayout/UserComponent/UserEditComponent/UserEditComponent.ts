@@ -16,6 +16,7 @@ export default class UserEditComponent extends AmethComponent {
   private _form!: Form<UserEditRequest>
   private _userEditService: UserEditService;
   private _user!: User;
+  private logoutHandler?: (e: Event) => void;
 
   constructor() {
     super();
@@ -109,5 +110,24 @@ export default class UserEditComponent extends AmethComponent {
       else if (challenge !== null)
         Alert.error("Failed challenge", "\"" + challenge + "\" is not \"delete\".");
     }
+
+    const authService = new AuthService();
+    this.logoutHandler = (e: Event) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      authService.logout().then(async res => {
+        if (res.success) {
+          this.router?.navigateByPath("/");
+        }
+      });
+    };
+    document.getElementById("UserEditLogoutBtn")?.addEventListener("click", this.logoutHandler);
+  }
+
+  async destroy() {
+    if (this.logoutHandler) {
+      document.getElementById("UserEditLogoutBtn")?.removeEventListener("click", this.logoutHandler);
+    }
+    await super.destroy();
   }
 }
