@@ -1,3 +1,4 @@
+import { LoggedUser } from "../../../../../auth/LoggedUser";
 import { Context } from "../../../../../framework/Context/Context";
 import { timeAgo, timeAgoLargeText } from "../../../../../utils/DateUtils";
 import type { FriendsStatus } from "../../../../models/FriendsStatus";
@@ -20,6 +21,7 @@ export default class UserProfilePageComponent extends UserProfileComponent {
   protected clearView() {
     super.clearView();
     for (const action of [...(this.outlet!.getElementsByClassName("userActions")[0]!.getElementsByClassName("btn")!)]) {
+      action.classList.remove("flex");
       action.classList.add("hidden");
     }
     this.outlet?.getElementsByClassName("UserComponentPendingRequest")[0]?.classList.replace("flex", "hidden");
@@ -31,10 +33,12 @@ export default class UserProfilePageComponent extends UserProfileComponent {
       this.setOnlineStatus(status);
   }
 
-  protected fillView() {
+  protected async fillView() {
     super.fillView();
     Context.friends.on('status', this.updateStatus);
     (this.outlet!.getElementsByClassName("UserComponentCreationTime")[0]! as HTMLElement).innerText = timeAgo({from: this._userProfile!.creationTime, text: timeAgoLargeText});
+    if (this._userProfile.id === (await LoggedUser.get())?.id)
+      this.outlet?.getElementsByClassName("UserComponentEditBtn")[0]?.classList.replace("hidden", "flex");
   }
 
   protected showMyProfile() {

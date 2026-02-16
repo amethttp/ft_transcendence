@@ -161,14 +161,14 @@ export const routes: Route[] = [
         component: () => import("./PrivateLayout/SearchComponent/SearchComponent")
       },
       {
+        path: "/edit",
+        component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
+        title: "Edit profile"
+      },
+      {
         path: "/:userId",
         component: () => import("./PrivateLayout/UserComponent/UserComponent"),
         resolver: userComponentResolver,
-      },
-      {
-        path: "/profile/edit",
-        component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
-        title: "Edit profile"
       },
     ],
   },
