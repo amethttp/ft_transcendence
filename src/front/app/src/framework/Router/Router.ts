@@ -284,7 +284,7 @@ export class Router extends EventEmitter<RouterEvents> {
             );
           }
           else {
-            component.refresh();
+            await component.refreshWithData(this._currentResolution);
           }
         }
       }
