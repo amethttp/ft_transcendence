@@ -14,4 +14,4 @@ EXPOSE 443
 EXPOSE 8080
 
 ENTRYPOINT [ "/root/init_platform_api.sh" ]
-CMD [ "tail", "-f", "/dev/null" ]
+CMD [ "npm", "run", "bs" ]

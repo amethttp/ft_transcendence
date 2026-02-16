@@ -4,9 +4,9 @@
   "description": "Game api module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "tsx watch --env-file=./.env.local src/index.ts",
+    "dev": "tsx watch --env-file=./.env.development src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node --env-file=./.env.local dist/index.js",
+    "start": "node --env-file=./.env.production dist/index.js",
     "bs": "npm run build && npm run start",
     "format": "prettier --write .",
     "lint:format": "prettier --check ."
