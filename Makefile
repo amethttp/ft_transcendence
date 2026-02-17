@@ -79,7 +79,7 @@ log:
 		read -r -p "" TARGET; \
 	done; \
 	$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$$TARGET$(PINK) logs...$(RESET)"; \
-	$(DOCKER) logs -f --tail 100 $$(docker ps -aq --filter="name=($$TARGET)")
+	$(DOCKER) logs -f $$(docker ps -aq --filter="name=($$TARGET)")
 
 interact:
 	@while [ -z "$$TARGET" ]; do \
