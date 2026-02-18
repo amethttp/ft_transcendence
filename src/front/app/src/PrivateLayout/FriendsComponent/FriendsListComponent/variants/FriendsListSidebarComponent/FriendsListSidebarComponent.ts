@@ -26,7 +26,6 @@ export default class FriendsListSidebarComponent extends FriendsListComponent<Us
       this._container.appendChild(elem);
     const profile = new UserProfileSidebarComponent(friend);
     await profile.init(elem.id, this.router);
-    profile.on("change", () => this.router?.refresh());
     profile.afterInit();
     return profile;
   }

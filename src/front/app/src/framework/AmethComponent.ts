@@ -62,23 +62,23 @@ export default abstract class AmethComponent<TData = any, Events extends Record<
     this._animationFrames.delete(id);
   }
 
-  afterInit() {}
-  refresh() {}
+  afterInit() { }
+  refresh() { }
 
   async destroy() {
     this.abortController.abort();
-    
+
     this._intervals.forEach(id => clearInterval(id));
     this._intervals.clear();
-    
+
     this._timeouts.forEach(id => clearTimeout(id));
     this._timeouts.clear();
-    
+
     this._animationFrames.forEach(id => cancelAnimationFrame(id));
     this._animationFrames.clear();
-    
+
     super.destroy();
-    
+
     if (this.outlet) {
       this.outlet.innerHTML = '';
     }
@@ -91,6 +91,17 @@ export default abstract class AmethComponent<TData = any, Events extends Record<
       this.outlet = document.getElementById(selector) || undefined;
       if (this.outlet) this.outlet.innerHTML = (await this.template()).default;
       (this.outlet?.querySelector('[autofocus]') as HTMLElement)?.focus();
+    }
+  }
+
+  async refreshWithData(data: TData) {
+    this.resolverData = data;
+    await this.refresh();
+    if (this.outlet) {
+      const autofocusElement = this.outlet.querySelector('[autofocus]') as HTMLElement;
+      if (autofocusElement) {
+        autofocusElement.focus();
+      }
     }
   }
 }
