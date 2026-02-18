@@ -1,4 +1,5 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import { RelationType } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
 import type { UserStats } from "./models/UserStats";
@@ -16,7 +17,8 @@ export default class UserStatsComponent extends AmethComponent {
   constructor(targetUser?: UserProfile) {
     super();
     this.userProfileService = new UserProfileService();
-    this.targetUser = targetUser;
+    if (targetUser?.relation?.type !== RelationType.BLOCKED)
+      this.targetUser = targetUser;
     this.mode = "none";
   }
 
@@ -368,7 +370,10 @@ export default class UserStatsComponent extends AmethComponent {
 
   refresh(user?: UserProfile) {
     super.refresh();
-    this.targetUser = user;
+    if (user?.relation?.type !== RelationType.BLOCKED)
+      this.targetUser = user;
+    else
+      this.targetUser = undefined;
     document.querySelector('#matchChart')!.innerHTML = '';
     this.mode = "none";
     this.afterInit();

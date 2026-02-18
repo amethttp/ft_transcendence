@@ -16,9 +16,9 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
-    "fastify": "4.29",
+    "fastify": "^5.7.4",
     "fastify-plugin": "^5.1.0",
-    "fastify-socket.io": "^5.1.0",
+    "fastify-socket.io": "^4.0.0",
     "node-fetch": "^2.7.0",
     "socket.io": "^4.8.1"
   },
