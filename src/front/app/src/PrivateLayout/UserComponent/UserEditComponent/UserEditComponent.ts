@@ -44,6 +44,7 @@ export default class UserEditComponent extends AmethComponent {
       this._userEditService.editUser(val)
         .then(async () => {
           Alert.success("Profile updated successfully");
+          this.refresh();
         })
         .catch(() => {
           Alert.error("Could not update profile");
