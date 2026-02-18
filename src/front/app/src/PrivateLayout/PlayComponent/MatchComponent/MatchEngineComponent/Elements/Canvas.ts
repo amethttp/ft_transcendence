@@ -127,6 +127,11 @@ export default class Canvas {
     this._canvas.addEventListener('touchend', func);
   }
 
+  toggleFullScreenStyles() {
+    this._canvasContainer.classList.toggle('bg-black');
+    this._canvasContainer.classList.toggle('bg-gray-50');
+  }
+
   toggleFullScreen() {
     if (!document.fullscreenElement)
       this._canvasContainer.requestFullscreen();

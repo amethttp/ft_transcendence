@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
 import Alert from "../../../framework/Alert/Alert";
@@ -24,7 +23,7 @@ export default class UserEditComponent extends AmethComponent {
   }
 
   async refresh() {
-    this._user = (await LoggedUser.get(true))!;
+    this._user = this.resolverData.user;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
     this._form.controls.birthDate.validators = [Validators.isValidBirthDate];
@@ -33,7 +32,7 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
-    this._user = (await LoggedUser.get(true))!;
+    this._user = this.resolverData.user;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
       username: new FormControl<string>(this._user.username, [Validators.username, UserEditValidators.usernameUnique(this._user.username)]),
@@ -44,7 +43,7 @@ export default class UserEditComponent extends AmethComponent {
       this._userEditService.editUser(val)
         .then(async () => {
           Alert.success("Profile updated successfully");
-          this.refresh();
+          this.router?.refresh();
         })
         .catch(() => {
           Alert.error("Could not update profile");
