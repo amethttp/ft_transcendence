@@ -33,7 +33,7 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
-    this._user = (await LoggedUser.get(true))!;
+    this._user = this.resolverData.user;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
       username: new FormControl<string>(this._user.username, [Validators.username, UserEditValidators.usernameUnique(this._user.username)]),
