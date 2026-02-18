@@ -21,7 +21,8 @@ export class Router extends EventEmitter<RouterEvents> {
   private _protectFromUnload: boolean;
   private _protectUnloadMsg: string;
   private _navigationQueue: Promise<void> = Promise.resolve();
-  private _isNavigating: boolean = false;
+  private _isNavigating: boolean;
+  private _scroll: boolean;
 
   constructor(selector: string, routes: Route[]) {
     super();
@@ -33,6 +34,8 @@ export class Router extends EventEmitter<RouterEvents> {
     this.listen();
     this._protectFromUnload = false;
     this._protectUnloadMsg = "You have unsaved changes. Are you sure you want to leave?";
+    this._isNavigating = false;
+    this._scroll = true;
   }
 
   get currentPath(): Path {
@@ -185,10 +188,8 @@ export class Router extends EventEmitter<RouterEvents> {
     if (this._isNavigating) return;
     this._isNavigating = true;
 
-    // Emit navigation start event
     this.emitSync("navigationStart", { path });
 
-    // Save previous URL state in case we need to revert
     const previousUrlState = location.href;
 
     try {
@@ -211,20 +212,17 @@ export class Router extends EventEmitter<RouterEvents> {
 
       if (!resolution.success) {
         if (resolution.reason === 'redirect') {
-          // Hard redirect - stop navigation and go to new path
           this.emitSync("navigationEnd", { success: false, path, reason: 'redirect' });
           this._isNavigating = false;
           this.redirectByPath(resolution.target!);
           return;
         }
-        // Cancelled - revert URL to previous state
         history.replaceState(null, "", previousUrlState);
         this.emitSync("navigationEnd", { success: false, path, reason: 'cancelled' });
         this._isNavigating = false;
         return;
       }
 
-      // Navigation succeeded - store context data for component access
       this._currentResolution = resolution.contextData;
 
       this._currentPath = PathMapper.fromRouteTree(routeTree, path);
@@ -255,7 +253,6 @@ export class Router extends EventEmitter<RouterEvents> {
               outlet.setAttribute("id", selector);
             }
 
-            // Pass resolver data to component
             await newComponent.init(selector, this, this._currentResolution);
             this._currentComponents[i] = newComponent;
           }
@@ -295,13 +292,13 @@ export class Router extends EventEmitter<RouterEvents> {
       await Promise.all(afterInitPromises);
       this._currentTree = routeTree;
 
-      if (lastComponent && lastComponent.outlet?.firstChild)
+      if (lastComponent && lastComponent.outlet?.firstChild && this._scroll) {
         (lastComponent.outlet?.firstChild as HTMLElement)?.scrollIntoView({ behavior: "smooth" });
+      }
       this.emitSync("navigationEnd", { success: true, path });
     } catch (error) {
       console.error("Navigation error:", error);
       history.replaceState(null, "", previousUrlState);
-
       this.emitSync("navigationEnd", { success: false, path, reason: 'error' });
     } finally {
       this._isNavigating = false;
@@ -327,6 +324,7 @@ export class Router extends EventEmitter<RouterEvents> {
   }
 
   refresh() {
-    this.navigate(this.currentPath.fullPath);
+    this._scroll = false;
+    this.navigate(this.currentPath.fullPath).finally(() => { this._scroll = true });
   }
 }
