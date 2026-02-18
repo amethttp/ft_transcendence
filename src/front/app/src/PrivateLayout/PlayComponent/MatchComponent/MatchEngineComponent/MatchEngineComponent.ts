@@ -104,7 +104,10 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     this._fullScreenButton = new FullScreenButton();
     this._fullScreenButton.onclick(() => this._canvas.toggleFullScreen());
     this.observeResize();
-    this._fullscreenChangeHandler = () => { this._fullScreenButton.toggleIcon() };
+    this._fullscreenChangeHandler = () => {
+      this._canvas.toggleFullScreenStyles();
+      this._fullScreenButton.toggleIcon();
+    };
     document.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
