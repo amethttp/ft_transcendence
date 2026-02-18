@@ -270,6 +270,8 @@ export class Router extends EventEmitter<RouterEvents> {
       }
 
       const afterInitPromises: Promise<void>[] = [];
+
+      let lastComponent: AmethComponent<any> | null = null;
       for (const [i, component] of this._currentComponents.entries()) {
         if (i <= lastI) {
           if (i >= oldComponents.length || component != oldComponents[i]) {
@@ -285,6 +287,7 @@ export class Router extends EventEmitter<RouterEvents> {
           }
           else {
             await component.refreshWithData(this._currentResolution);
+            lastComponent = component;
           }
         }
       }
@@ -292,6 +295,8 @@ export class Router extends EventEmitter<RouterEvents> {
       await Promise.all(afterInitPromises);
       this._currentTree = routeTree;
 
+      if (lastComponent && lastComponent.outlet?.firstChild)
+        (lastComponent.outlet?.firstChild as HTMLElement)?.scrollIntoView({ behavior: "smooth" });
       this.emitSync("navigationEnd", { success: true, path });
     } catch (error) {
       console.error("Navigation error:", error);
