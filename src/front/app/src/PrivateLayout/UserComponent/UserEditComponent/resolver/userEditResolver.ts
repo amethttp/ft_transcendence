@@ -1,16 +1,14 @@
 import { LoggedUser } from "../../../../auth/LoggedUser";
 import type User from "../../../../auth/models/User";
 import type { Resolver } from "../../../../framework/Router/Route/Resolver";
-import type Path from "../../../../framework/Router/Path/Path";
 
-export const userEditResolver: Resolver = async (path: Path, _parentData): Promise<boolean | string> => {
-  const loggedUser: User | null = await LoggedUser.get();
-  const userId = path.params['userId'];
-  
-  if (loggedUser && loggedUser.username === userId) {
-    return true;
+export const userEditResolver: Resolver = async () => {
+  const loggedUser: User | null = await LoggedUser.get(true);
+
+  if (loggedUser) {
+    return { user: loggedUser };
   }
-  
-  return `/${userId}`;
+
+  return '/login';
 }
 export default userEditResolver;
