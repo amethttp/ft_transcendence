@@ -4,6 +4,8 @@ services:
   platform:
     container_name: platform
     build: platform/
+    ports:
+      - "8080:443"
     volumes:
       - database:/home/db
       - uploads:/home/uploads
@@ -14,8 +16,12 @@ services:
   game:
     container_name: game
     build: game/
+    ports:
+      - "8081:443"
     networks:
       - apis
+    depends_on:
+      - platform
     restart: always
 
   nginx:
@@ -24,6 +30,8 @@ services:
     volumes:
       - uploads:/var/www/uploads
       - web:/var/www/html
+    depends_on:
+      - front
     restart: always
 
   front:
@@ -31,6 +39,9 @@ services:
     build: front/
     volumes:
       - web:/home/app/dist
+    depends_on:
+      - platform
+      - game
 
 
 volumes:
