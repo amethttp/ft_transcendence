@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
 import Alert from "../../../framework/Alert/Alert";
