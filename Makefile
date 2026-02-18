@@ -70,7 +70,7 @@ down:
 
 fdown:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE) and $(WHITE_BOLD)volumes$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(BASE_YAML) down -v
+	@$(DOCKER) compose -f $(BASE_YAML) -f $(DEV_YAML) down -v
 	@$(RM) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 
 log:
@@ -79,7 +79,7 @@ log:
 		read -r -p "" TARGET; \
 	done; \
 	$(PRINT) "$(PINK)Reading $(WHITE_BOLD)$$TARGET$(PINK) logs...$(RESET)"; \
-	$(DOCKER) logs $$(docker ps -aq --filter="name=($$TARGET)")
+	$(DOCKER) logs -f $$(docker ps -aq --filter="name=($$TARGET)")
 
 interact:
 	@while [ -z "$$TARGET" ]; do \

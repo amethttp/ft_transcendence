@@ -22,6 +22,6 @@ create_https_certificates()
 install_database
 create_https_certificates
 
-npm ci && npm run build
+npm ci
 
 exec "$@"

@@ -1,15 +1,13 @@
 services:
   platform:
-    ports:
-      - "8080:443"
     volumes:
       - platform-api:/home/app
+    command: "npm run dev"
 
   game:
-    ports:
-      - "8081:443"
     volumes:
       - game-api:/home/app
+    command: "npm run dev"
 
   nginx:
     ports:
@@ -23,9 +21,12 @@ services:
       - "4173:4173"
     volumes:
       - front:/home/app
-    restart: always
     networks:
       - dev
+    environment:
+      - ENV=dev
+    command: "npm run dev"
+    restart: always
 
 
 volumes:
