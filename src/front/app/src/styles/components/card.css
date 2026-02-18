@@ -6,4 +6,8 @@
   .card-2 {
     @apply flex flex-col rounded-2xl sm:shadow py-8 px-9 sm:outline-1 items-center justify-center gap-6;
   }
+
+  .card-group {
+    @apply flex items-center gap-3 rounded-xl border p-3.5 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-md;
+  }
 }

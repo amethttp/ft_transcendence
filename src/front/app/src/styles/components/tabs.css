@@ -1,10 +1,10 @@
 @layer components {
   .tabs {
-    @apply flex flex-wrap items-center justify-center gap-1 bg-gray-300 rounded-full p-1;
+    @apply flex gap-1 bg-gray-300 rounded-full p-1 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-300;
   }
 
   .tabs > * {
-    @apply flex justify-center items-center text-center gap-1 bg-transparent shadow-none rounded-full px-5 py-1 cursor-pointer transition-[background-color,box-shadow] duration-300;
+    @apply flex justify-center items-center text-center gap-3 bg-transparent shadow-none rounded-full px-5 py-1 cursor-pointer transition-[background-color,box-shadow] duration-300;
   }
 
   .tabs > .active,

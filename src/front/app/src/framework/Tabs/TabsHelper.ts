@@ -4,7 +4,10 @@ export class TabsHelper {
     const url = new URL(path, location.origin);
     for (const tab of ([...tabs] as HTMLAnchorElement[])) {
       if (url.toString() == tab.href)
+      {
         tab.classList.add("active");
+        tab.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
       else
         tab.classList.remove("active");
     }
