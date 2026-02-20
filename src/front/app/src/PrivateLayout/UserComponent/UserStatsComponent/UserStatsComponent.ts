@@ -167,7 +167,7 @@ export default class UserStatsComponent extends AmethComponent {
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
-      userName.href = `/${this.targetUser?.username}`;
+      userName.href = `/profile/${this.targetUser?.username}`;
       userName.textContent = `${this.targetUser?.username}`;
       userName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const userScore = document.createElement("span");
@@ -183,7 +183,7 @@ export default class UserStatsComponent extends AmethComponent {
 
       const opponentName = document.createElement("a");
       if (match.opponent?.username)
-        opponentName.href = `/${match.opponent?.username}`;
+        opponentName.href = `/profile/${match.opponent?.username}`;
       opponentName.textContent = `${match.opponent?.username || "no one"}`;
       opponentName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const opponentScore = document.createElement("span");
