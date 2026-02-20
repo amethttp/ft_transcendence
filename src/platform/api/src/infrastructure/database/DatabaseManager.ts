@@ -5,8 +5,13 @@ export class DatabaseManager {
   
   static getInstance(path: string): Database {
       if (!this.instance) {
-          this.instance = new Database(path);
-          this.instance.exec("PRAGMA foreign_keys = ON;");
+        this.instance = new Database(path);
+
+        this.instance.serialize(() => {
+          this.instance.run("PRAGMA foreign_keys = ON;");
+          this.instance.run("PRAGMA journal_mode = WAL;");
+          this.instance.run("PRAGMA synchronous = NORMAL;");
+        });
       }
       return this.instance;
   }
