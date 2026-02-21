@@ -68,7 +68,7 @@ export class TournamentPlayerService {
   public toTournamentInfo(tPlayer: TournamentPlayer): TournamentInfo {
     const tournamentInfo: TournamentInfo = {
       name: tPlayer.tournament.name,
-      placement: tPlayer.round,
+      placement: this._calculatePlacement(tPlayer),
       playerAmount: tPlayer.tournament.playersAmount,
       state: tPlayer.tournament.state,
       finishTime: tPlayer.tournament.finishTime || "Aborted"
@@ -84,6 +84,13 @@ export class TournamentPlayerService {
     }
 
     return (placement / tournaments.length);
+  }
+
+  private _calculatePlacement(tPlayer: TournamentPlayer): number {
+    if (tPlayer.isWinner && tPlayer.round === Math.log2(tPlayer.tournament.playersAmount))
+      return 1;
+    const maxRound = Math.log2(tPlayer.tournament.playersAmount);
+    return Math.pow(2, maxRound - tPlayer.round + 1);
   }
 
   public async updateMultiple(players: TournamentPlayer[], blueprint: Partial<TournamentPlayer>) {
