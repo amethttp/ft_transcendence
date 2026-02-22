@@ -1,6 +1,7 @@
 import { TournamentPlayerService } from '../application/services/TournamentPlayerService';
 import { TournamentPlayer } from '../domain/entities/TournamentPlayer';
 import { Tournament } from '../domain/entities/Tournament';
+import { MatchPlayerService } from '../application/services/MatchPlayerService';
 
 // Mock del repository
 const mockRepository = {
@@ -15,6 +16,9 @@ const mockRepository = {
   dbBegin: jest.fn(),
   dbCommit: jest.fn(),
   dbRollback: jest.fn(),
+  findByUserAndMatch: jest.fn(),
+  findAllUserMatchesInfo: jest.fn(),
+  findAllByMatch: jest.fn(),
 };
 
 describe('TournamentPlayerService', () => {
@@ -103,15 +107,89 @@ describe('TournamentPlayerService', () => {
 
   describe('calculateAvgPlacement', () => {
     it('should calculate average placement correctly', () => {
+      const finishTime = "2023-01-01T00:00:00Z";
       const tournaments = [
-        { placement: 1 } as any,
-        { placement: 2 } as any,
-        { placement: 4 } as any,
+        { placement: 1, finishTime: finishTime } as any,
+        { placement: 2, finishTime: finishTime } as any,
+        { placement: 4, finishTime: finishTime } as any,
       ];
       const expectedAvg = (1 + 2 + 4) / 3;
 
       const avg = service.calculateAvgPlacement(tournaments);
       expect(avg).toBe(expectedAvg);
+    });
+
+    it('should return 0 if there are no valid tournaments', () => {
+      const tournaments = [
+        { placement: 1, finishTime: "Aborted" } as any,
+        { placement: 2 } as any,
+      ];
+  
+      const avg = service.calculateAvgPlacement(tournaments);
+      expect(avg).toBe(0);
+    });
+
+    it('should ignore tournaments with no finish time or aborted', () => {
+      const tournaments = [
+        { placement: 1, finishTime: "2023-01-01T00:00:00Z" } as any,
+        { placement: 4, finishTime: "2023-01-01T00:00:00Z" } as any,
+        { placement: 2, finishTime: "Aborted" } as any,
+        { placement: 4 } as any,
+      ];
+      const expectedAvg = (1 + 4) / 2;
+      
+      const avg = service.calculateAvgPlacement(tournaments);
+      expect(avg).toBe(expectedAvg);
+    });
+  });
+});
+
+describe('MatchPlayerService', () => {
+  let service: MatchPlayerService
+
+  beforeEach(() => {
+    service = new MatchPlayerService(mockRepository);
+  });
+
+  describe('countWins', () => {
+    it('should count wins correctly', () => {
+      const finishTime = "2023-01-01T00:00:00Z";
+
+      const matches = [
+        { isWinner: true, finishTime: finishTime } as any,
+        { isWinner: false, finishTime: finishTime } as any,
+        { isWinner: true, finishTime: finishTime } as any,
+        { isWinner: true, finishTime: finishTime } as any,
+        { isWinner: false, finishTime: finishTime } as any,
+      ];
+      const expectedWins = 3;
+      
+      const wins = service.countWins(matches);
+      expect(wins).toBe(expectedWins);
+    });
+
+    it('should not count wins for matches with no finish time or aborted', () => {
+      const matches = [
+        { isWinner: true, finishTime: "2023-01-01T00:00:00Z" } as any,
+        { isWinner: true } as any,
+        { isWinner: true, finishTime: "Aborted" } as any,
+        { isWinner: true, finishTime: "2023-01-01T00:00:00Z" } as any,
+      ];
+      const expectedWins = 2;
+      
+      const wins = service.countWins(matches);
+      expect(wins).toBe(expectedWins);
+    });
+
+    it('should return 0 if there are no wins', () => {
+      const matches = [
+        { isWinner: false, finishTime: "2023-01-01T00:00:00Z" } as any,
+        { isWinner: true } as any,
+        { isWinner: true, finishTime: "Aborted" } as any,
+      ];
+      
+      const wins = service.countWins(matches);
+      expect(wins).toBe(0);
     });
   });
 });

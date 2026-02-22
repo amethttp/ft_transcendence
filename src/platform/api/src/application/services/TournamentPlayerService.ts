@@ -79,11 +79,16 @@ export class TournamentPlayerService {
 
   public calculateAvgPlacement(tournaments: TournamentInfo[]): number {
     let placement = 0;
+    let validTournaments = 0;
     for (const tournament of tournaments) {
-      placement += tournament.placement;
+      if (tournament.finishTime && tournament.finishTime !== "Aborted")
+      {
+        placement += tournament.placement;
+        validTournaments++;
+      }
     }
 
-    return (placement / tournaments.length);
+    return validTournaments > 0 ? placement / validTournaments : 0;
   }
 
   private _calculatePlacement(tPlayer: TournamentPlayer): number {
