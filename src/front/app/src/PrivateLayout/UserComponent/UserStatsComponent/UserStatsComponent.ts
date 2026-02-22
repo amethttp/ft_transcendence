@@ -1,4 +1,5 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import { timeAgo } from "../../../utils/DateUtils";
 import { RelationType } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
@@ -117,7 +118,9 @@ export default class UserStatsComponent extends AmethComponent {
       tournamentSize.textContent = "/ " + tournament.playerAmount.toString();
       tournamentSize.classList.add("font-semibold");
       const userScore = document.createElement("span");
-      userScore.textContent = tournament.placement.toString();
+      userScore.textContent = "-";
+      if (tournament.placement)
+        userScore.textContent = tournament.placement.toString();
       userScore.classList.add("text-brand-900", "font-bold");
 
       userLabel.append(userScore, tournamentSize);
@@ -130,7 +133,8 @@ export default class UserStatsComponent extends AmethComponent {
       footerLabel.classList.add("flex", "flex-col", "justify-between", "items-center");
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = tournament.finishTime;
+      const finishDate = tournament.finishTime !== 'Aborted' ? timeAgo({ from: tournament.finishTime }) : 'Aborted';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(timeStamp);
@@ -216,7 +220,8 @@ export default class UserStatsComponent extends AmethComponent {
       }
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = match.finishTime;
+      const finishDate = match.finishTime !== 'Aborted' ? timeAgo({ from: match.finishTime }) : 'Aborted';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(resultSpan, timeStamp);
@@ -243,18 +248,18 @@ export default class UserStatsComponent extends AmethComponent {
     if (!this.targetUser)
       return this.showEmpty();
     const stats = await this.userProfileService.getUserStats(this.targetUser?.username) as UserStats;
-    const winRate = Math.round((stats.victories / stats.totalMatches) * 100) || 0;
-    const losses = stats.totalMatches - stats.victories || 0;
+    const winRate = Math.round((stats.victories / stats.validTotalMatches) * 100) || 0;
+    const losses = stats.validTotalMatches - stats.victories || 0;
     const testTournamentAvg = stats.tournamentAvg || 0;
-    const testTournamentAmount = stats.totalTournaments || 0;
+    const testTournamentAmount = stats.validTotalTournaments || 0;
 
     const matchCenterText = document.getElementById('matchChart-center-text');
     const matchSpan = document.getElementById('matchTotal') as HTMLElement;
-    matchSpan.innerText = stats.totalMatches.toString();
+    matchSpan.innerText = stats.validTotalMatches.toString();
     if (matchCenterText && matchSpan) {
       matchCenterText.classList.remove('hidden');
       matchCenterText.classList.add('opacity-100');
-      this.animateCounter(matchSpan, stats.totalMatches, 2500);
+      this.animateCounter(matchSpan, stats.validTotalMatches, 2500);
     }
 
     const tournamentCenterText = document.getElementById('tournamentStats-center-text');

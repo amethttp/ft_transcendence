@@ -103,6 +103,18 @@ describe('TournamentPlayerService', () => {
         });
       });
     });
+
+    it('should return 0 if the user did not played the tournament', () => {
+      const tournament = new Tournament();
+      tournament.playersAmount = 8;
+
+      const player = new TournamentPlayer(tournament);
+      player.isWinner = false;
+      player.round = 0;
+
+      const placement = (service as any)._calculatePlacement(player);
+      expect(placement).toBe(0);
+    });
   });
 
   describe('calculateAvgPlacement', () => {

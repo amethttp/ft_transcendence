@@ -94,6 +94,8 @@ export class TournamentPlayerService {
   private _calculatePlacement(tPlayer: TournamentPlayer): number {
     if (tPlayer.isWinner && tPlayer.round === Math.log2(tPlayer.tournament.playersAmount))
       return 1;
+    if (tPlayer.round === 0)
+      return 0;
     const maxRound = Math.log2(tPlayer.tournament.playersAmount);
     return Math.pow(2, maxRound - tPlayer.round + 1);
   }
