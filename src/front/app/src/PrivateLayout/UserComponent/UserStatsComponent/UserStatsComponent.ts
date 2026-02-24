@@ -137,7 +137,8 @@ export default class UserStatsComponent extends AmethComponent {
             : `${rangeStart}-${rangeEnd}`;
       }
 
-      userLabel.append(placementTopLabel, placementRangeLabel);
+      if (tournament?.finishTime !== "Aborted")
+        userLabel.append(placementTopLabel, placementRangeLabel);
 
       playersSpan.append(userLabel);
 
@@ -145,7 +146,7 @@ export default class UserStatsComponent extends AmethComponent {
       footerLabel.classList.add("flex", "flex-col", "justify-between", "items-center");
 
       const timeStamp = document.createElement("span");
-      const finishDate = tournament.finishTime !== 'Aborted' ? timeAgo({ from: tournament.finishTime }) : 'Aborted';
+      const finishDate = tournament.finishTime !== 'Aborted' ? timeAgo({ from: tournament.finishTime }) : 'Not finished';
       timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
@@ -232,7 +233,7 @@ export default class UserStatsComponent extends AmethComponent {
       }
 
       const timeStamp = document.createElement("span");
-      const finishDate = match.finishTime !== 'Aborted' ? timeAgo({ from: match.finishTime }) : 'Aborted';
+      const finishDate = match.finishTime !== 'Aborted' ? timeAgo({ from: match.finishTime }) : 'Not finished';
       timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
