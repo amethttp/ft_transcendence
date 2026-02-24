@@ -41,6 +41,7 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
   private _token?: string;
   private _ownerPlayerComponent?: PlayerComponent;
   private _opponentPlayerComponent?: PlayerComponent;
+  private _matchEndedMenu?: MatchEndedMenu;
 
   constructor() {
     super();
@@ -79,9 +80,9 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
         const username = (await LoggedUser.get())?.username;
         const playerIndex = this._match.players.findIndex(player => player.user.username === username);
         const winnerScoreIndex = score.findIndex(s => s === Math.max(...score));
-        const matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
-        matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
-          matchEndedMenu.destroy();
+        this._matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
+        this._matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
+          this._matchEndedMenu?.afterInit();
         });
       }
     }, 1000);
@@ -229,6 +230,7 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     await this._matchEngineComponent?.destroy();
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
+    await this._matchEndedMenu?.destroy();
     await super.destroy();
   }
 }
