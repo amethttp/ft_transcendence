@@ -68,7 +68,7 @@ export class TournamentPlayerService {
   public toTournamentInfo(tPlayer: TournamentPlayer): TournamentInfo {
     const tournamentInfo: TournamentInfo = {
       name: tPlayer.tournament.name,
-      placement: tPlayer.round,
+      placement: this._calculatePlacement(tPlayer),
       playerAmount: tPlayer.tournament.playersAmount,
       state: tPlayer.tournament.state,
       finishTime: tPlayer.tournament.finishTime || "Aborted"
@@ -79,11 +79,25 @@ export class TournamentPlayerService {
 
   public calculateAvgPlacement(tournaments: TournamentInfo[]): number {
     let placement = 0;
+    let validTournaments = 0;
     for (const tournament of tournaments) {
-      placement += tournament.placement;
+      if (tournament.finishTime && tournament.finishTime !== "Aborted")
+      {
+        placement += tournament.placement;
+        validTournaments++;
+      }
     }
 
-    return (placement / tournaments.length);
+    return validTournaments > 0 ? placement / validTournaments : 0;
+  }
+
+  private _calculatePlacement(tPlayer: TournamentPlayer): number {
+    if (tPlayer.isWinner && tPlayer.round === Math.log2(tPlayer.tournament.playersAmount))
+      return 1;
+    if (tPlayer.round === 0)
+      return 0;
+    const maxRound = Math.log2(tPlayer.tournament.playersAmount);
+    return Math.pow(2, maxRound - tPlayer.round + 1);
   }
 
   public async updateMultiple(players: TournamentPlayer[], blueprint: Partial<TournamentPlayer>) {

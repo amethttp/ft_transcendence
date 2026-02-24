@@ -1,4 +1,5 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import { timeAgo } from "../../../utils/DateUtils";
 import { RelationType } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
@@ -113,24 +114,40 @@ export default class UserStatsComponent extends AmethComponent {
       const userLabel = document.createElement("span");
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-center", "gap-3");
 
-      const tournamentSize = document.createElement("span");
-      tournamentSize.textContent = "/ " + tournament.playerAmount.toString();
-      tournamentSize.classList.add("font-semibold");
-      const userScore = document.createElement("span");
-      userScore.textContent = tournament.placement.toString();
-      userScore.classList.add("text-brand-900", "font-bold");
+      const placementTopLabel = document.createElement("span");
+      placementTopLabel.textContent = "top";
+      placementTopLabel.classList.add("text-black", "font-bold");
 
-      userLabel.append(userScore, tournamentSize);
+      const placementRangeLabel = document.createElement("span");
+      placementRangeLabel.textContent = "-";
+      placementRangeLabel.classList.add("text-brand-900", "font-bold");
 
-      playersSpan.append(
-        userLabel,
-      );
+      if (tournament.placement) {
+        let rangeStart = 1;
+        let rangeEnd = 1;
+
+        while (tournament.placement > rangeEnd) {
+          rangeStart = rangeEnd + 1;
+          rangeEnd = Math.min(rangeEnd * 2, tournament.playerAmount);
+        }
+
+        placementRangeLabel.textContent =
+          rangeStart === rangeEnd
+            ? `${rangeStart}`
+            : `${rangeStart}-${rangeEnd}`;
+      }
+
+      if (tournament?.finishTime !== "Aborted")
+        userLabel.append(placementTopLabel, placementRangeLabel);
+
+      playersSpan.append(userLabel);
 
       const footerLabel = document.createElement("span");
       footerLabel.classList.add("flex", "flex-col", "justify-between", "items-center");
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = tournament.finishTime;
+      const finishDate = tournament.finishTime !== 'Aborted' ? timeAgo({ from: tournament.finishTime }) : 'Not finished';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(timeStamp);
@@ -167,7 +184,7 @@ export default class UserStatsComponent extends AmethComponent {
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
-      userName.href = `/${this.targetUser?.username}`;
+      userName.href = `/profile/${this.targetUser?.username}`;
       userName.textContent = `${this.targetUser?.username}`;
       userName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const userScore = document.createElement("span");
@@ -183,7 +200,7 @@ export default class UserStatsComponent extends AmethComponent {
 
       const opponentName = document.createElement("a");
       if (match.opponent?.username)
-        opponentName.href = `/${match.opponent?.username}`;
+        opponentName.href = `/profile/${match.opponent?.username}`;
       opponentName.textContent = `${match.opponent?.username || "no one"}`;
       opponentName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const opponentScore = document.createElement("span");
@@ -216,7 +233,8 @@ export default class UserStatsComponent extends AmethComponent {
       }
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = match.finishTime;
+      const finishDate = match.finishTime !== 'Aborted' ? timeAgo({ from: match.finishTime }) : 'Not finished';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(resultSpan, timeStamp);
@@ -243,24 +261,30 @@ export default class UserStatsComponent extends AmethComponent {
     if (!this.targetUser)
       return this.showEmpty();
     const stats = await this.userProfileService.getUserStats(this.targetUser?.username) as UserStats;
-    const winRate = Math.round((stats.victories / stats.totalMatches) * 100) || 0;
-    const losses = stats.totalMatches - stats.victories || 0;
+    const winRate = Math.round((stats.victories / stats.validTotalMatches) * 100) || 0;
+    const losses = stats.validTotalMatches - stats.victories || 0;
     const testTournamentAvg = stats.tournamentAvg || 0;
-    const testTournamentAmount = stats.totalTournaments || 0;
+    const testTournamentAmount = stats.validTotalTournaments || 0;
 
     const matchCenterText = document.getElementById('matchChart-center-text');
     const matchSpan = document.getElementById('matchTotal') as HTMLElement;
-    matchSpan.innerText = stats.totalMatches.toString();
+    const matchLabel = document.getElementById('matchLabel');
+    matchSpan.innerText = stats.validTotalMatches.toString();
+    if (matchLabel)
+      matchLabel.textContent = stats.validTotalMatches === 1 ? 'Match' : 'Matches';
     if (matchCenterText && matchSpan) {
       matchCenterText.classList.remove('hidden');
       matchCenterText.classList.add('opacity-100');
-      this.animateCounter(matchSpan, stats.totalMatches, 2500);
+      this.animateCounter(matchSpan, stats.validTotalMatches, 2500);
     }
 
     const tournamentCenterText = document.getElementById('tournamentStats-center-text');
     const tournamentSpan = document.getElementById('tournamentAvg') as HTMLElement;
     tournamentSpan.innerText = testTournamentAvg.toString();
     const tournamentSpanTotal = document.getElementById('tournamentTotal') as HTMLElement;
+    const tournamentLabel = document.getElementById('tournamentLabel');
+    if (tournamentLabel)
+      tournamentLabel.textContent = testTournamentAmount === 1 ? 'Tournament' : 'Tournaments';
     if (tournamentCenterText && tournamentSpan && tournamentSpanTotal) {
       tournamentCenterText.classList.remove('hidden');
       tournamentCenterText.classList.add('opacity-100');

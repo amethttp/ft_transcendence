@@ -31,9 +31,7 @@ export default class FriendsBlockedComponent extends AmethComponent {
     if (friends.length > 0)
       this._container.innerHTML = "";
     for (const friend of friends) {
-      let template = `
-      <a class="w-full" href="/${friend.username}"></a>
-    `;
+      let template = `<a class="w-full" href="/profile/${friend.username}"></a>`;
       const elem = DOMHelper.createElementFromHTML(template);
       this._container.appendChild(elem);
       const profile = new UserProfileActionsComponent(friend);
