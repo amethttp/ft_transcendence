@@ -161,8 +161,10 @@ export default class UserController {
         stats = {
           last10Matches: [],
           last10Tournaments: [],
+          validTotalMatches: 0,
           totalMatches: 0,
           victories: 0,
+          validTotalTournaments: 0,
           totalTournaments: 0,
           tournamentAvg: 0,
         }
@@ -174,8 +176,10 @@ export default class UserController {
         stats = {
           last10Matches: matches.slice(-10).reverse(),
           last10Tournaments: tournaments.slice(-10).reverse(),
+          validTotalMatches: matches.filter(match => match.finishTime && match.finishTime !== "Aborted").length,
           totalMatches: matches.length,
           victories: victories,
+          validTotalTournaments: tournaments.filter(tournament => tournament.finishTime && tournament.finishTime !== "Aborted").length,
           totalTournaments: tournaments.length,
           tournamentAvg: tournamentAvg,
         }

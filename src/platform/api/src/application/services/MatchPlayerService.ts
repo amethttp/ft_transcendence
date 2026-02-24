@@ -138,7 +138,7 @@ export class MatchPlayerService {
   public countWins(matches: MatchInfo[]): number {
     let wins = 0;
     for (const match of matches) {
-      if (match.isWinner) // TODO: check only non-tournament games?
+      if (match.isWinner && match.finishTime && match.finishTime !== "Aborted")
         wins++;
     }
 
