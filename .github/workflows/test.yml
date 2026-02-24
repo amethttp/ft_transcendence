@@ -2,7 +2,7 @@ name: Test & Build
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   frontend:
@@ -50,7 +50,10 @@ jobs:
       
     #   - name: Format check
     #     run: cd src/platform/api && npm run lint:format
-      
+
+      - name: Run tests
+        run: cd src/platform/api && npm test
+
       - name: TypeScript compilation check
         run: cd src/platform/api && npm run build
 
