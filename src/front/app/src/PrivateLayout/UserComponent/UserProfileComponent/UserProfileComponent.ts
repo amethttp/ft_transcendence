@@ -45,7 +45,7 @@ export default class UserProfileComponent extends AmethComponent {
     (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).title = this._userProfile!.username;
     const anchor = this.outlet?.getElementsByClassName("UserProfileComponentAnchor")[0] as HTMLAnchorElement;
     if (anchor) {
-      anchor.href = `/${this._userProfile?.username}`;
+      anchor.href = `/profile/${this._userProfile?.username}`;
     }
   }
 

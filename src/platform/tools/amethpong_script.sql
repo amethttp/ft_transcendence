@@ -1,5 +1,3 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE
   IF NOT EXISTS e_match_state (
     value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

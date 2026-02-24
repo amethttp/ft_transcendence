@@ -50,7 +50,7 @@ export default class PlayerComponent extends AmethComponent {
       }
       (this.outlet?.getElementsByClassName("PlayerComponentName")[0] as HTMLElement).innerText = name;
       if (!this.player?.local && !isLogged)
-        (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/${this._player.name}`;
+        (this.outlet?.getElementsByClassName("PlayerComponentAnchor")[0] as HTMLAnchorElement).href = `/profile/${this._player.name}`;
       if (this.player?.controls)
         this.outlet?.getElementsByClassName("PlayerComponentOtherControls")[0].classList.remove("hidden");
     }
