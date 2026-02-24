@@ -54,8 +54,8 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
     this._fillPlayers();
   }
 
-  async refresh() {
-    await this._setTournament();
+  async refresh(refresh: boolean = false) {
+    await this._setTournament(refresh);
     this._bracketsComponent?.refresh(this._tournament);
     this._fillView();
     this._setTitle();
@@ -120,14 +120,14 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
         document.getElementById("leaveBtn")?.classList.remove("hidden");
         document.getElementById("leaveBtn")!.onclick = () => {
           this._tournamentService.leave(tournament.token)
-            .then(() => this.refresh())
+            .then(() => this.refresh(true))
             .catch(() => Alert.error("Could not leave tournament"));
         }
         if (tournament.players[0].user.username === loggedUsername) {
           document.getElementById("startTournamentBtn")?.classList.remove("hidden");
           document.getElementById("startTournamentBtn")!.onclick = () => {
             this._tournamentService.start(tournament.token)
-              .then(() => this.refresh())
+              .then(() => this.refresh(true))
               .catch(() => Alert.error("Could not start tournament"));
           }
           if (tournament.players.length !== tournament.playersAmount) {
@@ -145,7 +145,7 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
         document.getElementById("joinBtn")?.classList.remove("hidden");
         document.getElementById("joinBtn")!.onclick = () => {
           this._tournamentService.join(tournament.token)
-            .then(() => this.refresh())
+            .then(() => this.refresh(true))
             .catch(() => Alert.error("Could not join tournament"));
         }
       }
