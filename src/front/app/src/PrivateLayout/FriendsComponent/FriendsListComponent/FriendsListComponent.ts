@@ -71,9 +71,7 @@ export default class FriendsListComponent<Component extends UserProfileComponent
   }
 
   async createProfile(friend: UserProfile): Promise<Component> {
-    let template = `
-            <a class="w-full" href="/${friend.username}"></a>
-          `;
+    let template = `<a class="w-full" href="/profile/${friend.username}"></a>`;
     const elem = DOMHelper.createElementFromHTML(template);
     this._container?.appendChild(elem);
     const profile = new UserProfileActionsComponent(friend) as unknown as Component;
