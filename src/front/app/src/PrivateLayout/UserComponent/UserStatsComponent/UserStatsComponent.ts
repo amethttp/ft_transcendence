@@ -114,20 +114,32 @@ export default class UserStatsComponent extends AmethComponent {
       const userLabel = document.createElement("span");
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-center", "gap-3");
 
-      const tournamentSize = document.createElement("span");
-      tournamentSize.textContent = "/ " + tournament.playerAmount.toString();
-      tournamentSize.classList.add("font-semibold");
-      const userScore = document.createElement("span");
-      userScore.textContent = "-";
-      if (tournament.placement)
-        userScore.textContent = tournament.placement.toString();
-      userScore.classList.add("text-brand-900", "font-bold");
+      const placementTopLabel = document.createElement("span");
+      placementTopLabel.textContent = "top";
+      placementTopLabel.classList.add("text-black", "font-bold");
 
-      userLabel.append(userScore, tournamentSize);
+      const placementRangeLabel = document.createElement("span");
+      placementRangeLabel.textContent = "-";
+      placementRangeLabel.classList.add("text-brand-900", "font-bold");
 
-      playersSpan.append(
-        userLabel,
-      );
+      if (tournament.placement) {
+        let rangeStart = 1;
+        let rangeEnd = 1;
+
+        while (tournament.placement > rangeEnd) {
+          rangeStart = rangeEnd + 1;
+          rangeEnd = Math.min(rangeEnd * 2, tournament.playerAmount);
+        }
+
+        placementRangeLabel.textContent =
+          rangeStart === rangeEnd
+            ? `${rangeStart}`
+            : `${rangeStart}-${rangeEnd}`;
+      }
+
+      userLabel.append(placementTopLabel, placementRangeLabel);
+
+      playersSpan.append(userLabel);
 
       const footerLabel = document.createElement("span");
       footerLabel.classList.add("flex", "flex-col", "justify-between", "items-center");
