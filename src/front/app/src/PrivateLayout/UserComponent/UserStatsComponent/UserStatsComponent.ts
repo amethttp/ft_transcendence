@@ -267,7 +267,10 @@ export default class UserStatsComponent extends AmethComponent {
 
     const matchCenterText = document.getElementById('matchChart-center-text');
     const matchSpan = document.getElementById('matchTotal') as HTMLElement;
+    const matchLabel = document.getElementById('matchLabel');
     matchSpan.innerText = stats.validTotalMatches.toString();
+    if (matchLabel)
+      matchLabel.textContent = stats.validTotalMatches === 1 ? 'Match' : 'Matches';
     if (matchCenterText && matchSpan) {
       matchCenterText.classList.remove('hidden');
       matchCenterText.classList.add('opacity-100');
@@ -278,6 +281,9 @@ export default class UserStatsComponent extends AmethComponent {
     const tournamentSpan = document.getElementById('tournamentAvg') as HTMLElement;
     tournamentSpan.innerText = testTournamentAvg.toString();
     const tournamentSpanTotal = document.getElementById('tournamentTotal') as HTMLElement;
+    const tournamentLabel = document.getElementById('tournamentLabel');
+    if (tournamentLabel)
+      tournamentLabel.textContent = testTournamentAmount === 1 ? 'Tournament' : 'Tournaments';
     if (tournamentCenterText && tournamentSpan && tournamentSpanTotal) {
       tournamentCenterText.classList.remove('hidden');
       tournamentCenterText.classList.add('opacity-100');
