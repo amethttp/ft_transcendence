@@ -191,14 +191,14 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
       document.getElementById("MatchComponentTournamentName")!.innerText = match.tournamentRound.tournament.name;
       document.getElementById("MatchComponentTournamentRound")!.innerText = roundName;
       (document.getElementById("MatchComponentTournamentElem")! as HTMLAnchorElement).href = `/play/tournament/${match.tournamentRound.tournament.token}`;
-      document.title = TitleHelper.addTitlePart(name);
+      TitleHelper.setTitlePart(name);
     }
     else {
       document.getElementById("MatchComponentNameElem")?.classList.add("flex");
       document.getElementById("MatchComponentNameElem")?.classList.remove("hidden");
       document.getElementById("MatchComponentMatchName")!.innerText = match.name;
       document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
-      document.title = TitleHelper.addTitlePart(match.name);
+      TitleHelper.setTitlePart(match.name);
     }
   }
 

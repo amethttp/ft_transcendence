@@ -15,7 +15,7 @@ type TournamentResolvedData = {
   tournament: Tournament,
 };
 
-export default class TournamentComponent extends AmethComponent <TournamentResolvedData> {
+export default class TournamentComponent extends AmethComponent<TournamentResolvedData> {
   template = () => import("./TournamentComponent.html?raw");
   private _tournamentService: TournamentService;
   private _tournament?: Tournament;
@@ -58,7 +58,7 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
     await this._setTournament(refresh);
     this._bracketsComponent?.refresh(this._tournament);
     this._fillView();
-    this._setTitle();
+    this._refreshTitle();
   }
 
   private _clearView() {
@@ -102,7 +102,7 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
       showBtn.classList.remove("hidden");
       hideBtn.classList.add("hidden");
       playersContainer.classList.add("hidden");
-      showBtn.scrollIntoView({block: "center"});
+      showBtn.scrollIntoView({ block: "center" });
     };
   }
 
@@ -134,8 +134,7 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
             document.getElementById("startTournamentBtn")?.setAttribute("title", "Wait for opponents to start tournament");
             document.getElementById("startTournamentBtn")?.setAttribute("disabled", "true");
           }
-          else
-          {
+          else {
             document.getElementById("startTournamentBtn")?.removeAttribute("title");
             document.getElementById("startTournamentBtn")?.removeAttribute("disabled");
           }
@@ -207,9 +206,13 @@ export default class TournamentComponent extends AmethComponent <TournamentResol
   }
 
   private _setTitle() {
-    if (this._tournament) {
-      document.title = TitleHelper.addTitlePart(this._tournament.name);
-    }
+    if (this._tournament)
+      TitleHelper.setTitlePart(this._tournament.name);
+  }
+
+  private _refreshTitle() {
+    if (this._tournament)
+      TitleHelper.setTitlePart(this._tournament.name, true);
   }
 
   async destroy() {

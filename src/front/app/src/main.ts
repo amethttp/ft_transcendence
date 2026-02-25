@@ -10,7 +10,7 @@ Context.router = router;
 const progressBar = new ProgressBar();
 let isInitialLoad = true;
 
-router.on("navigate", (e) => { 
+router.on("navigate", (e) => {
   TitleHelper.setTitleFromRouteTree(e.routeTree);
   isInitialLoad = false;
 });

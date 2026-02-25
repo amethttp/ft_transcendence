@@ -46,7 +46,7 @@ export default class SearchComponent extends AmethComponent {
 
   async afterInit() {
     if (this._query)
-      document.title = TitleHelper.addTitlePart(this._query, document.title);
+      TitleHelper.setTitlePart(this._query);
     this._container = document.getElementById("SearchComponentContainer")!;
     await this._usersList.init("SearchUserList", this.router);
     await this._usersList.afterInit();
@@ -57,7 +57,7 @@ export default class SearchComponent extends AmethComponent {
     super.refresh();
     this._setQuery();
     if (this._query)
-      document.title = TitleHelper.addTitlePart(this._query, document.title);
+      TitleHelper.setTitlePart(this._query, true);
     await this._getResults();
     this._fillResultsView();
   }
