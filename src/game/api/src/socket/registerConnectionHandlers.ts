@@ -11,7 +11,6 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
       try {
         let gameRoom = roomService.getRoom(token);
         if (gameRoom) {
-          socket.broadcast.to(gameRoom.token).emit("connectionAmount", 2);
           gameRoom.joinPlayer(socket);
           gameRoom.resetPlayersState();
           socket.broadcast.to(gameRoom.token).emit("reset");

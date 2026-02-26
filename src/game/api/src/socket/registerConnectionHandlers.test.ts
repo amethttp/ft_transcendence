@@ -100,7 +100,6 @@ test("joinMatch existing-room path does not disconnect and triggers join/reset b
   assert.deepEqual(
     broadcastEvents.map(({ room, event }) => ({ room, event })),
     [
-      { room: "match-token", event: "connectionAmount" },
       { room: "match-token", event: "reset" },
     ]
   );
