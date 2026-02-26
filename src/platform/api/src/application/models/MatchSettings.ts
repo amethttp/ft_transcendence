@@ -7,4 +7,5 @@ export interface MatchSettings {
   state: UserMatchState;
   creationTime: string;
   score: number[];
+  playerIds?: number[];
 }

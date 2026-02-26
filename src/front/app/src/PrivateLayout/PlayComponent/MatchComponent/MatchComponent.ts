@@ -51,7 +51,8 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
   opponentConnected = (userId: number) => {
     if (!this._match || (this._match.tournamentRound && this._match.tournamentRound.tournament))
       return;
-    this._matchService.getPlayer(userId, this._match?.id || -1).then(val => {
+    this._matchService.getPlayer(userId, this._match?.id || -1)
+    .then(val => {
       this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
       this._showOpponentPlayer();
     })

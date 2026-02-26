@@ -160,6 +160,7 @@ describe('MatchPlayerService', () => {
   let service: MatchPlayerService
 
   beforeEach(() => {
+    jest.clearAllMocks();
     service = new MatchPlayerService(mockRepository);
   });
 
@@ -202,6 +203,31 @@ describe('MatchPlayerService', () => {
       
       const wins = service.countWins(matches);
       expect(wins).toBe(0);
+    });
+  });
+
+  describe('updateResult', () => {
+    it('should normalize tied scores so one player always wins', async () => {
+      const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.1);
+      mockRepository.update.mockResolvedValue(1);
+
+      const match: any = {
+        players: [
+          { id: 10, score: 0, isWinner: false },
+          { id: 11, score: 0, isWinner: false },
+        ],
+      };
+      const result: any = { score: [5, 5] };
+
+      await service.updateResult(match, result);
+
+      expect(result.score[0]).toBe(6);
+      expect(result.score[1]).toBe(5);
+      expect(match.players[0].isWinner).toBe(true);
+      expect(match.players[1].isWinner).toBe(false);
+      expect(mockRepository.update).toHaveBeenCalledTimes(2);
+
+      randomSpy.mockRestore();
     });
   });
 });

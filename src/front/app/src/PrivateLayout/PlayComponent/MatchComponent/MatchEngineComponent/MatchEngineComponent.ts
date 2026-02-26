@@ -69,8 +69,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this.updateGame(data);
     });
     this._socketClient.setEvent('paddleChange', (paddles) => {
-      this._paddles[0].y = paddles[0].position;
-      this._paddles[1].y = paddles[1].position;
+      this.setPaddlesFromChanges(paddles);
     });
     this._socketClient.setEvent("ballChange", (data) => {
       this._ball.setFromBallChange(data);
@@ -274,9 +273,18 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     console.log('received ready from server');
   }
 
+  private setPaddlesFromChanges(paddles: Snapshot["paddles"]) {
+    for (const paddle of paddles) {
+      if (paddle.side === 0) {
+        this._paddles[0].y = paddle.position;
+      } else if (paddle.side === 1) {
+        this._paddles[1].y = paddle.position;
+      }
+    }
+  }
+
   private updateGame(data: Snapshot) {
-    this._paddles[0].y = data.paddles[0].position;
-    this._paddles[1].y = data.paddles[1].position;
+    this.setPaddlesFromChanges(data.paddles);
     this._ball.setFromBallChange(data.ball);
     this._score = data.score;
   }
@@ -295,9 +303,9 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   setPlayer(type: PlayerTypeValue) {
     console.log("new player", type);
     if (type === PlayerType.CPU)
-      this._socketClient.emitEvent('ai');
+      this._socketClient.emitEvent('ai', this._token);
     else if (type === PlayerType.LOCAL)
-      this._socketClient.emitEvent('local');
+      this._socketClient.emitEvent('local', this._token);
   }
 
   private observeResize() {

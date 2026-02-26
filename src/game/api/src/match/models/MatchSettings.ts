@@ -7,4 +7,5 @@ export interface MatchSettings {
   state: TMatchState;
   creationTime: string;
   score: number[];
+  playerIds?: number[];
 }
