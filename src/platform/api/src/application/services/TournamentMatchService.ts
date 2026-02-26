@@ -48,17 +48,15 @@ export class TournamentMatchService {
       const id = await this._tournamentPlayerRepository.update(winnerPlayer.id, { round: winnerPlayer.round });
       if (id === null)
         throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
-      for (const player of matchResult.players) {
-        if (player.username !== winnerPlayer.user.username) {
-          const loserPlayer = tournament.players.find(pl => player.username === pl.user.username);
-          if (loserPlayer) {
-            loserPlayer.isAlive = false;
-            const id = await this._tournamentPlayerRepository.update(loserPlayer.id, { isAlive: loserPlayer.isAlive });
-            if (id === null)
-              throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
-          }
-        }
-      };
+      const winnerIndex = matchResult.score.indexOf(Math.max(...matchResult.score));
+      const loserMatchPlayer = match.players[1 - winnerIndex];
+      const loserPlayer = tournament.players.find(pl => pl.user.id === loserMatchPlayer.user.id);
+      if (loserPlayer) {
+        loserPlayer.isAlive = false;
+        const loserUpdateId = await this._tournamentPlayerRepository.update(loserPlayer.id, { isAlive: loserPlayer.isAlive });
+        if (loserUpdateId === null)
+          throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
+      }
     }
     else {
       console.error("Winner player not found in tournament players");

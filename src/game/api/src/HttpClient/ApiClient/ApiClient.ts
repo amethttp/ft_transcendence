@@ -47,32 +47,60 @@ export class ApiClient extends HttpClient {
     return refreshPromise;
   }
 
-  protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
-    if (options && options.headers && Object.getOwnPropertyNames(options.headers).includes("cookie")) {
-      const token = CookieHelper.get("AccessToken", (options.headers as any)["cookie"]);
-      options.headers = {
-        ...options.headers,
-        ...(token ? { Authorization: "Bearer " + token } : {}),
-      };
-    }
+  private buildAuthHeaders(headers?: HeadersInit, credentials?: string): HeadersInit {
+    const nextHeaders = {
+      ...(headers as Record<string, string> || {}),
+    };
 
-    try {
-      return await super.request<AuthWrapper>(url, options);
-    } catch (_error: any) {
-      const error: ResponseError = _error;
-      if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
-        if (url.includes(ApiClient.REFRESH_ROUTE)) {
-          throw error;
-        }
-        try {
-          const res = await this.refreshToken(options.headers);
-          const request = await this.request<AuthWrapper>(url, options);
-          return (new AuthWrapper(res, request)) as AuthWrapper;
-        } catch (error) {
-        console.log(error);
+    const cookie = credentials || nextHeaders.cookie;
+    if (cookie) {
+      nextHeaders.cookie = cookie;
+      const token = CookieHelper.get("AccessToken", cookie);
+      if (token) {
+        nextHeaders.Authorization = `Bearer ${token}`;
+      } else {
+        delete nextHeaders.Authorization;
       }
     }
-    throw error;
+
+    return nextHeaders;
   }
-}
+
+  private async requestWithRefreshGuard<ResponseType>(
+    url: string,
+    options: RequestInit = {},
+    hasRetried = false
+  ): Promise<ResponseType> {
+    const requestOptions: RequestInit = {
+      ...options,
+      headers: this.buildAuthHeaders(options.headers),
+    };
+
+    try {
+      return await super.request<ResponseType>(url, requestOptions);
+    } catch (_error: any) {
+      const error: ResponseError = _error;
+      const shouldRefresh = (
+        error.error === ErrorMsg.AUTH_EXPIRED_ACCESS
+        && !url.includes(ApiClient.REFRESH_ROUTE)
+        && !hasRetried
+      );
+
+      if (!shouldRefresh) {
+        throw error;
+      }
+
+      const refreshedCredentials = await this.refreshToken(requestOptions.headers);
+      const retryOptions: RequestInit = {
+        ...requestOptions,
+        headers: this.buildAuthHeaders(requestOptions.headers, refreshedCredentials),
+      };
+      const response = await this.requestWithRefreshGuard<ResponseType>(url, retryOptions, true);
+      return (new AuthWrapper(refreshedCredentials, response)) as ResponseType;
+    }
+  }
+
+  protected async request<ResponseType>(url: string, options: RequestInit = {}): Promise<ResponseType> {
+    return this.requestWithRefreshGuard<ResponseType>(url, options);
+  }
 }

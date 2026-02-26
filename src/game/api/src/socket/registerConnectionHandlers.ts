@@ -11,12 +11,26 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
       try {
         let gameRoom = roomService.getRoom(token);
         if (gameRoom) {
+          const isExpectedUser = gameRoom.hasExpectedUser ? gameRoom.hasExpectedUser(socket.userId) : true;
+          if (!isExpectedUser) {
+            const synced = await roomService.syncRoomExpectedUsers(socket.cookie, gameRoom);
+            const isExpectedAfterSync = gameRoom.hasExpectedUser ? gameRoom.hasExpectedUser(socket.userId) : true;
+            if (!synced || !isExpectedAfterSync) {
+              console.warn(`joinMatch rejected: user ${socket.username}(${socket.userId}) is not part of match ${token}`);
+              throw "User is not part of this match";
+            }
+          }
           gameRoom.joinPlayer(socket);
+          roomService.cancelDisconnectTimeout(gameRoom.token);
           gameRoom.resetPlayersState();
           socket.broadcast.to(gameRoom.token).emit("reset");
           console.log("Players connected successfully:", gameRoom.players);
         } else {
           gameRoom = await roomService.newRoom(socket.cookie, token);
+          if (!gameRoom.hasExpectedUser(socket.userId)) {
+            console.warn(`joinMatch rejected: user ${socket.username}(${socket.userId}) is not part of match ${token}`);
+            throw "User is not part of this match";
+          }
           gameRoom.addHumanPlayer(socket);
           console.log(`Player ${socket.username} is waiting for a match.`);
         }
@@ -27,6 +41,11 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
         }
       } catch (error) {
         console.log(error);
+        if (error === "User is not part of this match") {
+          io.to(socket.id).emit("message", "You are not part of this match.");
+        } else if (error instanceof Error) {
+          io.to(socket.id).emit("message", "Could not join match.");
+        }
         socket.disconnect();
       }
     });

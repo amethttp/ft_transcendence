@@ -103,6 +103,15 @@ export class Room extends EventEmitter<RoomEvents> {
     delete this._players[id];
   }
 
+  public getPlayerSide(id: string): 0 | 1 | undefined {
+    const paddle = this._matchService.snapshot.paddles.find(paddle => paddle.playerId === id);
+    if (paddle?.side === 0 || paddle?.side === 1) {
+      return paddle.side;
+    }
+
+    return undefined;
+  }
+
   public getOpponent(socketId: string): { id: string, player: Player } | null {
     const roomPlayers = Object.keys(this._players);
     for (const player of roomPlayers) {
@@ -112,6 +121,21 @@ export class Room extends EventEmitter<RoomEvents> {
     }
 
     return null;
+  }
+
+  public hasExpectedUser(userId?: number): boolean {
+    if (typeof userId !== "number") {
+      return false;
+    }
+    if (!Array.isArray(this._playerIds) || this._playerIds.length === 0) {
+      return false;
+    }
+
+    return this._playerIds.includes(userId);
+  }
+
+  public setExpectedUsers(userIds: number[]) {
+    this._playerIds = Array.isArray(userIds) ? [...userIds] : [];
   }
 
   private getExpectedSide(socket: AuthenticatedSocket): 0 | 1 | undefined {

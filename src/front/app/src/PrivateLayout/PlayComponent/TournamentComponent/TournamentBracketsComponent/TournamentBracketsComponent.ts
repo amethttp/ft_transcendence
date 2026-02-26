@@ -86,7 +86,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
     if (match.state === MatchState.FINISHED) {
       const winner = match.players.find(pl => pl.isWinner);
       const user = users.find((user) => user?.id == winner?.userId);
-      status = `<span class="text-center text-xs">${user?.username} won</span>`;
+      status = `<span class="text-center text-xs">${user?.username || "Winner"} won</span>`;
     }
     else if (users.find(user => user?.username === this._loggedUsername)) {
       status = `

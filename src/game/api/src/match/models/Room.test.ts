@@ -67,3 +67,41 @@ test("Room falls back to first available side when userId is missing from player
   assert.equal(paddleSides.get("socket-unknown"), 0);
   assert.equal(paddleSides.get("socket-right"), 1);
 });
+
+test("Room exposes side for a connected player", () => {
+  const settings: MatchSettings = {
+    maxScore: 3,
+    local: false,
+    tournament: true,
+    state: MatchState.WAITING,
+    creationTime: "",
+    score: [0, 0],
+    playerIds: [101, 202],
+  };
+
+  const room = new Room("token-room-side", settings);
+  const leftUserSocket = createSocket("socket-left", 101, "leftUser");
+  const rightUserSocket = createSocket("socket-right", 202, "rightUser");
+
+  room.addHumanPlayer(leftUserSocket);
+  room.addHumanPlayer(rightUserSocket);
+
+  assert.equal(room.getPlayerSide("socket-left"), 0);
+  assert.equal(room.getPlayerSide("socket-right"), 1);
+});
+
+test("Room rejects users when platform playerIds are empty", () => {
+  const settings: MatchSettings = {
+    maxScore: 3,
+    local: false,
+    tournament: false,
+    state: MatchState.WAITING,
+    creationTime: "",
+    score: [0, 0],
+    playerIds: [],
+  };
+
+  const room = new Room("token-room-empty-ids", settings);
+  assert.equal(room.hasExpectedUser(101), false);
+  assert.equal(room.hasExpectedUser(undefined), false);
+});

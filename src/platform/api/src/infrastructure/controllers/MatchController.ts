@@ -109,6 +109,9 @@ export default class MatchController {
       reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
+      if (error instanceof ResponseError && error.message === ErrorParams.PLAYER_NOT_FOUND.message) {
+        return reply.code(200).send({ success: true });
+      }
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }
