@@ -46,7 +46,7 @@ export class MatchData {
   }
 
   public get paddlesArray(): PaddleChange[] {
-    return Object.values(this._paddles);
+    return Object.values(this._paddles).sort((a, b) => a.side - b.side);
   }
 
   public get rightPaddle(): PaddleChange | undefined {
