@@ -161,11 +161,11 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
-  private _fillView() {
+  private _fillView(refreshTitlePart: boolean = false) {
     this._clearView();
     if (!this._match)
       return;
-    this._fillNameView(this._match);
+    this._fillNameView(this._match, refreshTitlePart);
     document.getElementById("MatchComponentToken")!.innerText = this._match.token;
     document.getElementById("MatchComponentMaxPoints")!.innerText = this._match.points + "";
     this._fillOpponentView();
@@ -182,7 +182,7 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     }
   }
 
-  private _fillNameView(match: MatchJoin) {
+  private _fillNameView(match: MatchJoin, refreshTitlePart: boolean = false) {
     if (match.tournamentRound?.tournament) {
       document.getElementById("MatchComponentTournamentElem")?.classList.add("flex");
       document.getElementById("MatchComponentTournamentElem")?.classList.remove("hidden");
@@ -191,14 +191,14 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
       document.getElementById("MatchComponentTournamentName")!.innerText = match.tournamentRound.tournament.name;
       document.getElementById("MatchComponentTournamentRound")!.innerText = roundName;
       (document.getElementById("MatchComponentTournamentElem")! as HTMLAnchorElement).href = `/play/tournament/${match.tournamentRound.tournament.token}`;
-      document.title = TitleHelper.addTitlePart(name);
+      TitleHelper.setTitlePart(name, refreshTitlePart);
     }
     else {
       document.getElementById("MatchComponentNameElem")?.classList.add("flex");
       document.getElementById("MatchComponentNameElem")?.classList.remove("hidden");
       document.getElementById("MatchComponentMatchName")!.innerText = match.name;
       document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
-      document.title = TitleHelper.addTitlePart(match.name);
+      TitleHelper.setTitlePart(match.name, refreshTitlePart);
     }
   }
 
@@ -223,7 +223,7 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     this._matchEngineComponent?.refresh(token);
     this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
-    this._fillView();
+    this._fillView(true);
   }
 
   async destroy() {

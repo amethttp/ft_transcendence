@@ -40,7 +40,13 @@ export default class RegisterComponent extends AmethComponent {
       }
       this.authService.register(registerRequest)
         .then(async () => {
-          this.router?.navigateByPath("/login");
+          const params = new URLSearchParams(location.search);
+          const redirectParam = params.get("redirect");
+          const redirectQuery = redirectParam
+            ? `?redirect=${encodeURIComponent(redirectParam)}`
+            : "";
+
+          this.router?.redirectByPath(`/login${redirectQuery}`);
         })
         .catch(this.registrationError.bind(this));
     }

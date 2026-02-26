@@ -1,22 +1,25 @@
 import type { Route } from "../Router/Route/Route";
 
 export class TitleHelper {
-  static addTitlePart(part: string, title: string = document.title): string {
-    if (!title)
-      return part;
-    else if (part) {
-      const _title = title;
-      title = `${part} - ${_title}`;
-    }
-    return title;
+  private static _prevTitle: string = document.title;
+
+  static setTitlePart(part: string, refresh: boolean = false) {
+    if (!refresh)
+      this._prevTitle = document.title;
+    document.title = `${part} - ${this._prevTitle}`;
+  }
+
+  static refreshTitlePart(part: string) {
+    this.setTitlePart(part, true);
   }
 
   static setTitleFromRouteTree(routeTree: Route[]) {
-    let title = "";
-    for (const route of routeTree) {
-      if (route.title)
-        title = this.addTitlePart(route.title, title);
+    const routesWithTitle = routeTree.filter(route => route.title != undefined);
+    for (const route of routesWithTitle) {
+      if (route === routesWithTitle[0])
+        document.title = route.title!;
+      else
+        this.setTitlePart(route.title!);
     }
-    document.title = title;
   }
 }

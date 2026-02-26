@@ -20,7 +20,6 @@ export default class UserComponent extends AmethComponent {
   protected userStats?: UserStatsComponent;
   protected _userProfileService: UserProfileService;
   protected _lastRelation: TRelationType;
-  protected _prevTitle?: string;
 
   constructor() {
     super();
@@ -80,14 +79,13 @@ export default class UserComponent extends AmethComponent {
 
   private _refreshTitle() {
     if (this.userProfile?.username) {
-      document.title = TitleHelper.addTitlePart(this.userProfile.username, this._prevTitle);
+      TitleHelper.setTitlePart(this.userProfile.username, true);
     }
   }
 
   private setTitle() {
     if (this.userProfile?.username) {
-      this._prevTitle = document.title;
-      document.title = TitleHelper.addTitlePart(this.userProfile.username);
+      TitleHelper.setTitlePart(this.userProfile.username);
     }
   }
 
