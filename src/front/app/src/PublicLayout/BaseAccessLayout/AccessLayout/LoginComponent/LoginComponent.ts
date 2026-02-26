@@ -24,7 +24,13 @@ export default class LoginComponent extends AmethComponent {
       this._authService.login(value)
         .then(({id}) => {
           sessionStorage.setItem("userId", id.toString());
-          this.router?.redirectByPath("/verify");
+          const params = new URLSearchParams(location.search);
+          const redirectParam = params.get("redirect");
+          const redirectQuery = redirectParam
+            ? `?redirect=${encodeURIComponent(redirectParam)}`
+            : "";
+
+          this.router?.redirectByPath(`/verify${redirectQuery}`);
         })
         .catch(() => this._errorView.classList.remove("invisible"));
     };

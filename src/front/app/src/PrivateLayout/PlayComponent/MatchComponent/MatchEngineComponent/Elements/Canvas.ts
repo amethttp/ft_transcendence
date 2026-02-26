@@ -12,6 +12,7 @@ export default class Canvas {
   private _canvasContext: CanvasRenderingContext2D;
   private _canvasContainer: HTMLDivElement;
   private _scale!: number;
+  private _offsetX!: number;
   private _offsetY!: number;
 
   constructor() {
@@ -93,6 +94,7 @@ export default class Canvas {
     const offsetYPhysical = offsetYCSS * this._devicePixelRatio;
 
     this._scale = logicalScaleCSS;
+    this._offsetX = offsetXCSS;
     this._offsetY = offsetYCSS;
 
     this._canvasContext.setTransform(finalScale, 0, 0, finalScale, offsetXPhysical, offsetYPhysical);
@@ -125,6 +127,11 @@ export default class Canvas {
     this._canvas.addEventListener('touchend', func);
   }
 
+  toggleFullScreenStyles() {
+    this._canvasContainer.classList.toggle('bg-black');
+    this._canvasContainer.classList.toggle('bg-gray-50');
+  }
+
   toggleFullScreen() {
     if (!document.fullscreenElement)
       this._canvasContainer.requestFullscreen();
@@ -146,6 +153,10 @@ export default class Canvas {
 
   get cssTopPos(): string {
     return this._canvas.style.top;
+  }
+
+  get offsetX(): number {
+    return this._offsetX;
   }
 
   get offsetY(): number {

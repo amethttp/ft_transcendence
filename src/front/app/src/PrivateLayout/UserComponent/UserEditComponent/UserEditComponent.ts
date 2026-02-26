@@ -1,4 +1,3 @@
-import { LoggedUser } from "../../../auth/LoggedUser";
 import type User from "../../../auth/models/User";
 import { AuthService } from "../../../auth/services/AuthService";
 import Alert from "../../../framework/Alert/Alert";
@@ -16,6 +15,7 @@ export default class UserEditComponent extends AmethComponent {
   private _form!: Form<UserEditRequest>
   private _userEditService: UserEditService;
   private _user!: User;
+  private logoutHandler?: (e: Event) => void;
 
   constructor() {
     super();
@@ -23,7 +23,7 @@ export default class UserEditComponent extends AmethComponent {
   }
 
   async refresh() {
-    this._user = (await LoggedUser.get(true))!;
+    this._user = this.resolverData.user;
     this._form.controls.username.validators = [Validators.username, UserEditValidators.usernameUnique(this._user.username)];
     this._form.controls.email.validators = [Validators.email, UserEditValidators.emailUnique(this._user.email)];
     this._form.controls.birthDate.validators = [Validators.isValidBirthDate];
@@ -32,7 +32,7 @@ export default class UserEditComponent extends AmethComponent {
 
   async afterInit() {
     DateUtils.setMaxDate('dateInput');
-    this._user = (await LoggedUser.get(true))!;
+    this._user = this.resolverData.user;
     (document.getElementById("UserEditImg")! as HTMLImageElement).src = this._user.avatarUrl;
     this._form = new Form("UserEditForm", {
       username: new FormControl<string>(this._user.username, [Validators.username, UserEditValidators.usernameUnique(this._user.username)]),
@@ -42,9 +42,8 @@ export default class UserEditComponent extends AmethComponent {
     this._form.submit = (val) => {
       this._userEditService.editUser(val)
         .then(async () => {
-          const user = await LoggedUser.get(true)!;
-          this.router?.redirectByPath("/" + user?.username + "/edit");
           Alert.success("Profile updated successfully");
+          this.router?.refresh();
         })
         .catch(() => {
           Alert.error("Could not update profile");
@@ -97,8 +96,8 @@ export default class UserEditComponent extends AmethComponent {
         .catch(() => Alert.error("Could not send data download email"));
     }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
-      const challenge = prompt("Are you sure to delete your account? Type \"sure\".");
-      if (challenge === "sure") {
+      const challenge = prompt("Are you sure to delete your account? Type \"delete\".");
+      if (challenge === "delete") {
         this._userEditService.deleteUser()
           .then(async () => {
             Alert.success("Successfully deleted your account");
@@ -109,7 +108,26 @@ export default class UserEditComponent extends AmethComponent {
           });
       }
       else if (challenge !== null)
-        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"sure\".");
+        Alert.error("Failed challenge", "\"" + challenge + "\" is not \"delete\".");
     }
+
+    const authService = new AuthService();
+    this.logoutHandler = (e: Event) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      authService.logout().then(async res => {
+        if (res.success) {
+          this.router?.navigateByPath("/");
+        }
+      });
+    };
+    document.getElementById("UserEditLogoutBtn")?.addEventListener("click", this.logoutHandler);
+  }
+
+  async destroy() {
+    if (this.logoutHandler) {
+      document.getElementById("UserEditLogoutBtn")?.removeEventListener("click", this.logoutHandler);
+    }
+    await super.destroy();
   }
 }

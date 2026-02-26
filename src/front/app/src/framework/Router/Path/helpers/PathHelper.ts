@@ -8,7 +8,9 @@ export default class PathHelper {
   }
 
   static getParts(path: string): string[] {
-    return this.normalize(path).trimEnd().split("/");
+    const normalized = this.normalize(path).trimEnd();
+    if (normalized === "" || normalized === "/") return [""];
+    return normalized.split("/").filter((part) => part !== "");
   }
 
 

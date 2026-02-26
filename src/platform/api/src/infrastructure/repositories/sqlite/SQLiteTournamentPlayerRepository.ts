@@ -14,7 +14,7 @@ export class SQLiteTournamentPlayerRepository extends SQLiteBaseRepository<Tourn
   }
 
   findAllByUser(id: number): Promise<TournamentPlayer[] | null> {
-    const query = `WHERE user_id =? ORDER BY tournament_player.creation_time DESC`;
+    const query = `WHERE user_id =?`;
     return this.baseFindAll(query, [id]);
   }
 

@@ -12,4 +12,4 @@ EXPOSE 443
 EXPOSE 8081
 
 ENTRYPOINT [ "/root/init_game_api.sh" ]
-CMD [ "tail", "-f", "/dev/null" ]
+CMD [ "npm", "run", "bs" ]

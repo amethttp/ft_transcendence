@@ -17,6 +17,9 @@ export class MatchEndedMenu extends AmethComponent {
 
   async init(selector: string, router?: Router): Promise<void> {
     await super.init(selector, router);
+  }
+
+  afterInit(): void {
     document.getElementById("MatchEndedMenuTitle")!.textContent = this._winner ? "You won :)" : "Game over :(";
     if (this._tournament) {
       if (this._winner) {

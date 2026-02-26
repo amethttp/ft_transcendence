@@ -9,6 +9,7 @@ export default class FriendsRequestsComponent extends AmethComponent {
   template = () => import("./FriendsRequestsComponent.html?raw");
   private friendsService: FriendsService;
   private _container!: HTMLDivElement;
+  private _profileComponents: UserProfileActionsComponent[] = [];
 
   constructor() {
     super();
@@ -20,7 +21,9 @@ export default class FriendsRequestsComponent extends AmethComponent {
     this.refresh();
   }
 
-  clearView() {
+  async clearView() {
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
+    this._profileComponents = [];
     this._container.innerHTML = "Still no requests :(";
   }
 
@@ -28,22 +31,27 @@ export default class FriendsRequestsComponent extends AmethComponent {
     if (friends.length > 0)
       this._container.innerHTML = "";
     for (const friend of friends) {
-      let template = `
-      <a class="" href="/${friend.username}"></a>
-    `;
+      let template = `<a class="w-full" href="/profile/${friend.username}"></a>`;
       const elem = DOMHelper.createElementFromHTML(template);
       this._container.appendChild(elem);
       const profile = new UserProfileActionsComponent(friend);
       await profile.init(elem.id, this.router);
       profile.on("change", () => this.router?.refresh());
       profile.afterInit();
+      this._profileComponents.push(profile);
     }
   }
 
   async refresh() {
-    this.clearView();
+    await this.clearView();
     this.friendsService.getRequests().then(val => {
       this.fillView(val);
     }).catch(() => Alert.error("Some error occurred: ", "Could not retrieve your friendship requests"));
+  }
+
+  async destroy(): Promise<void> {
+    await Promise.all(this._profileComponents.map(p => p.destroy()));
+    this._profileComponents = [];
+    await super.destroy();
   }
 }

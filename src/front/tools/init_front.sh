@@ -1,5 +1,11 @@
 #! /bin/sh
 
-npm ci && npm run build
+npm ci
+
+if [ "$ENV" = "dev" ];
+then
+    npm run build;
+fi
+
 
 exec "$@"

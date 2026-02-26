@@ -52,7 +52,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
     for (const round of this._tournament.rounds) {
       const roundI = TournamentRound.powersOfTwo.indexOf(Number(round.top));
       const roundDiv = `
-        <div class="flex flex-grow flex-col min-w-fit gap-4 items-center">
+        <div class="flex grow flex-col min-w-fit gap-4 items-center">
           <div class="py-2">${TournamentRound.roundsText[roundI]}</div>
         </div>
       `;
@@ -102,7 +102,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
 
   private _getPlayerDiv(player: TournamentMatchPlayer, user: UserProfile | undefined, matchState: MatchStateValue): string {
     return `
-      <a href="/${user?.username}" class="flex justify-between items-center gap-6 outline-1 outline-gray-300 p-2 rounded hover:bg-brand-100 transition-colors">
+      <a href="/profile/${user?.username}" class="flex justify-between items-center gap-6 outline-1 outline-gray-300 p-2 rounded hover:bg-brand-100 transition-colors">
         <div class="flex items-center gap-2">
           <img src="${user?.avatarUrl}"  width="30" height="30" class="aspect-square min-w-7 rounded-full overflow-hidden object-cover" />
           <span>${user?.username}</span>

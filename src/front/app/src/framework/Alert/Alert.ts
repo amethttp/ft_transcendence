@@ -1,6 +1,7 @@
 type alertType = 'success' | 'info' | 'warning' | 'error' | 'close';
 
 export default class Alert {
+  private static activeAlerts = new Set<string>();
   private static container = document.getElementById('alert-container');
   private static icons = {
     success: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"> \
@@ -50,7 +51,7 @@ export default class Alert {
     return newMessageContainer;
   }
 
-  private static addAlertAnimation(alert: HTMLElement) {
+  private static addAlertAnimation(alert: HTMLElement, key: string) {
     const anim = alert.animate([
       { transform: 'translateX(50rem)', opacity: 0, offset: 0 },
       { transform: 'translateX(0rem)', offset: 0.1 },
@@ -62,7 +63,10 @@ export default class Alert {
       fill: 'forwards'
     });
 
-    anim.onfinish = () => alert.remove();
+    anim.onfinish = () => {
+      alert.remove();
+      Alert.activeAlerts.delete(key);
+    }
 
     return anim;
   }
@@ -79,12 +83,21 @@ export default class Alert {
     }
   }
 
+  private static getAlertKey(type: alertType, title: string, message?: string) {
+    return `${type}-${title}-${message || ''}`;
+  }
+
   private static createAlert(type: alertType, title: string, message?: string) {
+    const alertKey = Alert.getAlertKey(type, title, message);
+    if (Alert.activeAlerts.has(alertKey))
+      return;
+    Alert.activeAlerts.add(alertKey);
+
     const newAlert = document.createElement('article');
     const alertWrapper = document.createElement('div');
     const icon = Alert.icons[type];
     const closeIcon = Alert.icons.close;
-    const alertAnimation = Alert.addAlertAnimation(newAlert);
+    const alertAnimation = Alert.addAlertAnimation(newAlert, alertKey);
     const iconDiv = Alert.createAlertIcon(icon);
     const closeButtonDiv = Alert.createAlertIcon(closeIcon);
     const messageContainer = Alert.createAlertMessage(title, message);

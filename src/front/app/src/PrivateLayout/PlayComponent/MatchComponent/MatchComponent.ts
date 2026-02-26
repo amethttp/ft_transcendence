@@ -18,7 +18,9 @@ export const PlayerType = {
 
 export type PlayerTypeValue = typeof PlayerType[keyof typeof PlayerType];
 
-export default class MatchComponent extends AmethComponent {
+type MatchComponentResolvedData = { match: MatchJoin };
+
+export default class MatchComponent extends AmethComponent<MatchComponentResolvedData> {
   template = () => import("./MatchComponent.html?raw");
   private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
     {
@@ -39,6 +41,7 @@ export default class MatchComponent extends AmethComponent {
   private _token?: string;
   private _ownerPlayerComponent?: PlayerComponent;
   private _opponentPlayerComponent?: PlayerComponent;
+  private _matchEndedMenu?: MatchEndedMenu;
 
   constructor() {
     super();
@@ -59,7 +62,7 @@ export default class MatchComponent extends AmethComponent {
     }
 
     this._ownerPlayerComponent?.refresh(ownerOpts);
-    this._opponentPlayerComponent?.refresh(oppOpts);    
+    this._opponentPlayerComponent?.refresh(oppOpts);
   }
 
   opponentConnected = (userId: number) => {
@@ -92,48 +95,47 @@ export default class MatchComponent extends AmethComponent {
   }
 
   matchEnded = (score: number[]) => {
-    setTimeout(async () => {
+    this.setTimeout(async () => {
       if (this._match?.tournamentRound?.tournament) {
         document.getElementById("matchFinishMenuContainer")!.classList.add("visible", "z-50", "opacity-100");
         const username = (await LoggedUser.get())?.username;
         const playerIndex = this._match.players.findIndex(player => player.user.username === username);
         const winnerScoreIndex = score.findIndex(s => s === Math.max(...score));
-        const matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
-        matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
-          matchEndedMenu.destroy();
+        this._matchEndedMenu = new MatchEndedMenu(playerIndex === winnerScoreIndex, this.router, this._match?.tournamentRound?.tournament);
+        this._matchEndedMenu.init("matchFinishMenuContainer", this.router).then(() => {
+          this._matchEndedMenu?.afterInit();
         });
       }
     }, 1000);
   }
 
-  async init(selector: string, router?: Router): Promise<void> {
-    await super.init(selector, router);
-
+  async init(selector: string, router?: Router, resolvedData?: MatchComponentResolvedData): Promise<void> {
+    await super.init(selector, router, resolvedData);
     this._token = this.router?.currentPath.params["token"] as string;
     this._matchEngineComponent = new MatchEngineComponent(this._token);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
   }
 
-  async setMatch(token: string) {
-    try {
-      this._match = await this._matchService.getJoinMatch(token);
+  setMatch() {
+    if (this.resolverData?.match) {
+      this._match = this.resolverData?.match;
+      return true;
     }
-    catch (e: any) {
-      if (e.status === 404)
-        this.router?.redirectByPath('/404');
-      console.warn(e);
-    }
+    else
+      return false;
   }
 
   async afterInit() {
-    if (this._token)
-      await this.setMatch(this._token);
+    if (!this.setMatch())
+      return;
     await this._initPlayers();
     this._fillView();
-    this._matchEngineComponent?.on("opponentConnected", this.opponentConnected);
-    this._matchEngineComponent?.on("matchEnded", this.matchEnded);
-    this._matchEngineComponent?.on("opponentLeft", this.opponentLeft);
-    this._matchEngineComponent?.afterInit();
+    if (this._matchEngineComponent) {
+      this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
+      this._matchEngineComponent.on("matchEnded", this.matchEnded);
+      this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
+      this._matchEngineComponent.afterInit();
+    }
   }
 
   private _getPlayerOpts(player?: MatchPlayer): PlayerOptions | undefined {
@@ -181,11 +183,11 @@ export default class MatchComponent extends AmethComponent {
     document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
-  private _fillView() {
+  private _fillView(refreshTitlePart: boolean = false) {
     this._clearView();
     if (!this._match)
       return;
-    this._fillNameView(this._match);
+    this._fillNameView(this._match, refreshTitlePart);
     document.getElementById("MatchComponentToken")!.innerText = this._match.token;
     document.getElementById("MatchComponentMaxPoints")!.innerText = this._match.points + "";
     this._fillOpponentView();
@@ -202,7 +204,7 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  private _fillNameView(match: MatchJoin) {
+  private _fillNameView(match: MatchJoin, refreshTitlePart: boolean = false) {
     if (match.tournamentRound?.tournament) {
       document.getElementById("MatchComponentTournamentElem")?.classList.add("flex");
       document.getElementById("MatchComponentTournamentElem")?.classList.remove("hidden");
@@ -211,14 +213,14 @@ export default class MatchComponent extends AmethComponent {
       document.getElementById("MatchComponentTournamentName")!.innerText = match.tournamentRound.tournament.name;
       document.getElementById("MatchComponentTournamentRound")!.innerText = roundName;
       (document.getElementById("MatchComponentTournamentElem")! as HTMLAnchorElement).href = `/play/tournament/${match.tournamentRound.tournament.token}`;
-      document.title = TitleHelper.addTitlePart(name);
+      TitleHelper.setTitlePart(name, refreshTitlePart);
     }
     else {
       document.getElementById("MatchComponentNameElem")?.classList.add("flex");
       document.getElementById("MatchComponentNameElem")?.classList.remove("hidden");
       document.getElementById("MatchComponentMatchName")!.innerText = match.name;
       document.getElementById("MatchComponentVisibility")!.innerText = match.isVisible ? "Public" : "Private";
-      document.title = TitleHelper.addTitlePart(match.name);
+      TitleHelper.setTitlePart(match.name, refreshTitlePart);
     }
   }
 
@@ -237,20 +239,21 @@ export default class MatchComponent extends AmethComponent {
     }
   }
 
-  async refresh() {
+  refresh() {
     const token = this.router?.currentPath.params["token"] as string;
-    await this.setMatch(token);
+    this.setMatch();
     this._matchEngineComponent?.refresh(token);
     // this._ownerPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[0]));
     // this._opponentPlayerComponent?.refresh(this._getPlayerOpts(this._match?.players[1]));
     this.balanceNames();
-    this._fillView();
+    this._fillView(true);
   }
 
   async destroy() {
     await this._matchEngineComponent?.destroy();
     await this._ownerPlayerComponent?.destroy();
     await this._opponentPlayerComponent?.destroy();
+    await this._matchEndedMenu?.destroy();
     await super.destroy();
   }
 

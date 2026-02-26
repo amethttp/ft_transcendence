@@ -15,6 +15,6 @@ create_https_certificates()
 
 create_https_certificates
 
-npm ci && npm run build
+npm ci
 
 exec "$@"

@@ -10,7 +10,7 @@ export class TournamentsListService {
     this._apiClient = new ApiClient();
   }
 
-  getList(): Promise<TournamentMinified[]> {
-    return this._apiClient.get(TournamentsListService.ENDPOINT);
+  getList(signal?: AbortSignal): Promise<TournamentMinified[]> {
+    return this._apiClient.get(TournamentsListService.ENDPOINT, undefined, { signal });
   }
 }

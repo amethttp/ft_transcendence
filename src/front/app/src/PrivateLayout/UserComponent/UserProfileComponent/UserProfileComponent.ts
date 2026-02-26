@@ -42,9 +42,10 @@ export default class UserProfileComponent extends AmethComponent {
   protected fillData() {
     (this.outlet?.getElementsByClassName("userAvatar")[0]! as HTMLImageElement).src = this._userProfile!.avatarUrl;
     (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).innerText = this._userProfile!.username;
+    (this.outlet!.getElementsByClassName("UserComponentUsername")[0]! as HTMLElement).title = this._userProfile!.username;
     const anchor = this.outlet?.getElementsByClassName("UserProfileComponentAnchor")[0] as HTMLAnchorElement;
     if (anchor) {
-      anchor.href = `/${this._userProfile?.username}`;
+      anchor.href = `/profile/${this._userProfile?.username}`;
     }
   }
 

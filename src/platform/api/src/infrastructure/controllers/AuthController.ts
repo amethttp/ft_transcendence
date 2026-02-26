@@ -186,7 +186,7 @@ export default class AuthController {
     try {
       const token = request.params.token;
       const user = await this._recoverPasswordService.getUserByToken(token);
-      const relation = { type: RelationType.NO_RELATION, owner: false };
+      const relation = { type: RelationType.NO_RELATION, owner: false, updateTime: "" };
       const userProfile = UserService.toUserProfile(user, relation, 2); // TODO: Check if necessary to return a full user
 
       reply.code(200).send(userProfile);

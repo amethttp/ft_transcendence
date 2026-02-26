@@ -1,6 +1,6 @@
 import Alert from "../../../../framework/Alert/Alert";
 import AmethComponent from "../../../../framework/AmethComponent";
-import DateUtils from "../../../../utils/DateUtils";
+import { timeAgo } from "../../../../utils/DateUtils";
 import { DOMHelper } from "../../../../utils/DOMHelper";
 import type { TournamentMinified } from "./models/TournamentMinified";
 import { TournamentsListService } from "./services/TournamentsListService";
@@ -10,7 +10,6 @@ export default class TournamentsListComponent extends AmethComponent {
   private _tournamentsListService: TournamentsListService;
   private _tournaments: TournamentMinified[];
   private _container?: HTMLDivElement;
-  private _interval?: number;
 
   constructor() {
     super();
@@ -22,7 +21,7 @@ export default class TournamentsListComponent extends AmethComponent {
     this._container = this.outlet?.getElementsByClassName("TournamentsListContainer")[0] as HTMLDivElement;
     await this._setTournaments();
     this._fillView();
-    this._interval = setInterval(() => {
+    this.setInterval(() => {
       this._setTournaments().then(() => this._fillView());
     }, 20000);
   }
@@ -34,9 +33,10 @@ export default class TournamentsListComponent extends AmethComponent {
 
   private async _setTournaments() {
     try {
-      this._tournaments = await this._tournamentsListService.getList();
+      this._tournaments = await this._tournamentsListService.getList(this.abortController.signal);
     }
     catch (err: any) {
+      if (err.name === 'AbortError') return;
       console.warn(err);
       Alert.error("Something occurred with tournaments");
     }
@@ -72,7 +72,7 @@ export default class TournamentsListComponent extends AmethComponent {
               ${enrolled}
               ${players}
               <span class="whitespace-nowrap">${tournament.points}pts</span>
-              <span class="">${DateUtils.timeAgo(tournament.creationTime)}</span>
+              <span class="">${timeAgo({ from: tournament.creationTime })}</span>
               <div class="btn btn-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
@@ -96,7 +96,6 @@ export default class TournamentsListComponent extends AmethComponent {
   }
 
   async destroy() {
-    clearInterval(this._interval);
     await super.destroy();
   }
 }

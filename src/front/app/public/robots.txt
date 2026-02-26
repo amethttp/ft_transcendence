@@ -1,1 +1,11 @@
 User-agent: *
+Disallow: /
+
+# Allow only public layout routes (from src/front/app/src/routes.ts)
+Allow: /$
+Allow: /index.html
+Allow: /login
+Allow: /register
+Allow: /privacy
+
+Sitemap: /sitemap.xml

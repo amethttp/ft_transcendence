@@ -26,7 +26,7 @@ export class UserRelationService {
   }
 
   async getRelation(originUser: User, requestedUser: User): Promise<Relation> {
-    const res: Relation = { type: RelationType.NO_RELATION, owner: false };
+    const res: Relation = { type: RelationType.NO_RELATION, owner: false, updateTime: "" };
     const relation = await this._userRelationRepository.findByAnyTwoUsers(originUser.id, requestedUser.id);
     if (relation === null)
       return res;
@@ -196,7 +196,8 @@ export class UserRelationService {
   public static toRelation(originUser: User, relation: UserRelation): Relation {
     const userProfile: Relation = {
       type: relation.type as TRelationType,
-      owner: (relation.ownerUser.id === originUser.id)
+      owner: (relation.ownerUser.id === originUser.id),
+      updateTime: relation.updateTime
     };
 
     return userProfile;

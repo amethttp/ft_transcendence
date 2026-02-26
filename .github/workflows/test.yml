@@ -1,0 +1,95 @@
+name: Test & Build
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            src/front/app/package-lock.json
+      
+      - name: Install dependencies
+        run: cd src/front/app && npm ci
+      
+    #   - name: Format check
+    #     run: cd src/front/app && npm run lint:format
+
+      - name: Run tests
+        run: cd src/front/app && npm test
+      
+      - name: Build
+        run: cd src/front/app && npm run build
+
+  platform-api:
+    name: Platform API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            src/platform/api/package-lock.json
+      
+      - name: Install dependencies
+        run: cd src/platform/api && npm ci
+      
+    #   - name: Format check
+    #     run: cd src/platform/api && npm run lint:format
+
+      - name: Run tests
+        run: cd src/platform/api && npm test
+
+      - name: TypeScript compilation check
+        run: cd src/platform/api && npm run build
+
+  game-api:
+    name: Game API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            src/game/api/package-lock.json
+      
+      - name: Install dependencies
+        run: cd src/game/api && npm ci
+      
+    #   - name: Format check
+    #     run: cd src/game/api && npm run lint:format
+      
+      - name: TypeScript compilation check
+        run: cd src/game/api && npm run build
+
+  summary:
+    name: Test Summary
+    needs: [frontend, platform-api, game-api]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.frontend.result }}" = "failure" ] || [ "${{ needs.platform-api.result }}" = "failure" ] || [ "${{ needs.game-api.result }}" = "failure" ]; then
+            echo "❌ Some tests failed"
+            exit 1
+          fi
+          echo "✅ All tests passed!"

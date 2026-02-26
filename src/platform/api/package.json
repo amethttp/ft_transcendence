@@ -4,9 +4,11 @@
   "description": "Platform api module",
   "main": "src/index.ts",
   "scripts": {
+    "dev": "tsx watch --env-file=./.env.development src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node --env-file=./.env.local dist/index.js",
+    "start": "node --env-file=./.env.production dist/index.js",
     "bs": "npm run build && npm run start",
+    "test": "jest",
     "format": "prettier --write .",
     "lint:format": "prettier --check ."
   },
@@ -27,9 +29,14 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.2.0",
     "@types/nodemailer": "^7.0.1",
+    "jest": "^30.2.0",
     "prettier": "^3.3.3",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.2"
   }
 }

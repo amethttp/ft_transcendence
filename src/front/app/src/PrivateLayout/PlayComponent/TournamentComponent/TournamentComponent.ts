@@ -11,38 +11,42 @@ import type { TournamentPlayer } from "./models/TournamentPlayer";
 import { TournamentService } from "./services/TournamentService";
 import TournamentBracketsComponent from "./TournamentBracketsComponent/TournamentBracketsComponent";
 
-export default class TournamentComponent extends AmethComponent {
+type TournamentResolvedData = {
+  tournament: Tournament,
+};
+
+export default class TournamentComponent extends AmethComponent<TournamentResolvedData> {
   template = () => import("./TournamentComponent.html?raw");
   private _tournamentService: TournamentService;
   private _tournament?: Tournament;
   private _bracketsComponent?: TournamentBracketsComponent;
   private _loggedUser?: User;
   private _loggedPlayer?: TournamentPlayer;
-  private _interval?: number;
-
+  private _refreshHandler?: () => void;
   constructor() {
     super();
     this._tournamentService = new TournamentService();
     this._bracketsComponent = new TournamentBracketsComponent();
   }
 
-  async init(selector: string, router?: Router) {
-    await super.init(selector, router);
+  async init(selector: string, router?: Router, data?: TournamentResolvedData) {
+    await super.init(selector, router, data);
     await this._bracketsComponent?.init("bracketsContainer", router);
   }
 
   async afterInit() {
     this._loggedUser = (await LoggedUser.get())!;
-    document.getElementById('refreshTournamentStateBtn')!.addEventListener('click', () => { this.refreshTournamentState() });
+    this._refreshHandler = () => { this.refreshTournamentState() };
+    document.getElementById('refreshTournamentStateBtn')!.addEventListener('click', this._refreshHandler);
     await this._setTournament();
     this._bracketsComponent?.afterInit(this._tournament);
     this._fillView();
     this._setTitle();
-    this._interval = setInterval(() => { this.refreshTournamentState() }, 20000);
+    this.setInterval(() => { this.refreshTournamentState() }, 20000);
   }
 
   private async refreshTournamentState() {
-    await this._setTournament();
+    await this._setTournament(true);
     this._bracketsComponent?.refresh(this._tournament);
     if (!this._tournament)
       return;
@@ -50,11 +54,11 @@ export default class TournamentComponent extends AmethComponent {
     this._fillPlayers();
   }
 
-  async refresh() {
-    await this._setTournament();
+  async refresh(refresh: boolean = false) {
+    await this._setTournament(refresh);
     this._bracketsComponent?.refresh(this._tournament);
     this._fillView();
-    this._setTitle();
+    this._refreshTitle();
   }
 
   private _clearView() {
@@ -98,7 +102,7 @@ export default class TournamentComponent extends AmethComponent {
       showBtn.classList.remove("hidden");
       hideBtn.classList.add("hidden");
       playersContainer.classList.add("hidden");
-      showBtn.scrollIntoView({block: "center"});
+      showBtn.scrollIntoView({ block: "center" });
     };
   }
 
@@ -116,22 +120,21 @@ export default class TournamentComponent extends AmethComponent {
         document.getElementById("leaveBtn")?.classList.remove("hidden");
         document.getElementById("leaveBtn")!.onclick = () => {
           this._tournamentService.leave(tournament.token)
-            .then(() => this.refresh())
+            .then(() => this.refresh(true))
             .catch(() => Alert.error("Could not leave tournament"));
         }
         if (tournament.players[0].user.username === loggedUsername) {
           document.getElementById("startTournamentBtn")?.classList.remove("hidden");
           document.getElementById("startTournamentBtn")!.onclick = () => {
             this._tournamentService.start(tournament.token)
-              .then(() => this.refresh())
+              .then(() => this.refresh(true))
               .catch(() => Alert.error("Could not start tournament"));
           }
           if (tournament.players.length !== tournament.playersAmount) {
             document.getElementById("startTournamentBtn")?.setAttribute("title", "Wait for opponents to start tournament");
             document.getElementById("startTournamentBtn")?.setAttribute("disabled", "true");
           }
-          else
-          {
+          else {
             document.getElementById("startTournamentBtn")?.removeAttribute("title");
             document.getElementById("startTournamentBtn")?.removeAttribute("disabled");
           }
@@ -141,7 +144,7 @@ export default class TournamentComponent extends AmethComponent {
         document.getElementById("joinBtn")?.classList.remove("hidden");
         document.getElementById("joinBtn")!.onclick = () => {
           this._tournamentService.join(tournament.token)
-            .then(() => this.refresh())
+            .then(() => this.refresh(true))
             .catch(() => Alert.error("Could not join tournament"));
         }
       }
@@ -175,7 +178,7 @@ export default class TournamentComponent extends AmethComponent {
         }
 
         const htmlElem = `
-          <a href="/${player.user.username}" class="flex items-center p-2 gap-2 rounded hover:bg-brand-100 transition-colors">
+          <a href="/profile/${player.user.username}" class="flex items-center p-2 gap-2 rounded hover:bg-brand-100 transition-colors">
             <img src="${player.user.avatarUrl}" width="40" height="40" class="aspect-square w-10 h-10 rounded-full overflow-hidden object-cover" />
             <span>${DOMHelper.sanitizeHTML(player.user.username)}</span>
             ${status}
@@ -186,27 +189,36 @@ export default class TournamentComponent extends AmethComponent {
     }
   }
 
-  private async _setTournament() {
+  private async _setTournament(reload: boolean = false) {
     try {
       const token = this.router?.currentPath.params.token;
       if (token) {
-        this._tournament = await this._tournamentService.getByToken(token as string);
-        this._loggedPlayer = this._tournament.players.find(pl => pl.user.id === this._loggedUser?.id);
+        if (reload)
+          this._tournament = await this._tournamentService.getByToken(token as string);
+        else
+          this._tournament = this.resolverData?.tournament;
+        this._loggedPlayer = this._tournament?.players.find(pl => pl.user.id === this._loggedUser?.id);
       }
     } catch (error) {
-      this.router?.redirectByPath("/404")
+      console.error(error);
+      Alert.error("Something went wrong");
     }
   }
 
   private _setTitle() {
-    if (this._tournament) {
-      document.title = TitleHelper.addTitlePart(this._tournament.name);
-    }
+    if (this._tournament)
+      TitleHelper.setTitlePart(this._tournament.name);
+  }
+
+  private _refreshTitle() {
+    if (this._tournament)
+      TitleHelper.setTitlePart(this._tournament.name, true);
   }
 
   async destroy() {
-    clearInterval(this._interval);
-    document.getElementById('refreshTournamentStateBtn')?.removeEventListener('click', () => { this.refreshTournamentState() });
+    if (this._refreshHandler) {
+      document.getElementById('refreshTournamentStateBtn')?.removeEventListener('click', this._refreshHandler);
+    }
     await super.destroy();
   }
 }

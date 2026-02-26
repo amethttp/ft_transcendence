@@ -1,4 +1,6 @@
 import AmethComponent from "../../../framework/AmethComponent";
+import { timeAgo } from "../../../utils/DateUtils";
+import { RelationType } from "../models/Relation";
 import type UserProfile from "../models/UserProfile";
 import UserProfileService from "../services/UserProfileService";
 import type { UserStats } from "./models/UserStats";
@@ -10,11 +12,14 @@ export default class UserStatsComponent extends AmethComponent {
   protected userProfileService: UserProfileService;
   protected targetUser?: UserProfile;
   private mode: "match" | "tournament" | "none";
+  private _matchChart?: PieChart;
+  private _animationTimeouts: number[] = [];
 
   constructor(targetUser?: UserProfile) {
     super();
     this.userProfileService = new UserProfileService();
-    this.targetUser = targetUser;
+    if (targetUser?.relation?.type !== RelationType.BLOCKED)
+      this.targetUser = targetUser;
     this.mode = "none";
   }
 
@@ -31,7 +36,7 @@ export default class UserStatsComponent extends AmethComponent {
       return 1 - Math.pow(1 - t, 5);
     }
 
-    function update(currentTime: number) {
+    const update = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = easeOutCube(progress);
@@ -40,10 +45,10 @@ export default class UserStatsComponent extends AmethComponent {
       el.innerText = current.toFixed(decimals);
 
       if (progress < 1) {
-        requestAnimationFrame(update);
+        this.requestAnimationFrame(() => update(performance.now()));
       }
-    }
-    requestAnimationFrame(update);
+    };
+    this.requestAnimationFrame(() => update(performance.now()));
   }
 
   private animatePathDraw(
@@ -61,10 +66,10 @@ export default class UserStatsComponent extends AmethComponent {
       return 1 - Math.pow(1 - t, 3);
     }
 
-    setTimeout(() => {
+    const timeoutId = this.setTimeout(() => {
       const startTime = performance.now();
 
-      function draw(currentTime: number) {
+      const draw = (currentTime: number) => {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easedProgress = easeOutCube(progress);
@@ -73,14 +78,15 @@ export default class UserStatsComponent extends AmethComponent {
         path.style.opacity = easedProgress.toString();
 
         if (progress < 1) {
-          requestAnimationFrame(draw);
+          this.requestAnimationFrame(() => draw(performance.now()));
         } else {
           path.style.opacity = '1';
         }
-      }
+      };
 
-      requestAnimationFrame(draw);
+      this.requestAnimationFrame(() => draw(performance.now()));
     }, delay);
+    this._animationTimeouts.push(timeoutId);
   }
 
   private displayTournamentHistory(matchHistoryList: HTMLUListElement, userStats: UserStats) {
@@ -108,24 +114,40 @@ export default class UserStatsComponent extends AmethComponent {
       const userLabel = document.createElement("span");
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-center", "gap-3");
 
-      const tournamentSize = document.createElement("span");
-      tournamentSize.textContent = "/ " + tournament.playerAmount.toString();
-      tournamentSize.classList.add("font-semibold");
-      const userScore = document.createElement("span");
-      userScore.textContent = tournament.placement.toString();
-      userScore.classList.add("text-brand-900", "font-bold");
+      const placementTopLabel = document.createElement("span");
+      placementTopLabel.textContent = "top";
+      placementTopLabel.classList.add("text-black", "font-bold");
 
-      userLabel.append(userScore, tournamentSize);
+      const placementRangeLabel = document.createElement("span");
+      placementRangeLabel.textContent = "-";
+      placementRangeLabel.classList.add("text-brand-900", "font-bold");
 
-      playersSpan.append(
-        userLabel,
-      );
+      if (tournament.placement) {
+        let rangeStart = 1;
+        let rangeEnd = 1;
+
+        while (tournament.placement > rangeEnd) {
+          rangeStart = rangeEnd + 1;
+          rangeEnd = Math.min(rangeEnd * 2, tournament.playerAmount);
+        }
+
+        placementRangeLabel.textContent =
+          rangeStart === rangeEnd
+            ? `${rangeStart}`
+            : `${rangeStart}-${rangeEnd}`;
+      }
+
+      if (tournament?.finishTime !== "Aborted")
+        userLabel.append(placementTopLabel, placementRangeLabel);
+
+      playersSpan.append(userLabel);
 
       const footerLabel = document.createElement("span");
       footerLabel.classList.add("flex", "flex-col", "justify-between", "items-center");
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = tournament.finishTime;
+      const finishDate = tournament.finishTime !== 'Aborted' ? timeAgo({ from: tournament.finishTime }) : 'Not finished';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(timeStamp);
@@ -162,7 +184,7 @@ export default class UserStatsComponent extends AmethComponent {
       userLabel.classList.add("flex", "flex-wrap", "flex-1", "justify-end", "gap-3");
 
       const userName = document.createElement("a");
-      userName.href = `/${this.targetUser?.username}`;
+      userName.href = `/profile/${this.targetUser?.username}`;
       userName.textContent = `${this.targetUser?.username}`;
       userName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const userScore = document.createElement("span");
@@ -178,7 +200,7 @@ export default class UserStatsComponent extends AmethComponent {
 
       const opponentName = document.createElement("a");
       if (match.opponent?.username)
-        opponentName.href = `/${match.opponent?.username}`;
+        opponentName.href = `/profile/${match.opponent?.username}`;
       opponentName.textContent = `${match.opponent?.username || "no one"}`;
       opponentName.classList.add("hover:bg-brand-200", "transition", "duration-200", "rounded-lg", "px-2");
       const opponentScore = document.createElement("span");
@@ -211,7 +233,8 @@ export default class UserStatsComponent extends AmethComponent {
       }
 
       const timeStamp = document.createElement("span");
-      timeStamp.textContent = match.finishTime;
+      const finishDate = match.finishTime !== 'Aborted' ? timeAgo({ from: match.finishTime }) : 'Not finished';
+      timeStamp.textContent = finishDate;
       timeStamp.classList.add("text-xs", "italic");
 
       footerLabel.append(resultSpan, timeStamp);
@@ -238,24 +261,30 @@ export default class UserStatsComponent extends AmethComponent {
     if (!this.targetUser)
       return this.showEmpty();
     const stats = await this.userProfileService.getUserStats(this.targetUser?.username) as UserStats;
-    const winRate = Math.round((stats.victories / stats.totalMatches) * 100) || 0;
-    const losses = stats.totalMatches - stats.victories || 0;
+    const winRate = Math.round((stats.victories / stats.validTotalMatches) * 100) || 0;
+    const losses = stats.validTotalMatches - stats.victories || 0;
     const testTournamentAvg = stats.tournamentAvg || 0;
-    const testTournamentAmount = stats.totalTournaments || 0;
+    const testTournamentAmount = stats.validTotalTournaments || 0;
 
     const matchCenterText = document.getElementById('matchChart-center-text');
     const matchSpan = document.getElementById('matchTotal') as HTMLElement;
-    matchSpan.innerText = stats.totalMatches.toString();
+    const matchLabel = document.getElementById('matchLabel');
+    matchSpan.innerText = stats.validTotalMatches.toString();
+    if (matchLabel)
+      matchLabel.textContent = stats.validTotalMatches === 1 ? 'Match' : 'Matches';
     if (matchCenterText && matchSpan) {
       matchCenterText.classList.remove('hidden');
       matchCenterText.classList.add('opacity-100');
-      this.animateCounter(matchSpan, stats.totalMatches, 2500);
+      this.animateCounter(matchSpan, stats.validTotalMatches, 2500);
     }
 
     const tournamentCenterText = document.getElementById('tournamentStats-center-text');
     const tournamentSpan = document.getElementById('tournamentAvg') as HTMLElement;
     tournamentSpan.innerText = testTournamentAvg.toString();
     const tournamentSpanTotal = document.getElementById('tournamentTotal') as HTMLElement;
+    const tournamentLabel = document.getElementById('tournamentLabel');
+    if (tournamentLabel)
+      tournamentLabel.textContent = testTournamentAmount === 1 ? 'Tournament' : 'Tournaments';
     if (tournamentCenterText && tournamentSpan && tournamentSpanTotal) {
       tournamentCenterText.classList.remove('hidden');
       tournamentCenterText.classList.add('opacity-100');
@@ -265,7 +294,7 @@ export default class UserStatsComponent extends AmethComponent {
 
     const podiumOutline = document.querySelector('.podium');
     if (podiumOutline) {
-      setTimeout(() => {
+      this.setTimeout(() => {
         podiumOutline.classList.add('opacity-100');
       }, 500);
     }
@@ -318,17 +347,17 @@ export default class UserStatsComponent extends AmethComponent {
         }]
       };
     }
-    const matchChart = new PieChart(
+    this._matchChart = new PieChart(
       '#matchChart',
       chartSettings,
       { donut: true, showLabel: checkSliceData }
     );
 
-    matchChart.on('draw', data => {
+    this._matchChart.on('draw', data => {
       if (!stats.victories && !losses) { return; }
       document.querySelectorAll('.ct-label').forEach(label => {
         (label as SVGElement).classList.add('opacity-0', 'transition-opacity', 'duration-700');
-        setTimeout(() => (label as SVGElement).classList.add('opacity-100'), 1500);
+        this.setTimeout(() => (label as SVGElement).classList.add('opacity-100'), 1500);
       });
       if (data.type === 'slice') {
         const pathLength = data.element
@@ -365,9 +394,19 @@ export default class UserStatsComponent extends AmethComponent {
 
   refresh(user?: UserProfile) {
     super.refresh();
-    this.targetUser = user;
+    if (user?.relation?.type !== RelationType.BLOCKED)
+      this.targetUser = user;
+    else
+      this.targetUser = undefined;
     document.querySelector('#matchChart')!.innerHTML = '';
     this.mode = "none";
     this.afterInit();
+  }
+
+  async destroy(): Promise<void> {
+    this._matchChart?.detach();
+    this._animationTimeouts.forEach(id => clearTimeout(id));
+    this._animationTimeouts = [];
+    await super.destroy();
   }
 }

@@ -1,9 +1,34 @@
 import { Context } from "./framework/Context/Context";
 import { Router } from "./framework/Router/Router";
 import { TitleHelper } from "./framework/TitleHelper/TitleHelper";
+import { ProgressBar } from "./framework/ProgressBar/ProgressBar";
 import { routes } from "./routes";
 
 const router = new Router("app", routes);
 Context.router = router;
 
-router.on("navigate", (e) => { TitleHelper.setTitleFromRouteTree(e.routeTree) });
+const progressBar = new ProgressBar();
+let isInitialLoad = true;
+
+router.on("navigate", (e) => {
+  TitleHelper.setTitleFromRouteTree(e.routeTree);
+  isInitialLoad = false;
+});
+
+router.on("navigationStart", () => {
+  if (!isInitialLoad) {
+    progressBar.start();
+  }
+});
+
+router.on("navigationEnd", (e) => {
+  if (!isInitialLoad) {
+    if (e.success) {
+      progressBar.complete();
+    } else if (e.reason === 'redirect') {
+      progressBar.complete();
+    } else {
+      progressBar.fail();
+    }
+  }
+});

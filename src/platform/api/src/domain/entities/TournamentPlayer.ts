@@ -1,6 +1,7 @@
 import { AEntity } from "./AEntity";
 import { User } from "./User";
 import { Tournament } from "./Tournament";
+import StringTime from "../../application/helpers/StringTime";
 
 const tournamentPlayerSchema: Record<string, string> = {
   id: "id",
@@ -35,7 +36,7 @@ export class TournamentPlayer extends AEntity {
       this.tournament = tournament;
     else
     this.tournament = new Tournament();
-    this.creationTime = (new Date()).toString();
+    this.creationTime = StringTime.now();
   }
 
   public get tableName(): string {

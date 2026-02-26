@@ -7,7 +7,6 @@ import { StatusService } from "./services/StatusService";
 
 export default class PrivateLayout extends AmethComponent {
   template = () => import("./PrivateLayout.html?raw");
-  private _statusIntervalId?: number;
   private _statusService: StatusService;
   private _sidebar!: SidebarComponent;
   private _contextBar!: ContextBarComponent;
@@ -16,14 +15,14 @@ export default class PrivateLayout extends AmethComponent {
     super();
     Context.friends = new UserFriends();
     this._statusService = new StatusService();
-    this._startStatusPooling();
+    this._startStatusPolling();
   }
 
-  private _startStatusPooling() {
+  private _startStatusPolling() {
     this._statusService.refreshStatus();
-    this._statusIntervalId = setInterval(() => {
+    this.setInterval(() => {
       this._statusService.refreshStatus();
-    }, 20000)
+    }, 20000);
   }
 
   async afterInit() {
@@ -41,9 +40,9 @@ export default class PrivateLayout extends AmethComponent {
   }
 
   async destroy() {
-    super.destroy();
-    clearInterval(this._statusIntervalId);
+    Context.friends.destroy();
     await this._sidebar.destroy();
     await this._contextBar.destroy();
+    await super.destroy();
   }
 }
