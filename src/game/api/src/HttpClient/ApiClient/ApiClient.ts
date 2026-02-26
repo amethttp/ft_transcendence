@@ -8,6 +8,8 @@ export class ApiClient extends HttpClient {
   static readonly BASE_URL = "https://platform";
   private static _refreshPromise: Promise<string> | null = null;
 
+  private static readonly REFRESH_ROUTE = "/auth/access/refresh";
+
   constructor() {
     super();
   }
@@ -32,11 +34,12 @@ export class ApiClient extends HttpClient {
     return super.put<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
   }
 
-  private refreshToken(headers?: Record<string, any>): Promise<string> {
+  private refreshToken(headers?: HeadersInit): Promise<string> {
     if (ApiClient._refreshPromise) {
       return ApiClient._refreshPromise;
     }
-    const refreshPromise = this.get<string>("/auth/access/refresh", undefined, headers)
+    const refreshPromise = this.get<{ credentials: string }>(ApiClient.REFRESH_ROUTE, undefined, { headers })
+      .then((response) => response.credentials)
       .finally(() => {
         ApiClient._refreshPromise = null;
       });
@@ -47,7 +50,6 @@ export class ApiClient extends HttpClient {
   protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
     if (options && options.headers && Object.getOwnPropertyNames(options.headers).includes("cookie")) {
       const token = CookieHelper.get("AccessToken", (options.headers as any)["cookie"]);
-      delete (options.headers as any)["cookie"];
       options.headers = {
         ...options.headers,
         ...(token ? { Authorization: "Bearer " + token } : {}),
@@ -59,7 +61,7 @@ export class ApiClient extends HttpClient {
     } catch (_error: any) {
       const error: ResponseError = _error;
       if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
-        if (url.includes("/auth/access/refresh")) {
+        if (url.includes(ApiClient.REFRESH_ROUTE)) {
           throw error;
         }
         try {
