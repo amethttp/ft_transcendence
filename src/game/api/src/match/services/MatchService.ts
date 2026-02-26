@@ -27,11 +27,17 @@ export class MatchService {
     return this._matchData.score;
   }
 
-  public addPlayer(newPlayerId: string) {
+  public addPlayer(newPlayerId: string, side?: 0 | 1) {
+    const occupiedSides = new Set(Object.values(this._matchData.paddles).map((paddle) => paddle.side));
+    let paddleSide = side;
+    if (paddleSide === undefined || occupiedSides.has(paddleSide)) {
+      paddleSide = occupiedSides.has(0) ? 1 : 0;
+    }
+
     this._matchData.paddles[newPlayerId] = {
       timestamp: performance.now(),
       playerId: newPlayerId,
-      side: (Object.entries(this._matchData.paddles).length > 0) ? 1 : 0,
+      side: paddleSide,
       position: (s.MAX_HEIGHT / 2) - s.PADDLE_SIZE / 2,
     } as PaddleChange;
   }

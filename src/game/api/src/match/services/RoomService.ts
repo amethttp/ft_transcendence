@@ -204,7 +204,7 @@ export class RoomService {
       .catch((error) => console.log("API MATCH DELETE FAILED", error));
   }
 
-  private updateMatch(socket: AuthenticatedSocket, token: string, result: number[]) {
+  private updateMatch(socket: AuthenticatedSocket, token: string, result: readonly number[]) {
     const opts: RequestInit = {};
     if (!socket.cookie)
       return; // TODO: Throw error

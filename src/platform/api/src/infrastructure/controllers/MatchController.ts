@@ -49,6 +49,7 @@ export default class MatchController {
         throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
       const players = await this._matchPlayerService.getAllSingleMatchPlayers(match);
       const settings = this._matchService.toMatchSettings(match);
+      settings.playerIds = players.map((player) => player.user.id);
       if (players.length > 1) {
         settings.score[0] = players[0].score;
         settings.score[1] = players[1].score;
