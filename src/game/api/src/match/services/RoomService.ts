@@ -95,7 +95,7 @@ export class RoomService {
           this.deleteMatch(socket.cookie, room.token);
         }
       } else if (room.matchState !== MatchState.FINISHED) {
-        this.updateMatch(socket, room.token, this.resolveDraw(room, room.matchResult));
+        this.updateMatch(socket, room.token, this.randomWinResult());
       }
       this.removeRoom(room.token);
     } else {
@@ -125,38 +125,35 @@ export class RoomService {
 
   private randomWinResult(): MatchResult {
     const winnerIndex = Math.random() < 0.5 ? 0 : 1;
-    const loserIndex = 1 - winnerIndex;
-    const randomResult: MatchResult = {
-      score: [0, 0],
+    return this.winResult(winnerIndex);
+  }
+
+  private winResult(winnerIndex: 0 | 1): MatchResult {
+    if (winnerIndex === 0) {
+      return {
+        score: [1, 0],
+        players: [],
+        state: MatchState.FINISHED
+      };
+    }
+
+    return {
+      score: [0, 1],
       players: [],
       state: MatchState.FINISHED
     };
-    randomResult.score[winnerIndex] = 1;
-    randomResult.score[loserIndex] = 0;
-    return randomResult;
   }
 
-  private resolveDraw(room: Room, result: MatchResult): MatchResult {
-    if (result.score.length < 2 || result.score[0] !== result.score[1]) {
-      return result;
-    }
-
-    let winnerIndex = Math.random() < 0.5 ? 0 : 1;
+  private remainingPlayerWinResult(room: Room): MatchResult {
     if (room.playersAmount() === 1) {
       const remainingPlayer = room.players[0];
       const remainingSide = room.getPlayerSide(remainingPlayer.id);
       if (remainingSide === 0 || remainingSide === 1) {
-        winnerIndex = remainingSide;
+        return this.winResult(remainingSide);
       }
     }
 
-    const score = [...result.score];
-    score[winnerIndex] = score[winnerIndex] + 1;
-
-    return {
-      ...result,
-      score
-    };
+    return this.randomWinResult();
   }
 
   private clearDisconnectTimeout(token: string) {
@@ -184,7 +181,7 @@ export class RoomService {
         return;
       }
 
-      const result = this.resolveDraw(currentRoom, currentRoom.matchResult);
+      const result = this.remainingPlayerWinResult(currentRoom);
       this.updateMatch(socket, currentRoom.token, result);
       this.io.to(currentRoom.token).emit("end", result.score);
       this.removeRoom(currentRoom.token);
