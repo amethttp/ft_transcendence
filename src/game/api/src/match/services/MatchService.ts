@@ -4,8 +4,12 @@ import { MatchData } from "../models/MatchData";
 import { PongSettings } from "../models/PongSettings";
 
 const s = PongSettings;
-const LEFT_LIMIT = s.PADDLE_OFFSET + s.PADDLE_WIDTH;
-const RIGHT_LIMIT = s.MAX_WIDTH - (s.PADDLE_OFFSET + s.PADDLE_WIDTH);
+const LEFT_PADDLE_MIN_X = s.PADDLE_OFFSET;
+const LEFT_PADDLE_MAX_X = s.PADDLE_OFFSET + s.PADDLE_WIDTH;
+const RIGHT_PADDLE_MIN_X = s.MAX_WIDTH - (s.PADDLE_OFFSET + s.PADDLE_WIDTH);
+const RIGHT_PADDLE_MAX_X = s.MAX_WIDTH - s.PADDLE_OFFSET;
+const LEFT_LIMIT = LEFT_PADDLE_MAX_X;
+const RIGHT_LIMIT = RIGHT_PADDLE_MIN_X;
 
 export class MatchService {
   private _matchData: MatchData;
@@ -102,6 +106,13 @@ export class MatchService {
     return this._matchData.ball.position.x + s.BALL_SIZE > RIGHT_LIMIT;
   }
 
+  private isBallWithinHorizontalRange(rangeMin: number, rangeMax: number): boolean {
+    const ballLeft = this._matchData.ball.position.x;
+    const ballRight = this._matchData.ball.position.x + s.BALL_SIZE;
+
+    return ballLeft < rangeMax && ballRight > rangeMin;
+  }
+
   private paddleCollision(paddle: PaddleChange | undefined) {
     if (!paddle) { return false; }
     const paddleCenter = paddle.position + s.PADDLE_SIZE / 2;
@@ -123,13 +134,21 @@ export class MatchService {
   }
 
   private checkHorizontalCollisions(): boolean {
-    if (this.isBallOutLeft() && this.isBallWithinPaddle(this._matchData.leftPaddle)) {
+    if (
+      this.isBallOutLeft()
+      && this.isBallWithinPaddle(this._matchData.leftPaddle)
+      && this.isBallWithinHorizontalRange(LEFT_PADDLE_MIN_X, LEFT_PADDLE_MAX_X)
+    ) {
       this._matchData.ball.position.x = LEFT_LIMIT;
       this.paddleCollision(this._matchData.leftPaddle);
       this._matchData.updateBallVelocity();
       this._matchData.updateBallPosition();
       return true;
-    } else if (this.isBallOutRight() && this.isBallWithinPaddle(this._matchData.rightPaddle)) {
+    } else if (
+      this.isBallOutRight()
+      && this.isBallWithinPaddle(this._matchData.rightPaddle)
+      && this.isBallWithinHorizontalRange(RIGHT_PADDLE_MIN_X, RIGHT_PADDLE_MAX_X)
+    ) {
       this._matchData.ball.position.x = RIGHT_LIMIT - s.BALL_SIZE;
       this.paddleCollision(this._matchData.rightPaddle);
       this._matchData.updateBallVelocity();

@@ -1,6 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { MatchService } from "./MatchService";
+import { PongSettings } from "../models/PongSettings";
+
+const s = PongSettings;
+
+function getMatchData(matchService: MatchService) {
+  return (matchService as unknown as { _matchData: any })._matchData;
+}
 
 test("assigns deterministic sides when right player connects first", () => {
   const matchService = new MatchService([0, 0]);
@@ -41,4 +48,67 @@ test("snapshot paddles are ordered by side (left then right)", () => {
 
   assert.deepEqual(sides, [0, 1]);
   assert.deepEqual(players, ["left-second", "right-first"]);
+});
+
+test("ball collides with left paddle only inside paddle x-range", () => {
+  const matchService = new MatchService([0, 0]);
+  matchService.addPlayer("left-player", 0);
+
+  const matchData = getMatchData(matchService);
+  const paddle = matchData.leftPaddle;
+  assert.ok(paddle);
+
+  paddle.position = s.MAX_HEIGHT / 2 - s.PADDLE_SIZE / 2;
+  matchData.ball.position.x = (s.PADDLE_OFFSET + s.PADDLE_WIDTH) - (s.BALL_SIZE / 2);
+  matchData.ball.position.y = paddle.position + (s.PADDLE_SIZE / 2) - (s.BALL_SIZE / 2);
+  matchData.ball.direction.x = -1;
+  matchData.ball.direction.y = 0;
+  matchData.ball.velocity = 1;
+
+  const changed = matchService.updateBall();
+
+  assert.equal(changed, true);
+  assert.ok(matchData.ball.direction.x > 0);
+});
+
+test("ball ignores left paddle exterior side", () => {
+  const matchService = new MatchService([0, 0]);
+  matchService.addPlayer("left-player", 0);
+
+  const matchData = getMatchData(matchService);
+  const paddle = matchData.leftPaddle;
+  assert.ok(paddle);
+
+  paddle.position = s.MAX_HEIGHT / 2 - s.PADDLE_SIZE / 2;
+  matchData.ball.position.x = s.PADDLE_OFFSET - s.BALL_SIZE - 1;
+  matchData.ball.position.y = paddle.position + (s.PADDLE_SIZE / 2) - (s.BALL_SIZE / 2);
+  matchData.ball.direction.x = -1;
+  matchData.ball.direction.y = 0;
+  matchData.ball.velocity = 1;
+
+  const changed = matchService.updateBall();
+
+  assert.equal(changed, false);
+  assert.equal(matchData.ball.direction.x, -1);
+});
+
+test("ball ignores right paddle exterior side", () => {
+  const matchService = new MatchService([0, 0]);
+  matchService.addPlayer("right-player", 1);
+
+  const matchData = getMatchData(matchService);
+  const paddle = matchData.rightPaddle;
+  assert.ok(paddle);
+
+  paddle.position = s.MAX_HEIGHT / 2 - s.PADDLE_SIZE / 2;
+  matchData.ball.position.x = (s.MAX_WIDTH - s.PADDLE_OFFSET) + 1;
+  matchData.ball.position.y = paddle.position + (s.PADDLE_SIZE / 2) - (s.BALL_SIZE / 2);
+  matchData.ball.direction.x = 1;
+  matchData.ball.direction.y = 0;
+  matchData.ball.velocity = 1;
+
+  const changed = matchService.updateBall();
+
+  assert.equal(changed, false);
+  assert.equal(matchData.ball.direction.x, 1);
 });
