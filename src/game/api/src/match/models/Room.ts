@@ -202,16 +202,33 @@ export class Room extends EventEmitter<RoomEvents> {
   public resetPlayersState() {
     const roomPlayers = Object.values(this._players);
     for (const player of roomPlayers) {
-      player.state = PlayerState.WAITING;
+      if (player instanceof HumanPlayer) {
+        player.state = PlayerState.WAITING;
+      } else {
+        player.state = PlayerState.READY;
+      }
     }
   }
 
+  private getPlayerIdBySide(side: 0 | 1): string | undefined {
+    return this._matchService.snapshot.paddles.find((paddle) => paddle.side === side)?.playerId;
+  }
+
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
-    if (this.local && (key === "ArrowUp" || key === "ArrowDown")) {
-      this._matchService.setPaddleChange("LOCAL", key, isPressed);
-    } else {
-      this._matchService.setPaddleChange(socket.id, key, isPressed);
+    if (this.local) {
+      const isLeftInput = key === "w" || key === "s";
+      const isRightInput = key === "ArrowUp" || key === "ArrowDown";
+      if (isLeftInput || isRightInput) {
+        const targetPlayerId = this.getPlayerIdBySide(isLeftInput ? 0 : 1);
+        if (!targetPlayerId) {
+          return;
+        }
+        this._matchService.setPaddleChange(targetPlayerId, key, isPressed);
+        return;
+      }
     }
+
+    this._matchService.setPaddleChange(socket.id, key, isPressed);
   }
 
   public isExpired(): boolean {

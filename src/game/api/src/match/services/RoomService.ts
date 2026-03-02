@@ -263,6 +263,9 @@ export class RoomService {
       this.io.to(room.token).emit("end", result.score);
       clearInterval(room.interval);
       this.removeRoom(room.token);
+      if (room.local) {
+        return;
+      }
       const opts: RequestInit = {};
       if (!socket.cookie)
         return; // TODO: Throw error
