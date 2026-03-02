@@ -13,9 +13,12 @@ const RIGHT_LIMIT = RIGHT_PADDLE_MIN_X;
 
 export class MatchService {
   private _matchData: MatchData;
+  private _paddleKeyState: Record<string, { up: boolean; down: boolean }>;
 
   constructor(score: number[]) {
     this._matchData = new MatchData(score);
+    this._paddleKeyState = {};
+    
   }
 
   public get snapshot(): Snapshot {
@@ -44,23 +47,48 @@ export class MatchService {
       side: paddleSide,
       position: (s.MAX_HEIGHT / 2) - s.PADDLE_SIZE / 2,
     } as PaddleChange;
+
+    this._paddleKeyState[newPlayerId] = { up: false, down: false };
   }
 
   public deletePlayer(playerId: string) {
     delete this._matchData.paddles[playerId];
+    delete this._paddleKeyState[playerId];
+  }
+
+  private isUpKey(key: string): boolean {
+    return key === "w" || key === "ArrowUp";
+  }
+
+  private isDownKey(key: string): boolean {
+    return key === "s" || key === "ArrowDown";
+  }
+
+  private updateMovementDirection(playerId: string, paddle: PaddleChange): void {
+    const keyState = this._paddleKeyState[playerId] ?? { up: false, down: false };
+    if (keyState.up === keyState.down) {
+      paddle.movementDirection = 0;
+      return;
+    }
+
+    paddle.movementDirection = keyState.up ? -1 : 1;
   }
 
   public setPaddleChange(playerId: string, key: string, isPressed: boolean) {
     const paddle = this._matchData.paddles[playerId];
     if (!paddle) { return; }
-    if (!isPressed)
-      paddle.movementDirection = 0;
-    else {
-      paddle.movementDirection = 1;
-      if (key === "w" || key === "ArrowUp") {
-        paddle.movementDirection = -1;
-      } else if (key !== "s" && key !== "ArrowDown") { return; }
+
+    const keyState = this._paddleKeyState[playerId] ?? { up: false, down: false };
+    if (this.isUpKey(key)) {
+      keyState.up = isPressed;
+    } else if (this.isDownKey(key)) {
+      keyState.down = isPressed;
+    } else {
+      return;
     }
+
+    this._paddleKeyState[playerId] = keyState;
+    this.updateMovementDirection(playerId, paddle);
   }
 
   private updatePaddle(paddle: PaddleChange): number {

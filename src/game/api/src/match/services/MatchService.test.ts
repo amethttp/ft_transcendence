@@ -112,3 +112,37 @@ test("ball ignores right paddle exterior side", () => {
   assert.equal(changed, false);
   assert.equal(matchData.ball.direction.x, 1);
 });
+
+test("holding up then pressing down cancels movement, releasing down restores up", () => {
+  const matchService = new MatchService([0, 0]);
+  matchService.addPlayer("player", 0);
+
+  const paddle = matchService.snapshot.paddles.find((p) => p.playerId === "player");
+  assert.ok(paddle);
+
+  matchService.setPaddleChange("player", "w", true);
+  assert.equal(paddle.movementDirection, -1);
+
+  matchService.setPaddleChange("player", "s", true);
+  assert.equal(paddle.movementDirection, 0);
+
+  matchService.setPaddleChange("player", "s", false);
+  assert.equal(paddle.movementDirection, -1);
+});
+
+test("holding down then pressing up cancels movement, releasing up restores down", () => {
+  const matchService = new MatchService([0, 0]);
+  matchService.addPlayer("player", 0);
+
+  const paddle = matchService.snapshot.paddles.find((p) => p.playerId === "player");
+  assert.ok(paddle);
+
+  matchService.setPaddleChange("player", "s", true);
+  assert.equal(paddle.movementDirection, 1);
+
+  matchService.setPaddleChange("player", "w", true);
+  assert.equal(paddle.movementDirection, 0);
+
+  matchService.setPaddleChange("player", "w", false);
+  assert.equal(paddle.movementDirection, 1);
+});
