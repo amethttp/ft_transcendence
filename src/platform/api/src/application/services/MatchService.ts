@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { Match, MatchStateByValue } from "../../domain/entities/Match";
+import { Match, MatchState, MatchStateByValue } from "../../domain/entities/Match";
 import { IMatchRepository } from "../../domain/repositories/IMatchRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
@@ -37,7 +37,7 @@ export class MatchService {
 
   async setMatchFinished(match: Match) {
     const matchUpdate: Partial<Match> = {
-      state: 3,
+      state: MatchState.FINISHED,
       finishTime: StringTime.now(),
     };
 
