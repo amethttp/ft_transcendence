@@ -2,6 +2,7 @@ import type Path from "../../../../framework/Router/Path/Path";
 import type { Resolver } from "../../../../framework/Router/Route/Resolver";
 import { LoggedUser } from "../../../../auth/LoggedUser";
 import { MatchService } from "../services/MatchService";
+import Alert from "../../../../framework/Alert/Alert";
 
 const matchResolver: Resolver = async (path: Path) => {
   const matchService = new MatchService();
@@ -16,15 +17,18 @@ const matchResolver: Resolver = async (path: Path) => {
         if (tournamentToken) {
           return `/play/tournament/${tournamentToken}`;
         }
+        Alert.error("Could not join the match.");
         return '/play';
       }
       return {match};
     }
     else {
+      Alert.error("Could not join the match.");
       return '/play';
     }
   }
   catch (e: any) {
+    Alert.error("Could not join the match.");
     return '/play';
   }
 };
