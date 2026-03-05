@@ -13,6 +13,7 @@ import StringTime from "../helpers/StringTime";
 import { HumanPlayer } from "./HumanPlayer";
 import { LocalPlayer } from "./LocalPlayer";
 import { AIPlayer } from "./AIPlayer";
+import { MatchMode, TMatchMode } from "./MatchMode";
 
 export type RoomEvents = {
   ballChange: BallChange,
@@ -24,6 +25,7 @@ export type RoomEvents = {
 export class Room extends EventEmitter<RoomEvents> {
   private _token: string;
   private _local: boolean;
+  private _mode: TMatchMode;
   private _tournament: boolean;
   private _playerIds: number[];
   private _players: Record<string, Player>;
@@ -37,7 +39,8 @@ export class Room extends EventEmitter<RoomEvents> {
     super();
 
     this._token = token;
-    this._local = settings.local;
+    this._mode = settings.mode;
+    this._local = this._mode !== MatchMode.ONLINE;
     this._tournament = settings.tournament;
     this._playerIds = settings.playerIds || [];
     this._players = {};
@@ -58,6 +61,10 @@ export class Room extends EventEmitter<RoomEvents> {
 
   public get local(): boolean {
     return this._local;
+  }
+
+  public get mode(): TMatchMode {
+    return this._mode;
   }
 
   public get tournament(): boolean {

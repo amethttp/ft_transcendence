@@ -80,6 +80,7 @@ test("joinMatch existing-room path does not disconnect and triggers join/reset b
       return room;
     },
     cancelDisconnectTimeout: () => undefined,
+    ensureModePlayers: () => false,
     newRoom: async () => {
       throw new Error("newRoom should not be called in existing-room path");
     },
@@ -169,6 +170,7 @@ test("joinMatch disconnects when room is already ended and emits end to requeste
       return room;
     },
     cancelDisconnectTimeout: () => undefined,
+    ensureModePlayers: () => false,
     newRoom: async () => {
       throw new Error("newRoom should not be called in existing-room path");
     },
@@ -252,6 +254,7 @@ test("joinMatch existing-room syncs expected users and allows valid player", asy
       return true;
     },
     cancelDisconnectTimeout: () => undefined,
+    ensureModePlayers: () => false,
     newRoom: async () => {
       throw new Error("newRoom should not be called in existing-room path");
     },
@@ -321,6 +324,7 @@ test("joinMatch emits message and disconnects when newRoom fails", async () => {
   const roomService = {
     getRoom: () => undefined,
     cancelDisconnectTimeout: () => undefined,
+    ensureModePlayers: () => false,
     newRoom: async () => {
       throw new Error("Could not fetch match settings");
     },

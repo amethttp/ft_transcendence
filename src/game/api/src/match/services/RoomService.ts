@@ -6,6 +6,7 @@ import { MatchState } from "../models/MatchState";
 import { PlayerState } from "../models/PlayerState";
 import { MatchSettings } from "../models/MatchSettings";
 import { MatchResult } from "../models/MatchResult";
+import { MatchMode } from "../models/MatchMode";
 
 const MATCH_BASE_ROUTE = "/match";
 const RECONNECT_GRACE_TIMEOUT_MS = 120000;
@@ -84,6 +85,30 @@ export class RoomService {
 
     this._gameRooms[token] = new Room(token, settings);
     return this._gameRooms[token];
+  }
+
+  public ensureModePlayers(room: Room): boolean {
+    if (room.mode === MatchMode.ONLINE) {
+      return false;
+    }
+
+    if (room.getPlayer("LOCAL") || room.getPlayer("AI") || room.playersAmount() !== 1) {
+      return false;
+    }
+
+    if (room.mode === MatchMode.LOCAL) {
+      room.addLocalPlayer();
+      room.resetPlayersState();
+      return true;
+    }
+
+    if (room.mode === MatchMode.AI) {
+      room.addAIPlayer();
+      room.resetPlayersState();
+      return true;
+    }
+
+    return false;
   }
 
   private publicDisconnect(socket: AuthenticatedSocket, room: Room) {

@@ -21,6 +21,10 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
             }
           }
           gameRoom.joinPlayer(socket);
+          const modePlayerAdded = roomService.ensureModePlayers(gameRoom);
+          if (modePlayerAdded) {
+            io.to(socket.id).emit("reset");
+          }
           roomService.cancelDisconnectTimeout(gameRoom.token);
           gameRoom.resetPlayersState();
           socket.broadcast.to(gameRoom.token).emit("reset");
@@ -32,6 +36,10 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
             throw "User is not part of this match";
           }
           gameRoom.addHumanPlayer(socket);
+          const modePlayerAdded = roomService.ensureModePlayers(gameRoom);
+          if (modePlayerAdded) {
+            io.to(socket.id).emit("reset");
+          }
           console.log(`Player ${socket.username} is waiting for a match.`);
         }
         if (gameRoom.gameEnded()) {
@@ -70,28 +78,6 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
         console.log("Starting match...");
         roomService.startMatch(socket, room);
       }
-    });
-
-    socket.on("local", (token) => {
-      const room = roomService.getRoom(token);
-      if (!room) {
-        return;
-      }
-      room.local = true;
-      room.addLocalPlayer();
-      room.resetPlayersState();
-      io.to(socket.id).emit("reset");
-    });
-
-    socket.on("ai", (token) => {
-      const room = roomService.getRoom(token);
-      if (!room) {
-        return;
-      }
-      room.local = true;
-      room.addAIPlayer();
-      room.resetPlayersState();
-      io.to(socket.id).emit("reset");
     });
 
     socket.on("paddleChange", (data) => {

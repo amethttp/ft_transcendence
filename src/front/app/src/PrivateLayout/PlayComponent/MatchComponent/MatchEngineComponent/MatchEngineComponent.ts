@@ -1,8 +1,6 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import SocketClient from "../../../../framework/SocketClient/SocketClient";
-import { PlayerType } from "../MatchComponent";
-import type { PlayerTypeValue } from "../MatchComponent";
 import Ball from "./Elements/Ball";
 import Paddle from "./Elements/Paddle";
 import Canvas from "./Elements/Canvas";
@@ -34,7 +32,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   private _resizeObserver?: ResizeObserver;
   private _fullscreenChangeHandler?: () => void;
   private _activeMatch?: boolean;
-  private _localOpponentType?: PlayerTypeValue;
 
   constructor(token?: string) {
     super();
@@ -52,10 +49,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
-      // if (this._localOpponentType === PlayerType.AI)
-      //   this._socketClient.emitEvent('ai', this._token);
-      // else if (this._localOpponentType === PlayerType.LOCAL)
-      //   this._socketClient.emitEvent('local', this._token);
     });
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
@@ -303,11 +296,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
   async refresh(token?: string) {
     this._token = token;
-  }
-
-  setPlayer(type: PlayerTypeValue) {
-    this._localOpponentType = type;
-    console.log("new player", type);
   }
 
   private observeResize() {

@@ -215,7 +215,6 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     else {
       const val = this._match?.mode as PlayerTypeValue;
       if (Object.values(PlayerType).includes(val as PlayerTypeValue) && val !== PlayerType.ONLINE) {
-        this._matchEngineComponent?.setPlayer(val as PlayerTypeValue);
         this._opponentPlayerComponent?.refresh(MatchComponent.PLAYERS_OPTS[val as PlayerTypeValue]);
         this._showOpponentPlayer();
       }
