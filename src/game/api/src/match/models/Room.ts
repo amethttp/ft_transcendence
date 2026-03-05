@@ -246,19 +246,25 @@ export class Room extends EventEmitter<RoomEvents> {
       const paddleSide = aiPaddleInfo.side as 0 | 1;
       const currentPosition = aiPaddleInfo.position;
 
-      // Get AI's decision
+      // Get AI's decision (this updates the AI's internal decision state)
       const decision = player.makeDecision(snapshot, paddleSide, currentPosition);
 
-      // Only apply movement if AI decides to move
+      // Convert decision to key presses
+      // Decision: -1 = move up, 0 = stay, 1 = move down
       if (decision !== 0) {
-        const key = paddleSide === 0 ? "w" : "ArrowUp"; // Just mark the key type
-        this._matchService.setPaddleChange(player.id, key, decision === -1);
-        this._matchService.setPaddleChange(player.id, key, false);
+        // A new decision was made, apply it
+        const upKey = paddleSide === 0 ? "w" : "ArrowUp";
+        const downKey = paddleSide === 0 ? "s" : "ArrowDown";
         
-        if (decision !== -1) {
-          const downKey = paddleSide === 0 ? "s" : "ArrowDown";
+        // Release all keys first
+        this._matchService.setPaddleChange(player.id, upKey, false);
+        this._matchService.setPaddleChange(player.id, downKey, false);
+        
+        // Press the appropriate key
+        if (decision === -1) {
+          this._matchService.setPaddleChange(player.id, upKey, true);
+        } else if (decision === 1) {
           this._matchService.setPaddleChange(player.id, downKey, true);
-          this._matchService.setPaddleChange(player.id, downKey, false);
         }
       }
     }
@@ -268,11 +274,23 @@ export class Room extends EventEmitter<RoomEvents> {
     if (this.local) {
       const isLeftInput = key === "w" || key === "s";
       const isRightInput = key === "ArrowUp" || key === "ArrowDown";
+      
       if (isLeftInput || isRightInput) {
-        const targetPlayerId = this.getPlayerIdBySide(isLeftInput ? 0 : 1);
+        const targetSide = isLeftInput ? 0 : 1;
+        const targetPlayerId = this.getPlayerIdBySide(targetSide);
+        
         if (!targetPlayerId) {
           return;
         }
+        
+        // Allow human players to control any human player's paddle
+        // But block control of AI/LocalPlayer paddles
+        const targetPlayer = this._players[targetPlayerId];
+        if (targetPlayer && !(targetPlayer instanceof HumanPlayer)) {
+          // Trying to control a non-human player (AI or LocalPlayer)
+          return;
+        }
+        
         this._matchService.setPaddleChange(targetPlayerId, key, isPressed);
         return;
       }

@@ -5,7 +5,8 @@ import { Snapshot } from "./Snapshot";
 
 export class AIPlayer extends Player {
   private _decisionEngine: AIDecisionEngine;
-  private _difficulty: number = 0.7; // Default difficulty (0 = easy, 1 = hard)
+  private _difficulty: number = 0.85; // Default difficulty (0 = easy, 1 = hard) - HARD by default
+  private _lastDecision: -1 | 0 | 1 = 0; // Track last decision across frames
 
   constructor(difficulty: number = 0.7) {
     super();
@@ -47,13 +48,22 @@ export class AIPlayer extends Player {
    * Returns: -1 (move up), 0 (stay), 1 (move down)
    */
   public makeDecision(snapshot: Snapshot, paddleSide: 0 | 1, currentPaddlePosition: number): -1 | 0 | 1 {
-    return this._decisionEngine.getDecision(snapshot, paddleSide, currentPaddlePosition);
+    this._lastDecision = this._decisionEngine.getDecision(snapshot, paddleSide, currentPaddlePosition);
+    return this._lastDecision;
+  }
+
+  /**
+   * Get the last decision made by the AI (persists across frames)
+   */
+  public getLastDecision(): -1 | 0 | 1 {
+    return this._lastDecision;
   }
 
   /**
    * Reset AI state (called on match reset/ball goal)
    */
   public resetDecisionEngine(): void {
+    this._lastDecision = 0;
     this._decisionEngine.reset();
   }
 }

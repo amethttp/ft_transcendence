@@ -152,8 +152,10 @@ export class AIDecisionEngine {
     const targetCenter = this.targetPaddleY + PongSettings.PADDLE_SIZE / 2;
     const difference = targetCenter - paddleCenter;
 
-    // Threshold to avoid jittering
-    const threshold = PongSettings.PADDLE_SIZE * 0.1;
+    // Dynamic threshold based on difficulty - harder AI has smaller threshold
+    const baseThreshold = PongSettings.PADDLE_SIZE * 0.1;
+    const difficulty = (this.predictionAccuracy - 0.6) / 0.38; // Reverse-calculate difficulty from accuracy
+    const threshold = baseThreshold * (1 - difficulty * 0.7); // Scale threshold with difficulty
 
     if (difference < -threshold) {
       return -1; // Move up
@@ -194,8 +196,10 @@ export class AIDecisionEngine {
    */
   public setDifficulty(difficulty: number): void {
     const normalized = Math.max(0, Math.min(1, difficulty));
-    this.predictionAccuracy = 0.65 + normalized * 0.3; // 0.65 - 0.95
-    this.reactionTimeMin = 500 - normalized * 300; // 500ms - 200ms
-    this.reactionTimeMax = 800 - normalized * 300; // 800ms - 500ms
+    // Much tighter prediction accuracy for higher difficulty
+    this.predictionAccuracy = 0.6 + normalized * 0.38; // 0.6 - 0.98 (improved from 0.65-0.95)
+    // Much faster reaction times for higher difficulty
+    this.reactionTimeMin = 500 - normalized * 450; // 500ms - 50ms (faster from 500ms-200ms)
+    this.reactionTimeMax = 800 - normalized * 450; // 800ms - 350ms (faster from 800ms-500ms)
   }
 }
