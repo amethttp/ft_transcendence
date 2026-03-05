@@ -7,6 +7,8 @@ const OBJECT_COLOR = 'oklch(97% 0.001 106.424)';
 const GAME_ASPECT_RATIO = 16 / 9;
 
 export default class Canvas {
+  private _touchStartHandler?: (this: HTMLCanvasElement, ev: TouchEvent) => any;
+  private _touchEndHandler?: (this: HTMLCanvasElement, ev: TouchEvent) => any;
   private _devicePixelRatio!: number;
   private _canvas: HTMLCanvasElement;
   private _canvasContext: CanvasRenderingContext2D;
@@ -120,11 +122,22 @@ export default class Canvas {
   }
 
   setOnTouchDownCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
-    this._canvas.addEventListener('touchstart', func)
+    this._touchStartHandler = func;
+    this._canvas.addEventListener('touchstart', func);
   }
 
   setOnTouchLiftCallback(func: (this: HTMLCanvasElement, ev: TouchEvent) => any) {
+    this._touchEndHandler = func;
     this._canvas.addEventListener('touchend', func);
+  }
+
+  removeTouchCallbacks() {
+    if (this._touchStartHandler)
+      this._canvas.removeEventListener('touchstart', this._touchStartHandler);
+    if (this._touchEndHandler)
+      this._canvas.removeEventListener('touchend', this._touchEndHandler);
+    this._touchStartHandler = undefined;
+    this._touchEndHandler = undefined;
   }
 
   toggleFullScreenStyles() {

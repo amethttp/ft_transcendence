@@ -73,6 +73,9 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this._ball.setFromBallChange(data);
     });
     this._socketClient.setEvent("end", (data) => {
+      if (this._animationId)
+        cancelAnimationFrame(this._animationId);
+      this._animationId = 0;
       this.setEndState(data);
     });
     this._socketClient.setEvent('disconnect', (reason) => {
@@ -215,11 +218,13 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
   private handleKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
+      case "W":
       case "w":
         if (!this._inputs[0])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
         this._inputs[0] = true;
         break;
+      case "S":
       case "s":
         if (!this._inputs[1])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
@@ -242,11 +247,13 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
   private handleKeyUp = (event: KeyboardEvent) => {
     switch (event.key) {
+      case "W":
       case "w":
         if (this._inputs[0])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: false })
         this._inputs[0] = false;
         break;
+      case "S":
       case "s":
         if (this._inputs[1])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
@@ -288,6 +295,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   private setEndState(score: number[]) {
+    this._canvas.paintGameState(this._paddles, this._ball, score);
     this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
     this._unLockNavigation();
@@ -323,6 +331,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     if (this._animationId)
       cancelAnimationFrame(this._animationId);
     this._animationId = 0;
+    this._canvas?.removeTouchCallbacks?.();
     this._resizeObserver?.disconnect();
     if (this._fullscreenChangeHandler)
       document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
