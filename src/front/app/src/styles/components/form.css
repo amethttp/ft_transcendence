@@ -10,7 +10,8 @@
   input[type="url"],
   input[type="tel"],
   input[type="number"],
-  input[type="date"] {
+  input[type="date"],
+  select {
     @apply px-3 py-2 outline w-full bg-gray-50 outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
   }
 
@@ -18,8 +19,26 @@
     @apply appearance-none cursor-text;
   }
 
-  .touched.dirty.invalid input {
+  select {
+    @apply appearance-none cursor-pointer pr-10 shadow-sm hover:outline-gray-400;
+  }
+
+  .touched.dirty.invalid input,
+  .touched.dirty.invalid select {
     @apply outline-red-700 focus:ring-red-700 focus:outline-red-700;
+  }
+
+  .select-control {
+    @apply relative w-full;
+  }
+
+  .select-control::after {
+    @apply content-[''] absolute right-3 top-1/2 w-2 h-2 border-r-2 border-b-2 border-gray-500 rotate-45 -translate-y-1/2 pointer-events-none transition-colors;
+  }
+
+  .select-control:hover::after,
+  .select-control:focus-within::after {
+    @apply border-gray-700;
   }
 
 

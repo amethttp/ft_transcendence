@@ -12,8 +12,9 @@ import PlayerComponent, { type PlayerOptions } from "./PlayerComponent/PlayerCom
 import { MatchService } from "./services/MatchService";
 
 export const PlayerType = {
-  CPU: 0,
-  LOCAL: 1
+  ONLINE: 0,
+  LOCAL: 1,
+  AI: 2,
 } as const;
 
 export type PlayerTypeValue = typeof PlayerType[keyof typeof PlayerType];
@@ -22,19 +23,6 @@ type MatchComponentResolvedData = { match: MatchJoin };
 
 export default class MatchComponent extends AmethComponent<MatchComponentResolvedData> {
   template = () => import("./MatchComponent.html?raw");
-  private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
-    {
-      name: "AI",
-      avatar: "/ai-player.webp",
-      local: true
-    },
-    {
-      name: "Player 2",
-      avatar: "/player2.webp",
-      local: true,
-      controls: true
-    }
-  ];
   private _matchEngineComponent?: MatchEngineComponent;
   private _matchService: MatchService;
   private _match?: MatchJoin;
@@ -149,17 +137,14 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
     document.getElementById("MatchComponentOpponentPlayer")!.classList.remove("flex");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
   private _showOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("hidden", "flex");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
   }
 
   private _hideOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("flex", "hidden");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
   }
 
   private _fillView(refreshTitlePart: boolean = false) {
@@ -207,14 +192,14 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     if (this._opponentPlayerComponent?.player)
       this._showOpponentPlayer();
     else {
-      document.getElementById("MatchComponentSelectPlayer")!.onchange = (e) => {
-        const val = parseInt((e.target as HTMLSelectElement).value);
-        if (Object.values(PlayerType).includes(val as PlayerTypeValue)) {
-          this._matchEngineComponent?.setPlayer(val as PlayerTypeValue);
-          this._opponentPlayerComponent?.refresh(MatchComponent.PLAYERS_OPTS[val as PlayerTypeValue]);
-          this._showOpponentPlayer();
-        }
-      };
+      // document.getElementById("MatchComponentSelectPlayer")!.onchange = (e) => {
+      //   const val = parseInt((e.target as HTMLSelectElement).value);
+      //   if (Object.values(PlayerType).includes(val as PlayerTypeValue)) {
+      //     this._matchEngineComponent?.setPlayer(val as PlayerTypeValue);
+      //     this._opponentPlayerComponent?.refresh(MatchComponent.PLAYERS_OPTS[val as PlayerTypeValue]);
+      //     this._showOpponentPlayer();
+      //   }
+      // };
     }
   }
 

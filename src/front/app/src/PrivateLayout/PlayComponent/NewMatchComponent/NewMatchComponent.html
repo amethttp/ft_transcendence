@@ -20,14 +20,26 @@
           <label for="pointsInput" class="label">Points to win</label>
           <input id="pointsInput" name="points" type="number" min="2" max="100">
         </div>
-        <label class="field flex-row justify-center gap-4 select-none">
+        <div class="field">
+          <label for="modeSelect" class="label">Mode</label>
+          <div class="control">
+            <div class="select-control">
+              <select id="modeSelect" name="mode">
+                <option value="0">Online</option>
+                <option value="1">Local</option>
+                <option value="2">AI</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="visibilityField" class="field flex-row justify-center gap-4 select-none">
           <label for="visibilityToggle" class="label">Private</label>
           <label class="switch">
             <input type="checkbox" id="visibilityToggle" name="isVisible">
             <span class="slider round"></span>
           </label>
           <label for="visibilityToggle" class="label">Public</label>
-        </label>
+        </div>
         <div class="field items-center">
           <p class="control w-full">
             <button class="btn btn-primary w-full" type="submit">Create</button>

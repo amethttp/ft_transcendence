@@ -302,7 +302,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
   setPlayer(type: PlayerTypeValue) {
     console.log("new player", type);
-    if (type === PlayerType.CPU)
+    if (type === PlayerType.AI)
       this._socketClient.emitEvent('ai', this._token);
     else if (type === PlayerType.LOCAL)
       this._socketClient.emitEvent('local', this._token);
