@@ -5,6 +5,12 @@ CREATE TABLE
   );
 
 CREATE TABLE
+  IF NOT EXISTS e_match_mode (
+	value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	name TEXT NOT NULL
+  );
+
+CREATE TABLE
   IF NOT EXISTS e_tournament_state (
     value INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL
@@ -156,11 +162,13 @@ CREATE TABLE
     token TEXT NOT NULL UNIQUE,
     points INTEGER NOT NULL,
     is_visible BOOLEAN NOT NULL,
+	mode INTEGER NOT NULL,
     tournament_round_id INTEGER,
     state INTEGER NOT NULL,
     creation_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     finish_time TEXT,
     FOREIGN KEY (state) REFERENCES e_match_state (value),
+	FOREIGN KEY (mode) REFERENCES e_match_mode (value),
     FOREIGN KEY (tournament_round_id) REFERENCES tournament_round (id)
   );
 
@@ -178,6 +186,10 @@ CREATE TABLE
 
 INSERT INTO e_user_status_type (name) VALUES ('ONLINE');
 INSERT INTO e_user_status_type (name) VALUES ('OFFLINE');
+
+INSERT INTO e_match_mode (name) VALUES ('ONLINE');
+INSERT INTO e_match_mode (name) VALUES ('LOCAL');
+INSERT INTO e_match_mode (name) VALUES ('AI');
 
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_REQUESTED');
 INSERT INTO e_user_relation_type (name) VALUES ('FRIENDSHIP_ACCEPTED');
