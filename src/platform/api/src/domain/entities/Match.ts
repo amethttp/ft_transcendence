@@ -8,14 +8,28 @@ export const MatchState = {
   FINISHED: 3
 } as const;
 
+export const MatchMode = {
+  ONLINE: 1,
+  LOCAL: 2,
+  AI: 3,
+} as const;
+
 export type MatchStateKey = keyof typeof MatchState;
 export type MatchStateValue = (typeof MatchState)[MatchStateKey];
+export type MatchModeKey = keyof typeof MatchMode;
+export type MatchModeValue = (typeof MatchMode)[MatchModeKey];
 
 export const MatchStateByValue = {
   1: "WAITING",
   2: "IN_PROGRESS",
   3: "FINISHED",
 } satisfies Record<MatchStateValue, MatchStateKey>;
+
+export const MatchModeByValue = {
+  1: "ONLINE",
+  2: "LOCAL",
+  3: "AI",
+} satisfies Record<MatchModeValue, MatchModeKey>;
 
 export const matchSchema: Record<string, string> = {
   id: "id",
@@ -24,6 +38,7 @@ export const matchSchema: Record<string, string> = {
   isVisible: "is_visible",
   state: "state",
   points: "points",
+  mode: "mode",
   tournamentRound: "tournament_round_id",
   creationTime: "creation_time",
   finishTime: "finish_time",
@@ -37,6 +52,7 @@ export class Match extends AEntity {
   name: string;
   token: string;
   points: number;
+  mode: MatchModeValue;
   isVisible: boolean;
   state: MatchStateValue;
   players: MatchPlayer[]; 
@@ -50,6 +66,7 @@ export class Match extends AEntity {
     this.name = "";
     this.token = "";
     this.points = 10;
+    this.mode = MatchMode.ONLINE;
     this.isVisible = false;
     this.state = 1;
     this.players = []; // [MatchPlayer]

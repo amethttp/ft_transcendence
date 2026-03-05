@@ -4,6 +4,7 @@ import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { ITournamentRoundRepository } from "../../domain/repositories/ITournamentRoundRepository";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
 import { NewMatchRequest } from "../models/NewMatchRequest";
+import { MatchMode } from "../../domain/entities/Match";
 import { MatchService } from "./MatchService";
 import { MatchPlayerService } from "./MatchPlayerService";
 import { ITournamentRepository } from "../../domain/repositories/ITournamentRepository";
@@ -52,7 +53,8 @@ export class TournamentRoundService {
         name: `${tournament.name} - round of ${round.top}`,
         points: tournament.points,
         tournamentRound: round,
-        isVisible: false
+        isVisible: false,
+        mode: MatchMode.ONLINE,
       };
       const match = await this._matchService.newMatch(matchRequest);
       await this._matchPlayerService.newMatchPlayer(activePlayers[i].user, match);

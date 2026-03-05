@@ -7,6 +7,7 @@ import { ErrorParams, ResponseError } from "../../application/errors/ResponseErr
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { MatchResult } from "../../application/models/MatchResult";
 import { TournamentMatchService } from "../../application/services/TournamentMatchService";
+import { MatchMode, MatchModeValue } from "../../domain/entities/Match";
 
 export default class MatchController {
   private _matchService: MatchService;
@@ -24,11 +25,13 @@ export default class MatchController {
   async newMatch(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body: NewMatchRequest = request.body as NewMatchRequest;
-      if (body.points < 2 || body.points > 100) {
+      const mode = Number(body?.mode) as MatchModeValue;
+      if (!body || body.points < 2 || body.points > 100 || !Object.values(MatchMode).includes(mode)) {
         const error = new ResponseError(ErrorParams.BAD_REQUEST);
         return reply.code(error.code).send(error.toDto());
       }
       else {
+        body.mode = mode;
         const jwtUser = request.user as JwtPayloadInfo;
         const originUser = await this._userService.getById(jwtUser.sub);
         const match = await this._matchService.newMatch(body);

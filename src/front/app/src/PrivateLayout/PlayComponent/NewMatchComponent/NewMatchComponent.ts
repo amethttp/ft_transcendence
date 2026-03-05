@@ -25,7 +25,7 @@ export default class NewMatchComponent extends AmethComponent {
     const visibilityToggle = document.getElementById("visibilityToggle") as HTMLInputElement | null;
     if (!visibilityField)
       return;
-    const shouldHideVisibility = mode > 0;
+    const shouldHideVisibility = mode !== PlayerType.ONLINE;
     visibilityField.classList.toggle("hidden", shouldHideVisibility);
     if (shouldHideVisibility) {
       if (visibilityToggle)
@@ -46,14 +46,14 @@ export default class NewMatchComponent extends AmethComponent {
       name: new FormControl<string>(NameGenerator.generatePongName(), [Validators.length(3, 100)]),
       points: new FormControl<number>(10, [Validators.minMax(2, 100)]),
       isVisible: new FormControl<boolean>(true),
-      mode: new FormControl<PlayerTypeValue>(PlayerType.ONLINE, [Validators.minMax(0, 2)])
+      mode: new FormControl<PlayerTypeValue>(PlayerType.ONLINE, [Validators.minMax(1, 3)])
     });
 
     const modeSelect = document.getElementById("modeSelect") as HTMLSelectElement | null;
     const visibilityToggle = document.getElementById("visibilityToggle") as HTMLInputElement | null;
     if (visibilityToggle) {
       visibilityToggle.addEventListener("change", () => {
-        if (modeSelect && Number(modeSelect.value) === 0)
+        if (modeSelect && Number(modeSelect.value) === PlayerType.ONLINE)
           this._iaVisibilityPreference = visibilityToggle.checked;
       });
     }

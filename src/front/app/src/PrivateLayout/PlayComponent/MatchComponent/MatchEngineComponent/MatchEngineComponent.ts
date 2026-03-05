@@ -34,6 +34,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   private _resizeObserver?: ResizeObserver;
   private _fullscreenChangeHandler?: () => void;
   private _activeMatch?: boolean;
+  private _localOpponentType?: PlayerTypeValue;
 
   constructor(token?: string) {
     super();
@@ -51,6 +52,10 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
+      // if (this._localOpponentType === PlayerType.AI)
+      //   this._socketClient.emitEvent('ai', this._token);
+      // else if (this._localOpponentType === PlayerType.LOCAL)
+      //   this._socketClient.emitEvent('local', this._token);
     });
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
@@ -174,11 +179,11 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
         if (!this._inputs[2])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: true })
         this._inputs[2] = true;
-        } else {
+      } else {
         if (!this._inputs[3])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: true })
         this._inputs[3] = true;
-        }
+      }
     }
   }
 
@@ -187,7 +192,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
     const touch: Touch = event.touches[0];
 
-    if (!touch) return ;
+    if (!touch) return;
 
     const xTouch = this.getTouchCoordX(touch);
     const yTouch = this.getTouchCoordY(touch);
@@ -301,11 +306,8 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   setPlayer(type: PlayerTypeValue) {
+    this._localOpponentType = type;
     console.log("new player", type);
-    if (type === PlayerType.AI)
-      this._socketClient.emitEvent('ai', this._token);
-    else if (type === PlayerType.LOCAL)
-      this._socketClient.emitEvent('local', this._token);
   }
 
   private observeResize() {
