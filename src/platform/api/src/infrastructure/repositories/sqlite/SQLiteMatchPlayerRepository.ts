@@ -1,6 +1,7 @@
 import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 import { MatchPlayer } from "../../../domain/entities/MatchPlayer";
 import { IMatchPlayerRepository } from "../../../domain/repositories/IMatchPlayerRepository";
+import { MatchMode } from "../../../domain/entities/Match";
 
 export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlayer> implements IMatchPlayerRepository {
 
@@ -10,7 +11,7 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
 
 
   findByUserAndMatch(userId: number, matchId: number): Promise<MatchPlayer | null> {
-    const query = `WHERE user_id =? AND match_id=?`;
+    const query = `WHERE match_player.user_id =? AND match_player.match_id=?`;
     return this.baseFind(query, [userId, matchId]);
   }
 
@@ -82,6 +83,7 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
               FROM match_player mp
               LEFT JOIN user u ON mp.user_id = u.id
               WHERE mp.match_id = match2.id
+              ORDER BY mp.id ASC
             )
           )
         ) AS result
@@ -92,23 +94,23 @@ export class SQLiteMatchPlayerRepository extends SQLiteBaseRepository<MatchPlaye
       LEFT JOIN match match2 ON match_player.match_id = match2.id
       LEFT JOIN tournament_round tournament_round3 ON match2.tournament_round_id = tournament_round3.id
       LEFT JOIN tournament tournament4 ON tournament_round3.tournament_id = tournament4.id
-      WHERE user_id = ?;
+      WHERE match_player.user_id = ? AND match2.mode = ?;
     `;
-    return this.dbAll(query, id);
+    return this.dbAll(query, [id, MatchMode.ONLINE]);
   }
 
   findLastAmountByUser(id: number, amount: number): Promise<MatchPlayer[] | null> {
-    const query = `WHERE user_id =? ORDER BY match_id DESC LIMIT ${amount}`;
-    return this.baseFindAll(query, [id]);
+    const query = `WHERE match_player.user_id =? AND match_player.match_id IN (SELECT m.id FROM match m WHERE m.mode = ?) ORDER BY match_player.match_id DESC LIMIT ${amount}`;
+    return this.baseFindAll(query, [id, MatchMode.ONLINE]);
   }
 
   findAllByUser(id: number): Promise<MatchPlayer[] | null> {
-    const query = `WHERE user_id =?`;
+    const query = `WHERE match_player.user_id =?`;
     return this.baseFindAll(query, [id]);
   }
 
   findAllByMatch(id: number): Promise<MatchPlayer[] | null> {
-    const query = `WHERE match_id =?`;
+    const query = `WHERE match_player.match_id =? ORDER BY match_player.match_id ASC`;
     return this.baseFindAll(query, [id]);
   }
 

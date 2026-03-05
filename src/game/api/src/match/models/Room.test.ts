@@ -26,6 +26,7 @@ test("Room maps sides by platform playerIds even when right user joins first", (
   const settings: MatchSettings = {
     maxScore: 3,
     local: false,
+    mode: 1,
     tournament: true,
     state: MatchState.WAITING,
     creationTime: "",
@@ -49,6 +50,7 @@ test("Room falls back to first available side when userId is missing from player
   const settings: MatchSettings = {
     maxScore: 3,
     local: false,
+    mode: 1,
     tournament: true,
     state: MatchState.WAITING,
     creationTime: "",
@@ -72,6 +74,7 @@ test("Room exposes side for a connected player", () => {
   const settings: MatchSettings = {
     maxScore: 3,
     local: false,
+    mode: 1,
     tournament: true,
     state: MatchState.WAITING,
     creationTime: "",
@@ -90,10 +93,41 @@ test("Room exposes side for a connected player", () => {
   assert.equal(room.getPlayerSide("socket-right"), 1);
 });
 
+test("Room respects updated playerIds after reconnection with new match_player order", () => {
+  // Original order: [101, 202] — user 202 joins first, gets side 1
+  const settings: MatchSettings = {
+    maxScore: 3,
+    local: false,
+    mode: 1,
+    tournament: false,
+    state: MatchState.WAITING,
+    creationTime: "",
+    score: [0, 0],
+    playerIds: [101, 202],
+  };
+
+  const room = new Room("token-room-reconnect", settings);
+  const rightUserSocket = createSocket("socket-right", 202, "rightUser");
+  room.addHumanPlayer(rightUserSocket);
+
+  // User 101 disconnected and got a new match_player row — DB order is now [202, 101]
+  room.setExpectedUsers([202, 101]);
+
+  const leftUserSocket = createSocket("socket-left", 101, "leftUser");
+  room.addHumanPlayer(leftUserSocket);
+
+  const paddleSides = getPaddleSidesBySocketId(room);
+  // User 202 was already side 1 but should now be side 0 (index 0 in new playerIds)
+  assert.equal(paddleSides.get("socket-right"), 0);
+  // User 101 should now be side 1 (index 1 in new playerIds)
+  assert.equal(paddleSides.get("socket-left"), 1);
+});
+
 test("Room rejects users when platform playerIds are empty", () => {
   const settings: MatchSettings = {
     maxScore: 3,
     local: false,
+    mode: 1,
     tournament: false,
     state: MatchState.WAITING,
     creationTime: "",
@@ -110,6 +144,7 @@ test("Room local mode keeps non-human player ready after resetPlayersState", () 
   const settings: MatchSettings = {
     maxScore: 3,
     local: true,
+    mode: 2,
     tournament: false,
     state: MatchState.WAITING,
     creationTime: "",
@@ -132,6 +167,7 @@ test("Room local mode maps W/S to left paddle and Arrow keys to right paddle", (
   const settings: MatchSettings = {
     maxScore: 3,
     local: true,
+    mode: 2,
     tournament: false,
     state: MatchState.WAITING,
     creationTime: "",

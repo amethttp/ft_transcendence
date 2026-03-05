@@ -214,11 +214,54 @@ export class Room extends EventEmitter<RoomEvents> {
       } else {
         player.state = PlayerState.READY;
       }
+      // Reset AI decision engine on state reset
+      if (player instanceof AIPlayer) {
+        player.resetDecisionEngine();
+      }
     }
   }
 
   private getPlayerIdBySide(side: 0 | 1): string | undefined {
     return this._matchService.snapshot.paddles.find((paddle) => paddle.side === side)?.playerId;
+  }
+
+  /**
+   * Update AI player paddle movements based on game state
+   * This is called every game tick to allow AI to make decisions
+   */
+  private updateAIPlayers(): void {
+    const snapshot = this._matchService.snapshot;
+    
+    for (const player of Object.values(this._players)) {
+      if (!(player instanceof AIPlayer)) {
+        continue;
+      }
+
+      // Find AI's paddle
+      const aiPaddleInfo = snapshot.paddles.find(p => p.playerId === player.id);
+      if (!aiPaddleInfo) {
+        continue;
+      }
+
+      const paddleSide = aiPaddleInfo.side as 0 | 1;
+      const currentPosition = aiPaddleInfo.position;
+
+      // Get AI's decision
+      const decision = player.makeDecision(snapshot, paddleSide, currentPosition);
+
+      // Only apply movement if AI decides to move
+      if (decision !== 0) {
+        const key = paddleSide === 0 ? "w" : "ArrowUp"; // Just mark the key type
+        this._matchService.setPaddleChange(player.id, key, decision === -1);
+        this._matchService.setPaddleChange(player.id, key, false);
+        
+        if (decision !== -1) {
+          const downKey = paddleSide === 0 ? "s" : "ArrowDown";
+          this._matchService.setPaddleChange(player.id, downKey, true);
+          this._matchService.setPaddleChange(player.id, downKey, false);
+        }
+      }
+    }
   }
 
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
@@ -249,6 +292,9 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public nextSnapshot(lastSnapshot: number): number {
+    // Update AI players every tick
+    this.updateAIPlayers();
+    
     let paddleChange = this._matchService.updatePaddles();
     let ballChange = this._matchService.updateBall();
     this._matchService.checkGoal();

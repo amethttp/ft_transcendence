@@ -23,11 +23,25 @@ test("assigns deterministic sides when right player connects first", () => {
   assert.equal(paddlesByPlayer.get("right-socket"), 1);
 });
 
-test("falls back to first available side when requested side is already occupied", () => {
+test("swaps existing player when explicitly requesting an occupied side", () => {
   const matchService = new MatchService([0, 0]);
 
   matchService.addPlayer("left-player", 0);
-  matchService.addPlayer("fallback-player", 0);
+  matchService.addPlayer("new-player", 0);
+
+  const paddlesByPlayer = new Map(
+    matchService.snapshot.paddles.map((paddle) => [paddle.playerId, paddle.side])
+  );
+
+  assert.equal(paddlesByPlayer.get("new-player"), 0);
+  assert.equal(paddlesByPlayer.get("left-player"), 1);
+});
+
+test("falls back to first available side when no side is specified", () => {
+  const matchService = new MatchService([0, 0]);
+
+  matchService.addPlayer("left-player", 0);
+  matchService.addPlayer("fallback-player");
 
   const paddlesByPlayer = new Map(
     matchService.snapshot.paddles.map((paddle) => [paddle.playerId, paddle.side])

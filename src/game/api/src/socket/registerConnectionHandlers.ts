@@ -11,14 +11,10 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
       try {
         let gameRoom = roomService.getRoom(token);
         if (gameRoom) {
-          const isExpectedUser = gameRoom.hasExpectedUser ? gameRoom.hasExpectedUser(socket.userId) : true;
-          if (!isExpectedUser) {
-            const synced = await roomService.syncRoomExpectedUsers(socket.cookie, gameRoom);
-            const isExpectedAfterSync = gameRoom.hasExpectedUser ? gameRoom.hasExpectedUser(socket.userId) : true;
-            if (!synced || !isExpectedAfterSync) {
-              console.warn(`joinMatch rejected: user ${socket.username}(${socket.userId}) is not part of match ${token}`);
-              throw "User is not part of this match";
-            }
+          await roomService.syncRoomExpectedUsers(socket.cookie, gameRoom);
+          if (!gameRoom.hasExpectedUser(socket.userId)) {
+            console.warn(`joinMatch rejected: user ${socket.username}(${socket.userId}) is not part of match ${token}`);
+            throw "User is not part of this match";
           }
           gameRoom.joinPlayer(socket);
           const modePlayerAdded = roomService.ensureModePlayers(gameRoom);
@@ -60,9 +56,16 @@ export function registerConnectionHandlers(io: Server, roomService: RoomService)
 
     socket.on("ready", (token) => {
       const room = roomService.getRoom(token);
-      if (!room || room.playersAmount() === 1 || room.gameEnded()) {
+      if (!room || room.gameEnded()) {
         return;
       }
+      
+      // In ONLINE mode, need 2 players. In LOCAL/AI mode, 1 human + 1 AI/LOCAL is enough
+      const isOnlineMode = room.mode === 1; // MatchMode.ONLINE
+      if (isOnlineMode && room.playersAmount() === 1) {
+        return;
+      }
+      
       const player = room.getPlayer(socket.id);
       if (!player) {
         return;

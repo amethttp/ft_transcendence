@@ -34,6 +34,7 @@ export class SQLiteMatchRepository extends SQLiteBaseRepository<Match> implement
           FROM match_player mp
           LEFT JOIN user u ON mp.user_id = u.id
           WHERE mp.match_id = match.id
+          ORDER BY mp.id ASC
         )
       ) AS result
       FROM

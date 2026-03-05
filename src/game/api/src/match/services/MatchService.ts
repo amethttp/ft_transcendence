@@ -35,9 +35,14 @@ export class MatchService {
   }
 
   public addPlayer(newPlayerId: string, side?: 0 | 1) {
-    const occupiedSides = new Set(Object.values(this._matchData.paddles).map((paddle) => paddle.side));
     let paddleSide = side;
-    if (paddleSide === undefined || occupiedSides.has(paddleSide)) {
+    if (paddleSide !== undefined) {
+      const existingPaddle = Object.values(this._matchData.paddles).find(p => p.side === paddleSide);
+      if (existingPaddle) {
+        existingPaddle.side = (1 - paddleSide) as 0 | 1;
+      }
+    } else {
+      const occupiedSides = new Set(Object.values(this._matchData.paddles).map((paddle) => paddle.side));
       paddleSide = occupiedSides.has(0) ? 1 : 0;
     }
 
