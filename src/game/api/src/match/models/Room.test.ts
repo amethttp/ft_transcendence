@@ -247,3 +247,38 @@ test("Room AI mode maps Arrow keys to the human paddle like W/S", () => {
     1,
   );
 });
+
+test("Room joinPlayer does not emit handshake in AI mode", () => {
+  const settings: MatchSettings = {
+    maxScore: 3,
+    local: true,
+    mode: 3,
+    tournament: false,
+    state: MatchState.WAITING,
+    creationTime: "",
+    score: [0, 0],
+    playerIds: [101],
+  };
+
+  const emittedEvents: string[] = [];
+  const socket = {
+    id: "socket-human-2",
+    userId: 101,
+    username: "human2",
+    join: () => undefined,
+    broadcast: {
+      to: () => ({
+        emit: (event: string) => {
+          emittedEvents.push(event);
+        },
+      }),
+    },
+  } as unknown as AuthenticatedSocket;
+
+  const room = new Room("token-room-ai-join", settings);
+  room.addAIPlayer();
+
+  room.joinPlayer(socket);
+
+  assert.equal(emittedEvents.includes("handshake"), false);
+});

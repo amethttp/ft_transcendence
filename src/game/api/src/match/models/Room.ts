@@ -190,7 +190,7 @@ export class Room extends EventEmitter<RoomEvents> {
       socket.broadcast.to(this.token).emit("reset", socket.userId);
       this.resetPlayersState();
     }
-    else {
+    else if (this._mode === MatchMode.ONLINE) {
       socket.broadcast.to(this.token).emit("handshake", socket.userId);
     }
   }

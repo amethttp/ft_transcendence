@@ -57,6 +57,10 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
   opponentConnected = (userId: number) => {
     if (!this._match || (this._match.tournamentRound && this._match.tournamentRound.tournament))
       return;
+    if (this._match.mode !== undefined && this._match.mode !== PlayerType.ONLINE)
+      return;
+    if (!Number.isFinite(userId) || userId <= 0)
+      return;
     this._matchService.getPlayer(userId, this._match?.id || -1)
       .then(val => {
         if (this._match && !this._match.players.some(pl => pl.id === val.id)) {

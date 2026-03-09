@@ -160,8 +160,6 @@ export class RoomService {
   private localDisconnect(socket: AuthenticatedSocket, room: Room) {
     if (room.matchState === MatchState.WAITING && room.isExpired()) {
       this.deleteMatch(socket.cookie, room.token);
-    } else if (room.matchState !== MatchState.WAITING) {
-      this.deleteMatch(socket.cookie, room.token);
     }
     this.removeRoom(room.token);
   }
