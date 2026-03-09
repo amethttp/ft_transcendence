@@ -251,22 +251,11 @@ export class Room extends EventEmitter<RoomEvents> {
 
       // Convert decision to key presses
       // Decision: -1 = move up, 0 = stay, 1 = move down
-      if (decision !== 0) {
-        // A new decision was made, apply it
-        const upKey = paddleSide === 0 ? "w" : "ArrowUp";
-        const downKey = paddleSide === 0 ? "s" : "ArrowDown";
-        
-        // Release all keys first
-        this._matchService.setPaddleChange(player.id, upKey, false);
-        this._matchService.setPaddleChange(player.id, downKey, false);
-        
-        // Press the appropriate key
-        if (decision === -1) {
-          this._matchService.setPaddleChange(player.id, upKey, true);
-        } else if (decision === 1) {
-          this._matchService.setPaddleChange(player.id, downKey, true);
-        }
-      }
+      const upKey = paddleSide === 0 ? "w" : "ArrowUp";
+      const downKey = paddleSide === 0 ? "s" : "ArrowDown";
+
+      this._matchService.setPaddleChange(player.id, upKey, decision === -1);
+      this._matchService.setPaddleChange(player.id, downKey, decision === 1);
     }
   }
 
