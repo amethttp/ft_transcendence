@@ -202,3 +202,48 @@ test("Room local mode maps W/S to left paddle and Arrow keys to right paddle", (
     1,
   );
 });
+
+test("Room AI mode maps Arrow keys to the human paddle like W/S", () => {
+  const settings: MatchSettings = {
+    maxScore: 3,
+    local: true,
+    mode: 3,
+    tournament: false,
+    state: MatchState.WAITING,
+    creationTime: "",
+    score: [0, 0],
+    playerIds: [101, 202],
+  };
+
+  const room = new Room("token-room-ai-controls", settings);
+  const humanSocket = createSocket("socket-human", 202, "human-right");
+
+  room.addHumanPlayer(humanSocket);
+  room.addAIPlayer();
+
+  const humanPaddle = (room as any)._matchService.snapshot.paddles.find(
+    (paddle: any) => paddle.playerId === humanSocket.id,
+  );
+  assert.ok(humanPaddle);
+
+  room.setPaddleChange(humanSocket, "ArrowUp", true);
+  assert.equal(
+    (room as any)._matchService.snapshot.paddles.find((paddle: any) => paddle.playerId === humanSocket.id)
+      ?.movementDirection,
+    -1,
+  );
+
+  room.setPaddleChange(humanSocket, "ArrowDown", true);
+  assert.equal(
+    (room as any)._matchService.snapshot.paddles.find((paddle: any) => paddle.playerId === humanSocket.id)
+      ?.movementDirection,
+    0,
+  );
+
+  room.setPaddleChange(humanSocket, "ArrowUp", false);
+  assert.equal(
+    (room as any)._matchService.snapshot.paddles.find((paddle: any) => paddle.playerId === humanSocket.id)
+      ?.movementDirection,
+    1,
+  );
+});

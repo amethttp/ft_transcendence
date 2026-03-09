@@ -271,26 +271,30 @@ export class Room extends EventEmitter<RoomEvents> {
   }
 
   public setPaddleChange(socket: AuthenticatedSocket, key: string, isPressed: boolean) {
-    if (this.local) {
+    if (this.mode === MatchMode.AI) {
+      if (key === "ArrowUp") {
+        this._matchService.setPaddleChange(socket.id, "w", isPressed);
+        return;
+      }
+      if (key === "ArrowDown") {
+        this._matchService.setPaddleChange(socket.id, "s", isPressed);
+        return;
+      }
+      this._matchService.setPaddleChange(socket.id, key, isPressed);
+      return;
+    }
+
+    if (this.mode === MatchMode.LOCAL) {
       const isLeftInput = key === "w" || key === "s";
       const isRightInput = key === "ArrowUp" || key === "ArrowDown";
-      
+
       if (isLeftInput || isRightInput) {
         const targetSide = isLeftInput ? 0 : 1;
         const targetPlayerId = this.getPlayerIdBySide(targetSide);
-        
         if (!targetPlayerId) {
           return;
         }
-        
-        // Allow human players to control any human player's paddle
-        // But block control of AI/LocalPlayer paddles
-        const targetPlayer = this._players[targetPlayerId];
-        if (targetPlayer && !(targetPlayer instanceof HumanPlayer)) {
-          // Trying to control a non-human player (AI or LocalPlayer)
-          return;
-        }
-        
+
         this._matchService.setPaddleChange(targetPlayerId, key, isPressed);
         return;
       }
