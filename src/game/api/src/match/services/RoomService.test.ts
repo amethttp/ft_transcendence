@@ -88,3 +88,54 @@ test("RoomService newRoom rejects settings without platform playerIds", async ()
     await service.newRoom("AccessToken=fake;", "token-no-player-ids");
   });
 });
+
+test("RoomService updateMatch persists result only once per token", async () => {
+  let putCalls = 0;
+  const io = {
+    to: () => ({ emit: () => undefined }),
+  } as any;
+  const apiClient = {
+    get: async () => ({}),
+    put: async () => {
+      putCalls += 1;
+      return {};
+    },
+    delete: async () => ({}),
+  } as any;
+
+  const service = new RoomService(io, apiClient) as any;
+  const socket = { cookie: "AccessToken=ok;" } as any;
+  const result = { score: [1, 0], players: [], state: MatchState.FINISHED } as MatchResult;
+
+  service.updateMatch(socket, "token-once", result);
+  service.updateMatch(socket, "token-once", result);
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(putCalls, 1);
+});
+
+test("RoomService missing-cookie update does not lock token for future updates", async () => {
+  let putCalls = 0;
+  const io = {
+    to: () => ({ emit: () => undefined }),
+  } as any;
+  const apiClient = {
+    get: async () => ({}),
+    put: async () => {
+      putCalls += 1;
+      return {};
+    },
+    delete: async () => ({}),
+  } as any;
+
+  const service = new RoomService(io, apiClient) as any;
+  const noCookieSocket = {} as any;
+  const cookieSocket = { cookie: "AccessToken=ok;" } as any;
+  const result = { score: [0, 1], players: [], state: MatchState.FINISHED } as MatchResult;
+
+  service.updateMatch(noCookieSocket, "token-cookie-late", result);
+  service.updateMatch(cookieSocket, "token-cookie-late", result);
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(putCalls, 1);
+});

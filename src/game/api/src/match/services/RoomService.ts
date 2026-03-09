@@ -14,12 +14,14 @@ const RECONNECT_GRACE_TIMEOUT_MS = 120000;
 export class RoomService {
   private _gameRooms: Record<string, Room>;
   private _disconnectTimeouts: Record<string, ReturnType<typeof setTimeout>>;
+  private _resultPersistedByToken: Set<string>;
   private _apiClient: ApiClient;
   private io: Server;
 
   constructor(server: Server, apiClient: ApiClient) {
     this._gameRooms = {};
     this._disconnectTimeouts = {};
+    this._resultPersistedByToken = new Set();
     this._apiClient = apiClient;
     this.io = server;
   }
@@ -61,7 +63,32 @@ export class RoomService {
 
   private removeRoom(token: string) {
     this.clearDisconnectTimeout(token);
+    this._resultPersistedByToken.delete(token);
     delete this._gameRooms[token];
+  }
+
+  private persistMatchResultOnce(socket: AuthenticatedSocket, token: string, result: MatchResult) {
+    if (!socket.cookie) {
+      return;
+    }
+
+    if (this._resultPersistedByToken.has(token)) {
+      return;
+    }
+
+    this._resultPersistedByToken.add(token);
+    const opts: RequestInit = {};
+    opts.headers = { cookie: socket.cookie };
+
+    this._apiClient.put(`${MATCH_BASE_ROUTE}/${token}`, result, opts)
+      .then((val) => {
+        console.log("API RESULT UPDATE DONE");
+        this.setCredentials(socket, val);
+      })
+      .catch((error) => {
+        this._resultPersistedByToken.delete(token);
+        console.log("API RESULT UPDATE FAILED", error);
+      });
   }
 
   public async newRoom(cookie: string | undefined, token: string): Promise<Room> {
@@ -256,6 +283,8 @@ export class RoomService {
     let accumulated = 0;
     let running = true;
 
+    room.destroy();
+
     const loop = (now: number) => {
       if (!running || room.gameEnded() || (room.matchState === MatchState.PAUSED) || (room.matchState === MatchState.FINISHED)) { return };
 
@@ -285,22 +314,7 @@ export class RoomService {
 
     room.on("end", (result) => {
       running = false;
-      this.io.to(room.token).emit("end", result.score);
-      clearInterval(room.interval);
-      this.removeRoom(room.token);
-      if (room.local) {
-        return;
-      }
-      const opts: RequestInit = {};
-      if (!socket.cookie)
-        return; // TODO: Throw error
-      opts.headers = { cookie: socket.cookie };
-      this._apiClient.put(`${MATCH_BASE_ROUTE}/${room.token}`, result, opts)
-        .then((val) => {
-          console.log("API RESULT UPDATE DONE");
-          this.setCredentials(socket, val);
-        })
-        .catch((error) => console.log("API RESULT UPDATE FAILED", error));
+      this.finishMatch(socket, room, result.score);
     });
 
     loop(performance.now());
@@ -332,15 +346,24 @@ export class RoomService {
   }
 
   private updateMatch(socket: AuthenticatedSocket, token: string, result: MatchResult) {
-    const opts: RequestInit = {};
-    if (!socket.cookie)
-      return; // TODO: Throw error
-    opts.headers = { cookie: socket.cookie };
-    this._apiClient.put(`${MATCH_BASE_ROUTE}/${token}`, result, opts)
-      .then((val) => {
-        console.log("API RESULT UPDATE DONE");
-        this.setCredentials(socket, val);
-      })
-      .catch((error) => console.log("API RESULT UPDATE FAILED", error));
+    this.persistMatchResultOnce(socket, token, result);
+  }
+
+  private endResult(room: Room): MatchResult {
+    const result = room.matchResult;
+    return {
+      score: [...result.score],
+      players: result.players,
+      state: MatchState.FINISHED,
+    };
+  }
+
+  private finishMatch(socket: AuthenticatedSocket, room: Room, score: number[]) {
+    this.io.to(room.token).emit("end", score);
+    clearInterval(room.interval);
+    if (!room.local) {
+      this.persistMatchResultOnce(socket, room.token, this.endResult(room));
+    }
+    this.removeRoom(room.token);
   }
 }
