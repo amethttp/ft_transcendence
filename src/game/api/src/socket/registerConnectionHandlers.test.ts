@@ -52,6 +52,7 @@ test("joinMatch existing-room path does not disconnect and triggers join/reset b
     token: "match-token",
     players: [],
     matchScore: [0, 0],
+    hasExpectedUser: () => true,
     joinPlayer: (argSocket: AuthenticatedSocket) => {
       assert.equal(argSocket, socket);
       joinPlayerCalled++;
@@ -79,6 +80,7 @@ test("joinMatch existing-room path does not disconnect and triggers join/reset b
       assert.equal(token, "match-token");
       return room;
     },
+    syncRoomExpectedUsers: async () => true,
     cancelDisconnectTimeout: () => undefined,
     ensureModePlayers: () => false,
     newRoom: async () => {
@@ -140,6 +142,7 @@ test("joinMatch disconnects when room is already ended and emits end to requeste
     token: "match-token",
     players: [],
     matchScore: [7, 3],
+    hasExpectedUser: () => true,
     joinPlayer: () => undefined,
     resetPlayersState: () => undefined,
     gameEnded: () => true,
@@ -169,6 +172,7 @@ test("joinMatch disconnects when room is already ended and emits end to requeste
       assert.equal(token, "match-token");
       return room;
     },
+    syncRoomExpectedUsers: async () => true,
     cancelDisconnectTimeout: () => undefined,
     ensureModePlayers: () => false,
     newRoom: async () => {

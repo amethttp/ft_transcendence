@@ -68,19 +68,28 @@ test("AIDecisionEngine uses bounded center-weighted target when ball moves away"
 
   const prediction = engine.predictBallPosition(snapshot, 1);
   const center = s.MAX_HEIGHT / 2 - s.PADDLE_SIZE / 2;
-  const expected = center * 0.8 + 100 * 0.2;
+  const centerBias = engine.CENTER_BIAS;
+  const expected = center * (1 - centerBias) + 100 * centerBias;
 
   assert.equal(prediction.estimatedBallY, expected);
 });
 
-test("AIDecisionEngine hysteresis avoids instant direction flip near centerline", () => {
+test("AIDecisionEngine hysteresis keeps straight-incoming movement stable near centerline", () => {
   const engine = new AIDecisionEngine() as any;
+  const snapshot = makeSnapshot({
+    position: { x: 400, y: 300 },
+    direction: { x: 1, y: 0.02 },
+    velocity: 4,
+  });
 
   engine.currentDecision = 1;
   engine.targetPaddleY = 300;
 
   const almostCenteredPaddle = 300 + s.PADDLE_SIZE / 2 - 1;
-  const movement = engine.calculatePaddleMovement(almostCenteredPaddle);
+  const movement = engine.getDecision(snapshot, 1, almostCenteredPaddle);
+  const paddleCenter = almostCenteredPaddle + s.PADDLE_SIZE / 2;
+  const ballCenter = snapshot.ball.position.y + s.BALL_SIZE / 2;
+  const expected = ballCenter > paddleCenter ? 1 : -1;
 
-  assert.equal(movement, 0);
+  assert.equal(movement, expected);
 });

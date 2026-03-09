@@ -59,6 +59,9 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
       return;
     this._matchService.getPlayer(userId, this._match?.id || -1)
       .then(val => {
+        if (this._match && !this._match.players.some(pl => pl.id === val.id)) {
+          this._match.players.push(val);
+        }
         this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
         this._showOpponentPlayer();
       })
@@ -99,6 +102,9 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     await super.init(selector, router, resolvedData);
     this._token = this.router?.currentPath.params["token"] as string;
     this._matchEngineComponent = new MatchEngineComponent(this._token);
+    this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
+    this._matchEngineComponent.on("matchEnded", this.matchEnded);
+    this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
   }
 
@@ -117,9 +123,6 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     await this._initPlayers();
     this._fillView();
     if (this._matchEngineComponent) {
-      this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
-      this._matchEngineComponent.on("matchEnded", this.matchEnded);
-      this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
       this._matchEngineComponent.afterInit();
     }
   }
