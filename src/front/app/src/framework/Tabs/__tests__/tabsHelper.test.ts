@@ -1,8 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { TabsHelper } from "../TabsHelper";
 
 describe("TabsHelper", () => {
   beforeEach(() => {
+    const scrollIntoViewMock = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      writable: true,
+      value: scrollIntoViewMock,
+    });
+
     document.body.innerHTML = "";
     history.replaceState(null, "", "http://localhost:5173/");
   });
