@@ -160,7 +160,19 @@ export class RoomService {
   private localDisconnect(socket: AuthenticatedSocket, room: Room) {
     if (room.matchState === MatchState.WAITING && room.isExpired()) {
       this.deleteMatch(socket.cookie, room.token);
+      this.removeRoom(room.token);
+      return;
     }
+
+    if (room.matchState === MatchState.WAITING || room.matchState === MatchState.FINISHED) {
+      this.removeRoom(room.token);
+      return;
+    }
+
+    if (room.matchState === MatchState.PAUSED && room.playersAmount() === 1) {
+      return;
+    }
+
     this.removeRoom(room.token);
   }
 
@@ -238,6 +250,28 @@ export class RoomService {
     }, RECONNECT_GRACE_TIMEOUT_MS);
   }
 
+  private startLocalReconnectTimeout(socket: AuthenticatedSocket, room: Room) {
+    if (!room.local || room.playersAmount() !== 1 || room.matchState !== MatchState.PAUSED) {
+      return;
+    }
+
+    this.clearDisconnectTimeout(room.token);
+    this.io.to(room.token).emit("message", "Match paused. Waiting up to 2 minutes for reconnection...");
+
+    this._disconnectTimeouts[room.token] = setTimeout(() => {
+      const currentRoom = this._gameRooms[room.token];
+      if (!currentRoom) {
+        return;
+      }
+      if (currentRoom.playersAmount() !== 1 || currentRoom.matchState !== MatchState.PAUSED) {
+        return;
+      }
+
+      this.deleteMatch(socket.cookie, currentRoom.token);
+      this.removeRoom(currentRoom.token);
+    }, RECONNECT_GRACE_TIMEOUT_MS);
+  }
+
   private roomPlayerRemoval(socket: AuthenticatedSocket, room: Room) {
     if (room.getPlayer(socket.id)) {
       room.deletePlayer(socket.id);
@@ -253,6 +287,7 @@ export class RoomService {
     clearInterval(room.interval);
     this.roomPlayerRemoval(socket, room);
     this.startReconnectTimeout(socket, room);
+    this.startLocalReconnectTimeout(socket, room);
     console.log("discccc", room.local, room.tournament, room.playersAmount());
 
     if (room.local) {
