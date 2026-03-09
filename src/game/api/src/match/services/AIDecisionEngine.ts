@@ -19,8 +19,8 @@ export class AIDecisionEngine {
   private DECISION_REFRESH_RATE = 1000; // smoother, human-like correction cadence
   
   // AI difficulty parameters (can be tuned)
-  private predictionAccuracy = 0.85; // How accurate AI predictions are (0-1)
-  private readonly CENTER_BIAS = 0.2; // low recenter tendency to avoid jitter
+  private predictionAccuracy = 1; // How accurate AI predictions are (0-1)
+  private readonly CENTER_BIAS = 0.1; // low recenter tendency to avoid jitter
   private readonly TRACKING_DEAD_ZONE = PongSettings.PADDLE_SIZE * 0.12;
   private readonly TRACKING_HYSTERESIS = PongSettings.PADDLE_SIZE * 0.06;
 
@@ -172,6 +172,9 @@ export class AIDecisionEngine {
     const movementThreshold = Math.max(threshold, this.TRACKING_DEAD_ZONE) + straightIncomingBonus;
     const startThreshold = movementThreshold + this.TRACKING_HYSTERESIS;
     const stopThreshold = movementThreshold;
+    const flipThreshold = isStraightIncoming
+      ? startThreshold + (PongSettings.PADDLE_SIZE * 0.12)
+      : startThreshold;
 
     if (Math.abs(difference) <= stopThreshold) {
       return 0;
@@ -179,14 +182,14 @@ export class AIDecisionEngine {
 
     if (this.currentDecision === -1) {
       if (difference < -stopThreshold) { return -1; }
-      if (difference > startThreshold) { return 1; }
-      return 0;
+      if (difference > flipThreshold) { return 1; }
+      return -1;
     }
 
     if (this.currentDecision === 1) {
       if (difference > stopThreshold) { return 1; }
-      if (difference < -startThreshold) { return -1; }
-      return 0;
+      if (difference < -flipThreshold) { return -1; }
+      return 1;
     }
 
     if (difference < -startThreshold) { return -1; }
