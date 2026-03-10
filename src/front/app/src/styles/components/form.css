@@ -12,7 +12,7 @@
   input[type="number"],
   input[type="date"],
   select {
-    @apply px-3 py-2 outline w-full bg-gray-50 outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
+    @apply px-3 py-2 shadow-xs outline w-full bg-white outline-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:outline-gray-500 transition-colors;
   }
 
   input[type="date"] {
@@ -87,11 +87,11 @@
   }
 
   .slider {
-    @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all rounded-full; 
+    @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all rounded-full;
   }
 
   .slider:before {
-    @apply absolute content-[''] h-[22px] w-[22px] left-[3px] bottom-[3px] bg-gray-50 shadow transition-all rounded-full;
+    @apply absolute content-[''] h-[22px] w-[22px] left-[3px] bottom-[3px] bg-white shadow transition-all rounded-full;
   }
 
   input:checked+.slider {

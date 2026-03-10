@@ -4,6 +4,6 @@
   }
 
   .card-2 {
-    @apply rounded-xl outline-1 outline-gray-200 shadow bg-white py-8 px-9 gap-6;
+    @apply rounded-xl outline-1 outline-gray-200 shadow bg-white py-8 px-9 gap-6 m-1;
   }
 }

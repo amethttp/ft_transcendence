@@ -39,7 +39,7 @@ export default class TournamentBracketsComponent extends AmethComponent {
     if (!this._tournament)
       return;
     else if (this._tournament.rounds.length < 1) {
-      container.innerHTML = "<p class=\"text-center w-full\">Waiting for players to start...</p>";
+      container.innerHTML = "<p class=\"text-center flex grow w-full items-center justify-center\">Waiting for players to start...</p>";
     }
     else {
       this._fillRounds(container);

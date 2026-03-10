@@ -20,10 +20,10 @@
   }
 
   .btn-tertiary {
-    @apply bg-gray-50 hover:bg-gray-800 outline-1 outline-gray-800 text-gray-900 hover:text-gray-50 text-shadow-white rounded-full shadow-md transition-[background-color,box-shadow] hover:shadow-transparent ;
+    @apply bg-white hover:bg-gray-800 outline-1 outline-gray-800 text-gray-900 hover:text-gray-50 text-shadow-white rounded-full shadow-md transition-[background-color,box-shadow] hover:shadow-transparent ;
   }
 
   .btn-google {
-    @apply flex justify-center items-center gap-4 bg-gray-50 hover:bg-gray-200 border border-gray-800 text-gray-800 text-shadow-white rounded-full shadow-md transition hover:shadow-transparent ;
+    @apply flex justify-center items-center gap-4 bg-white hover:bg-gray-200 border border-gray-800 text-gray-800 text-shadow-white rounded-full shadow-md transition hover:shadow-transparent ;
   }
 }

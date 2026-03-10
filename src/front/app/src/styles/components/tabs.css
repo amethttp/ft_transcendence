@@ -9,7 +9,7 @@
 
   .tabs > .active,
   .tabs > *:hover {
-    @apply bg-gray-50 shadow;
+    @apply bg-white shadow;
   }
 
   .tabs > .active {
