@@ -90,7 +90,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this.emit("opponentLeft", true);
     });
     this._socketClient.setEvent('pause', () => {
-      Alert.info('Opponent left');
+      Alert.warning('Opponent left');
       this._canvasOverlay.setPauseState();
       if (this._animationId)
         cancelAnimationFrame(this._animationId);
