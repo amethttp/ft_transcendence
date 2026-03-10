@@ -142,7 +142,6 @@ export default class Canvas {
 
   toggleFullScreenStyles() {
     this._canvasContainer.classList.toggle('bg-black');
-    this._canvasContainer.classList.toggle('bg-gray-50');
   }
 
   toggleFullScreen() {

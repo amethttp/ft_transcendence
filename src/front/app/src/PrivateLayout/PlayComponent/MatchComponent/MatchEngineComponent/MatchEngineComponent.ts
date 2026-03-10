@@ -8,6 +8,7 @@ import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Elements/Viewport";
 import type { Snapshot } from "./models/Snapshot";
 import CanvasOverlay from "./Elements/CanvasOverlay";
 import FullScreenButton from "./Elements/FullScreenButton";
+import Alert from "../../../../framework/Alert/Alert";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -49,6 +50,10 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
+      if (this._canvasOverlay) {
+        this._canvasOverlay.reset();
+        this._canvasOverlay.onclick(() => this.setReadyToPlay());
+      }
     });
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
@@ -85,6 +90,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this.emit("opponentLeft", true);
     });
     this._socketClient.setEvent('pause', () => {
+      Alert.info('Opponent left');
       this._canvasOverlay.setPauseState();
       if (this._animationId)
         cancelAnimationFrame(this._animationId);
