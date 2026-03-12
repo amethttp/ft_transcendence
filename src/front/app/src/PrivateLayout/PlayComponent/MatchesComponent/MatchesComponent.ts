@@ -1,12 +1,9 @@
 import AmethComponent from "../../../framework/AmethComponent";
-import { Form } from "../../../framework/Form/Form";
-import { FormControl } from "../../../framework/Form/FormGroup/FormControl/FormControl";
 import type { Router } from "../../../framework/Router/Router";
 import MatchesListComponent from "./MatchesListComponent/MatchesListComponent";
 
 export default class MatchesComponent extends AmethComponent {
   template = () => import("./MatchesComponent.html?raw");
-  private _form!: Form<{ token: string }>;
   private _matchesListComponent: MatchesListComponent;
 
   constructor() {
@@ -20,14 +17,6 @@ export default class MatchesComponent extends AmethComponent {
   }
 
   afterInit(): void {
-    this._form = new Form("matchCodeListForm", {
-      token: new FormControl<string>("")
-    });
-    this._form.submit = ({ token }) => {
-      if (token)
-        this.router?.navigateByPath(`/play/${encodeURIComponent(token)}`);
-    };
-
     this._matchesListComponent.afterInit();
   }
 

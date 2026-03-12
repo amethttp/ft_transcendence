@@ -1,11 +1,28 @@
 <div class="flex grow flex-col gap-4">
-  <div class="card-2 flex flex-row flex-wrap space-x-4 items-center justify-between gap-6">
+  <div class="card-2 flex flex-row flex-wrap space-x-4 items-center justify-center sm:justify-between gap-6">
     <div>
       <h2 class="title-2">Play</h2>
       <p class="subtitle-2">Play games and compete against others</p>
     </div>
+    <div class="flex gap-8 flex-wrap justify-center items-center">
+      <form id="matchCodeListForm" class="flex w-fit flex-row gap-2 items-center justify-center">
+        <div class="control">
+          <input name="token" type="text" placeholder="Enter code to join" autocapitalize="off" autocomplete="off"
+            autocorrect="off" spellcheck="false">
+        </div>
+        <div class="control">
+          <button type="submit" class="btn btn-primary sm:hidden" title="Join match" aria-label="Join match">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-  <div class="card-2 flex grow flex-col gap-6">
+  <div class="card-2 flex grow flex-col gap-8 justify-center items-center sm:items-baseline">
     <div class="tabs sticky top-2 z-10" id="PlayComponentTabs">
       <a href="/play">
         Matches
