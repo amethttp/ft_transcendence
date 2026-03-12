@@ -2,7 +2,7 @@ name: Deploy Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, AMTRAS-178-GameAPI-DEV ]
   workflow_dispatch:
 
 concurrency:
