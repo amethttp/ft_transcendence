@@ -223,6 +223,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
+    let prevent = true;
     switch (event.key) {
       case "W":
       case "w":
@@ -247,8 +248,11 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
         this._inputs[3] = true;
         break;
       default:
+        prevent = false;
         break;
     }
+    if (prevent)
+      event.preventDefault();
   };
 
   private handleKeyUp = (event: KeyboardEvent) => {
