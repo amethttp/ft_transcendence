@@ -1,10 +1,14 @@
 services:
   platform:
+    ports:
+      - "8080:443"
     volumes:
       - platform-api:/home/app
     command: "npm run dev"
 
   game:
+    ports:
+      - "8081:443"
     volumes:
       - game-api:/home/app
     command: "npm run dev"

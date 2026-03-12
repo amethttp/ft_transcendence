@@ -3,3 +3,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/amethpong.fun/fullchain.pem:/etc/ssl/certs/transcendence.crt:ro
+      - /etc/letsencrypt/live/amethpong.fun/privkey.pem:/etc/ssl/private/transcendence.key:ro
+      - /var/www/letsencrypt:/var/www/certbot:ro

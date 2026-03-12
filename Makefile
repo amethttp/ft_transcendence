@@ -25,11 +25,19 @@ RM = rm -rf
 MKDIR = mkdir -p
 PRINT = echo
 DOCKER = docker
+CERTBOT = sudo certbot
 
 SRC = src/
 BASE_YAML = $(SRC)docker-compose.yml
 DEV_YAML = $(SRC)docker-compose.dev.yml
 PROD_YAML = $(SRC)docker-compose.prod.yml
+COMPOSE_DEV = $(DOCKER) compose -f $(BASE_YAML) -f $(DEV_YAML)
+COMPOSE_PROD = $(DOCKER) compose -f $(BASE_YAML) -f $(PROD_YAML)
+
+CERT_NAME ?= amethpong.fun
+CERT_DOMAINS ?= -d amethpong.fun -d www.amethpong.fun -d api.amethpong.fun -d game.amethpong.fun
+CERT_EMAIL ?= change-me@amethpong.fun
+CERTBOT_WEBROOT ?= /var/www/letsencrypt
 
 VOLUMES_DIR=volumes/
 DATABASE_VOLUME=$(VOLUMES_DIR)database/
@@ -56,13 +64,54 @@ up:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
 	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(BASE_YAML) -f $(DEV_YAML) up -d --build
+	@$(COMPOSE_DEV) up -d --build
 
 prod:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
 	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Deploying $(WHITE_BOLD)application$(BLUE)...$(RESET)"
-	@$(DOCKER) compose -f $(BASE_YAML) -f $(PROD_YAML) up -d --build
+	@$(COMPOSE_PROD) up -d --build
+
+pull:
+	@$(PRINT) "$(BLUE)Updating repository with $(WHITE_BOLD)git pull --ff-only$(BLUE)...$(RESET)"
+	@git pull --ff-only
+
+rebuild:
+	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
+	@$(PRINT) "$(BLUE)Rebuilding $(WHITE_BOLD)development$(BLUE) stack without removing volumes...$(RESET)"
+	@$(COMPOSE_DEV) up -d --build --remove-orphans
+
+rebuild-prod:
+	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
+	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
+	@$(PRINT) "$(BLUE)Rebuilding $(WHITE_BOLD)production$(BLUE) stack without removing volumes...$(RESET)"
+	@$(COMPOSE_PROD) up -d --build --remove-orphans
+
+update:
+	@$(MAKE) pull
+	@$(MAKE) rebuild
+
+update-prod:
+	@$(MAKE) pull
+	@$(MAKE) rebuild-prod
+
+cert-init:
+	@if [ "$(CERT_EMAIL)" = "change-me@amethpong.fun" ]; then \
+		$(PRINT) "$(RED_BOLD)Set CERT_EMAIL before running cert-init.$(RESET)"; \
+		exit 1; \
+	fi
+	@$(PRINT) "$(BLUE)Requesting $(WHITE_BOLD)Let's Encrypt$(BLUE) certificate for $(WHITE_BOLD)$(CERT_NAME)$(BLUE)...$(RESET)"
+	@sudo mkdir -p $(CERTBOT_WEBROOT)
+	@$(CERTBOT) certonly --webroot -w $(CERTBOT_WEBROOT) --cert-name $(CERT_NAME) $(CERT_DOMAINS) --agree-tos -m $(CERT_EMAIL) --non-interactive
+
+cert-renew:
+	@$(PRINT) "$(BLUE)Renewing $(WHITE_BOLD)Let's Encrypt$(BLUE) certificates and reloading $(WHITE_BOLD)nginx$(BLUE)...$(RESET)"
+	@$(CERTBOT) renew --deploy-hook 'cd "$(CURDIR)" && $(COMPOSE_PROD) exec -T nginx nginx -s reload'
+
+cert-renew-dry-run:
+	@$(PRINT) "$(BLUE)Running $(WHITE_BOLD)Let's Encrypt$(BLUE) dry-run renewal and nginx reload hook...$(RESET)"
+	@$(CERTBOT) renew --dry-run --deploy-hook 'cd "$(CURDIR)" && $(COMPOSE_PROD) exec -T nginx nginx -s reload'
 
 down:
 	@$(PRINT) "$(BLUE)Stopping and removing application $(WHITE_BOLD)containers$(BLUE)...$(RESET)"
@@ -110,6 +159,14 @@ re: fclean up
 		list \
 		up \
 		prod \
+		pull \
+		rebuild \
+		rebuild-prod \
+		update \
+		update-prod \
+		cert-init \
+		cert-renew \
+		cert-renew-dry-run \
 		down \
 		fdown \
 		log \
