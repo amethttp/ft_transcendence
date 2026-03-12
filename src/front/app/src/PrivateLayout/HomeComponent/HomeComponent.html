@@ -1,4 +1,63 @@
-<div class="card-2 flex flex-col items-center user gap-10 p-4 sm:p-8">
-  <div id="HomeProfile"></div>
-  <div id="HomeStats" class="flex w-full justify-center"></div>
+<div class="flex grow flex-col gap-4 max-w-full">
+  <section class="card-2 flex flex-col gap-6 p-4 sm:p-8">
+    <div class="flex flex-col gap-2 text-center sm:text-left">
+      <h1 id="HomeWelcomeTitle" class="title-2 text-2xl sm:text-3xl"></h1>
+      <p class="subtitle-2">Ready for one more legendary rally?</p>
+      <p id="HomeTodayMessage" class="text-sm sm:text-base"></p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+      <a href="/play/new" class="btn btn-primary justify-center text-center">Start New Match</a>
+      <a href="/play/tournament/new" class="btn btn-tertiary justify-center text-center">Create Tournament</a>
+      <a href="/social" class="btn btn-secondary justify-center text-center">Open Social Hub</a>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 xl:grid-cols-5 gap-4">
+    <div class="card-2 xl:col-span-3 flex flex-col gap-4 p-4 sm:p-6">
+      <div class="flex flex-col gap-1">
+        <h2 class="title-2 text-xl">Your Arena Card</h2>
+        <p class="subtitle-2">Identity, rank context and profile details.</p>
+      </div>
+      <div id="HomeProfile"></div>
+    </div>
+
+    <div class="card-2 xl:col-span-2 flex flex-col gap-5 p-4 sm:p-6">
+      <div>
+        <h3 class="title-2 text-lg">Daily Challenge</h3>
+        <p id="HomeChallengeMessage" class="subtitle-2 mt-1"></p>
+      </div>
+
+      <div class="rounded-xl border border-stone-300/50 p-4 bg-stone-50/60">
+        <p class="text-sm sm:text-base" id="HomeQuote"></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <a href="/play" class="btn btn-secondary justify-center text-center">Matches</a>
+        <a href="/play/tournaments" class="btn btn-secondary justify-center text-center">Tournaments</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card-2 flex flex-col gap-4 p-4 sm:p-6">
+    <div class="flex flex-col gap-1">
+      <h2 class="title-2 text-xl">Performance Snapshot</h2>
+      <p class="subtitle-2">Track streaks, match history and tournament impact.</p>
+    </div>
+    <div id="HomeStats" class="flex w-full justify-center"></div>
+  </section>
+
+  <section class="card-2 flex flex-col gap-4 p-4 sm:p-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="title-2 text-xl">Recent Activity</h2>
+        <p class="subtitle-2">A mixed timeline of your latest matches and tournament finishes.</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/play" class="btn btn-tertiary">View Matches</a>
+        <a href="/play/tournaments" class="btn btn-tertiary">View Tournaments</a>
+      </div>
+    </div>
+    <div id="HomeRecentActivity" class="flex flex-col gap-3 rounded-lg bg-gray-100 p-3 sm:p-4"></div>
+  </section>
 </div>
