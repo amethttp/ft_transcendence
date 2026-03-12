@@ -1,11 +1,19 @@
-<div class="flex flex-col items-center justify-center p-4 gap-9">
-  <div class="tabs sticky top-2 z-10" id="PlayComponentTabs">
-    <a href="/play">
-      Matches
-    </a>
-    <a href="/play/tournaments">
-      Tournaments
-    </a>
+<div class="flex grow flex-col gap-4">
+  <div class="card-2 flex flex-row flex-wrap space-x-4 items-center justify-between gap-6">
+    <div>
+      <h2 class="title-2">Play</h2>
+      <p class="subtitle-2">Play games and compete against others</p>
+    </div>
   </div>
-  <div class="router-outlet flex flex-1 w-full"></div>
+  <div class="card-2 flex grow flex-col gap-6">
+    <div class="tabs sticky top-2 z-10" id="PlayComponentTabs">
+      <a href="/play">
+        Matches
+      </a>
+      <a href="/play/tournaments">
+        Tournaments
+      </a>
+    </div>
+    <div class="router-outlet flex grow w-full"></div>
+  </div>
 </div>

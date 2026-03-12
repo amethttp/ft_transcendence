@@ -1,6 +1,6 @@
 @layer components {
   .tabs {
-    @apply flex gap-1 bg-gray-300 rounded-full p-1 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-300;
+    @apply flex w-fit gap-1 bg-gray-300 rounded-full p-1 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-300;
   }
 
   .tabs > * {
