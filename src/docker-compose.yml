@@ -26,6 +26,8 @@ services:
     volumes:
       - uploads:/var/www/uploads
       - web:/var/www/html
+    networks:
+      - apis
     depends_on:
       - front
     restart: always
