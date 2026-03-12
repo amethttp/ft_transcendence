@@ -97,19 +97,11 @@ update-prod:
 	@$(MAKE) rebuild-prod
 
 cert-init-standalone:
-	@if [ "$(CERT_EMAIL)" = "info@amethpong.fun" ]; then \
-		$(PRINT) "$(RED_BOLD)Set CERT_EMAIL before running cert-init-standalone.$(RESET)"; \
-		exit 1; \
-	fi
 	@$(PRINT) "$(BLUE)Requesting $(WHITE_BOLD)Let's Encrypt$(BLUE) certificate via standalone for $(WHITE_BOLD)$(CERT_NAME)$(BLUE)...$(RESET)"
 	@$(PRINT) "$(YELLOW)NOTE: no container must be listening on port 80 right now.$(RESET)"
 	@$(CERTBOT) certonly --standalone --cert-name $(CERT_NAME) $(CERT_DOMAINS) --agree-tos -m $(CERT_EMAIL) --non-interactive
 
 cert-init:
-	@if [ "$(CERT_EMAIL)" = "info@amethpong.fun" ]; then \
-		$(PRINT) "$(RED_BOLD)Set CERT_EMAIL before running cert-init.$(RESET)"; \
-		exit 1; \
-	fi
 	@$(PRINT) "$(BLUE)Requesting $(WHITE_BOLD)Let's Encrypt$(BLUE) certificate via webroot for $(WHITE_BOLD)$(CERT_NAME)$(BLUE)...$(RESET)"
 	@$(PRINT) "$(YELLOW)NOTE: nginx container must be running (make prod) before using this target.$(RESET)"
 	@sudo mkdir -p $(CERTBOT_WEBROOT)

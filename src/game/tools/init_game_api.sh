@@ -10,7 +10,7 @@ create_https_certificates()
                 -newkey rsa:4096 \
                 -keyout /etc/ssl/private/transcendence.key \
                 -out /etc/ssl/certs/transcendence.crt \
-                -subj "/C=SP/ST=Barcelona/L=Barcelona/O=42bcn/OU=42bcn/CN=amethpong.com/emailAddress=amethtystTeam@gmail.com"
+                -subj "/C=SP/ST=Barcelona/L=Barcelona/O=42bcn/OU=42bcn/CN=amethpong.fun/emailAddress=amethtystTeam@gmail.com"
 }
 
 create_https_certificates
