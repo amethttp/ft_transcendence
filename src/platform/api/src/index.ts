@@ -24,10 +24,27 @@ const main = async () => {
     }
   });
 
+  const allowedOrigins = new Set<string>();
+  const clientHost = process.env.CLIENT_HOST?.trim();
+  const originHost = process.env.ORIGIN?.trim().replace(/^https?:\/\//, '');
+
+  if (clientHost)
+    allowedOrigins.add(clientHost);
+
+  if (originHost) {
+    allowedOrigins.add(`https://${originHost}`);
+    allowedOrigins.add(`https://www.${originHost}`);
+  }
+
   const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/auth/access/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
   await server.register(cors, {
-    origin: [`${process.env.CLIENT_HOST}`],
+    origin: (origin, callback) => {
+      if (!origin)
+        return callback(null, true);
+
+      callback(null, allowedOrigins.has(origin));
+    },
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true
   })
