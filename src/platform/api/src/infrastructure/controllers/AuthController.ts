@@ -43,6 +43,14 @@ export default class AuthController {
     this._userStatusService = userStatusService;
   }
 
+  private getCookieDomainAttribute(): string {
+    const origin = process.env.ORIGIN?.trim().replace(/^https?:\/\//, '').replace(/^www\./, '');
+    if (!origin)
+      return '';
+
+    return `; Domain=.${origin}`;
+  }
+
   public async accessRefresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {
     const refreshToken = request.cookies.RefreshToken;
 
@@ -57,9 +65,10 @@ export default class AuthController {
       const accessTokenExpiry = 5;
       const secondsInAMinute = 60;
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
+      const cookieDomainAttribute = this.getCookieDomainAttribute();
 
       reply.header('set-cookie', [
-        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
+        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}${cookieDomainAttribute}`,
       ]);
 
       reply.status(200).send({credentials: `AccessToken=${newAccessToken}; RefreshToken=${refreshToken};`});
@@ -88,9 +97,10 @@ export default class AuthController {
       const accessTokenExpiry = 5;
       const secondsInAMinute = 60;
       const newAccessToken = await JwtAuth.sign(reply, tokenPayload, accessTokenExpiry + 'm');
+      const cookieDomainAttribute = this.getCookieDomainAttribute();
 
       reply.header('set-cookie', [
-        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
+        `AccessToken=${newAccessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}${cookieDomainAttribute}`,
       ]);
 
       reply.status(200).send({ success: true });
@@ -110,13 +120,14 @@ export default class AuthController {
     const refreshTokenExpiry = 30;
     const secondsInAMinute = 60;
     const secondsInADay = 86400;
+    const cookieDomainAttribute = this.getCookieDomainAttribute();
     const [accessToken, refreshToken] = await Promise.all([
       JwtAuth.sign(reply, { sub: id, type: 'access' }, accessTokenExpiry + 'm'),
       JwtAuth.sign(reply, { sub: id, type: 'refresh' }, refreshTokenExpiry + 'd'),
     ]);
     const headers = [
-      `AccessToken=${accessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}`,
-      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=${refreshTokenExpiry * secondsInADay}`
+      `AccessToken=${accessToken}; Secure; SameSite=Strict; Path=/; max-age=${accessTokenExpiry * secondsInAMinute}${cookieDomainAttribute}`,
+      `RefreshToken=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=${refreshTokenExpiry * secondsInADay}${cookieDomainAttribute}`
     ];
 
     return headers;
@@ -223,9 +234,10 @@ export default class AuthController {
     const user = await this._userService.getById(jwtUser.sub);
     await this._userStatusService.setUserStatus(user, StatusType.OFFLINE);
 
+    const cookieDomainAttribute = this.getCookieDomainAttribute();
     reply.header('set-cookie', [
-      `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
-      `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
+      `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0${cookieDomainAttribute}`,
+      `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0${cookieDomainAttribute}`
     ]);
 
     return reply.status(200).send({ success: true });
@@ -276,9 +288,10 @@ export default class AuthController {
       this._authService.validateRegistrationCredentials(registrationCredentials);
       const registeredUser = await this._userService.registerUser(registrationCredentials);
       await this._userStatusService.createUserConnectionStatus(registeredUser);
+      const cookieDomainAttribute = this.getCookieDomainAttribute();
       reply.header('set-cookie', [
-        `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0`,
-        `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0`
+        `AccessToken=; Secure; SameSite=Strict; Path=/; max-age=0${cookieDomainAttribute}`,
+        `RefreshToken=; HttpOnly; Secure; SameSite=Strict; Path=/; max-age=0${cookieDomainAttribute}`
       ]);
 
       reply.status(200).send({ success: true });
