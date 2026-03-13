@@ -35,6 +35,11 @@ export class ApiClient extends HttpClient {
     return super.put<BodyType, ResponseType>(ApiClient.BASE_URL + path, body, options);
   }
 
+  async download(path: string, options: RequestInit = {}): Promise<void> {
+    const url = ApiClient.BASE_URL + path;
+    await this.downloadRequest(url, options);
+  }
+
   private refreshToken(): Promise<BasicResponse> {
     if (ApiClient._refreshPromise) {
       return ApiClient._refreshPromise;
@@ -47,12 +52,68 @@ export class ApiClient extends HttpClient {
     return refreshPromise;
   }
 
-  protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  private buildAuthorizedOptions(options: RequestInit = {}): RequestInit {
     const token = CookieHelper.get("AccessToken");
-    options.headers = {
-      ...options.headers,
-      ...(token ? { Authorization: "Bearer " + token } : {}),
+    return {
+      ...options,
+      headers: {
+        ...options.headers,
+        ...(token ? { Authorization: "Bearer " + token } : {}),
+      },
     };
+  }
+
+  private getDownloadFileName(response: Response): string {
+    const contentDisposition = response.headers.get("Content-Disposition");
+    const fileNameMatch = contentDisposition?.match(/filename=([^;]+)/i);
+    return fileNameMatch?.[1]?.replace(/^"|"$/g, "") || "amethpong-export.json";
+  }
+
+  private triggerBrowserDownload(blob: Blob, fileName: string): void {
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  private async downloadRequest(url: string, options: RequestInit = {}): Promise<void> {
+    const authorizedOptions = this.buildAuthorizedOptions(options);
+
+    try {
+      const response = await fetch(url, authorizedOptions);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw { status: response.status, ...errorData };
+      }
+
+      const blob = await response.blob();
+      this.triggerBrowserDownload(blob, this.getDownloadFileName(response));
+    } catch (_error: any) {
+      if (_error.name === 'AbortError') {
+        throw _error;
+      }
+      const error: ResponseError = _error;
+      if (error.error === ErrorMsg.AUTH_EXPIRED_ACCESS) {
+        try {
+          const res = await this.refreshToken();
+          if (res.success) {
+            return this.downloadRequest(url, options);
+          }
+        } catch {
+          if (this._redirect)
+            Context.router.navigateByPath("/");
+        }
+      }
+      throw error;
+    }
+  }
+
+  protected async request<T>(url: string, options: RequestInit = {}): Promise<T> {
+    options = this.buildAuthorizedOptions(options);
 
     try {
       return await super.request<T>(url, options);

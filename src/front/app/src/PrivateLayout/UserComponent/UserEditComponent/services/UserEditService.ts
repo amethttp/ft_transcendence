@@ -5,7 +5,7 @@ import type { UserEditRequest } from "../models/UserEditRequest";
 export class UserEditService {
   static readonly USER_ENDPOINT = "/user";
   static readonly AVATAR_ENDPOINT = this.USER_ENDPOINT + "/avatar";
-  static readonly DOWNLOAD_ENDPOINT = this.USER_ENDPOINT + "/download";
+  static readonly EXPORT_ENDPOINT = this.USER_ENDPOINT + "/me/export";
   private _apiClient: ApiClient;
 
   constructor() {
@@ -24,7 +24,7 @@ export class UserEditService {
     return this._apiClient.post(UserEditService.AVATAR_ENDPOINT, formData);
   }
 
-  requestDownloadData(): Promise<BasicResponse> {
-    return this._apiClient.get(UserEditService.DOWNLOAD_ENDPOINT);
+  downloadMyData(): Promise<void> {
+    return this._apiClient.download(UserEditService.EXPORT_ENDPOINT, { credentials: "include" });
   }
 }
