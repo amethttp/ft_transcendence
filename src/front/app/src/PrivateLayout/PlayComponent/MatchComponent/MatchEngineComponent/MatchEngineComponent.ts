@@ -48,7 +48,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
     this._socketClient = new SocketClient(import.meta.env.VITE_GAME_API_URL);
     this._socketClient.setEvent('connect', () => {
-      console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
       if (this._canvasOverlay) {
         this._canvasOverlay.reset();
@@ -56,14 +55,12 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       }
     });
     this._socketClient.setEvent('handshake', (data) => {
-      console.log('Handshake:', data);
       this.emit('opponentConnected', data);
     });
     this._socketClient.setEvent('start', () => {
       this.startMatch();
     })
-    this._socketClient.setEvent('message', (data) => {
-      console.log("Message:", data);
+    this._socketClient.setEvent('message', () => {
     });
     this._socketClient.setEvent("ready", () => {
       this.handleReady();
@@ -83,8 +80,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this._animationId = 0;
       this.setEndState(data);
     });
-    this._socketClient.setEvent('disconnect', (reason) => {
-      console.log("Disconnected:", reason);
+    this._socketClient.setEvent('disconnect', () => {
     });
     this._socketClient.setEvent('opponentLeft', () => {
       this.emit("opponentLeft", true);
@@ -146,7 +142,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   private setReadyToPlay() {
-    console.log('ready!');
     this._lockNavigation();
     this._canvasOverlay.setWaitingState();
     this._canvasOverlay.onclick(() => null);
@@ -285,7 +280,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   private handleReady() {
-    console.log('received ready from server');
   }
 
   private setPaddlesFromChanges(paddles: Snapshot["paddles"]) {

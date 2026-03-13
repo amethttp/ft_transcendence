@@ -21,7 +21,6 @@ export default class PlayComponent extends AmethComponent {
     });
     this._codeForm.submit = ({ token }) => {
       if (token) {
-        console.log(this.router?.currentPath.fullPath);
         if (this.router?.currentPath.fullPath.includes("/tournaments"))
           this.router?.navigateByPath(`/play/tournament/${encodeURIComponent(token)}`);
         else
