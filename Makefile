@@ -80,13 +80,13 @@ rebuild:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
 	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Rebuilding $(WHITE_BOLD)development$(BLUE) stack without removing volumes...$(RESET)"
-	@$(COMPOSE_DEV) up -d --build --remove-orphans
+	@$(COMPOSE_DEV) up -d --build --force-recreate --remove-orphans
 
 rebuild-prod:
 	@$(PRINT) "$(BLUE)Creating $(WHITE_BOLD)volumes$(BLUE) directories...$(RESET)"
 	@$(MKDIR) $(DATABASE_VOLUME) $(UPLOADS_VOLUME) $(WEB_VOLUME)
 	@$(PRINT) "$(BLUE)Rebuilding $(WHITE_BOLD)production$(BLUE) stack without removing volumes...$(RESET)"
-	@$(COMPOSE_PROD) up -d --build --remove-orphans
+	@$(COMPOSE_PROD) up -d --build --force-recreate --remove-orphans
 
 update:
 	@$(MAKE) pull
