@@ -17,7 +17,7 @@ import { UserStatsResponse } from "../../application/models/UserStatsResponse";
 import { TournamentService } from "../../application/services/TournamentService";
 import { UserStatusService } from "../../application/services/UserStatusService";
 import { DownloadDataService } from "../../application/services/DownloadDataService";
-import { Transporter } from "nodemailer";
+import { Mailer } from "../plugins/Mailer";
 import { User } from "../../domain/entities/User";
 import { UserProfile } from "../../application/models/UserProfile";
 import { RelationType } from "../../application/models/Relation";
@@ -348,8 +348,8 @@ export default class UserController {
     }
   }
 
-  private _sendDownloadDataEmail(mailer: Transporter, email: string, token: string) {
-    mailer.sendMail({
+  private async _sendDownloadDataEmail(mailer: Mailer, email: string, token: string) {
+    await mailer.sendMail({
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Download your data",
@@ -364,7 +364,7 @@ export default class UserController {
       const token = randomBytes(32).toString("base64url");
       await this._downloadDataService.newDownloadData(user, token);
 
-      this._sendDownloadDataEmail(request.server.mailer, user.email, token);
+      await this._sendDownloadDataEmail(request.server.mailer, user.email, token);
       reply.status(200).send({ success: true });
     } catch (err) {
       console.log(err);

@@ -25,13 +25,11 @@
     "argon2": "^0.44.0",
     "fastify": "^5.4.0",
     "google-auth-library": "^10.5.0",
-    "nodemailer": "^7.0.7",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.2.0",
-    "@types/nodemailer": "^7.0.1",
     "jest": "^30.2.0",
     "prettier": "^3.3.3",
     "ts-jest": "^29.4.6",

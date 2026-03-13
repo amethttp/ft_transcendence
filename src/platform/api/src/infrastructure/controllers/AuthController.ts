@@ -130,7 +130,7 @@ export default class AuthController {
       const needs2FA = await this._passwordService.verify(user.auth, loginCredentials.password);
       if (needs2FA) {
         const userVerification = await this._userVerificationService.newUserVerification(user);
-        this._userVerificationService.sendVerificationCode(request.server.mailer, user.email, userVerification.code);
+        await this._userVerificationService.sendVerificationCode(request.server.mailer, user.email, userVerification.code);
       }
 
       reply.status(200).send({ id: user.id });
@@ -170,7 +170,7 @@ export default class AuthController {
       const token = randomBytes(32).toString("base64url");
       await this._recoverPasswordService.newRecoverPassword(user, token);
 
-      this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
+      await this._authService.sendRecoveryEmail(request.server.mailer, user.email, token);
       reply.status(200).send({ success: true });
     } catch (err) {
       if (err instanceof ResponseError) {
