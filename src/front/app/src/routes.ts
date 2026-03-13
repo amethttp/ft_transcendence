@@ -99,12 +99,12 @@ export const routes: Route[] = [
         children: [
           {
             path: "",
-            component: ()=> import("./PrivateLayout/PlayComponent/MatchesComponent/MatchesComponent"),
+            component: () => import("./PrivateLayout/PlayComponent/MatchesComponent/MatchesComponent"),
             title: "Matches"
           },
           {
             path: "/tournaments",
-            component: ()=> import("./PrivateLayout/PlayComponent/TournamentsComponent/TournamentsComponent"),
+            component: () => import("./PrivateLayout/PlayComponent/TournamentsComponent/TournamentsComponent"),
             title: "Tournaments"
           },
         ]
@@ -162,10 +162,16 @@ export const routes: Route[] = [
         component: () => import("./PrivateLayout/SearchComponent/SearchComponent")
       },
       {
-        path: "/edit",
+        path: "/my-profile",
+        component: () => import("./PrivateLayout/UserComponent/UserComponent"),
+        resolver: userComponentResolver,
+        title: "My Profile"
+      },
+      {
+        path: "/my-profile/settings",
         resolver: userEditResolver,
         component: () => import("./PrivateLayout/UserComponent/UserEditComponent/UserEditComponent"),
-        title: "Edit profile"
+        title: "Settings - MyProfile"
       },
       {
         path: "/profile/:userId",
