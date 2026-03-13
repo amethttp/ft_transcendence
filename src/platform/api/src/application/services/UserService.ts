@@ -17,6 +17,8 @@ import { GoogleTicketPayload } from "../models/GoogleTicketPayload";
 import { UserCreationDto } from "../models/UserCreation";
 
 export class UserService {
+  public static readonly DELETED_USERNAME_PREFIX = "DeletedUser_";
+
   private _userRepository: IUserRepository;
   private _authService: AuthService;
   private _passwordService: PasswordService;
@@ -30,6 +32,10 @@ export class UserService {
   }
 
   async newUser(newUser: UserCreationDto, newAuth: Auth): Promise<User> {
+    if (UserService.isDeletedUsername(newUser.username)) {
+      throw new ResponseError(ErrorParams.REGISTRATION_INVALID_USERNAME);
+    }
+
     const userBlueprint: Partial<User> = {
       email: newUser.email,
       username: newUser.username,
@@ -170,7 +176,8 @@ export class UserService {
   async updateUser(userId: number, updateInfo: EditUserRequest) {
     if (!Validators.email(updateInfo.email)
       || !Validators.username(updateInfo.username)
-      || !Validators.birthDate(updateInfo.birthDate)) {
+      || !Validators.birthDate(updateInfo.birthDate)
+      || UserService.isDeletedUsername(updateInfo.username)) {
       throw new ResponseError(ErrorParams.BAD_REQUEST);
     }
     const userBlueprint: Partial<User> = {
@@ -185,9 +192,10 @@ export class UserService {
 
   async erasePersonalInformation(user: User) {
     const userBlueprint: Partial<User> = {
-      email: "__deleted__Email" + (user.id + 23) + "@deleted.com",
-      username: "__deleted__User" + (user.id + 23),
-      avatarUrl: "__deleted__Avatar" + (user.id + 23),
+      email: `deleted-user-${user.id}@deleted.local`,
+      username: UserService.deletedUsername(user.id),
+      avatarUrl: "/default-avatar.webp",
+      birthDate: "1970-01-01",
       creationTime: StringTime.epoch(),
       updateTime: StringTime.epoch(),
     }
@@ -246,5 +254,13 @@ export class UserService {
     if (!await this._userRepository.update(userId, userBlueprint)) {
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     }
+  }
+
+  public static deletedUsername(userId: number): string {
+    return `${UserService.DELETED_USERNAME_PREFIX}${userId}`;
+  }
+
+  public static isDeletedUsername(username: string): boolean {
+    return username.startsWith(UserService.DELETED_USERNAME_PREFIX);
   }
 }

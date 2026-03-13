@@ -1,6 +1,7 @@
 import { User } from "../../../domain/entities/User";
 import { SQLiteBaseRepository } from "./SQLiteBaseRepository";
 import { IUserRepository } from "../../../domain/repositories/IUserRepository"
+import { UserService } from "../../../application/services/UserService";
 
 export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements IUserRepository {
 
@@ -20,6 +21,6 @@ export class SQLiteUserRepository extends SQLiteBaseRepository<User> implements 
     username = username.replace(/\\/g, '\\\\')
       .replace(/%/g, '\\%')
       .replace(/_/g, '\\_');
-    return this.baseFindAll("WHERE username LIKE ? ESCAPE '\\' AND username NOT LIKE '__deleted__%'", [`${username}%`]);
+    return this.baseFindAll("WHERE username LIKE ? ESCAPE '\\' AND username NOT LIKE ?", [`${username}%`, `${UserService.DELETED_USERNAME_PREFIX}%`]);
   }
 }

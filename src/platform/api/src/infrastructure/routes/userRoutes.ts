@@ -61,6 +61,10 @@ export default async function userRoutes(server: FastifyInstance) {
     await userController.getLoggedUser(request, reply);
   });
 
+  server.get('/me/export', async (request: FastifyRequest, reply) => {
+    await userController.exportMyData(request, reply);
+  });
+
   server.get('/:username', async (request: FastifyRequest<{ Params: { username: string } }>, reply) => {
     await userController.getUserProfile(request, reply);
   });

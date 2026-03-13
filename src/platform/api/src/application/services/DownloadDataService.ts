@@ -13,9 +13,12 @@ import { IUserRelationRepository } from "../../domain/repositories/IUserRelation
 import { IUserStatusRepository } from "../../domain/repositories/IUserStatusRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { RelationType } from "../models/Relation";
+import StringTime from "../helpers/StringTime";
+import { UserDataExportDto } from "../models/UserDataExportDto";
 import { UserDownloadDto } from "../models/UserDownloadDto";
 import { UserMatchDownloadDto, UserMatchState } from "../models/UserMatchDownloadDto";
 import { UserRelationDownloadDto, UserRelationType } from "../models/UserRelationDownloadDto";
+import { UserStatsResponse } from "../models/UserStatsResponse";
 import { UserStatusDownloadDto } from "../models/UserStatusDownloadDto";
 import { StatusType } from "../models/UserStatusDto";
 import { UserTournamentDownloadDto, UserTournamentState } from "../models/UserTournamentDownloadDto";
@@ -240,6 +243,40 @@ export class DownloadDataService {
       throw new ResponseError(ErrorParams.DOWNLOAD_DATA_FAILED);
 
     return DownloadDataService.toUserTournamentsDownloadDto(userTournamentPlayers);
+  }
+
+  async buildAuthenticatedExportData(user: User, userStats: UserStatsResponse): Promise<UserDataExportDto> {
+    const userStatus = await this.getUserStatusDownloadDataByUserId(user.id);
+    const socialRelations = await this.getUserRelationDownloadDataByUserId(user.id);
+    const matchHistory = await this.getUserMatchesDownloadDataByUserId(user.id);
+    const tournamentHistory = await this.getUserTournamentsDownloadDataByUserId(user.id);
+    const hasPassword = !!user.auth.password?.id && user.auth.password.id > 0;
+    const hasGoogleAuth = !!user.auth.googleAuth?.id && user.auth.googleAuth.id > 0;
+
+    return {
+      exportedAt: StringTime.now(),
+      profile: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        birthDate: user.birthDate,
+        creationTime: user.creationTime,
+        updateTime: user.updateTime,
+      },
+      authentication: {
+        authId: user.auth.id,
+        lastLogin: user.auth.lastLogin,
+        hasPassword,
+        passwordUpdatedAt: hasPassword ? user.auth.password?.updateTime : undefined,
+        hasGoogleAuth,
+      },
+      userStatus,
+      userStats,
+      socialRelations,
+      matchHistory,
+      tournamentHistory,
+    };
   }
 
   async deleteByToken(token: string) {
