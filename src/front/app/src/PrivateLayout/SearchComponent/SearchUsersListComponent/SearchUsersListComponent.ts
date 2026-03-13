@@ -17,7 +17,6 @@ export default class SearchUsersListComponent extends FriendsListComponent {
 
   async createProfile(friend: UserProfile): Promise<UserProfileActionsComponent> {
     const profile = await super.createProfile(friend);
-    profile.hideActions();
     return profile;
   }
 }

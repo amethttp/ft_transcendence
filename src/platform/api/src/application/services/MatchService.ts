@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { Match, MatchStateByValue } from "../../domain/entities/Match";
+import { Match, MatchMode, MatchState, MatchStateByValue } from "../../domain/entities/Match";
 import { IMatchRepository } from "../../domain/repositories/IMatchRepository";
 import { ErrorParams, ResponseError } from "../errors/ResponseError";
 import { TournamentRound } from "../../domain/entities/TournamentRound";
@@ -37,7 +37,7 @@ export class MatchService {
 
   async setMatchFinished(match: Match) {
     const matchUpdate: Partial<Match> = {
-      state: 3,
+      state: MatchState.FINISHED,
       finishTime: StringTime.now(),
     };
 
@@ -59,6 +59,7 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"), // TODO: here or on controller??
+      mode: MatchMode.LOCAL,
       isVisible: false,
       state: 1,
       finishTime: StringTime.now() // TODO: erase
@@ -80,6 +81,7 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
+      mode: MatchMode.ONLINE,
       isVisible: false,
       state: 1
     };
@@ -100,6 +102,7 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
+      mode: MatchMode.ONLINE,
       isVisible: true,
       state: 1
     };
@@ -120,6 +123,7 @@ export class MatchService {
     const matchBlueprint: Partial<Match> = {
       name: name,
       token: randomBytes(32).toString("base64url"),
+      mode: MatchMode.ONLINE,
       isVisible: false,
       state: 1,
       tournamentRound: round
@@ -156,7 +160,8 @@ export class MatchService {
   public toMatchSettings(match: Match): MatchSettings {
     const settings = {
       maxScore: match.points,
-      local: match.isVisible,
+      local: match.mode !== MatchMode.ONLINE,
+      mode: match.mode,
       tournament: match.tournamentRound ? true : false,
       state: MatchStateByValue[match.state],
       score: [0,0],

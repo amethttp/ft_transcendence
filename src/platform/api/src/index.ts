@@ -24,7 +24,7 @@ const main = async () => {
     }
   });
 
-  const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
+  const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/auth/access/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
   await server.register(cors, {
     origin: [`${process.env.CLIENT_HOST}`],

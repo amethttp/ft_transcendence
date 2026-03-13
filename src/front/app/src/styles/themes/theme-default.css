@@ -8,6 +8,18 @@
     "Courier New", monospace;
 
 
+  --color-primary-50: rgb(249, 247, 253);
+  --color-primary-100: rgb(234, 229, 250);
+  --color-primary-200: rgb(219, 210, 245);
+  --color-primary-300: rgb(204, 192, 241);
+  --color-primary-400: rgb(189, 171, 236);
+  --color-primary-500: rgb(174, 151, 231);
+  --color-primary-600: rgb(159, 129, 226);
+  --color-primary-700: rgb(142, 105, 216);
+  --color-primary-800: rgb(124, 83, 197);
+  --color-primary-900: rgb(104, 61, 177);
+  --color-primary-950: rgb(80, 42, 140);
+
   --color-brand-50: rgb(249, 247, 253);
   --color-brand-100: rgb(234, 229, 250);
   --color-brand-200: rgb(219, 210, 245);

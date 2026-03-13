@@ -1,4 +1,5 @@
 import type { TournamentRound } from "../../TournamentComponent/models/TournamentRound";
+import type { PlayerTypeValue } from "../MatchComponent";
 import type { MatchPlayer } from "./MatchPlayer";
 
 export interface MatchJoin {
@@ -12,4 +13,5 @@ export interface MatchJoin {
   creationTime: string;
   finishTime?: string;
   tournamentRound?: TournamentRound;
+  mode: PlayerTypeValue;
 }

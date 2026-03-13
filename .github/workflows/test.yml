@@ -76,6 +76,9 @@ jobs:
       
     #   - name: Format check
     #     run: cd src/game/api && npm run lint:format
+
+      - name: Run tests
+        run: cd src/game/api && npm test
       
       - name: TypeScript compilation check
         run: cd src/game/api && npm run build

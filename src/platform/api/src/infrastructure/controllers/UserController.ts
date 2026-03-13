@@ -22,6 +22,7 @@ import { User } from "../../domain/entities/User";
 import { UserProfile } from "../../application/models/UserProfile";
 import { RelationType } from "../../application/models/Relation";
 import { StatusType, UserStatusDto } from "../../application/models/UserStatusDto";
+import { UserDataExportDto } from "../../application/models/UserDataExportDto";
 
 export default class UserController {
   private _userService: UserService;
@@ -82,7 +83,7 @@ export default class UserController {
       const jwtUser = request.user as JwtPayloadInfo;
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
-      if (requestedUser.username.startsWith("__deleted__")) {
+      if (UserService.isDeletedUsername(requestedUser.username)) {
         throw new ResponseError(ErrorParams.USER_NOT_FOUND);
       }
       const userProfile = await this.toUserProfile(originUser, requestedUser);
@@ -155,8 +156,8 @@ export default class UserController {
       const originUser = await this._userService.getById(jwtUser.sub);
       const requestedUser = await this._userService.getByUsername(request.params.username);
 
-      let stats: UserStatsResponse;
       const relation = await this._userRelationService.getRelation(originUser, requestedUser);
+      let stats: UserStatsResponse;
       if (relation.type === RelationType.BLOCKED) {
         stats = {
           last10Matches: [],
@@ -169,20 +170,7 @@ export default class UserController {
           tournamentAvg: 0,
         }
       } else {
-        const matches = await this._matchPlayerService.getAllUserMatchesInfo(requestedUser);
-        const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(requestedUser);
-        const victories = this._matchPlayerService.countWins(matches);
-        const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
-        stats = {
-          last10Matches: matches.slice(-10).reverse(),
-          last10Tournaments: tournaments.slice(-10).reverse(),
-          validTotalMatches: matches.filter(match => match.finishTime && match.finishTime !== "Aborted").length,
-          totalMatches: matches.length,
-          victories: victories,
-          validTotalTournaments: tournaments.filter(tournament => tournament.finishTime && tournament.finishTime !== "Aborted").length,
-          totalTournaments: tournaments.length,
-          tournamentAvg: tournamentAvg,
-        }
+        stats = await this._buildUserStats(requestedUser);
       }
 
       reply.code(200).send(stats);
@@ -249,9 +237,11 @@ export default class UserController {
     try {
       const requestedUser = request.user as JwtPayloadInfo;
       const user = await this._userService.getById(requestedUser.sub);
+      await this._userStatusService.setUserStatus(user, StatusType.OFFLINE).catch(() => {});
       await this._userService.erasePersonalInformation(user);
       await this._userVerificationService.eraseAllUserVerifications(user);
       await this._recoverPasswordService.eraseAllUserRecoverPasswords(user); // TODO: Move inside user service inisde begin commit block
+      await this._downloadDataService.eraseAllUserDownloadDatas(user);
       await this._userRelationService.eraseAllUserRelations(user);
       if (!user.avatarUrl.endsWith("default-avatar.webp"))
         this._removeFile(user.avatarUrl);
@@ -261,6 +251,27 @@ export default class UserController {
       ]);
 
       reply.code(200).send({ success: true });
+    } catch (err) {
+      if (err instanceof ResponseError) {
+        reply.code(err.code).send(err.toDto());
+      }
+      else {
+        console.log(err);
+        reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto())
+      }
+    }
+  }
+
+  async exportMyData(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const requestedUser = request.user as JwtPayloadInfo;
+      const user = await this._userService.getById(requestedUser.sub);
+      const userStats = await this._buildUserStats(user);
+      const exportData: UserDataExportDto = await this._downloadDataService.buildAuthenticatedExportData(user, userStats);
+
+      reply.header("Content-Type", "application/json")
+        .header("Content-Disposition", `attachment; filename=${user.username}-amethpong-export.json`)
+        .send(JSON.stringify(exportData, null, 2));
     } catch (err) {
       if (err instanceof ResponseError) {
         reply.code(err.code).send(err.toDto());
@@ -323,24 +334,14 @@ export default class UserController {
   async downloadData(request: FastifyRequest<{ Params: { token: string } }>, reply: FastifyReply) {
     try {
       const token = request.params.token;
-      const userDownloadData = await this._downloadDataService.getUserDownloadDataByToken(token);
-      const userStatusDownloadData = await this._downloadDataService.getUserStatusDownloadDataByUserId(userDownloadData.id);
-      const userRelationsDownloadData = await this._downloadDataService.getUserRelationDownloadDataByUserId(userDownloadData.id);
-      const userMatchesDownloadData = await this._downloadDataService.getUserMatchesDownloadDataByUserId(userDownloadData.id);
-      const userTournamentsDownloadData = await this._downloadDataService.getUserTournamentsDownloadDataByUserId(userDownloadData.id);
-
-      const data = {
-        user: userDownloadData,
-        userStatus: userStatusDownloadData,
-        userRelations: userRelationsDownloadData,
-        matchesPlayed: userMatchesDownloadData,
-        tournamentsPlayed: userTournamentsDownloadData
-      };
+      const downloadData = await this._downloadDataService.getByToken(token);
+      const userStats = await this._buildUserStats(downloadData.user);
+      const data = await this._downloadDataService.buildAuthenticatedExportData(downloadData.user, userStats);
 
       await this._downloadDataService.deleteByToken(token);
 
       reply.header("Content-Type", "application/json")
-        .header("Content-Disposition", `attachment; filename=${userDownloadData.username}-amethpong.json`)
+        .header("Content-Disposition", `attachment; filename=${downloadData.user.username}-amethpong.json`)
         .send(JSON.stringify(data, null, 2));
     } catch (err) {
       reply.code(404).send();
@@ -369,5 +370,23 @@ export default class UserController {
       console.log(err);
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
+  }
+
+  private async _buildUserStats(user: User): Promise<UserStatsResponse> {
+    const matches = await this._matchPlayerService.getAllUserMatchesInfo(user);
+    const tournaments = await this._tournamentPlayerService.getAllUserTournamentsInfo(user);
+    const victories = this._matchPlayerService.countWins(matches);
+    const tournamentAvg = this._tournamentPlayerService.calculateAvgPlacement(tournaments);
+
+    return {
+      last10Matches: matches.slice(-10).reverse(),
+      last10Tournaments: tournaments.slice(-10).reverse(),
+      validTotalMatches: matches.filter(match => match.finishTime && match.finishTime !== "Aborted").length,
+      totalMatches: matches.length,
+      victories,
+      validTotalTournaments: tournaments.filter(tournament => tournament.finishTime && tournament.finishTime !== "Aborted").length,
+      totalTournaments: tournaments.length,
+      tournamentAvg,
+    };
   }
 }

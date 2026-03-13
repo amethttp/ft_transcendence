@@ -12,8 +12,9 @@ import PlayerComponent, { type PlayerOptions } from "./PlayerComponent/PlayerCom
 import { MatchService } from "./services/MatchService";
 
 export const PlayerType = {
-  CPU: 0,
-  LOCAL: 1
+  ONLINE: 1,
+  LOCAL: 2,
+  AI: 3,
 } as const;
 
 export type PlayerTypeValue = typeof PlayerType[keyof typeof PlayerType];
@@ -22,19 +23,6 @@ type MatchComponentResolvedData = { match: MatchJoin };
 
 export default class MatchComponent extends AmethComponent<MatchComponentResolvedData> {
   template = () => import("./MatchComponent.html?raw");
-  private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = [
-    {
-      name: "AI",
-      avatar: "/ai-player.webp",
-      local: true
-    },
-    {
-      name: "Player 2",
-      avatar: "/player2.webp",
-      local: true,
-      controls: true
-    }
-  ];
   private _matchEngineComponent?: MatchEngineComponent;
   private _matchService: MatchService;
   private _match?: MatchJoin;
@@ -42,6 +30,24 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
   private _ownerPlayerComponent?: PlayerComponent;
   private _opponentPlayerComponent?: PlayerComponent;
   private _matchEndedMenu?: MatchEndedMenu;
+  private static readonly PLAYERS_OPTS: Record<PlayerTypeValue, PlayerOptions> = {
+    1: {
+      name: "Waiting for opponent...",
+      avatar: "/default-avatar.webp",
+      local: false
+    },
+    2: {
+      name: "Player 2",
+      avatar: "/player2.webp",
+      local: true,
+      controls: true
+    },
+    3: {
+      name: "AI",
+      avatar: "/ai-player.webp",
+      local: true
+    }
+  };
 
   constructor() {
     super();
@@ -51,10 +57,18 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
   opponentConnected = (userId: number) => {
     if (!this._match || (this._match.tournamentRound && this._match.tournamentRound.tournament))
       return;
-    this._matchService.getPlayer(userId, this._match?.id || -1).then(val => {
-      this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
-      this._showOpponentPlayer();
-    })
+    if (this._match.mode !== undefined && this._match.mode !== PlayerType.ONLINE)
+      return;
+    if (!Number.isFinite(userId) || userId <= 0)
+      return;
+    this._matchService.getPlayer(userId, this._match?.id || -1)
+      .then(val => {
+        if (this._match && !this._match.players.some(pl => pl.id === val.id)) {
+          this._match.players.push(val);
+        }
+        this._opponentPlayerComponent?.refresh(this._getPlayerOpts(val));
+        this._showOpponentPlayer();
+      })
       .catch(() => Alert.error("Some error occurred with opponent"));
   }
 
@@ -92,6 +106,9 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     await super.init(selector, router, resolvedData);
     this._token = this.router?.currentPath.params["token"] as string;
     this._matchEngineComponent = new MatchEngineComponent(this._token);
+    this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
+    this._matchEngineComponent.on("matchEnded", this.matchEnded);
+    this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
     await this._matchEngineComponent?.init("matchEngineContainer", this.router);
   }
 
@@ -110,9 +127,6 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     await this._initPlayers();
     this._fillView();
     if (this._matchEngineComponent) {
-      this._matchEngineComponent.on("opponentConnected", this.opponentConnected);
-      this._matchEngineComponent.on("matchEnded", this.matchEnded);
-      this._matchEngineComponent.on("opponentLeft", this.opponentLeft);
       this._matchEngineComponent.afterInit();
     }
   }
@@ -148,17 +162,17 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     document.getElementById("MatchComponentMaxPoints")!.innerText = "";
     document.getElementById("MatchComponentOpponentPlayer")!.classList.add("hidden");
     document.getElementById("MatchComponentOpponentPlayer")!.classList.remove("flex");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
+    document.getElementById("MatchComponentWaitingForOpponent")?.classList.remove("hidden");
   }
 
   private _showOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("hidden", "flex");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.add("hidden");
+    document.getElementById("MatchComponentWaitingForOpponent")?.classList.add("hidden");
   }
 
   private _hideOpponentPlayer() {
     document.getElementById("MatchComponentOpponentPlayer")?.classList.replace("flex", "hidden");
-    document.getElementById("MatchComponentSelectPlayer")?.classList.remove("hidden");
+    document.getElementById("MatchComponentWaitingForOpponent")?.classList.remove("hidden");
   }
 
   private _fillView(refreshTitlePart: boolean = false) {
@@ -206,14 +220,11 @@ export default class MatchComponent extends AmethComponent<MatchComponentResolve
     if (this._opponentPlayerComponent?.player)
       this._showOpponentPlayer();
     else {
-      document.getElementById("MatchComponentSelectPlayer")!.onchange = (e) => {
-        const val = parseInt((e.target as HTMLSelectElement).value);
-        if (Object.values(PlayerType).includes(val as PlayerTypeValue)) {
-          this._matchEngineComponent?.setPlayer(val as PlayerTypeValue);
-          this._opponentPlayerComponent?.refresh(MatchComponent.PLAYERS_OPTS[val as PlayerTypeValue]);
-          this._showOpponentPlayer();
-        }
-      };
+      const val = this._match?.mode as PlayerTypeValue;
+      if (Object.values(PlayerType).includes(val as PlayerTypeValue) && val !== PlayerType.ONLINE) {
+        this._opponentPlayerComponent?.refresh(MatchComponent.PLAYERS_OPTS[val as PlayerTypeValue]);
+        this._showOpponentPlayer();
+      }
     }
   }
 

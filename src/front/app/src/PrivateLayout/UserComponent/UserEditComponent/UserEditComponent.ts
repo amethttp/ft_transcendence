@@ -91,9 +91,8 @@ export default class UserEditComponent extends AmethComponent {
 
     const downloadBtn = (document.getElementById("UserEditDownload")! as HTMLAnchorElement);
     downloadBtn.onclick = () => {
-      this._userEditService.requestDownloadData()
-        .then(() => Alert.info("Check your inbox", "Follow email instructions to download your data."))
-        .catch(() => Alert.error("Could not send data download email"));
+      this._userEditService.downloadMyData()
+        .catch(() => Alert.error("Could not download your data"));
     }
     document.getElementById("UserEditDeleteBtn")!.onclick = () => {
       const challenge = prompt("Are you sure to delete your account? Type \"delete\".");

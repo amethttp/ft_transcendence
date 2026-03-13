@@ -1,9 +1,12 @@
 import AmethComponent from "../../framework/AmethComponent";
+import { Form } from "../../framework/Form/Form";
+import { FormControl } from "../../framework/Form/FormGroup/FormControl/FormControl";
 import { TabsHelper } from "../../framework/Tabs/TabsHelper";
 
 export default class PlayComponent extends AmethComponent {
   template = () => import("./PlayComponent.html?raw");
   private _tabs: HTMLElement | null;
+  private _codeForm!: Form<{ token: string }>;
 
   constructor() {
     super();
@@ -13,6 +16,18 @@ export default class PlayComponent extends AmethComponent {
   afterInit() {
     this._tabs = document.getElementById("PlayComponentTabs");
     this._checkTabs();
+    this._codeForm = new Form("matchCodeListForm", {
+      token: new FormControl<string>("")
+    });
+    this._codeForm.submit = ({ token }) => {
+      if (token) {
+        console.log(this.router?.currentPath.fullPath);
+        if (this.router?.currentPath.fullPath.includes("/tournaments"))
+          this.router?.navigateByPath(`/play/tournament/${encodeURIComponent(token)}`);
+        else
+          this.router?.navigateByPath(`/play/${encodeURIComponent(token)}`);
+      }
+    };
   }
 
   async refresh() {

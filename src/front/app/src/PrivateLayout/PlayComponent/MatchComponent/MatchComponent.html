@@ -1,4 +1,4 @@
-<div class="flex flex-1 flex-col py-8 px-4 sm:px-8 gap-8 text-center">
+<div class="card-2 flex flex-1 flex-col py-8 px-4 sm:px-8 gap-8 text-center">
   <div class="flex flex-wrap justify-between gap-8 items-center">
     <div class="hidden gap-3 items-center justify-center" id="MatchComponentNameElem">
       <h3 class="title-3" id="MatchComponentMatchName"></h3>
@@ -29,7 +29,7 @@
     </div>
   </div>
   <div class="relative flex p-8 justify-center items-center">
-    <div id="matchEngineContainer" class="rounded relative flex-1 overflow-hidden"></div>
+    <div id="matchEngineContainer" class="rounded relative flex-1"></div>
     <div class="absolute invisible flex w-full h-full backdrop-blur-sm opacity-0 transition-opacity duration-1000 justify-center items-center" id="matchFinishMenuContainer"></div>
   </div>
   <div class="flex justify-evenly items-center gap-8">
@@ -40,10 +40,8 @@
     <div class="hidden flex-wrap justify-center gap-8 items-center" id="MatchComponentOpponentPlayer">
       <div id="opponentPlayerComponent"></div>
     </div>
-    <select id="MatchComponentSelectPlayer" class="max-w-1/4 wrap-normal overflow-ellipsis cursor-pointer">
-      <option value="-1">Waiting for opponent...</option>
-      <option value="0">AI</option>
-      <option value="1">Local</option>
-    </select>
+    <div id="MatchComponentWaitingForOpponent">
+      Waiting for opponent...
+    </div>
   </div>
 </div>

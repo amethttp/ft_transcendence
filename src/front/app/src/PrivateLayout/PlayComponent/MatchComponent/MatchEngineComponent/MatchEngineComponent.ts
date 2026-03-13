@@ -1,8 +1,6 @@
 import AmethComponent from "../../../../framework/AmethComponent";
 import type { Router } from "../../../../framework/Router/Router";
 import SocketClient from "../../../../framework/SocketClient/SocketClient";
-import { PlayerType } from "../MatchComponent";
-import type { PlayerTypeValue } from "../MatchComponent";
 import Ball from "./Elements/Ball";
 import Paddle from "./Elements/Paddle";
 import Canvas from "./Elements/Canvas";
@@ -10,6 +8,7 @@ import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "./Elements/Viewport";
 import type { Snapshot } from "./models/Snapshot";
 import CanvasOverlay from "./Elements/CanvasOverlay";
 import FullScreenButton from "./Elements/FullScreenButton";
+import Alert from "../../../../framework/Alert/Alert";
 
 export type MatchEngineEvents = {
   opponentConnected: number;
@@ -51,6 +50,10 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     this._socketClient.setEvent('connect', () => {
       console.log("Connected:", this._socketClient.id, this._socketClient.connected);
       this._socketClient.emitEvent("joinMatch", this._token);
+      if (this._canvasOverlay) {
+        this._canvasOverlay.reset();
+        this._canvasOverlay.onclick(() => this.setReadyToPlay());
+      }
     });
     this._socketClient.setEvent('handshake', (data) => {
       console.log('Handshake:', data);
@@ -69,13 +72,15 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this.updateGame(data);
     });
     this._socketClient.setEvent('paddleChange', (paddles) => {
-      this._paddles[0].y = paddles[0].position;
-      this._paddles[1].y = paddles[1].position;
+      this.setPaddlesFromChanges(paddles);
     });
     this._socketClient.setEvent("ballChange", (data) => {
       this._ball.setFromBallChange(data);
     });
     this._socketClient.setEvent("end", (data) => {
+      if (this._animationId)
+        cancelAnimationFrame(this._animationId);
+      this._animationId = 0;
       this.setEndState(data);
     });
     this._socketClient.setEvent('disconnect', (reason) => {
@@ -85,6 +90,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
       this.emit("opponentLeft", true);
     });
     this._socketClient.setEvent('pause', () => {
+      Alert.warning('Opponent left');
       this._canvasOverlay.setPauseState();
       if (this._animationId)
         cancelAnimationFrame(this._animationId);
@@ -175,11 +181,11 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
         if (!this._inputs[2])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowUp', isPressed: true })
         this._inputs[2] = true;
-        } else {
+      } else {
         if (!this._inputs[3])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'ArrowDown', isPressed: true })
         this._inputs[3] = true;
-        }
+      }
     }
   }
 
@@ -188,7 +194,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
     const touch: Touch = event.touches[0];
 
-    if (!touch) return ;
+    if (!touch) return;
 
     const xTouch = this.getTouchCoordX(touch);
     const yTouch = this.getTouchCoordY(touch);
@@ -217,12 +223,15 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
   }
 
   private handleKeyDown = (event: KeyboardEvent) => {
+    let prevent = true;
     switch (event.key) {
+      case "W":
       case "w":
         if (!this._inputs[0])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: true })
         this._inputs[0] = true;
         break;
+      case "S":
       case "s":
         if (!this._inputs[1])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: true })
@@ -239,17 +248,22 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
         this._inputs[3] = true;
         break;
       default:
+        prevent = false;
         break;
     }
+    if (prevent)
+      event.preventDefault();
   };
 
   private handleKeyUp = (event: KeyboardEvent) => {
     switch (event.key) {
+      case "W":
       case "w":
         if (this._inputs[0])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 'w', isPressed: false })
         this._inputs[0] = false;
         break;
+      case "S":
       case "s":
         if (this._inputs[1])
           this._socketClient.emitEvent('paddleChange', { token: this._token, key: 's', isPressed: false })
@@ -274,14 +288,24 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     console.log('received ready from server');
   }
 
+  private setPaddlesFromChanges(paddles: Snapshot["paddles"]) {
+    for (const paddle of paddles) {
+      if (paddle.side === 0) {
+        this._paddles[0].y = paddle.position;
+      } else if (paddle.side === 1) {
+        this._paddles[1].y = paddle.position;
+      }
+    }
+  }
+
   private updateGame(data: Snapshot) {
-    this._paddles[0].y = data.paddles[0].position;
-    this._paddles[1].y = data.paddles[1].position;
+    this.setPaddlesFromChanges(data.paddles);
     this._ball.setFromBallChange(data.ball);
     this._score = data.score;
   }
 
   private setEndState(score: number[]) {
+    this._canvas.paintGameState(this._paddles, this._ball, score);
     this._canvasOverlay.disable();
     this._canvasOverlay.showMatchResult(score);
     this._unLockNavigation();
@@ -290,14 +314,6 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
 
   async refresh(token?: string) {
     this._token = token;
-  }
-
-  setPlayer(type: PlayerTypeValue) {
-    console.log("new player", type);
-    if (type === PlayerType.CPU)
-      this._socketClient.emitEvent('ai');
-    else if (type === PlayerType.LOCAL)
-      this._socketClient.emitEvent('local');
   }
 
   private observeResize() {
@@ -325,6 +341,7 @@ export default class MatchEngineComponent extends AmethComponent<any, MatchEngin
     if (this._animationId)
       cancelAnimationFrame(this._animationId);
     this._animationId = 0;
+    this._canvas?.removeTouchCallbacks?.();
     this._resizeObserver?.disconnect();
     if (this._fullscreenChangeHandler)
       document.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);

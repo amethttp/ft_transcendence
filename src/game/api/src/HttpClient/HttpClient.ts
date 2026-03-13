@@ -43,19 +43,26 @@ export default class HttpClient implements IHttpClient {
   }
 
   protected async request<AuthWrapper>(url: string, options: RequestInit = {}): Promise<AuthWrapper> {
-    if (options.body && !(options.body instanceof FormData) && !(options.body instanceof Blob)) {
-      options.headers = {
+    const requestOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+      },
+    };
+
+    if (requestOptions.body && typeof requestOptions.body !== "string" && !(requestOptions.body instanceof FormData) && !(requestOptions.body instanceof Blob)) {
+      requestOptions.headers = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(requestOptions.headers || {}),
       };
-      options.body = JSON.stringify(options.body);
+      requestOptions.body = JSON.stringify(requestOptions.body);
     }
     try {
       const httpsAgent = new https.Agent({
         rejectUnauthorized: false,
       });
       const response = await fetch(url, {
-        ...(options as fetch.RequestInit),
+        ...(requestOptions as fetch.RequestInit),
         agent: httpsAgent
       });
       if (!response.ok) {

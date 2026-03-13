@@ -8,7 +8,10 @@ export class TabsHelper {
       const tabPath = tabUrl.pathname === "/" ? "/" : tabUrl.pathname.replace(/\/+$/, "");
 
       if (currentPath == tabPath)
+      {
         tab.classList.add("active");
+        tab.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
       else
         tab.classList.remove("active");
     }

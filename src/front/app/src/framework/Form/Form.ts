@@ -3,9 +3,11 @@ import { FormGroup } from "./FormGroup/FormGroup";
 
 export type submitFn<T> = (value: T) => void;
 
+type FormControlElement = HTMLInputElement | HTMLSelectElement;
+
 export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
   private _form?: HTMLFormElement;
-  private _inputs: Record<string, HTMLInputElement>;
+  private _inputs: Record<string, FormControlElement>;
 
   id: string;
   submit?: submitFn<T>;
@@ -21,7 +23,10 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
   private bindDOM() {
     if (!this._form)
       return console.warn(`Couldn't bind HTMLFormElement "#${this.id}" because it doesn't exist.`);
-    for (const input of ([...this._form] as HTMLInputElement[])) {
+    for (const formElement of [...this._form.elements]) {
+      if (!(formElement instanceof HTMLInputElement || formElement instanceof HTMLSelectElement))
+        continue;
+      const input = formElement;
       const control = this.controls[input.name];
       if (control) {
         this._inputs[input.name] = input;
@@ -33,10 +38,12 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
           input.addEventListener("input", () => control.setValue(input.checked as T[string], false));
         }
         else {
-          input.value = control.value;
-          input.addEventListener("input", () => control.setValue(input.value as T[string], false));
+          input.value = String(control.value);
+          const eventName = input instanceof HTMLSelectElement ? "change" : "input";
+          input.addEventListener(eventName, () => control.setValue(this.getElementValue(input, control.value) as T[string], false));
         }
-        input.addEventListener("input", async () => {
+        const dirtyEventName = input instanceof HTMLSelectElement ? "change" : "input";
+        input.addEventListener(dirtyEventName, async () => {
           input.parentElement?.classList.add("dirty");
           await this.validate();
         });
@@ -47,7 +54,7 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
         };
         input.addEventListener("blur", onBlur);
       }
-      else if (input.type === "submit") {
+      else if (input instanceof HTMLInputElement && input.type === "submit") {
         input.addEventListener("click", async e => {
           e.preventDefault();
           await this._submit();
@@ -60,7 +67,19 @@ export class Form<T extends { [key: string]: any }> extends FormGroup<T> {
     }
   }
 
-  private createErrorMsg(input: HTMLInputElement) {
+  private getElementValue(input: FormControlElement, currentControlValue: unknown): unknown {
+    if (input instanceof HTMLInputElement && input.type === "checkbox")
+      return input.checked;
+    if (typeof currentControlValue === "number") {
+      const numericValue = Number(input.value);
+      return Number.isNaN(numericValue) ? currentControlValue : numericValue;
+    }
+    if (typeof currentControlValue === "boolean")
+      return input.value === "true";
+    return input.value;
+  }
+
+  private createErrorMsg(input: FormControlElement) {
     const msg = document.createElement("p");
     msg.classList.add("error");
     input.parentElement?.appendChild(msg);

@@ -33,6 +33,28 @@ This project is configured with GitHub Actions workflows to validate code qualit
 ✅ Builds Game API Docker image (without pushing)
 ✅ Builds Nginx Docker image (without pushing)
 
+### 3. **Deploy Production** (`.github/workflows/deploy-prod.yml`)
+
+**Triggers:**
+- Push to `main`
+- Manual run via `workflow_dispatch`
+
+**Action:**
+✅ Connects to your production server over SSH
+✅ Runs `make update-prod` in the remote project directory
+✅ Keeps bind-mounted data in `volumes/` untouched (unless destructive make targets are used manually)
+
+**Required repository secrets:**
+
+| Secret | Description |
+|--------|-------------|
+| `DEPLOY_HOST` | Server hostname or IP |
+| `DEPLOY_PORT` | SSH port (usually `22`) |
+| `DEPLOY_USER` | SSH user |
+| `DEPLOY_SSH_KEY` | Private SSH key (PEM/OpenSSH) |
+| `DEPLOY_SSH_PASSPHRASE` | Optional key passphrase |
+| `DEPLOY_PATH` | Absolute path to project folder on server |
+
 ## Recent Changes
 
 ### Memory Leak Prevention (Frontend)

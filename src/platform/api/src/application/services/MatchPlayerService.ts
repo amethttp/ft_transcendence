@@ -38,6 +38,11 @@ export class MatchPlayerService {
   }
 
   async updateResult(match: Match, matchResult: MatchResult) {
+    if (matchResult.score.length >= 2 && matchResult.score[0] === matchResult.score[1]) {
+      const winnerIndex = Math.random() < 0.5 ? 0 : 1;
+      matchResult.score[winnerIndex] = matchResult.score[winnerIndex] + 1;
+    }
+
     const winnerIndex = matchResult.score.findIndex(score => score === Math.max(...matchResult.score));
 
     const winnerBlueprint: Partial<MatchPlayer> = {

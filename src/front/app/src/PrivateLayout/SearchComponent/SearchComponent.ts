@@ -2,6 +2,7 @@ import Alert from "../../framework/Alert/Alert";
 import AmethComponent from "../../framework/AmethComponent"
 import type { Router } from "../../framework/Router/Router";
 import { TitleHelper } from "../../framework/TitleHelper/TitleHelper";
+import ContextBarComponent from "../ContextBarComponent/ContextBarComponent";
 import { SearchHelper } from "./helpers/SearchHelper";
 import type { SearchResult } from "./models/SearchResult";
 import SearchUsersListComponent from "./SearchUsersListComponent/SearchUsersListComponent";
@@ -14,6 +15,7 @@ export default class SearchComponent extends AmethComponent {
   private _searchService: SearchService;
   private _usersList: SearchUsersListComponent;
   private _container!: HTMLElement;
+  contextBarComponent: any;
 
   constructor() {
     super();
@@ -46,8 +48,11 @@ export default class SearchComponent extends AmethComponent {
 
   async afterInit() {
     if (this._query)
-      TitleHelper.setTitlePart(this._query);
+      TitleHelper.setTitlePart(`Results for "${this._query}"`, true);
     this._container = document.getElementById("SearchComponentContainer")!;
+    this.contextBarComponent = new ContextBarComponent();
+    await this.contextBarComponent.init("ContextSearchBar", this.router);
+    this.contextBarComponent.afterInit();
     await this._usersList.init("SearchUserList", this.router);
     await this._usersList.afterInit();
     this._fillResultsView();
@@ -57,7 +62,7 @@ export default class SearchComponent extends AmethComponent {
     super.refresh();
     this._setQuery();
     if (this._query)
-      TitleHelper.setTitlePart(this._query, true);
+      TitleHelper.setTitlePart(`Results for "${this._query}"`, true);
     await this._getResults();
     this._fillResultsView();
   }

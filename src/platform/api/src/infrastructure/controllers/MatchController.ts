@@ -7,6 +7,7 @@ import { ErrorParams, ResponseError } from "../../application/errors/ResponseErr
 import { JwtPayloadInfo } from "../../application/models/JwtPayloadInfo";
 import { MatchResult } from "../../application/models/MatchResult";
 import { TournamentMatchService } from "../../application/services/TournamentMatchService";
+import { MatchMode, MatchModeValue } from "../../domain/entities/Match";
 
 export default class MatchController {
   private _matchService: MatchService;
@@ -24,11 +25,13 @@ export default class MatchController {
   async newMatch(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body: NewMatchRequest = request.body as NewMatchRequest;
-      if (body.points < 2 || body.points > 100) {
+      const mode = Number(body?.mode) as MatchModeValue;
+      if (!body || body.points < 2 || body.points > 100 || !Object.values(MatchMode).includes(mode)) {
         const error = new ResponseError(ErrorParams.BAD_REQUEST);
         return reply.code(error.code).send(error.toDto());
       }
       else {
+        body.mode = mode;
         const jwtUser = request.user as JwtPayloadInfo;
         const originUser = await this._userService.getById(jwtUser.sub);
         const match = await this._matchService.newMatch(body);
@@ -49,6 +52,7 @@ export default class MatchController {
         throw (new ResponseError(ErrorParams.USER_NOT_FOUND));
       const players = await this._matchPlayerService.getAllSingleMatchPlayers(match);
       const settings = this._matchService.toMatchSettings(match);
+      settings.playerIds = players.map((player) => player.user.id);
       if (players.length > 1) {
         settings.score[0] = players[0].score;
         settings.score[1] = players[1].score;
@@ -108,6 +112,9 @@ export default class MatchController {
       reply.code(200).send({ success: true });
     } catch (error: any) {
       console.log(error);
+      if (error instanceof ResponseError && error.message === ErrorParams.PLAYER_NOT_FOUND.message) {
+        return reply.code(200).send({ success: true });
+      }
       reply.code(500).send(new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR).toDto());
     }
   }

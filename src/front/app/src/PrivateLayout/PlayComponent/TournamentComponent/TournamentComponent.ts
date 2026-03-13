@@ -165,7 +165,12 @@ export default class TournamentComponent extends AmethComponent<TournamentResolv
     if (this._tournament && this._tournament.players && this._tournament.players.length > 0) {
       const container = document.getElementById("tournamentPlayers")!;
       container.innerHTML = '';
-      for (const player of this._tournament.players.sort((a, b) => a.round - b.round)) {
+      const orderedPlayers = [...this._tournament.players].sort((a, b) => {
+        if (a.isWinner !== b.isWinner)
+          return a.isWinner ? -1 : 1;
+        return b.round - a.round;
+      });
+      for (const player of orderedPlayers) {
         let status = "";
         if (!player.isAlive || player.round < this._tournament.round) {
           status = `<span class="text-xs top-0.5 relative bg-red-50 outline-1 outline-red-100 p-0.5 rounded">out</span>`;
@@ -184,7 +189,7 @@ export default class TournamentComponent extends AmethComponent<TournamentResolv
             ${status}
           </a>
         `;
-        container.prepend(DOMHelper.createElementFromHTML(htmlElem));
+        container.append(DOMHelper.createElementFromHTML(htmlElem));
       }
     }
   }
