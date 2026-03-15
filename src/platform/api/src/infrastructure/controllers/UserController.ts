@@ -353,7 +353,7 @@ export default class UserController {
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Download your data",
-      html: `Click here to download your data: <a href="${process.env.CLIENT_HOST}/user/download/${token} target="_blank">${process.env.CLIENT_HOST}/user/download/${token}</a>`
+      html: `Click here to download your data: <a href="${process.env.CLIENT_HOST}/user/download/${token}" target="_blank">${process.env.CLIENT_HOST}/user/download/${token}</a>`
     });
   }
 
