@@ -44,11 +44,32 @@ export default class AuthController {
   }
 
   private getCookieDomainAttribute(): string {
-    const origin = process.env.ORIGIN?.trim().replace(/^https?:\/\//, '').replace(/^www\./, '');
-    if (!origin)
+    const rawOrigin = process.env.ORIGIN?.trim();
+    if (!rawOrigin) {
       return '';
+    }
 
-    return `; Domain=.${origin}`;
+    let url: URL;
+    try {
+      url = new URL(rawOrigin);
+    } catch {
+      try {
+        url = new URL(`https://${rawOrigin}`);
+      } catch {
+        console.warn(`[AuthController] Invalid ORIGIN value for cookie Domain ignored: "${rawOrigin}"`);
+        return '';
+      }
+    }
+
+    const hostname = url.hostname;
+
+    // For localhost / IPs, omit Domain so the cookie is host-only and always valid.
+    const isIpAddress = /^[0-9.]+$/.test(hostname) || /^[0-9a-fA-F:]+$/.test(hostname);
+    if (hostname === 'localhost' || isIpAddress) {
+      return '';
+    }
+
+    return `; Domain=.${hostname}`;
   }
 
   public async accessRefresh(request: FastifyRequest, reply: FastifyReply, jwt: any) {

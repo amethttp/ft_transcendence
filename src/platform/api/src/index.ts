@@ -25,16 +25,29 @@ const main = async () => {
   });
 
   const allowedOrigins = new Set<string>();
-  const clientHost = process.env.CLIENT_HOST?.trim();
-  const originHost = process.env.ORIGIN?.trim().replace(/^https?:\/\//, '');
 
-  if (clientHost)
-    allowedOrigins.add(clientHost);
+  const addAllowedOrigin = (raw?: string) => {
+    if (!raw) return;
+    const trimmed = raw.trim();
+    if (!trimmed) return;
 
-  if (originHost) {
-    allowedOrigins.add(`https://${originHost}`);
-    allowedOrigins.add(`https://www.${originHost}`);
-  }
+    let url: URL;
+    try {
+      url = new URL(trimmed);
+    } catch {
+      try {
+        url = new URL(`https://${trimmed}`);
+      } catch {
+        console.warn(`[CORS] Invalid origin value ignored: "${raw}"`);
+        return;
+      }
+    }
+
+    allowedOrigins.add(url.origin);
+  };
+
+  addAllowedOrigin(process.env.CLIENT_HOST);
+  addAllowedOrigin(process.env.ORIGIN);
 
   const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/auth/access/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
