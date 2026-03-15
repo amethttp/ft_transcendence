@@ -25,7 +25,7 @@
 
 ### Overview
 
-`ft_transcendence` is a full‑stack real‑time Pong platform built for the 42 curriculum.  
+`ft_transcendence` is a full‑stack real‑time Pong platform built for the 42 curriculum (subject version **18.0**).  
 It combines a custom TypeScript SPA, Fastify microservices and a PostgreSQL database to deliver competitive online matches, tournaments, statistics and social features.
 
 The goal of this project is not only to re‑implement Pong, but to design a **secure, production‑ready web platform**: HTTPS everywhere, JWT‑based auth, optional 2FA, OAuth login, tournament matchmaking, live game engine over WebSockets and a privacy‑aware user data model.
