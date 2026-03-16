@@ -56,6 +56,7 @@ export class ApiClient extends HttpClient {
     const token = CookieHelper.get("AccessToken");
     return {
       ...options,
+      credentials: options.credentials || "include",
       headers: {
         ...options.headers,
         ...(token ? { Authorization: "Bearer " + token } : {}),

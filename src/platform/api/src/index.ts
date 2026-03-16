@@ -24,10 +24,40 @@ const main = async () => {
     }
   });
 
+  const allowedOrigins = new Set<string>();
+
+  const addAllowedOrigin = (raw?: string) => {
+    if (!raw) return;
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+
+    let url: URL;
+    try {
+      url = new URL(trimmed);
+    } catch {
+      try {
+        url = new URL(`https://${trimmed}`);
+      } catch {
+        console.warn(`[CORS] Invalid origin value ignored: "${raw}"`);
+        return;
+      }
+    }
+
+    allowedOrigins.add(url.origin);
+  };
+
+  addAllowedOrigin(process.env.CLIENT_HOST);
+  addAllowedOrigin(process.env.ORIGIN);
+
   const publicRoutes = ['/auth/register', '/auth/login', '/auth/google', '/auth/refresh', '/auth/access/refresh', '/user/check/email', '/user/check/username', '/auth/recover', '/user/download/'];
 
   await server.register(cors, {
-    origin: [`${process.env.CLIENT_HOST}`],
+    origin: (origin, callback) => {
+      if (!origin)
+        return callback(null, true);
+
+      callback(null, allowedOrigins.has(origin));
+    },
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true
   })

@@ -21,9 +21,6 @@ export class TournamentMatchService {
 
   async updateMatchScore(matchResult: MatchResult, match: Match) {
     const tournament = await this._tournamentRepository.findByToken(match.tournamentRound!.tournament.token);
-    console.log("UPDATE MATCH SCORE");
-    console.log("Tournament found:", tournament);
-    console.log("Match:", match);
     if (!tournament)
       throw new ResponseError(ErrorParams.UNKNOWN_SERVER_ERROR);
     const round = tournament?.rounds[tournament.rounds.length - 1];

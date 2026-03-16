@@ -13,6 +13,9 @@ export class RegisterValidators {
   }
 
   static emailUnique: AsyncValidatorFn<string> = async (email: string) => {
+    if (!email?.trim())
+      return null;
+
     try {
       const success = (await new RegisterService().emailExists(email)).success;
       return !success ? null : "Email already in use";

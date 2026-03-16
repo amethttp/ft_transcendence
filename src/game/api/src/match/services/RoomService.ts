@@ -139,7 +139,6 @@ export class RoomService {
   }
 
   private publicDisconnect(socket: AuthenticatedSocket, room: Room) {
-    console.log("public disc");
     if (room.playersAmount() === 0) {
       if (room.matchState === MatchState.WAITING) {
         this.deleteMatchPlayer(socket.cookie, room.token);
@@ -288,7 +287,6 @@ export class RoomService {
     this.roomPlayerRemoval(socket, room);
     this.startReconnectTimeout(socket, room);
     this.startLocalReconnectTimeout(socket, room);
-    console.log("discccc", room.local, room.tournament, room.playersAmount());
 
     if (room.local) {
       this.localDisconnect(socket, room);

@@ -1,4 +1,4 @@
-import { Transporter } from "nodemailer";
+import { Mailer } from "../../infrastructure/plugins/Mailer";
 import { Auth } from "../../domain/entities/Auth";
 import { GoogleAuth } from "../../domain/entities/GoogleAuth";
 import { Password } from "../../domain/entities/Password";
@@ -76,8 +76,8 @@ export class AuthService {
     await this._authRepository.update(user.auth.id, authBlueprint);
   }
 
-  async sendRecoveryEmail(mailer: Transporter, email: string, token: string) {
-    mailer.sendMail({
+  async sendRecoveryEmail(mailer: Mailer, email: string, token: string) {
+    await mailer.sendMail({
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Reset your password",

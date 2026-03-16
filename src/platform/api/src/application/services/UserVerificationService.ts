@@ -1,4 +1,4 @@
-import { Transporter } from "nodemailer";
+import { Mailer } from "../../infrastructure/plugins/Mailer";
 import { User } from "../../domain/entities/User";
 import { IUserVerificationRepository } from "../../domain/repositories/IUserVerificationRepository";
 import { UserVerification } from "../../domain/entities/UserVerification";
@@ -47,8 +47,8 @@ export class UserVerificationService {
     return false;
   }
 
-  async sendVerificationCode(mailer: Transporter, email: string, code: number) {
-    mailer.sendMail({
+  async sendVerificationCode(mailer: Mailer, email: string, code: number) {
+    await mailer.sendMail({
       from: '"AmethPong" <info@amethpong.fun>',
       to: email,
       subject: "Verification code",

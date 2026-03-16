@@ -14,9 +14,24 @@ const server = fastify({
 });
 
 const main = async () => {
+  let clientOrigin: string | undefined;
+  const rawClientHost = process.env.CLIENT_HOST?.trim();
+
+  if (rawClientHost) {
+    try {
+      clientOrigin = new URL(rawClientHost).origin;
+    } catch {
+      try {
+        clientOrigin = new URL(`https://${rawClientHost}`).origin;
+      } catch {
+        console.warn(`[Game API] Invalid CLIENT_HOST value ignored: "${rawClientHost}"`);
+      }
+    }
+  }
+
   await server.register(fastifySocketIO as any, {
     cors: {
-      origin: `${process.env.CLIENT_HOST}`,
+      origin: clientOrigin,
       credentials: true
     },
     transports: ["websocket", "polling"],
